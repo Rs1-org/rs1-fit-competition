@@ -32,8 +32,7 @@ COPY . .
 
 RUN dotnet publish Competition.Api/Competition.Api.csproj \
     -c Release \
-    -o /app/publish \
-    --no-restore
+    -o /app/publish 
 
 # ═══════════════════════════════════════════════════════════════
 #  Stage 3 – EF Migrator
