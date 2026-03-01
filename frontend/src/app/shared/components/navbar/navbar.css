@@ -1,0 +1,55 @@
+.navbar {
+  background: var(--bg-secondary);
+  padding: 1rem 2rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); 
+}
+
+.navbar-section {
+  width: 90%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.navbar-text {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 0.5rem 1rem;  
+  font-size: 1.4rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  transform: scale(1);
+
+  i {
+    color: var(--text-muted);
+  }
+}
+
+.navbar-text:hover{
+  background-color: var(--bg-card);
+  border-radius: 5px;
+  transform: scale(1.08);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--live-color);
+  border-radius: 50%;
+  display: block;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%   { opacity: 1; transform: scale(1); }
+  50%  { opacity: 0.4; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}

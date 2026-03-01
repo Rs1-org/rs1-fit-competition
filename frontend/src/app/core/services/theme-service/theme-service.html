@@ -1,0 +1,8 @@
+<div class="toggle-switch" (click)="toggle()">
+  <div class="toggle-track" [class.dark]="isDark">
+    <div class="toggle-thumb"></div>
+    <span class="material-icons toggle-icon">
+      {{ isDark ? 'dark_mode' : 'light_mode' }}
+    </span>
+  </div>
+</div>

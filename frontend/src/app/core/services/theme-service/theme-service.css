@@ -1,0 +1,46 @@
+.toggle-switch {
+  cursor: pointer;
+}
+
+.toggle-track {
+  width: 52px;
+  height: 26px;
+  background: var(--white-500);
+  border-radius: 999px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  transition: background 0.3s;
+
+  &.dark {
+    background: var(--black-200);
+  }
+}
+
+.toggle-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: absolute;
+  left: 4px;
+  transition: transform 0.3s;
+
+  .dark & {
+    transform: translateX(26px);
+  }
+}
+
+
+.toggle-icon {
+  position: absolute;
+  right: 4px;
+  font-size: 1rem;
+  color: var(--text-primary);
+
+  .dark & {
+    right: auto;
+    left: 4px;
+  }
+}

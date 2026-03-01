@@ -55,6 +55,17 @@
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-competition};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
 
+  frontend:                 
+      build:
+        context: ../frontend
+        dockerfile: Dockerfile
+      container_name: competition_frontend
+      restart: unless-stopped
+      depends_on:
+        - api
+      ports:
+        - "4200:80"
+
 volumes:
   postgres_data:
     
