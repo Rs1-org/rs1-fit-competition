@@ -33,13 +33,14 @@ namespace Competition.Api.Controllers
             return Ok(referees);
         }
         [HttpPost]
-        public async Task<IActionResult> AddPlayer(Referee referee)
+        public async Task<IActionResult> AddReferee(Referee referee)
         {
+            referee.CareerStart = DateTime.SpecifyKind(referee.CareerStart, DateTimeKind.Utc);
             await repository.AddAsync(referee);
             return Ok(referee);
         }
         [HttpPut]
-        public async Task<IActionResult> UpdatePlayer(Referee referee)
+        public async Task<IActionResult> Updatereferee(Referee referee)
         {
             var referees = repository.GetByIdAsync(referee.Id);
             if (referees == null)
@@ -48,7 +49,7 @@ namespace Competition.Api.Controllers
             return Ok(referee);
         }
         [HttpDelete]
-        public async Task<IActionResult> DeletePlayer(Referee referee)
+        public async Task<IActionResult> DeleteReferee(Referee referee)
         {
             var referees = repository.GetByIdAsync(referee.Id);
             if (referees == null)

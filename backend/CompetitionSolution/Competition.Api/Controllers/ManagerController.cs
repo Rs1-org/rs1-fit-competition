@@ -33,13 +33,14 @@ namespace Competition.Api.Controllers
             return Ok(manager);
         }
         [HttpPost]
-        public async Task<IActionResult> AddPlayer(Manager manager)
+        public async Task<IActionResult> AddManager(Manager manager)
         {
+            manager.CareerStart = DateTime.SpecifyKind(manager.CareerStart, DateTimeKind.Utc);
             await repository.AddAsync(manager);
             return Ok(manager);
         }
         [HttpPut]
-        public async Task<IActionResult> UpdatePlayer(Manager manager)
+        public async Task<IActionResult> UpdateManager(Manager manager)
         {
             var managers = repository.GetByIdAsync(manager.Id);
             if (managers == null)
@@ -48,7 +49,7 @@ namespace Competition.Api.Controllers
             return Ok(manager);
         }
         [HttpDelete]
-        public async Task<IActionResult> DeletePlayer(Manager manager)
+        public async Task<IActionResult> DeleteManager(Manager manager)
         {
             var managers = repository.GetByIdAsync(manager.Id);
             if (managers == null)
