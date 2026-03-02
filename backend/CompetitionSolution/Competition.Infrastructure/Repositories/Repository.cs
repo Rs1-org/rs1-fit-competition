@@ -16,10 +16,17 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
         _dbSet = _context.Set<TEntity>();
     }
 
-    public async Task AddAsync(TEntity entity) => await _dbSet.AddAsync(entity);
+    public async Task AddAsync(TEntity entity) 
+    {
+        await _dbSet.AddAsync(entity);
+        await _context.SaveChangesAsync();
+    }
 
-    public async Task DeleteAsync(TEntity entity) => _dbSet.Remove(entity);
-
+    public async Task DeleteAsync(TEntity entity)
+    {
+        _dbSet.Remove(entity);
+        await _context.SaveChangesAsync();
+    }
     public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate) =>
         await _dbSet.Where(predicate).ToListAsync();
 
@@ -30,6 +37,7 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     public async Task UpdateAsync(TEntity entity)
     {
         _dbSet.Update(entity);
+        await _context.SaveChangesAsync();
         await Task.CompletedTask;
     }
 }
