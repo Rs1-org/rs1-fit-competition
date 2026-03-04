@@ -1,4 +1,7 @@
-﻿using Competition.Infrastructure.Data;
+﻿using Competition.Application.Interfaces;
+using Competition.Domain.Entities;
+using Competition.Infrastructure.Data;
+using Competition.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +12,10 @@ namespace Competition.Infrastructure
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<ICity,CityRepository>();
+            services.AddScoped<IGeoData,GeoDataRepository>();
+            services.AddScoped<ICountry,CountryRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             return services;
         }
     }

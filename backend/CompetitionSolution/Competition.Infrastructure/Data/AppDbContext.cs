@@ -1,6 +1,7 @@
 ﻿using Competition.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Competition.Infrastructure.Data;
 
@@ -66,5 +67,12 @@ public class AppDbContext : DbContext
                     .HasDefaultValueSql("gen_random_uuid()");
             }
         }
+
+       
     }
+
+    public DbSet<Country> Countries { get; set; }
+    public DbSet<GeoData> GeoDatas { get; set; }
+    public DbSet<City> Cities { get; set; }
+
 }
