@@ -1,4 +1,5 @@
-﻿using Competition.Application.Services;
+﻿using Competition.Application.Interfaces;
+using Competition.Application.Services;
 using Competition.Domain.Entities.Person;
 using Competition.Infrastructure.Data;
 using Competition.Infrastructure.Repositories;
@@ -13,9 +14,9 @@ namespace Competition.Infrastructure.Services
     public class ManagerService:IManagerService
     {
         private readonly AppDbContext context;
-        private readonly Repository<Manager> repository;
+        private readonly IRepository<Manager> repository;
 
-        public ManagerService(AppDbContext context,Repository<Manager> repository)
+        public ManagerService(AppDbContext context,IRepository<Manager> repository)
         {
             this.context = context;
             this.repository = repository;

@@ -1,5 +1,6 @@
 ﻿using Competition.Application.Interfaces;
 using Competition.Application.Interfaces;
+using Competition.Application.Services;
 using Competition.Domain.Entities.Person;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,16 +12,16 @@ namespace Competition.Api.Controllers
     [ApiController]
     public class ManagerController : ControllerBase
     {
-        private readonly IRepository<Manager> repository;
+        private readonly IManagerService service;
 
-        public ManagerController(IRepository<Manager> repository)
+        public ManagerController(IManagerService service)
         {
-            this.repository = repository;
+            this.service = service;
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var manager = await repository.GetByIdAsync(id);
+            var manager = await service.GetManagerById(id);
             if (manager == null)
                 throw new KeyNotFoundException($"Referee with id {id} not found");
             return Ok(manager);
@@ -29,32 +30,32 @@ namespace Competition.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var manager = await repository.GetAllAsync();
+            var manager = await service.GetAllManagers();
             return Ok(manager);
         }
         [HttpPost]
         public async Task<IActionResult> AddManager(Manager manager)
         {
             manager.CareerStart = DateTime.SpecifyKind(manager.CareerStart, DateTimeKind.Utc);
-            await repository.AddAsync(manager);
+            await service.AddManager(manager);
             return Ok(manager);
         }
         [HttpPut]
         public async Task<IActionResult> UpdateManager(Manager manager)
         {
-            var managers = repository.GetByIdAsync(manager.Id);
+            var managers = service.GetManagerById(manager.Id);
             if (managers == null)
                 throw new KeyNotFoundException($"Manager with id {manager.Id} not found");
-            await repository.UpdateAsync(manager);
+            await service.UpdateManager(manager);
             return Ok(manager);
         }
         [HttpDelete]
         public async Task<IActionResult> DeleteManager(Manager manager)
         {
-            var managers = repository.GetByIdAsync(manager.Id);
+            var managers = service.GetManagerById(manager.Id);
             if (managers == null)
                 throw new KeyNotFoundException($"Player with id {manager.Id} not found");
-            await repository.DeleteAsync(manager);
+            await service.DeleteManager(manager);
             return Ok(managers);
 
         }

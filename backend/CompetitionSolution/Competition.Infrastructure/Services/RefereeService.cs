@@ -1,4 +1,5 @@
-﻿using Competition.Application.Services;
+﻿using Competition.Application.Interfaces;
+using Competition.Application.Services;
 using Competition.Domain.Entities.Person;
 using Competition.Infrastructure.Data;
 using Competition.Infrastructure.Repositories;
@@ -13,9 +14,9 @@ namespace Competition.Infrastructure.Services
     public class RefereeService:IRefereeService
     {
         private readonly AppDbContext context;
-        private readonly Repository<Referee> repository;
+        private readonly IRepository<Referee> repository;
 
-        public RefereeService(AppDbContext context,Repository<Referee> repository)
+        public RefereeService(AppDbContext context,IRepository<Referee> repository)
         {
             this.context = context;
             this.repository = repository;

@@ -1,4 +1,5 @@
-﻿using Competition.Application.Services;
+﻿using Competition.Application.Interfaces;
+using Competition.Application.Services;
 using Competition.Domain.Entities.Person;
 using Competition.Infrastructure.Data;
 using Competition.Infrastructure.Repositories;
@@ -13,9 +14,9 @@ namespace Competition.Infrastructure.Services
     public class PlayerService:IPlayerService
     {
         private readonly AppDbContext context;
-        private readonly Repository<Player> repository;
+        private readonly IRepository<Player> repository;
 
-        public PlayerService(AppDbContext context,Repository<Player> repository)
+        public PlayerService(AppDbContext context,IRepository<Player> repository)
         {
             this.context = context;
             this.repository = repository;

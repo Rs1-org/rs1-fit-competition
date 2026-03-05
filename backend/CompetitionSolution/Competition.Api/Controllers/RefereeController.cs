@@ -1,5 +1,6 @@
 ﻿using Competition.Application.Interfaces;
 using Competition.Application.Interfaces;
+using Competition.Application.Services;
 using Competition.Domain.Entities.Person;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,16 +12,16 @@ namespace Competition.Api.Controllers
     [ApiController]
     public class RefereeController : ControllerBase
     {
-        private readonly IRepository<Referee> repository;
+        private readonly IRefereeService service;
 
-        public RefereeController(IRepository<Referee> repository)
+        public RefereeController(IRefereeService service)
         {
-            this.repository = repository;
+            this.service = service;
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var referees = await repository.GetByIdAsync(id);
+            var referees = await service.GetRefereeById(id);
             if (referees == null)
                 throw new KeyNotFoundException($"Referee with id {id} not found");
             return Ok(referees);
@@ -29,32 +30,32 @@ namespace Competition.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var referees = await repository.GetAllAsync();
+            var referees = await service.GetAllReferees();
             return Ok(referees);
         }
         [HttpPost]
         public async Task<IActionResult> AddReferee(Referee referee)
         {
             referee.CareerStart = DateTime.SpecifyKind(referee.CareerStart, DateTimeKind.Utc);
-            await repository.AddAsync(referee);
+            await service.AddReferee(referee);
             return Ok(referee);
         }
         [HttpPut]
         public async Task<IActionResult> Updatereferee(Referee referee)
         {
-            var referees = repository.GetByIdAsync(referee.Id);
+            var referees = service.GetRefereeById(referee.Id);
             if (referees == null)
                 throw new KeyNotFoundException($"Referee with id {referee.Id} not found");
-            await repository.UpdateAsync(referee);
+            await service.UpdateReferee(referee);
             return Ok(referee);
         }
         [HttpDelete]
         public async Task<IActionResult> DeleteReferee(Referee referee)
         {
-            var referees = repository.GetByIdAsync(referee.Id);
+            var referees = service.GetRefereeById(referee.Id);
             if (referees == null)
                 throw new KeyNotFoundException($"Referee with id {referee.Id} not found");
-            await repository.DeleteAsync(referee);
+            await service.DeleteReferee(referee);
             return Ok(referees);
 
         }
