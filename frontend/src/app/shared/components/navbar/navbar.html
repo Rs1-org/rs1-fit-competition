@@ -12,6 +12,9 @@
     <div class="navbar-text">
       <i class="fa-solid fa-heart"></i> Favourites
     </div>
+    <div class="navbar-text" (click)="openListPlayers()">
+      <i class="fa-solid fa-heart"></i> Players
+    </div>
     <div class="navbar-text manage-wrapper" (click)="openManage()">
       <i class="fa-solid fa-gear" ></i> Manage
        <div class="manage-dropdown" *ngIf="openManageTab">

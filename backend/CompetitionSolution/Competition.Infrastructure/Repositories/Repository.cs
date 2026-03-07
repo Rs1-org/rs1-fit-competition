@@ -2,6 +2,7 @@
 using Competition.Application.Interfaces;
 using Competition.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Competition.Infrastructure.Repositories;
 
@@ -24,6 +25,7 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     public async Task DeleteAsync(TEntity entity)
     {
         _dbSet.Remove(entity);
+        
     }
     public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate) =>
         await _dbSet.Where(predicate).ToListAsync();

@@ -30,4 +30,7 @@ export class Navbar {
     this.router.navigate(['/manage-managers']);
     this.openManageTab = !this.openManageTab;
   }
+  openListPlayers() {
+    this.router.navigate(['/player-list']);
+  }
 }
