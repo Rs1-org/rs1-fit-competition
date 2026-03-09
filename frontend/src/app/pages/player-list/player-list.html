@@ -1,6 +1,10 @@
 <div class="container">
   <h1>Lista igrača</h1>
 
+  <app-generic-search 
+    placeholder="Pretraži igrače..." 
+    (onSearch)="search($event)">
+  </app-generic-search>
   <app-generic-list 
     [items]="players" 
     variant="card"

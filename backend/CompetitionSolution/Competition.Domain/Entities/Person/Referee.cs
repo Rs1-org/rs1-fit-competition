@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NodaTime;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace Competition.Domain.Entities.Person
 {
     public class Referee:BaseEntity
     {
-        public DateTime CareerStart {  get; set; }
+        public LocalTime CareerStart {  get; set; }
     }
 }

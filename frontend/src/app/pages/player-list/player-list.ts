@@ -1,6 +1,7 @@
 import { Component,OnInit,ChangeDetectorRef } from '@angular/core';
-import { GenericListComponent } from '../../generic/generic-list.component';
 import { CommonModule } from '@angular/common';
+import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
+import { GenericSearch } from '../../generic/generic-search/generic-search';
 
 interface Player {
   id: string;
@@ -11,7 +12,7 @@ interface Player {
 
 @Component({
   selector: 'app-player-list',
-  imports: [GenericListComponent,CommonModule],
+  imports: [GenericListComponent,CommonModule,GenericSearch],
   templateUrl: './player-list.html',
   styleUrl: './player-list.css',
 })
@@ -56,11 +57,21 @@ ngOnInit() {
         console.log('Igrač obrisan:', player.height);
         this.players = this.players.filter(p => p.id !== player.id);
         this.cdr.detectChanges();
-        this.getAllPlayers(); // Osvježi listu nakon brisanja
+        this.getAllPlayers();
       } else {
         console.error('Greška pri brisanju igrača:', response.statusText);
       }
     })
     .catch(error => console.error('Greška pri brisanju igrača:', error));
+  }
+
+  search(term: string) {
+  // Šaljemo upit na backend
+  fetch(`https://localhost:7208/api/player/search?term=${encodeURIComponent(term)}`)
+    .then(res => res.json())
+    .then(data => {
+      this.players = Array.isArray(data) ? data : [data];
+      this.cdr.detectChanges();
+    });
   }
 }
