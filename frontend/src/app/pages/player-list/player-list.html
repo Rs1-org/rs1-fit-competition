@@ -8,6 +8,7 @@
   <app-generic-list 
     [items]="players" 
     variant="card"
+    (view)="view($event)"
     (update)="edit($event)"
     (delete)="delete($event)">
     

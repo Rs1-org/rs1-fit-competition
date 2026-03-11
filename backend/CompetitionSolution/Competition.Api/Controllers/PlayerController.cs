@@ -1,4 +1,5 @@
-﻿using Competition.Application.Interfaces;
+﻿using Competition.Application.DTOs;
+using Competition.Application.Interfaces;
 using Competition.Application.Interfaces;
 using Competition.Application.Services;
 using Competition.Domain.Entities.Person;
@@ -24,8 +25,13 @@ namespace Competition.Api.Controllers
             var player = await service.GetByIdAsync(id);
             if (player == null)
                 throw new KeyNotFoundException($"Player with id {id} not found");
-
-            return Ok(player);
+            var dto = new PlayerDTO
+            {
+                Height = player.Height,
+                ShirtNumber = player.ShirtNumber,
+                TransferValue = player.TransferValue
+            };
+            return Ok(dto);
         }
 
         [HttpGet]

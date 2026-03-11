@@ -2,6 +2,7 @@ import { Component,OnInit,ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
+import { Router } from '@angular/router';
 
 interface Player {
   id: string;
@@ -20,12 +21,15 @@ export class PlayerList {
 
 players: any[] = [];
 
-constructor(private cdr: ChangeDetectorRef) {}
+constructor(private cdr: ChangeDetectorRef,private router:Router) {}
 // constructor() {
 //   this.getAllPlayers();
 // }
-ngOnInit() {
+  ngOnInit() {
     this.getAllPlayers();
+  }
+  view(player: any) {
+    this.router.navigate(['/player', player.id]);
   }
   getAllPlayers() {
     fetch('https://localhost:7208/api/player')

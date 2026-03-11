@@ -10,5 +10,6 @@ export const routes: Routes = [
     {path:'manage-players',component:ManagePlayers},
     {path:'manage-referees',component:ManageReferees},
     {path:'manage-managers',component:ManageManagers},
-    {path:'player-list', loadComponent: () => import('./pages/player-list/player-list').then(m => m.PlayerList)}
+    {path:'player-list', loadComponent: () => import('./pages/player-list/player-list').then(m => m.PlayerList)},
+    {path:'player/:id', loadComponent: () => import('./pages/player-view/player-view').then(m => m.PlayerView)},
 ];

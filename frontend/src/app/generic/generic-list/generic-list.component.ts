@@ -19,11 +19,16 @@ export class GenericListComponent<T> {
 
   @Output() delete=new EventEmitter<T>();
   @Output() update=new EventEmitter<T>();
-
+  @Output() view=new EventEmitter<T>();
+  
   onDelete(item: T) {
     this.delete.emit(item);
   }
   onUpdate(item: T) {
     this.update.emit(item);
+  }
+
+  onView(item: T) {
+    this.view.emit(item);
   }
 }
