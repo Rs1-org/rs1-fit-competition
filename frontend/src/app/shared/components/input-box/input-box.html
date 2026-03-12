@@ -1,0 +1,22 @@
+<div>
+  <label>{{ label() }}</label>
+  
+  @if (type() === 'file') {
+    <input
+      type="file"
+      [accept]="accept()"
+      class="input-value"
+      (change)="fileChange.emit($event)"
+    />
+  } @else {
+    <input
+      [formControl]="control()"
+      [placeholder]="placeholder()"
+      [type]="type()"
+      class="input-value"
+    />
+    @if (control().invalid && control().touched) {
+      <span>This field is required</span>
+    }
+  }
+</div>

@@ -10,6 +10,6 @@ namespace Competition.Application.Commands.CountryCommands.Delete
 {
     public class DeleteCountryCommands : IRequest<CountryNameDto>
     {
-        public string Slug { get; set; }
+        public Guid Id { get; set; }
     }
 }

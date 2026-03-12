@@ -21,29 +21,29 @@ namespace Competition.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpPost("createCountry")]
-        public async Task<IActionResult> CreateCountry([FromBody] CreateCountryCommands request, CancellationToken cancellationToken)
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateCountry([FromForm] CreateCountryCommands request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request);
             return Ok(result);
         }
 
-        [HttpDelete("deleteCountry/{slug}")]
-        public async Task<IActionResult> DeleteCountry(string slug, CancellationToken cancellationToken)
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteCountry(Guid id, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new DeleteCountryCommands { Slug = slug });
+            var result = await _mediator.Send(new DeleteCountryCommands { Id = id });
             return Ok(result);
         }
 
-        [HttpPut("updateCountry/{slug}")]
-        public async Task<IActionResult> UpdateCountry(string slug, [FromBody] UpdateCountryCommands request, CancellationToken cancellationToken)
+        [HttpPut("update/{slug}")]
+        public async Task<IActionResult> UpdateCountry(string slug, [FromForm] UpdateCountryCommands request, CancellationToken cancellationToken)
         {
             request.Slug=slug;
             var result = await _mediator.Send(request);
             return Ok(result);
         }
 
-        [HttpGet("getCountry/{slug}")]
+        [HttpGet("get/{slug}")]
         public async Task<IActionResult> GetCountry(string slug, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(new GetCountryBySlugCommand { Slug=slug});
@@ -51,7 +51,7 @@ namespace Competition.Api.Controllers
         }
 
 
-        [HttpGet("getCountries")]
+        [HttpGet("getAll")]
         public async Task<IActionResult> GetCountries(CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(new GetAllCountriesCommand());

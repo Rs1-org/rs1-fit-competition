@@ -25,10 +25,10 @@ namespace Competition.Application.Commands.CountryCommands.Delete
 
         public async Task<CountryNameDto>Handle(DeleteCountryCommands request, CancellationToken cancellationToken)
         {
-            var country=await _country.GetBySlugAsync(request.Slug);
+            var country=await _country.GetByIdAsync(request.Id);
 
             if (country == null)
-                throw new KeyNotFoundException($"Couldn't find any city with {request.Slug}");
+                throw new KeyNotFoundException($"Couldn't find any city with {request.Id}");
 
             await _country.DeleteAsync(country);
             await _unitOfWork.SaveChangesAsync();

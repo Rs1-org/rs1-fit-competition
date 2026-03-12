@@ -31,7 +31,7 @@ namespace Competition.Application.Commands.CountryCommands.Validators
     {
         public DeleteCountryCommandValidator()
         {
-            RuleFor(x => x.Slug).NotEmpty();
+            RuleFor(x => x.Id).NotEmpty();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Competition.Application.DTOs.CountryDto;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,6 @@ namespace Competition.Application.Commands.CountryCommands.Update
         [JsonIgnore]
         public string Slug { get; set; }
         public string? Name { get; set; }
-        public string? PictureUrl { get; set; }
+        public IFormFile? Picture { get; set; }
     }
 }

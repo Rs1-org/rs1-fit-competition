@@ -38,7 +38,7 @@ namespace Competition.Application.Commands.CityCommands.Validators
     {
         public DeleteCityCommandValidator()
         {
-            RuleFor(x => x.Slug).NotEmpty();
+            RuleFor(x => x.Id).NotEmpty();
         }
     }
 }

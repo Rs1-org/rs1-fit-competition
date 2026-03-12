@@ -25,11 +25,11 @@ namespace Competition.Application.Commands.CityCommands.Delete
 
         public async Task<CityNameDto>Handle(DeleteCityCommands request, CancellationToken cancellationToken)
         {
-            var city = await _city.GetBySlugAsync(request.Slug);
+            var city = await _city.GetByIdAsync(request.Id);
 
             if (city == null)
             {
-                throw new KeyNotFoundException($"Couldn't find any city with {request.Slug}");
+                throw new KeyNotFoundException($"Couldn't find any city with {request.Id}");
             }
 
             await _city.DeleteAsync(city);

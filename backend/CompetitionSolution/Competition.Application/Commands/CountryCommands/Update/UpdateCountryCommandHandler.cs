@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Competition.Application.DTOs.CountryDto;
 using Competition.Application.Interfaces;
+using Competition.Application.Services;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -15,12 +16,14 @@ namespace Competition.Application.Commands.CountryCommands.Update
         private readonly ICountry _country;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IImageService _imageService;
 
-        public UpdateCountryCommandHandler(IMapper mapper, ICountry country, IUnitOfWork unitOfWork)
+        public UpdateCountryCommandHandler(IMapper mapper, ICountry country, IUnitOfWork unitOfWork, IImageService imageService)
         {
             _country = country;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _imageService = imageService;
         }
 
         public async Task<CountryNameDto> Handle(UpdateCountryCommands request, CancellationToken cancellationToken)
@@ -30,8 +33,16 @@ namespace Competition.Application.Commands.CountryCommands.Update
             if (country == null)
                 throw new KeyNotFoundException($"Couldn't find any city with {request.Slug}");
 
+            if (request.Picture != null)
+            {
+                await _imageService.DeleteImageAsync(country.PictureUrl);
+                var pictureUrl = await _imageService.UploadImageAsync(request.Picture);
+                country.PictureUrl = pictureUrl;
+            }
+
             await _country.UpdateAsync(country);
-            _unitOfWork.SaveChangesAsync();
+
+            await _unitOfWork.SaveChangesAsync();
 
             return _mapper.Map<CountryNameDto>(country);
         }

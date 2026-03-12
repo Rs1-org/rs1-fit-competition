@@ -23,10 +23,10 @@ public class CityController : ControllerBase
         return Ok(result);
     }
 
-    [HttpDelete("deleteCity/{slug}")]
-    public async Task<IActionResult> DeleteCity(string slug, CancellationToken cancellationToken)
+    [HttpDelete("deleteCity/{id}")]
+    public async Task<IActionResult> DeleteCity(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new DeleteCityCommands { Slug = slug });
+        var result = await _mediator.Send(new DeleteCityCommands { Id = id });
         return Ok(result);
     }
 

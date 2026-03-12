@@ -3,5 +3,5 @@ using MediatR;
 
 public class DeleteCityCommands : IRequest<CityNameDto>
 {
-    public string Slug { get; set; }
+    public Guid Id { get; set; }
 }

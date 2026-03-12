@@ -1,0 +1,30 @@
+
+@if(isModalOpen){
+<app-modal [title]="'Add Country'" (close)="isModalOpen=false">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <app-input-box
+            label="Name"
+            placeholder="Name..."
+            [control]="form.controls.name"
+        ></app-input-box>
+
+        <app-input-box
+            label="Picture"
+            type="file"
+            accept="image/*"
+            (fileChange)="onFileChange($event)"
+        ></app-input-box>
+        
+        <footer>
+            <app-button
+            type="submit"
+            text="Submit"
+            ></app-button>
+        </footer>
+
+
+    </form>
+</app-modal>
+}
+
+<button class="btn" (click)="dodaj()">Dodaj</button>
