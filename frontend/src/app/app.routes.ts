@@ -1,7 +1,15 @@
 import { Routes } from '@angular/router';
 import { Navbar } from './shared/components/navbar/navbar';
 import { Home } from './pages/home/home';
+import { ManagePlayers } from './pages/manage-players/manage-players';
+import { ManageReferees } from './pages/manage-referees/manage-referees';
+import { ManageManagers } from './pages/manage-managers/manage-managers';
 
 export const routes: Routes = [
-    {path:'', component:Home}
+    {path:'', component:Home},
+    {path:'manage-players',component:ManagePlayers},
+    {path:'manage-referees',component:ManageReferees},
+    {path:'manage-managers',component:ManageManagers},
+    {path:'player-list', loadComponent: () => import('./pages/player-list/player-list').then(m => m.PlayerList)},
+    {path:'player/:id', loadComponent: () => import('./pages/player-view/player-view').then(m => m.PlayerView)},
 ];

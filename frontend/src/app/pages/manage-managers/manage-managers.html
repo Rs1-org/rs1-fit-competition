@@ -1,0 +1,28 @@
+<div class="manager-card-wrapper">
+    <div class="manager-card">
+    <h2>Add Manager</h2>
+
+    <form (ngSubmit)="saveManager()" #managerForm="ngForm">
+        <!-- Height -->
+        <div class="form-group">
+        <label for="height">Career start date</label>
+        <input
+            type="date"
+            step="0.01"
+            id="careerStart"
+            name="careerStart"
+            [(ngModel)]="manager.careerStart"
+            required
+        />
+        </div>
+
+        
+        <div class="button-group">
+            <button type="submit" [disabled]="!manager.careerStart">Save Manager</button>
+            <button type="button" style="background-color:  #e74c3c;;" (click)="cancel()" >Cancel</button>
+        </div>
+        
+    </form>
+    </div>
+</div>
+
