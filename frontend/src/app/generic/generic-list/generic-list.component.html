@@ -1,0 +1,23 @@
+<div class="list-wrapper" [ngClass]="[variant,size]">
+  @for (item of items; track $index) {
+    <div class="list-item" (click)="onView(item)">
+      <div class="item-content">
+        <ng-container 
+          [ngTemplateOutlet]="itemTemplate" 
+          [ngTemplateOutletContext]="{ $implicit: item }">
+        </ng-container>
+      </div>
+
+      <div class="item-actions">
+        <button class="btn-update" (click)="onUpdate(item)">
+          Uredi
+        </button>
+        <button class="btn-delete" (click)="onDelete(item)">
+          Obriši
+        </button>
+      </div>
+    </div>
+  } @empty {
+    <div class="empty-state">Lista je trenutno prazna.</div>
+  }
+</div>

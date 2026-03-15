@@ -1,3 +1,57 @@
+.manage-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Sprečava da scale efekat pomjeri dropdown */
+.manage-wrapper:hover {
+  transform: scale(1.08);
+}
+
+.manage-dropdown {
+  position: absolute;
+  top: calc(100% + 8px); /* mali razmak ispod */
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 0.5rem 0;
+  min-width: 200px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  animation: dropdownFade 0.2s ease;
+}
+
+/* Dugmad da izgledaju kao navbar-text */
+.manage-dropdown button {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  padding: 0.7rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.manage-dropdown button:hover {
+  background-color: var(--bg-secondary);
+}
+
+/* mala animacija */
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
 .navbar {
   background: var(--bg-secondary);
   padding: 1rem 2rem;

@@ -1,0 +1,33 @@
+.player-details {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.player-number {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #007bff;
+  background: #e7f1ff;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.player-pos {
+  font-size: 0.9rem;
+  color: #666;
+}

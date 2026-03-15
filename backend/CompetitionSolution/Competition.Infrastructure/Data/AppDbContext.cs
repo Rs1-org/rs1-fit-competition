@@ -1,4 +1,5 @@
 ﻿using Competition.Domain.Entities;
+using Competition.Domain.Entities.Person;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using System.Security.Cryptography.X509Certificates;
@@ -14,6 +15,10 @@ public class AppDbContext : DbContext
     {
         _clock = clock ?? SystemClock.Instance;
     }
+
+    public DbSet<Player> Players { get; set; } = null!;
+    public DbSet<Referee> Referees { get; set; } = null!;
+    public DbSet<Manager> Managers { get; set; } = null!;
 
     public override int SaveChanges()
     {

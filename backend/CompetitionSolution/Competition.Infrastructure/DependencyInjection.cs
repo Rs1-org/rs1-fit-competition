@@ -1,6 +1,5 @@
 ﻿using Competition.Application.Interfaces;
 using Competition.Application.Services;
-using Competition.Domain.Entities;
 using Competition.Infrastructure.Data;
 using Competition.Infrastructure.Repositories;
 using Competition.Infrastructure.Services;
@@ -20,6 +19,12 @@ namespace Competition.Infrastructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IBlobStorageService, BlobStorageService>();
             services.AddScoped<IImageService,ImageService>();
+            // Registriraj generički repository
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<IPlayerService,PlayerService>();
+            services.AddScoped<IManagerService, ManagerService>();
+            services.AddScoped<IRefereeService, RefereeService>();
+
             return services;
         }
     }
