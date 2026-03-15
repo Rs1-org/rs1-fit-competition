@@ -3,9 +3,19 @@ export interface CityName{
 }
 
 export interface CityListDto{
+    id:string;
     name:string;
-    slug:string;
     population:number;
     isCapital:boolean;
     countryName:string;
+}
+
+export interface CreateCityDto{
+    name:string;
+    population:number;
+    isCapital:boolean;
+    countryId:string;
+    latitude:number;
+    longitude:number;
+    description:string;
 }

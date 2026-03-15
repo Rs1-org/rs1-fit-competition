@@ -10,4 +10,5 @@ export class Button {
   text = input<string>('');
   onSubmit = output<void>();
   type=input<string>('');
+  form=input<string>('');
 }

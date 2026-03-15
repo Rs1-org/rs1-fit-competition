@@ -1,17 +1,20 @@
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { CountryName } from "../models/country";
 import { HttpClient } from "@angular/common/http";
-import { CreateCountryDto } from "../../models/Country";
-
+import { CountryListDto, CountryName } from "../models/Country";
+import { environment } from "../../../environments/environment";
 @Injectable({
     providedIn:'root'
 })
 export class CountryService{
-    private apiUrl="http://localhost:5244/api/country/";
     private http=inject(HttpClient);
+    private apiUrl=`${environment.apiUrl}/api/country`;
 
     create(form:FormData):Observable<CountryName>{
-        return this.http.post<CountryName>(this.apiUrl+`create`, form);
+        return this.http.post<CountryName>(`${this.apiUrl}/create`, form);
+    }
+    
+    getAll():Observable<CountryListDto[]>{
+        return this.http.get<CountryListDto[]>(`${this.apiUrl}/getAll`);
     }
 }

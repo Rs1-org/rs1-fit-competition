@@ -3,7 +3,8 @@ import { Navbar } from './shared/components/navbar/navbar';
 import { Home } from './pages/home/home';
 import { Modal } from './shared/components/modal/modal';
 import { CountryList } from './pages/country-list/country-list';
+import { CityList } from './pages/city-list/city-list';
 
 export const routes: Routes = [
-    {path:'', component:CountryList}
+    {path:'', component:CityList}
 ];

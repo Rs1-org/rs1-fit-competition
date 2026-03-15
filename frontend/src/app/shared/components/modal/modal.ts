@@ -12,5 +12,4 @@ export class Modal {
   @Input() height:string='auto';
   @Output() close=new EventEmitter();
 
-
 }

@@ -26,6 +26,7 @@ public class CreateCityCommandHandler:IRequestHandler<CreateCityCommand,CityName
     {
         var geoData = _mapper.Map<GeoData>(request);
         await _geoData.AddAsync(geoData);
+        await _unitOfWork.SaveChangesAsync(); 
 
         var city = _mapper.Map<City>(request);
 
