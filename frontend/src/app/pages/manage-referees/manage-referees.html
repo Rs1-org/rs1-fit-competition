@@ -1,0 +1,27 @@
+<div class="referee-card-wrapper">
+    <div class="referee-card">
+    <h2>Add Referee</h2>
+
+    <form (ngSubmit)="saveReferee()" #refereeForm="ngForm">
+        <!-- Height -->
+        <div class="form-group">
+        <label for="height">Career start date</label>
+        <input
+            type="date"
+            step="0.01"
+            id="careerStart"
+            name="careerStart"
+            [(ngModel)]="referee.careerStart"
+            required
+        />
+        </div>
+
+        
+        <div class="button-group">
+            <button type="submit" [disabled]="!referee.careerStart">Save Referee</button>
+            <button type="button" style="background-color:  #e74c3c;;" (click)="cancel()" >Cancel</button>
+        </div>
+        
+    </form>
+    </div>
+</div>

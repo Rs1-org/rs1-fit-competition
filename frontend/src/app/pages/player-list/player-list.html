@@ -1,0 +1,22 @@
+<div class="container">
+  <h1>Lista igrača</h1>
+
+  <app-generic-search 
+    placeholder="Pretraži igrače..." 
+    (onSearch)="search($event)">
+  </app-generic-search>
+  <app-generic-list 
+    [items]="players" 
+    variant="card"
+    (view)="view($event)"
+    (update)="edit($event)"
+    (delete)="delete($event)">
+    
+    <ng-template #itemTemplate let-player>
+      <div class="item-title">Visina: {{ player.height }} cm</div>
+      <div class="item-subtitle">Broj dresa: {{ player.shirtNumber }}</div>
+      <div class="item-meta">Vrijednost: {{ player.transferValue }} €</div>
+    </ng-template>
+
+  </app-generic-list>
+</div>

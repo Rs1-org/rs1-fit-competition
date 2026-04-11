@@ -1,4 +1,5 @@
 ﻿using Competition.Domain.Entities;
+using Competition.Domain.Entities.Person;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     }
     
     public DbSet<RefreshToken> RefreshTokens { get; set; } 
+
+    public DbSet<Player> Players { get; set; } = null!;
+    public DbSet<Referee> Referees { get; set; } = null!;
+    public DbSet<Manager> Managers { get; set; } = null!;
 
     public override int SaveChanges()
     {

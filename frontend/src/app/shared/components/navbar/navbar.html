@@ -12,8 +12,16 @@
     <div class="navbar-text">
       <i class="fa-solid fa-heart"></i> Favourites
     </div>
-    <div class="navbar-text">
-      <i class="fa-solid fa-gear"></i> Manage
+    <div class="navbar-text" (click)="openListPlayers()">
+      <i class="fa-solid fa-person"></i> Players
+    </div>
+    <div class="navbar-text manage-wrapper" (click)="openManage()">
+      <i class="fa-solid fa-gear" ></i> Manage
+       <div class="manage-dropdown" *ngIf="openManageTab">
+        <button (click)="openManagePlayers($event)">Manage Players</button>
+        <button (click)="openManageReferees($event)">Manage Referees</button>
+        <button (click)="openManageManagers($event)">Manage Managers</button>
+      </div>
     </div>
     <div class="account-icon" (click)="openProfile()">
       <i class="fa-solid fa-user"></i>

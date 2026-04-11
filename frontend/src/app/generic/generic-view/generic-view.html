@@ -1,0 +1,11 @@
+<div class="detail-card" *ngIf="data">
+  <div class="detail-header">
+    <h2>{{ title }}</h2>
+  </div>
+  <div class="detail-body">
+    <div class="detail-row" *ngFor="let prop of displayProperties">
+      <span class="label">{{ prop.key }}:</span>
+      <span class="value">{{ prop.value }}</span>
+    </div>
+  </div>
+</div>

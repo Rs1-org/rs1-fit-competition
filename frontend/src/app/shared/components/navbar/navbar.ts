@@ -7,16 +7,39 @@ import { AuthRedirectService } from 'src/app/core/services/auth-redirect.service
 import { UserStateService } from 'src/app/core/services/user-state.service';
 import { UserDto } from 'src/app/core/models/auth.models';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
-  imports: [ThemeService, AuthModalComponent],
+  imports: [ThemeService,CommonModule,RouterModule, AuthModalComponent],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
 export class Navbar {
-
-  constructor(private tokenService:TokenService, private router:Router, private redirectSerive:AuthRedirectService, private userStateService:UserStateService, private authService:AuthService){}
+  constructor(private tokenService:TokenService, private router:Router, private redirectSerive:AuthRedirectService, private userStateService:UserStateService, private authService:AuthService,public themeService: ThemeService, private router: Router) {}
+  openManageTab = false;
+  openManage() {
+    this.openManageTab = !this.openManageTab;
+  }
+  openManagePlayers(event:MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/manage-players']);
+    this.openManageTab = !this.openManageTab;
+  }
+  openManageReferees(event:MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/manage-referees']);
+    this.openManageTab = !this.openManageTab;
+  }
+  openManageManagers(event:MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/manage-managers']);
+    this.openManageTab = !this.openManageTab;
+  }
+  openListPlayers() {
+    this.router.navigate(['/player-list']);
+  }
 
   @ViewChild(AuthModalComponent)
   authModal!: AuthModalComponent;
