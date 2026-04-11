@@ -8,7 +8,7 @@ import { UserStateService } from 'src/app/core/services/user-state.service';
 import { UserDto } from 'src/app/core/models/auth.models';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -17,10 +17,11 @@ import { Router, RouterModule } from '@angular/router';
   styleUrl: './navbar.css',
 })
 export class Navbar {
-  constructor(private tokenService:TokenService, private router:Router, private redirectSerive:AuthRedirectService, private userStateService:UserStateService, private authService:AuthService,public themeService: ThemeService, private router: Router) {}
+  constructor(private tokenService:TokenService, private router:Router, private redirectSerive:AuthRedirectService, private userStateService:UserStateService, private authService:AuthService,public themeService: ThemeService) {}
   openManageTab = false;
   openManage() {
     this.openManageTab = !this.openManageTab;
+
   }
   openManagePlayers(event:MouseEvent) {
     event.stopPropagation();
