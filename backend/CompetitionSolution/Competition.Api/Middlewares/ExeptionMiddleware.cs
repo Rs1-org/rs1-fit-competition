@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
+using Competition.Application.Exeptions;
 using FluentValidation;
 using FluentValidation.Results;
 
@@ -50,6 +51,11 @@ public class ExceptionMiddleware
 
             case KeyNotFoundException:
                 status = HttpStatusCode.NotFound;
+                response = new { message = exception.Message };
+                break;
+            
+            case LoginFailedException:
+                status = HttpStatusCode.Unauthorized;
                 response = new { message = exception.Message };
                 break;
 

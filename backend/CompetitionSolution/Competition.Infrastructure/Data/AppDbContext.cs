@@ -1,10 +1,12 @@
 ﻿using Competition.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 
 namespace Competition.Infrastructure.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
 {
     private readonly IClock _clock;
 
@@ -13,6 +15,8 @@ public class AppDbContext : DbContext
     {
         _clock = clock ?? SystemClock.Instance;
     }
+    
+    public DbSet<RefreshToken> RefreshTokens { get; set; } 
 
     public override int SaveChanges()
     {
