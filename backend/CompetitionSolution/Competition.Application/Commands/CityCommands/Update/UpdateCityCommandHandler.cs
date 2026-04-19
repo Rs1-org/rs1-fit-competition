@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Competition.Application.DTOs.CityDto;
+using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
 using MediatR;
 using System;
@@ -32,6 +33,7 @@ namespace Competition.Application.Commands.CityCommands.Update
             }
 
             city.Name = request.Name;
+            city.Slug = SlugHelper.GenerateSlug(request.Name);
             city.Population = request.Population;
             city.IsCapital = request.IsCapital;
 

@@ -21,7 +21,7 @@ public class CityRepository : Repository<City>, ICity
 
     public async Task<List<City>> GetAllByCountryAsync(Guid id)
     {
-        return await _context.Cities.Where(s => s.CountryId == id).ToListAsync();
+        return await _context.Cities.Include(c => c.Country).Where(s => s.CountryId == id).ToListAsync();
     }
 
     public async Task<City?> GetBySlugAsync(string slug)
