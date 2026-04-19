@@ -3,7 +3,7 @@ import { FormBuilder, NonNullableFormBuilder, ReactiveFormsModule, Validators } 
 import { InputBox } from '../../shared/components/input-box/input-box';
 import { Modal } from '../../shared/components/modal/modal';
 import { CountryList } from '../../pages/country-list/country-list';
-import { CountryListDto } from '../../core/models/Country';
+import { CountryListDto } from '../../core/models/country';
 import { CountryService } from '../../core/services/country-service';
 import { CityService } from '../../core/services/city-services';
 import { Button } from '../../shared/components/button/button';
