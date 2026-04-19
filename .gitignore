@@ -1,12 +1,18 @@
-# Visual Studio / Rider / IDE files
+# IDE
 .vs/
+.idea/
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
-.idea/
 
-# Build outputs
+# VS Code (keep shared config)
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Build
 bin/
 obj/
 out/
@@ -18,28 +24,22 @@ TestResults/
 packages/
 .nuget/
 
-# ASP.NET / Web
-wwwroot/
-appsettings.*.json
+# Config (keep base, ignore secrets)
+appsettings.Development.json
+appsettings.Local.json
 .env
-
-# Rider / JetBrains
-.idea/
-*.iml
 
 # Logs
 *.log
 
-# OS-specific
+# OS
 .DS_Store
 Thumbs.db
 
-# Docker
+# Docker override only
 docker-compose.override.yml
-*.dockerfile
-*.dockerignore
 
-# Others
+# Tools
 *.dotCover
 *.ReSharper
 *.resharper
