@@ -14,6 +14,10 @@ export const routes: Routes = [
     {path:'manage-managers',component:ManageManagers},
     {path:'player-list', loadComponent: () => import('./pages/player-list/player-list').then(m => m.PlayerList)},
     {path:'player/:id', loadComponent: () => import('./pages/player-view/player-view').then(m => m.PlayerView)},
+    {path:'referee-list', loadComponent: () => import('./pages/referee-list/referee-list').then(m => m.RefereeList)},
+    {path:'referee/:id', loadComponent: () => import('./pages/referee-view/referee-view').then(m => m.RefereeView)},
+    {path:'manager-list', loadComponent: () => import('./pages/manager-list/manager-list').then(m => m.ManagerList)},
+    {path:'manager/:id', loadComponent: () => import('./pages/manager-view/manager-view').then(m => m.ManagerView)},
     {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile.component')
