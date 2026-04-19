@@ -1,6 +1,9 @@
+using Competition.Api.Middlewares;
 using Competition.Application;
+using Competition.Domain.Entities;
 using Competition.Infrastructure;
 using Competition.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 
@@ -30,21 +33,38 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
     );
 });
-var app = builder.Build();
 
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+var app = builder.Build();
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 
 using var scope = app.Services.CreateScope();
-var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+using var dbScope = app.Services.CreateScope();
+var db = dbScope.ServiceProvider.GetRequiredService<AppDbContext>();
 db.Database.Migrate();
 
 app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
+
+using var roleScope = app.Services.CreateScope();
+var roleManager = roleScope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+
+string[] roles = new[] { "Admin", "User", "Manager" };
+
+foreach (var role in roles)
+{
+    if (!await roleManager.RoleExistsAsync(role))
+    {
+        await roleManager.CreateAsync(new ApplicationRole { Name = role });
+    }
+}
 
 app.Run();

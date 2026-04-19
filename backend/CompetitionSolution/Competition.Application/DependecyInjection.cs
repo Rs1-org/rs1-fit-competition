@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using Competition.Application.Auth.Handlers;
+using Competition.Application.Auth.Interfaces;
 using Competition.Application.Behaviors;
 using FluentValidation;
 using MediatR;
@@ -19,6 +21,12 @@ public static class DependencyInjection
         services.AddAutoMapper((serviceProvider, cfg) =>
         {
         }, Assembly.GetExecutingAssembly());
+        
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssemblyContaining<RegisterUserHandler>();
+        });
+        
         return services;
     }
 }

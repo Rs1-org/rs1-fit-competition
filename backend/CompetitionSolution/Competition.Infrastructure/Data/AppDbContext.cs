@@ -1,12 +1,14 @@
 ﻿using Competition.Domain.Entities;
 using Competition.Domain.Entities.Person;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Competition.Infrastructure.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
 {
     private readonly IClock _clock;
 
@@ -15,6 +17,8 @@ public class AppDbContext : DbContext
     {
         _clock = clock ?? SystemClock.Instance;
     }
+    
+    public DbSet<RefreshToken> RefreshTokens { get; set; } 
 
     public DbSet<Player> Players { get; set; } = null!;
     public DbSet<Referee> Referees { get; set; } = null!;

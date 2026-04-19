@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Competition.Application.Auth.Commands;
 using Competition.Application.Commands.CityCommands.Create;
 using Competition.Application.Commands.CountryCommands.Create;
 using Competition.Application.DTOs.CityDto;
@@ -12,6 +13,7 @@ public class MappingProfile:Profile
 {
     public MappingProfile()
     {
+        CreateMap<RegisterUserCommand, ApplicationUser>();
         //City
         CreateMap<CreateCityCommand, GeoData>();
         CreateMap<CreateCityCommand, City>()

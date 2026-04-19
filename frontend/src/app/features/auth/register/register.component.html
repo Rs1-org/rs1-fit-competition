@@ -1,0 +1,19 @@
+@if(show){
+<div class="modal-overlay">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <span class="modal-close" (click)="close()">&times;</span>
+    <h2>Register</h2>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <input type="email" formControlName="email" placeholder="Email" />
+      <input type="password" formControlName="password" placeholder="Password" />
+      <input type="text" formControlName="firstName" placeholder="First Name" />
+      <input type="text" formControlName="lastName" placeholder="Last Name" />
+      <input type="text" formControlName="phoneNumber" placeholder="Phone Number" />
+      <button type="submit">Register</button>
+    </form>
+    <div class="redirect-link">
+      Already have an account? <a (click)="goToLogin()">Login here</a>
+    </div>
+  </div>
+</div>
+}
