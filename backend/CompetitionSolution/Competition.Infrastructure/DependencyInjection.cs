@@ -17,6 +17,12 @@ namespace Competition.Infrastructure
         {
             services.AddScoped<IRefreshTokenService,RefreshTokenService>();
             services.AddScoped<IJwtTokenGenerator,JwtTokenGenerator>();
+            services.AddScoped<ICity,CityRepository>();
+            services.AddScoped<IGeoData,GeoDataRepository>();
+            services.AddScoped<ICountry,CountryRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IBlobStorageService, BlobStorageService>();
+            services.AddScoped<IImageService,ImageService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IPlayerService,PlayerService>();
             services.AddScoped<IManagerService, ManagerService>();
