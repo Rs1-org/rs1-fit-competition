@@ -2,10 +2,9 @@ export interface CountryName{
     name:string;
 }
 export interface CountryListDto{
+    id:string;
     name:string;
-    slug:string;
-    population:number;
-    isCapital:boolean;
+    pictureUrl:string;
 }
 export interface CreateCountryDto{
     name:string;

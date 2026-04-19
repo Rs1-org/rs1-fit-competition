@@ -30,6 +30,18 @@ namespace Competition.Application.Commands.CityCommands.Update
             {
                 throw new KeyNotFoundException($"Couldn't find any city with {request.Slug}");
             }
+
+            city.Name = request.Name;
+            city.Population = request.Population;
+            city.IsCapital = request.IsCapital;
+
+            if (city.GeoData != null)
+            {
+                city.GeoData.Latitude = request.Latitude;
+                city.GeoData.Longitude = request.Longitude;
+                city.GeoData.Description = request.Description;
+            }
+
             await _city.UpdateAsync(city);
             await _unitOfWork.SaveChangesAsync();
 

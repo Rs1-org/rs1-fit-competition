@@ -3,7 +3,7 @@ using Competition.Application.Commands.CityCommands.Update;
 using Competition.Application.Commands.CountryCommands.Create;
 using Competition.Application.Commands.CountryCommands.Delete;
 using Competition.Application.Commands.CountryCommands.Update;
-using Competition.Application.Queries.City.GetAll;
+using Competition.Application.Queries.Country.GetAll;
 using Competition.Application.Queries.Country.GetBySlug;
 using MediatR;
 using Microsoft.AspNetCore.Http;

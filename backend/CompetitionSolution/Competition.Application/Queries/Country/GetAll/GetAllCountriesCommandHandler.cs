@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Competition.Application.Queries.City.GetAll
+namespace Competition.Application.Queries.Country.GetAll
 {
     public class GetAllCountriesCommandHandler : IRequestHandler<GetAllCountriesCommand, List<CountryListDto>>
     {

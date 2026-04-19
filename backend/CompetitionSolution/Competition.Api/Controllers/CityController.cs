@@ -1,4 +1,5 @@
 using Competition.Application.Commands.CityCommands.Create;
+using Competition.Application.Commands.CityCommands.Delete;
 using Competition.Application.Commands.CityCommands.Update;
 using Competition.Application.Queries.City.GetAll;
 using Competition.Application.Queries.City.GetAllByCountry;

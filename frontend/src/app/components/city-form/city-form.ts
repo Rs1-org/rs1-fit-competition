@@ -2,7 +2,6 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputBox } from '../../shared/components/input-box/input-box';
 import { Modal } from '../../shared/components/modal/modal';
-import { CountryList } from '../../pages/country-list/country-list';
 import { CountryListDto } from '../../core/models/country';
 import { CountryService } from '../../core/services/country-service';
 import { CityService } from '../../core/services/city-services';
@@ -31,7 +30,7 @@ export class CityForm implements OnInit {
 
   form=this.fb.group({
     name:this.fb.control('', {validators:Validators.required}),
-    population:this.fb.control('',{validators:Validators.required}),
+    population:this.fb.control(0,{validators:Validators.required}),
     isCapital:this.fb.control(false),
     countryId:this.fb.control(1, {validators:Validators.required}),
     latitude:this.fb.control(40, {validators:Validators.required}),
