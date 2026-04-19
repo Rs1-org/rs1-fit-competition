@@ -13,9 +13,12 @@ namespace Competition.Infrastructure
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
-
+            services.AddScoped<ICity,CityRepository>();
+            services.AddScoped<IGeoData,GeoDataRepository>();
+            services.AddScoped<ICountry,CountryRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IBlobStorageService, BlobStorageService>();
+            services.AddScoped<IImageService,ImageService>();
             // Registriraj generički repository
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IPlayerService,PlayerService>();

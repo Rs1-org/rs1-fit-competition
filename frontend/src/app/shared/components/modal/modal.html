@@ -1,0 +1,12 @@
+<div class="overlay" (click)="close.emit()">
+    <div class="modal-container" (click)="$event.stopPropagation()" [style.width]="width" [style.height]="height">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1>{{title}}</h1>
+            </div>
+            <div class="modal-body">
+                <ng-content></ng-content>
+            </div>
+        </div>
+    </div>
+</div>

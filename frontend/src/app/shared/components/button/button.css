@@ -1,0 +1,22 @@
+.btn {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--accent);
+  color: var(--white-100);
+  transition: background 0.2s ease, transform 0.1s ease;
+
+  &:hover {
+    background: var(--accent-dark);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}

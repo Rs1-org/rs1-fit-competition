@@ -1,0 +1,55 @@
+
+@if(modalState.isOpen()){
+<app-modal [title]="'Add City'" (close)="modalState.close(form)" width="800px">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" id="city-form">
+        <app-input-box
+            label="Name"
+            placeholder="Name..."
+            [control]="form.controls.name"
+        ></app-input-box>
+
+        <app-input-box
+            label="Population"
+            placeholder="Population..."
+            [control]="form.controls.population"
+        ></app-input-box>
+
+        <app-dropdown
+            label="Country"
+            placeholder="Select a country"
+            [options]="countries"
+            [control]="form.controls.countryId">
+        </app-dropdown>
+
+        <app-input-box
+        label="Is Capital?"
+        type="checkbox"
+        [control]="form.controls.isCapital"
+        ></app-input-box>
+
+        <app-map 
+            style="grid-column: span 2"
+            (locationSelected)="onLocationSelected($event)">
+        </app-map>
+        
+        <app-input-box
+            label="Description"
+            type="textarea"
+            placeholder="Description..."
+            [control]="form.controls.description"
+        ></app-input-box>
+        
+    </form>
+
+    <footer>
+        <app-button
+        type="submit"
+        form="city-form"
+        text="Submit"
+        ></app-button>
+    </footer>
+
+</app-modal>
+}
+
+<button class="btn" (click)="dodaj()">Dodaj</button>
