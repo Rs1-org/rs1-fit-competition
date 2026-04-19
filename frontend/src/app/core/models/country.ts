@@ -4,6 +4,7 @@ export interface CountryName{
 export interface CountryListDto{
     id:string;
     name:string;
+    slug:string;
     pictureUrl:string;
 }
 export interface CreateCountryDto{

@@ -1,6 +1,5 @@
-
-@if(modalState.isOpen()){
-<app-modal [title]="'Add City'" (close)="modalState.close(form)" width="800px">
+@if(isOpen){
+<app-modal [title]="isEditMode ? 'Edit City' : 'Add City'" (close)="onClose()" width="800px">
     <form [formGroup]="form" (ngSubmit)="onSubmit()" id="city-form">
         <app-input-box
             label="Name"
@@ -22,34 +21,31 @@
         </app-dropdown>
 
         <app-input-box
-        label="Is Capital?"
-        type="checkbox"
-        [control]="form.controls.isCapital"
+            label="Is Capital?"
+            type="checkbox"
+            [control]="form.controls.isCapital"
         ></app-input-box>
 
-        <app-map 
+        <app-map
             style="grid-column: span 2"
             (locationSelected)="onLocationSelected($event)">
         </app-map>
-        
+
         <app-input-box
             label="Description"
             type="textarea"
             placeholder="Description..."
             [control]="form.controls.description"
         ></app-input-box>
-        
     </form>
 
     <footer>
         <app-button
-        type="submit"
-        form="city-form"
-        text="Submit"
+            type="submit"
+            form="city-form"
+            [text]="isEditMode ? 'Save Changes' : 'Submit'"
         ></app-button>
     </footer>
 
 </app-modal>
 }
-
-<button class="btn" (click)="dodaj()">Dodaj</button>

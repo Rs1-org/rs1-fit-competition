@@ -1,2 +1,49 @@
-<app-navbar></app-navbar>
-<app-city-form></app-city-form>
+<div class="page">
+    <div class="page-header">
+        <h2>Cities</h2>
+        <button class="btn-add" (click)="onAdd()">+ Add City</button>
+    </div>
+
+    @if(cities.length === 0){
+        <p class="empty-message">No cities found.</p>
+    } @else {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Country</th>
+                    <th>Population</th>
+                    <th>Capital</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(city of cities; track city.id){
+                    <tr>
+                        <td>{{ city.name }}</td>
+                        <td>{{ city.countryName }}</td>
+                        <td>{{ city.population | number }}</td>
+                        <td>
+                            @if(city.isCapital){
+                                <span class="badge-capital">Yes</span>
+                            } @else {
+                                <span class="badge-no">No</span>
+                            }
+                        </td>
+                        <td class="actions">
+                            <button class="btn-edit" (click)="onEdit(city)">Edit</button>
+                            <button class="btn-delete" (click)="onDelete(city.id)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<app-city-form
+    [isOpen]="isFormOpen"
+    [editCity]="selectedCity"
+    (saved)="onFormSaved()"
+    (closed)="onFormClosed()">
+</app-city-form>
