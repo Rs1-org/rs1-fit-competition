@@ -23,6 +23,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<Player> Players { get; set; } = null!;
     public DbSet<Referee> Referees { get; set; } = null!;
     public DbSet<Manager> Managers { get; set; } = null!;
+    public DbSet<Person> Persons { get; set; } = null!;
 
     public override int SaveChanges()
     {
