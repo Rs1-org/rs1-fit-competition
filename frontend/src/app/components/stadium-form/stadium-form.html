@@ -1,0 +1,59 @@
+@if(modalState.isOpen()){
+<app-modal [title]="'Add Stadium'" (close)="modalState.close(form)" width="800px">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" id="stadium-form">
+        <app-input-box
+            label="Name"
+            placeholder="Stadium Name..."
+            [control]="form.controls.name"
+        ></app-input-box>
+
+        <app-input-box
+            label="Capacity"
+            type="number"
+            placeholder="Capacity..."
+            [control]="form.controls.capacity"
+        ></app-input-box>
+
+        <app-input-box
+            label="Date of Construction"
+            type="date"
+            [control]="form.controls.dateOfConstruction"
+        ></app-input-box>
+
+        <app-dropdown
+            label="City"
+            placeholder="Select a city"
+            [options]="cities"
+            [control]="form.controls.cityId">
+        </app-dropdown>
+
+        <app-input-box
+            label="Picture URL"
+            placeholder="http://..."
+            [control]="form.controls.pictureUrl"
+        ></app-input-box>
+
+        <app-map 
+            style="grid-column: span 2"
+            (locationSelected)="onLocationSelected($event)">
+        </app-map>
+        
+        <app-input-box
+            label="Location Description"
+            type="textarea"
+            placeholder="Description of the location..."
+            [control]="form.controls.geoDescription"
+        ></app-input-box>
+    </form>
+
+    <footer>
+        <app-button
+            type="submit"
+            form="stadium-form"
+            text="Submit"
+        ></app-button>
+    </footer>
+</app-modal>
+}
+
+<button class="btn" (click)="openModal()">Add Stadium</button>

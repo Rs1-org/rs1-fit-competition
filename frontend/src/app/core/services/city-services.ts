@@ -16,4 +16,8 @@ export class CityService{
     create(city:any):Observable<CityName>{
         return this.http.post<CityName>(`${this.apiUrl}createCity`,city);
     }
+
+    getAll(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}getCities`);
+    }
 }

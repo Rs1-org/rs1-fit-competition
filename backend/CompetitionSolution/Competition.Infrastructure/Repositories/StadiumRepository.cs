@@ -21,7 +21,7 @@ public class StadiumRepository : Repository<Stadium>, IStadium
             .FirstOrDefaultAsync(s => s.Slug == slug);
     }
 
-    public override async Task<IEnumerable<Stadium>> GetAllAsync()
+    public virtual async Task<IEnumerable<Stadium>> GetAllAsync()
     {
         return await _context.Stadiums
             .Include(s => s.GeoData)

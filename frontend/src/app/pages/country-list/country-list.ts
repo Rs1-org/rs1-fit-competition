@@ -1,11 +1,9 @@
 import { Component } from '@angular/core';
-import { Modal } from '../../shared/components/modal/modal';
 import { CountryForm } from '../../components/country-form/country-form';
-import { Navbar } from '../../shared/components/navbar/navbar';
 
 @Component({
   selector: 'app-country-list',
-  imports: [CountryForm, Navbar],
+  imports: [CountryForm],
   templateUrl: './country-list.html',
   styleUrl: './country-list.css',
 })

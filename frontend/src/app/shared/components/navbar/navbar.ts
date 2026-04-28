@@ -42,6 +42,10 @@ export class Navbar {
     this.router.navigate(['/player-list']);
   }
 
+  openStadiums() {
+    this.router.navigate(['/stadium-list']);
+  }
+
   @ViewChild(AuthModalComponent)
   authModal!: AuthModalComponent;
 

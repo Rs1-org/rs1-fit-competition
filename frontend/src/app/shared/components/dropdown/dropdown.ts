@@ -36,6 +36,7 @@ export class Dropdown {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
+    if (!this.isOpen()) return;
     const target = event.target as HTMLElement;
     if (!target.closest('app-dropdown')) {
       this.isOpen.set(false);
