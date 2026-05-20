@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using System.Security.Cryptography.X509Certificates;
 
+using Competition.Domain.Entities.MatchEntities;
+
 namespace Competition.Infrastructure.Data;
 
 public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
@@ -88,5 +90,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<GeoData> GeoDatas { get; set; }
     public DbSet<City> Cities { get; set; }
     public DbSet<Person> Persons { get; set; } = null!;
+    public DbSet<Stadium> Stadiums { get; set; }
 
 }
