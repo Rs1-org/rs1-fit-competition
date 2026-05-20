@@ -1,76 +1,63 @@
-﻿using Competition.Application.Interfaces;
-using Competition.Application.Interfaces;
+﻿using Competition.Application.DTOs.PersonDto;
 using Competition.Application.Services;
-using Competition.Domain.Entities.Person;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Numerics;
 
-namespace Competition.Api.Controllers
+namespace Competition.Api.Controllers;
+
+[Route("api/referee")]
+[ApiController]
+public class RefereeController : ControllerBase
 {
-    [Route("api/referee")]
-    [ApiController]
-    public class RefereeController : ControllerBase
+    private readonly IRefereeService _service;
+
+    public RefereeController(IRefereeService service)
     {
-        private readonly IRefereeService service;
+        _service = service;
+    }
 
-        public RefereeController(IRefereeService service)
-        {
-            this.service = service;
-        }
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
-        {
-            var referees = await service.GetByIdAsync(id);
-            if (referees == null)
-                throw new KeyNotFoundException($"Referee with id {id} not found");
-            return Ok(referees);
-        }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var referee = await _service.GetByIdAsync(id);
+        if (referee == null)
+            throw new KeyNotFoundException($"Referee with id {id} not found");
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var referees = await service.GetAllReferees();
-            return Ok(referees);
-        }
-        [HttpPost]
-        public async Task<IActionResult> AddReferee(Referee referee)
-        {
-            //referee.CareerStart = DateTime.SpecifyKind(referee.CareerStart, DateTimeKind.Utc);
-            await service.AddAsync(referee);
-            return Ok(referee);
-        }
-        [HttpPut]
-        public async Task<IActionResult> Updatereferee(Referee referee)
-        {
-            var referees = service.GetByIdAsync(referee.Id);
-            if (referees == null)
-                throw new KeyNotFoundException($"Referee with id {referee.Id} not found");
-            await service.UpdateAsync(referee);
-            return Ok(referee);
-        }
-        [HttpDelete]
-        public async Task<IActionResult> DeleteReferee(Referee referee)
-        {
-            var referees = service.GetByIdAsync(referee.Id);
-            if (referees == null)
-                throw new KeyNotFoundException($"Referee with id {referee.Id} not found");
-            await service.DeleteAsync(referee);
-            return Ok(referees);
+        return Ok(referee);
+    }
 
-        }
-        [HttpGet("search")]
-        public async Task<IActionResult> Search([FromQuery] string? term)
-        {
-            if (string.IsNullOrWhiteSpace(term))
-            {
-                return Ok(await service.GetAllReferees());
-            }
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        return Ok(await _service.GetAllAsync());
+    }
 
-            var results = await service.FindAsync(p =>
-                (p.CareerStart != null && p.CareerStart.ToString()!.Contains(term)) && p.DeletedAt == null);
+    [HttpPost]
+    public async Task<IActionResult> AddReferee([FromBody] RefereeDto dto)
+    {
+        var created = await _service.CreateAsync(dto);
+        return Ok(created);
+    }
 
-            return Ok(results);
-        }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateReferee(Guid id, [FromBody] RefereeDto dto)
+    {
+        var updated = await _service.UpdateAsync(id, dto);
+        return Ok(updated);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteReferee(Guid id)
+    {
+        await _service.DeleteAsync(id);
+        return Ok(id);
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] string? term)
+    {
+        if (string.IsNullOrWhiteSpace(term))
+            return Ok(await _service.GetAllAsync());
+
+        return Ok(await _service.SearchAsync(term));
     }
 }

@@ -1,76 +1,63 @@
-﻿using Competition.Application.Interfaces;
-using Competition.Application.Interfaces;
+﻿using Competition.Application.DTOs.PersonDto;
 using Competition.Application.Services;
-using Competition.Domain.Entities.Person;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Numerics;
 
-namespace Competition.Api.Controllers
+namespace Competition.Api.Controllers;
+
+[Route("api/manager")]
+[ApiController]
+public class ManagerController : ControllerBase
 {
-    [Route("api/manager")]
-    [ApiController]
-    public class ManagerController : ControllerBase
+    private readonly IManagerService _service;
+
+    public ManagerController(IManagerService service)
     {
-        private readonly IManagerService service;
+        _service = service;
+    }
 
-        public ManagerController(IManagerService service)
-        {
-            this.service = service;
-        }
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
-        {
-            var manager = await service.GetByIdAsync(id);
-            if (manager == null)
-                throw new KeyNotFoundException($"Referee with id {id} not found");
-            return Ok(manager);
-        }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var manager = await _service.GetByIdAsync(id);
+        if (manager == null)
+            throw new KeyNotFoundException($"Manager with id {id} not found");
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var manager = await service.GetAllManagers();
-            return Ok(manager);
-        }
-        [HttpPost]
-        public async Task<IActionResult> AddManager(Manager manager)
-        {
-            //manager.CareerStart = DateTime.SpecifyKind(manager.CareerStart, DateTimeKind.Utc);
-            await service.AddAsync(manager);
-            return Ok(manager);
-        }
-        [HttpPut]
-        public async Task<IActionResult> UpdateManager(Manager manager)
-        {
-            var managers = service.GetByIdAsync(manager.Id);
-            if (managers == null)
-                throw new KeyNotFoundException($"Manager with id {manager.Id} not found");
-            await service.UpdateAsync(manager);
-            return Ok(manager);
-        }
-        [HttpDelete]
-        public async Task<IActionResult> DeleteManager(Manager manager)
-        {
-            var managers = service.GetByIdAsync(manager.Id);
-            if (managers == null)
-                throw new KeyNotFoundException($"Player with id {manager.Id} not found");
-            await service.DeleteAsync(manager);
-            return Ok(managers);
+        return Ok(manager);
+    }
 
-        }
-        [HttpGet("search")]
-        public async Task<IActionResult> Search([FromQuery] string? term)
-        {
-            if (string.IsNullOrWhiteSpace(term))
-            {
-                return Ok(await service.GetAllManagers());
-            }
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        return Ok(await _service.GetAllAsync());
+    }
 
-            var results = await service.FindAsync(p =>
-                (p.CareerStart != null && p.CareerStart.ToString()!.Contains(term)) && p.DeletedAt == null);
+    [HttpPost]
+    public async Task<IActionResult> AddManager([FromBody] ManagerDto dto)
+    {
+        var created = await _service.CreateAsync(dto);
+        return Ok(created);
+    }
 
-            return Ok(results);
-        }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateManager(Guid id, [FromBody] ManagerDto dto)
+    {
+        var updated = await _service.UpdateAsync(id, dto);
+        return Ok(updated);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteManager(Guid id)
+    {
+        await _service.DeleteAsync(id);
+        return Ok(id);
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] string? term)
+    {
+        if (string.IsNullOrWhiteSpace(term))
+            return Ok(await _service.GetAllAsync());
+
+        return Ok(await _service.SearchAsync(term));
     }
 }

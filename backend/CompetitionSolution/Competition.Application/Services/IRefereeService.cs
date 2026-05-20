@@ -1,19 +1,13 @@
-﻿using Competition.Application.Interfaces;
-using Competition.Domain.Entities.Person;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Competition.Application.DTOs.PersonDto;
 
-namespace Competition.Application.Services
+namespace Competition.Application.Services;
+
+public interface IRefereeService
 {
-    public interface IRefereeService:IRepository<Referee>
-    {
-        //Task AddReferee(Referee referee);
-        //Task UpdateReferee(Referee referee);
-        //Task DeleteReferee(Referee referee);
-        Task<IEnumerable<Referee>> GetAllReferees();
-        //Task<Referee> GetRefereeById(Guid id);
-    }
+    Task<RefereeDto?> GetByIdAsync(Guid id);
+    Task<IEnumerable<RefereeDto>> GetAllAsync();
+    Task<IEnumerable<RefereeDto>> SearchAsync(string term);
+    Task<RefereeDto> CreateAsync(RefereeDto dto);
+    Task<RefereeDto> UpdateAsync(Guid id, RefereeDto dto);
+    Task DeleteAsync(Guid id);
 }
