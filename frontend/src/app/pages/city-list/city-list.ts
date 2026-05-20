@@ -5,7 +5,7 @@ import { ModalState } from '../../core/helpers/modal-state.helper';
 
 @Component({
   selector: 'app-city-list',
-  imports: [Navbar, CityForm],
+  imports: [CityForm],
   templateUrl: './city-list.html',
   styleUrl: './city-list.css',
 })

@@ -68,7 +68,7 @@ namespace Competition.Api.Controllers
             }
 
             var results = await service.FindAsync(p =>
-                p.CareerStart.ToString().Contains(term) && p.DeletedAt == null);
+                (p.CareerStart != null && p.CareerStart.ToString()!.Contains(term)) && p.DeletedAt == null);
 
             return Ok(results);
         }

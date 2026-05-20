@@ -9,6 +9,6 @@ namespace Competition.Domain.Entities.Person
 {
     public class Referee:Person
     {
-        public LocalTime CareerStart {  get; set; }
+        public LocalTime? CareerStart { get; set; }
     }
 }

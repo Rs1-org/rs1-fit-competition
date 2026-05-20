@@ -23,7 +23,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<Player> Players { get; set; } = null!;
     public DbSet<Referee> Referees { get; set; } = null!;
     public DbSet<Manager> Managers { get; set; } = null!;
-    public DbSet<Person> Persons { get; set; } = null!;
+    
 
     public override int SaveChanges()
     {
@@ -66,7 +66,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     {
         base.OnModelCreating(modelBuilder);
 
-        //modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        modelBuilder.Entity<Person>().ToTable("Persons");
+        modelBuilder.Entity<Player>().ToTable("Players");
+        modelBuilder.Entity<Manager>().ToTable("Managers");
+        modelBuilder.Entity<Referee>().ToTable("Referees");
 
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
@@ -84,5 +87,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<Country> Countries { get; set; }
     public DbSet<GeoData> GeoDatas { get; set; }
     public DbSet<City> Cities { get; set; }
+    public DbSet<Person> Persons { get; set; } = null!;
 
 }
