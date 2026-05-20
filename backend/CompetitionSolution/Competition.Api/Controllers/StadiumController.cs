@@ -20,7 +20,7 @@ public class StadiumController : ControllerBase
     }
 
     [HttpPost("createStadium")]
-    public async Task<IActionResult> CreateStadium([FromBody] CreateStadiumCommand request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateStadium([FromForm] CreateStadiumCommand request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(request, cancellationToken);
         return Ok(result);
@@ -34,7 +34,7 @@ public class StadiumController : ControllerBase
     }
 
     [HttpPut("updateStadium/{slug}")]
-    public async Task<IActionResult> UpdateStadium(string slug, [FromBody] UpdateStadiumCommand request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateStadium(string slug, [FromForm] UpdateStadiumCommand request, CancellationToken cancellationToken)
     {
         request.Slug = slug;
         var result = await _mediator.Send(request, cancellationToken);

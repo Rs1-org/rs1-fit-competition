@@ -2,6 +2,7 @@ using AutoMapper;
 using Competition.Application.DTOs.StadiumDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
+using Competition.Application.Services;
 using Competition.Domain.Entities.MatchEntities;
 using MediatR;
 
@@ -13,13 +14,15 @@ public class UpdateStadiumCommandHandler : IRequestHandler<UpdateStadiumCommand,
     private readonly IStadium _stadium;
     private readonly IGeoData _geoData;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IImageService _imageService;
 
-    public UpdateStadiumCommandHandler(IMapper mapper, IStadium stadium, IGeoData geoData, IUnitOfWork unitOfWork)
+    public UpdateStadiumCommandHandler(IMapper mapper, IStadium stadium, IGeoData geoData, IUnitOfWork unitOfWork, IImageService imageService)
     {
         _mapper = mapper;
         _stadium = stadium;
         _geoData = geoData;
         _unitOfWork = unitOfWork;
+        _imageService = imageService;
     }
 
     public async Task<StadiumDetailsDto> Handle(UpdateStadiumCommand request, CancellationToken cancellationToken)
@@ -30,13 +33,14 @@ public class UpdateStadiumCommandHandler : IRequestHandler<UpdateStadiumCommand,
             throw new KeyNotFoundException($"Couldn't find any stadium with slug {request.Slug}");
         }
 
-        // Map request to stadium entity
         stadium.Name = request.Name;
         stadium.Capacity = request.Capacity;
-        stadium.DateOfConstruction = request.DateOfConstruction;
-        stadium.PictureUrl = request.PictureUrl;
+        stadium.DateOfConstruction = DateTime.SpecifyKind(request.DateOfConstruction, DateTimeKind.Utc);
         stadium.CityId = request.CityId;
         stadium.Slug = SlugHelper.GenerateSlug(request.Name!);
+
+        if (request.Picture != null)
+            stadium.PictureUrl = await _imageService.UploadImageAsync(request.Picture);
 
         if (stadium.GeoData != null)
         {

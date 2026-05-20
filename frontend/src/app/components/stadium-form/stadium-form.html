@@ -28,9 +28,10 @@
         </app-dropdown>
 
         <app-input-box
-            label="Picture URL"
-            placeholder="http://..."
-            [control]="form.controls.pictureUrl"
+            label="Picture"
+            type="file"
+            accept="image/*"
+            (fileChange)="onFileChange($event)"
         ></app-input-box>
 
         <app-map

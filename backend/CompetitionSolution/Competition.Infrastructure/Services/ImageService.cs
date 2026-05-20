@@ -27,7 +27,7 @@ namespace Competition.Infrastructure.Services
             if (!allowedTypes.Contains(image.ContentType))
                 throw new Exception("Invalid file type");
 
-            var fileName = $"{Guid.NewGuid}{Path.GetExtension(image.FileName)}";
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
 
             return await _blobStorageService.UploadAsync(image.OpenReadStream(), fileName, image.ContentType);
         }

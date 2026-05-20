@@ -26,6 +26,7 @@ public class StadiumRepository : Repository<Stadium>, IStadium
         return await _context.Stadiums
             .Include(s => s.GeoData)
             .Include(s => s.City)
+                .ThenInclude(c => c!.Country)
             .ToListAsync();
     }
 }

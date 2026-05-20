@@ -22,24 +22,3 @@ export interface StadiumDetailsDto {
     geoDescription: string;
 }
 
-export interface CreateStadiumDto {
-    name: string;
-    capacity: number;
-    dateOfConstruction: string;
-    pictureUrl: string;
-    cityId: string;
-    latitude: number;
-    longitude: number;
-    geoDescription: string;
-}
-
-export interface UpdateStadiumDto {
-    name: string;
-    capacity: number;
-    dateOfConstruction: string;
-    pictureUrl: string;
-    cityId: string;
-    latitude: number;
-    longitude: number;
-    geoDescription: string;
-}

@@ -25,14 +25,14 @@ export class StadiumForm implements OnInit {
   modalState = new ModalState();
   editingSlug: string | null = null;
   cities: any[] = [];
+  private selectedPicture: File | null = null;
 
   @Output() saved = new EventEmitter<void>();
 
   form = this.fb.group({
     name: this.fb.control('', { validators: Validators.required }),
-    capacity: this.fb.control(0, { validators: [Validators.required, Validators.min(0)] }),
+    capacity: this.fb.control(0, { validators: [Validators.required, Validators.min(1)] }),
     dateOfConstruction: this.fb.control('', { validators: Validators.required }),
-    pictureUrl: this.fb.control(''),
     cityId: this.fb.control('', { validators: Validators.required }),
     latitude: this.fb.control(43.8563, { validators: Validators.required }),
     longitude: this.fb.control(18.4131, { validators: Validators.required }),
@@ -52,16 +52,17 @@ export class StadiumForm implements OnInit {
 
   openModal(): void {
     this.editingSlug = null;
+    this.selectedPicture = null;
     this.modalState.open();
   }
 
   openForEdit(stadium: StadiumDetailsDto): void {
     this.editingSlug = stadium.slug ?? null;
+    this.selectedPicture = null;
     this.form.patchValue({
       name: stadium.name ?? '',
       capacity: stadium.capacity,
       dateOfConstruction: new Date(stadium.dateOfConstruction).toISOString().split('T')[0],
-      pictureUrl: stadium.pictureUrl ?? '',
       cityId: stadium.cityId as unknown as string,
       latitude: Number(stadium.latitude),
       longitude: Number(stadium.longitude),
@@ -72,11 +73,30 @@ export class StadiumForm implements OnInit {
 
   closeModal(): void {
     this.editingSlug = null;
+    this.selectedPicture = null;
     this.modalState.close(this.form);
+  }
+
+  onFileChange(event: Event): void {
+    this.selectedPicture = (event.target as HTMLInputElement).files?.[0] ?? null;
   }
 
   onLocationSelected(event: { lat: number, lng: number }): void {
     this.form.patchValue({ latitude: event.lat, longitude: event.lng });
+  }
+
+  private buildFormData(): FormData {
+    const value = this.form.getRawValue();
+    const fd = new FormData();
+    fd.append('name', value.name);
+    fd.append('capacity', String(value.capacity));
+    fd.append('dateOfConstruction', value.dateOfConstruction);
+    fd.append('cityId', value.cityId);
+    fd.append('latitude', String(value.latitude));
+    fd.append('longitude', String(value.longitude));
+    fd.append('geoDescription', value.geoDescription);
+    if (this.selectedPicture) fd.append('picture', this.selectedPicture);
+    return fd;
   }
 
   onSubmit(): void {
@@ -85,15 +105,15 @@ export class StadiumForm implements OnInit {
       return;
     }
 
-    const value = this.form.getRawValue();
+    const fd = this.buildFormData();
 
     if (this.editingSlug) {
-      this.stadiumService.update(this.editingSlug, value).subscribe({
+      this.stadiumService.update(this.editingSlug, fd).subscribe({
         next: () => { this.closeModal(); this.saved.emit(); },
         error: (err) => console.error('Error updating stadium: ', err)
       });
     } else {
-      this.stadiumService.create(value).subscribe({
+      this.stadiumService.create(fd).subscribe({
         next: () => { this.closeModal(); this.saved.emit(); },
         error: (err) => console.error('Error creating stadium: ', err)
       });

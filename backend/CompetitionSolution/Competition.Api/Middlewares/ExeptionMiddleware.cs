@@ -4,6 +4,7 @@ using System.Text.Json;
 using Competition.Application.Exeptions;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Competition.Api.Middlewares;
 
@@ -11,11 +12,13 @@ public class ExceptionMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionMiddleware> _logger;
+    private readonly IWebHostEnvironment _env;
 
-    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
+    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger, IWebHostEnvironment env)
     {
         _next = next;
         _logger = logger;
+        _env = env;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -53,7 +56,7 @@ public class ExceptionMiddleware
                 status = HttpStatusCode.NotFound;
                 response = new { message = exception.Message };
                 break;
-            
+
             case LoginFailedException:
                 status = HttpStatusCode.Unauthorized;
                 response = new { message = exception.Message };
@@ -61,7 +64,9 @@ public class ExceptionMiddleware
 
             default:
                 status = HttpStatusCode.InternalServerError;
-                response = new { message = "An unexpected error occurred." };
+                response = _env.IsDevelopment()
+                    ? new { message = exception.Message, detail = exception.StackTrace }
+                    : (object)new { message = "An unexpected error occurred." };
                 break;
         }
 
