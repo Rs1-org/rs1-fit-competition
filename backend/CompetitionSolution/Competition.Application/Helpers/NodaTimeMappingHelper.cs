@@ -5,35 +5,35 @@ namespace Competition.Application.Helpers;
 
 public static class NodaTimeMappingHelper
 {
-    private static readonly LocalTimePattern TimePattern = LocalTimePattern.CreateWithInvariantCulture("HH:mm:ss");
+    private static readonly LocalDatePattern DatePattern = LocalDatePattern.CreateWithInvariantCulture("yyyy-MM-dd");
 
-    public static LocalTime ParseLocalTime(string? value)
+    public static LocalDate ParseLocalDate(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return LocalTime.Midnight;
+            return new LocalDate(2000, 1, 1);
 
-        if (TimeOnly.TryParse(value, out var timeOnly))
-            return LocalTime.FromTimeOnly(timeOnly);
+        if (DateOnly.TryParse(value, out var dateOnly))
+            return LocalDate.FromDateOnly(dateOnly);
 
-        var parsed = TimePattern.Parse(value);
-        return parsed.Success ? parsed.Value : LocalTime.Midnight;
+        var parsed = DatePattern.Parse(value);
+        return parsed.Success ? parsed.Value : new LocalDate(2000, 1, 1);
     }
 
-    public static LocalTime? ParseNullableLocalTime(string? value)
+    public static LocalDate? ParseNullableLocalDate(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return null;
 
-        if (TimeOnly.TryParse(value, out var timeOnly))
-            return LocalTime.FromTimeOnly(timeOnly);
+        if (DateOnly.TryParse(value, out var dateOnly))
+            return LocalDate.FromDateOnly(dateOnly);
 
-        var parsed = TimePattern.Parse(value);
+        var parsed = DatePattern.Parse(value);
         return parsed.Success ? parsed.Value : null;
     }
 
-    public static string FormatLocalTime(LocalTime value) =>
-        value.ToString("HH:mm:ss", null);
+    public static string FormatLocalDate(LocalDate value) =>
+        value.ToString("yyyy-MM-dd", null);
 
-    public static string? FormatNullableLocalTime(LocalTime? value) =>
-        value.HasValue ? FormatLocalTime(value.Value) : null;
+    public static string? FormatNullableLocalDate(LocalDate? value) =>
+        value.HasValue ? FormatLocalDate(value.Value) : null;
 }

@@ -37,7 +37,7 @@ public class ManagerService : IManagerService
                 m.FirstName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                 m.LastName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                 (m.CareerStart != null &&
-                 NodaTimeMappingHelper.FormatNullableLocalTime(m.CareerStart)!.Contains(term, StringComparison.OrdinalIgnoreCase)))
+                 NodaTimeMappingHelper.FormatNullableLocalDate(m.CareerStart)!.Contains(term, StringComparison.OrdinalIgnoreCase)))
             .Select(MapToDto);
     }
 
@@ -76,26 +76,27 @@ public class ManagerService : IManagerService
         Id = manager.Id,
         FirstName = manager.FirstName,
         LastName = manager.LastName,
-        DateOfBirth = NodaTimeMappingHelper.FormatLocalTime(manager.DateOfBirth),
+        DateOfBirth = NodaTimeMappingHelper.FormatLocalDate(manager.DateOfBirth),
         Picture = manager.Picture,
-        CareerStart = NodaTimeMappingHelper.FormatNullableLocalTime(manager.CareerStart)
+        CareerStart = NodaTimeMappingHelper.FormatNullableLocalDate(manager.CareerStart)
     };
 
     private static Manager MapToEntity(ManagerDto dto) => new()
     {
         FirstName = dto.FirstName,
         LastName = dto.LastName,
-        DateOfBirth = NodaTimeMappingHelper.ParseLocalTime(dto.DateOfBirth),
+        DateOfBirth = NodaTimeMappingHelper.ParseLocalDate(dto.DateOfBirth),
         Picture = dto.Picture ?? Array.Empty<byte>(),
-        CareerStart = NodaTimeMappingHelper.ParseNullableLocalTime(dto.CareerStart)
+        CareerStart = NodaTimeMappingHelper.ParseNullableLocalDate(dto.CareerStart)
     };
 
     private static void ApplyDto(ManagerDto dto, Manager manager)
     {
         manager.FirstName = dto.FirstName;
         manager.LastName = dto.LastName;
-        manager.DateOfBirth = NodaTimeMappingHelper.ParseLocalTime(dto.DateOfBirth);
-        manager.Picture = dto.Picture ?? Array.Empty<byte>();
-        manager.CareerStart = NodaTimeMappingHelper.ParseNullableLocalTime(dto.CareerStart);
+        manager.DateOfBirth = NodaTimeMappingHelper.ParseLocalDate(dto.DateOfBirth);
+        if (dto.Picture != null)
+            manager.Picture = dto.Picture;
+        manager.CareerStart = NodaTimeMappingHelper.ParseNullableLocalDate(dto.CareerStart);
     }
 }

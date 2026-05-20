@@ -1,6 +1,6 @@
 <div class="referee-card-wrapper">
   <div class="referee-card">
-    <h2>Add Referee</h2>
+    <h2>{{ isEditMode ? 'Edit Referee' : 'Add Referee' }}</h2>
 
     <form (ngSubmit)="saveReferee()" #refereeForm="ngForm">
       <div class="form-group">
@@ -14,8 +14,8 @@
       </div>
 
       <div class="form-group">
-        <label for="dateOfBirth">Date of Birth (time)</label>
-        <input type="time" id="dateOfBirth" name="dateOfBirth" [(ngModel)]="referee.dateOfBirth" />
+        <label for="dateOfBirth">Date of Birth</label>
+        <input type="date" id="dateOfBirth" name="dateOfBirth" [(ngModel)]="referee.dateOfBirth" required />
       </div>
 
       <div class="form-group">
@@ -24,12 +24,14 @@
       </div>
 
       <div class="form-group">
-        <label for="careerStart">Career Start (time)</label>
-        <input type="time" id="careerStart" name="careerStart" [(ngModel)]="referee.careerStart" />
+        <label for="careerStart">Career Start</label>
+        <input type="date" id="careerStart" name="careerStart" [(ngModel)]="referee.careerStart" />
       </div>
 
       <div class="button-group">
-        <button type="submit" [disabled]="isRefereeInvalid">Save Referee</button>
+        <button type="submit" [disabled]="isRefereeInvalid">
+          {{ isEditMode ? 'Update Referee' : 'Save Referee' }}
+        </button>
         <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
       </div>
     </form>

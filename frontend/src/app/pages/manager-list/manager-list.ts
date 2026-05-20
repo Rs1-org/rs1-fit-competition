@@ -39,7 +39,7 @@ export class ManagerList implements OnInit {
   }
 
   edit(manager: Manager): void {
-    console.log('Uređujem menadžera:', manager.firstName, manager.lastName);
+    this.router.navigate(['/manage-managers', manager.id]);
   }
 
   delete(manager: Manager): void {

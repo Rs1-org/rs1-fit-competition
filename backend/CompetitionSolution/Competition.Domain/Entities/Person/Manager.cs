@@ -9,6 +9,6 @@ namespace Competition.Domain.Entities.Person
 {
     public class Manager:Person
     {
-        public LocalTime? CareerStart { get; set; }
+        public LocalDate? CareerStart { get; set; }
     }
 }

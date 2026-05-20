@@ -39,7 +39,7 @@ export class RefereeList implements OnInit {
   }
 
   edit(referee: Referee): void {
-    console.log('Uređujem sudiju:', referee.firstName, referee.lastName);
+    this.router.navigate(['/manage-referees', referee.id]);
   }
 
   delete(referee: Referee): void {

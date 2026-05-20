@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
 import { emptyPersonFields, Manager } from '../../core/models/person.models';
 import { environment } from '../../../environments/environment';
@@ -12,57 +12,91 @@ import { environment } from '../../../environments/environment';
   templateUrl: './manage-managers.html',
   styleUrl: './manage-managers.css',
 })
-export class ManageManagers {
+export class ManageManagers implements OnInit {
   manager: Manager = {
     ...emptyPersonFields(),
     careerStart: null,
   };
 
-  constructor(private router: Router) {}
+  editingId: string | null = null;
+  isEditMode = false;
+  pictureChanged = false;
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+  ) {}
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.editingId = id;
+      this.isEditMode = true;
+      void this.loadManager(id);
+    }
+  }
 
   get isManagerInvalid(): boolean {
-    return !this.manager.firstName.trim() || !this.manager.lastName.trim();
+    return (
+      !this.manager.firstName.trim() ||
+      !this.manager.lastName.trim() ||
+      !this.manager.dateOfBirth
+    );
+  }
+
+  async loadManager(id: string): Promise<void> {
+    const response = await fetch(`${environment.apiUrl}/api/manager/${id}`);
+    if (!response.ok) return;
+
+    const data = await response.json();
+    this.manager = {
+      id: data.id,
+      firstName: data.firstName ?? '',
+      lastName: data.lastName ?? '',
+      dateOfBirth: data.dateOfBirth ?? '',
+      picture: data.picture ?? null,
+      careerStart: data.careerStart ?? null,
+    };
+    this.pictureChanged = false;
   }
 
   async onPictureSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    if (!file) {
-      this.manager.picture = null;
-      return;
-    }
+    if (!file) return;
+
     this.manager.picture = await fileToBase64(file);
+    this.pictureChanged = true;
   }
 
   async saveManager(): Promise<void> {
-    const payload = {
+    const payload: Record<string, unknown> = {
       firstName: this.manager.firstName.trim(),
       lastName: this.manager.lastName.trim(),
-      dateOfBirth: this.manager.dateOfBirth || '00:00:00',
-      picture: this.manager.picture,
+      dateOfBirth: this.manager.dateOfBirth,
       careerStart: this.manager.careerStart || null,
     };
 
-    const response = await fetch(`${environment.apiUrl}/api/manager`, {
-      method: 'POST',
+    if (!this.isEditMode || this.pictureChanged) {
+      payload['picture'] = this.manager.picture;
+    }
+
+    const url = this.isEditMode
+      ? `${environment.apiUrl}/api/manager/${this.editingId}`
+      : `${environment.apiUrl}/api/manager`;
+
+    const response = await fetch(url, {
+      method: this.isEditMode ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
     if (response.ok) {
-      this.resetForm();
       this.router.navigate(['/manager-list']);
     }
   }
 
   cancel(): void {
-    this.resetForm();
-  }
-
-  private resetForm(): void {
-    this.manager = {
-      ...emptyPersonFields(),
-      careerStart: null,
-    };
+    this.router.navigate(['/manager-list']);
   }
 }

@@ -12,7 +12,7 @@ namespace Competition.Domain.Entities.Person
         //public int Id {  get; set; }
         public string FirstName {  get; set; }
         public string LastName { get; set; }
-        public LocalTime DateOfBirth {  get; set; }
+        public LocalDate DateOfBirth {  get; set; }
         public byte[] Picture {  get; set; }
     }
 }

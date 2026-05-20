@@ -37,7 +37,7 @@ public class RefereeService : IRefereeService
                 r.FirstName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                 r.LastName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                 (r.CareerStart != null &&
-                 NodaTimeMappingHelper.FormatNullableLocalTime(r.CareerStart)!.Contains(term, StringComparison.OrdinalIgnoreCase)))
+                 NodaTimeMappingHelper.FormatNullableLocalDate(r.CareerStart)!.Contains(term, StringComparison.OrdinalIgnoreCase)))
             .Select(MapToDto);
     }
 
@@ -76,26 +76,27 @@ public class RefereeService : IRefereeService
         Id = referee.Id,
         FirstName = referee.FirstName,
         LastName = referee.LastName,
-        DateOfBirth = NodaTimeMappingHelper.FormatLocalTime(referee.DateOfBirth),
+        DateOfBirth = NodaTimeMappingHelper.FormatLocalDate(referee.DateOfBirth),
         Picture = referee.Picture,
-        CareerStart = NodaTimeMappingHelper.FormatNullableLocalTime(referee.CareerStart)
+        CareerStart = NodaTimeMappingHelper.FormatNullableLocalDate(referee.CareerStart)
     };
 
     private static Referee MapToEntity(RefereeDto dto) => new()
     {
         FirstName = dto.FirstName,
         LastName = dto.LastName,
-        DateOfBirth = NodaTimeMappingHelper.ParseLocalTime(dto.DateOfBirth),
+        DateOfBirth = NodaTimeMappingHelper.ParseLocalDate(dto.DateOfBirth),
         Picture = dto.Picture ?? Array.Empty<byte>(),
-        CareerStart = NodaTimeMappingHelper.ParseNullableLocalTime(dto.CareerStart)
+        CareerStart = NodaTimeMappingHelper.ParseNullableLocalDate(dto.CareerStart)
     };
 
     private static void ApplyDto(RefereeDto dto, Referee referee)
     {
         referee.FirstName = dto.FirstName;
         referee.LastName = dto.LastName;
-        referee.DateOfBirth = NodaTimeMappingHelper.ParseLocalTime(dto.DateOfBirth);
-        referee.Picture = dto.Picture ?? Array.Empty<byte>();
-        referee.CareerStart = NodaTimeMappingHelper.ParseNullableLocalTime(dto.CareerStart);
+        referee.DateOfBirth = NodaTimeMappingHelper.ParseLocalDate(dto.DateOfBirth);
+        if (dto.Picture != null)
+            referee.Picture = dto.Picture;
+        referee.CareerStart = NodaTimeMappingHelper.ParseNullableLocalDate(dto.CareerStart);
     }
 }

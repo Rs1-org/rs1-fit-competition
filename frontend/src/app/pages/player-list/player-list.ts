@@ -38,7 +38,7 @@ export class PlayerList implements OnInit {
   }
 
   edit(player: Player): void {
-    console.log('Uređujem igrača:', player.firstName, player.lastName);
+    this.router.navigate(['/manage-players', player.id]);
   }
 
   delete(player: Player): void {

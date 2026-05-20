@@ -136,8 +136,8 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<LocalTime>("DateOfBirth")
-                        .HasColumnType("time");
+                    b.Property<LocalDate>("DateOfBirth")
+                        .HasColumnType("date");
 
                     b.Property<Instant?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
@@ -168,8 +168,8 @@ namespace Competition.Infrastructure.Migrations
                 {
                     b.HasBaseType("Competition.Domain.Entities.Person.Person");
 
-                    b.Property<LocalTime?>("CareerStart")
-                        .HasColumnType("time");
+                    b.Property<LocalDate?>("CareerStart")
+                        .HasColumnType("date");
 
                     b.ToTable("Managers", (string)null);
                 });
@@ -194,8 +194,8 @@ namespace Competition.Infrastructure.Migrations
                 {
                     b.HasBaseType("Competition.Domain.Entities.Person.Person");
 
-                    b.Property<LocalTime?>("CareerStart")
-                        .HasColumnType("time");
+                    b.Property<LocalDate?>("CareerStart")
+                        .HasColumnType("date");
 
                     b.ToTable("Referees", (string)null);
                 });

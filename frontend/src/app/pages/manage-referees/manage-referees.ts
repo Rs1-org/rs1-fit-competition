@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
 import { emptyPersonFields, Referee } from '../../core/models/person.models';
 import { environment } from '../../../environments/environment';
@@ -12,57 +12,91 @@ import { environment } from '../../../environments/environment';
   templateUrl: './manage-referees.html',
   styleUrl: './manage-referees.css',
 })
-export class ManageReferees {
+export class ManageReferees implements OnInit {
   referee: Referee = {
     ...emptyPersonFields(),
     careerStart: null,
   };
 
-  constructor(private router: Router) {}
+  editingId: string | null = null;
+  isEditMode = false;
+  pictureChanged = false;
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+  ) {}
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.editingId = id;
+      this.isEditMode = true;
+      void this.loadReferee(id);
+    }
+  }
 
   get isRefereeInvalid(): boolean {
-    return !this.referee.firstName.trim() || !this.referee.lastName.trim();
+    return (
+      !this.referee.firstName.trim() ||
+      !this.referee.lastName.trim() ||
+      !this.referee.dateOfBirth
+    );
+  }
+
+  async loadReferee(id: string): Promise<void> {
+    const response = await fetch(`${environment.apiUrl}/api/referee/${id}`);
+    if (!response.ok) return;
+
+    const data = await response.json();
+    this.referee = {
+      id: data.id,
+      firstName: data.firstName ?? '',
+      lastName: data.lastName ?? '',
+      dateOfBirth: data.dateOfBirth ?? '',
+      picture: data.picture ?? null,
+      careerStart: data.careerStart ?? null,
+    };
+    this.pictureChanged = false;
   }
 
   async onPictureSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    if (!file) {
-      this.referee.picture = null;
-      return;
-    }
+    if (!file) return;
+
     this.referee.picture = await fileToBase64(file);
+    this.pictureChanged = true;
   }
 
   async saveReferee(): Promise<void> {
-    const payload = {
+    const payload: Record<string, unknown> = {
       firstName: this.referee.firstName.trim(),
       lastName: this.referee.lastName.trim(),
-      dateOfBirth: this.referee.dateOfBirth || '00:00:00',
-      picture: this.referee.picture,
+      dateOfBirth: this.referee.dateOfBirth,
       careerStart: this.referee.careerStart || null,
     };
 
-    const response = await fetch(`${environment.apiUrl}/api/referee`, {
-      method: 'POST',
+    if (!this.isEditMode || this.pictureChanged) {
+      payload['picture'] = this.referee.picture;
+    }
+
+    const url = this.isEditMode
+      ? `${environment.apiUrl}/api/referee/${this.editingId}`
+      : `${environment.apiUrl}/api/referee`;
+
+    const response = await fetch(url, {
+      method: this.isEditMode ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
     if (response.ok) {
-      this.resetForm();
       this.router.navigate(['/referee-list']);
     }
   }
 
   cancel(): void {
-    this.resetForm();
-  }
-
-  private resetForm(): void {
-    this.referee = {
-      ...emptyPersonFields(),
-      careerStart: null,
-    };
+    this.router.navigate(['/referee-list']);
   }
 }

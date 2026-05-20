@@ -76,7 +76,7 @@ public class PlayerService : IPlayerService
         Id = player.Id,
         FirstName = player.FirstName,
         LastName = player.LastName,
-        DateOfBirth = NodaTimeMappingHelper.FormatLocalTime(player.DateOfBirth),
+        DateOfBirth = NodaTimeMappingHelper.FormatLocalDate(player.DateOfBirth),
         Picture = player.Picture,
         Height = player.Height,
         ShirtNumber = player.ShirtNumber,
@@ -87,7 +87,7 @@ public class PlayerService : IPlayerService
     {
         FirstName = dto.FirstName,
         LastName = dto.LastName,
-        DateOfBirth = NodaTimeMappingHelper.ParseLocalTime(dto.DateOfBirth),
+        DateOfBirth = NodaTimeMappingHelper.ParseLocalDate(dto.DateOfBirth),
         Picture = dto.Picture ?? Array.Empty<byte>(),
         Height = dto.Height,
         ShirtNumber = dto.ShirtNumber,
@@ -98,8 +98,9 @@ public class PlayerService : IPlayerService
     {
         player.FirstName = dto.FirstName;
         player.LastName = dto.LastName;
-        player.DateOfBirth = NodaTimeMappingHelper.ParseLocalTime(dto.DateOfBirth);
-        player.Picture = dto.Picture ?? Array.Empty<byte>();
+        player.DateOfBirth = NodaTimeMappingHelper.ParseLocalDate(dto.DateOfBirth);
+        if (dto.Picture != null)
+            player.Picture = dto.Picture;
         player.Height = dto.Height;
         player.ShirtNumber = dto.ShirtNumber;
         player.TransferValue = dto.TransferValue;
