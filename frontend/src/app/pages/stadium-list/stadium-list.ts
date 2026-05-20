@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
@@ -15,6 +15,8 @@ import { StadiumForm } from '../../components/stadium-form/stadium-form';
   styleUrl: './stadium-list.css',
 })
 export class StadiumList implements OnInit {
+  @ViewChild(StadiumForm) stadiumFormRef!: StadiumForm;
+
   stadiums: StadiumListDto[] = [];
   private stadiumService = inject(StadiumService);
   private router = inject(Router);
@@ -39,8 +41,10 @@ export class StadiumList implements OnInit {
   }
 
   edit(stadium: StadiumListDto) {
-    console.log('Editing stadium:', stadium.name);
-    // Logic for editing (could open modal with data)
+    this.stadiumService.getBySlug(stadium.slug).subscribe({
+      next: (data) => this.stadiumFormRef.openForEdit(data),
+      error: (err) => console.error('Error loading stadium details: ', err)
+    });
   }
 
   delete(stadium: StadiumListDto) {

@@ -19,6 +19,17 @@ export class Dropdown {
   isOpen = signal(false);
   selectedValue = signal<any>(null);
 
+  constructor() {
+    effect(() => {
+      const opts = this.options();
+      const val = this.control().value;
+      if (val && opts.length > 0) {
+        const found = opts.find((o: any) => o[this.optionValue()] === val);
+        if (found) this.selectedValue.set(found);
+      }
+    });
+  }
+
   toggle() {
     this.isOpen.update(v => !v);
   }

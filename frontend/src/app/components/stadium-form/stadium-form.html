@@ -1,5 +1,5 @@
 @if(modalState.isOpen()){
-<app-modal [title]="'Add Stadium'" (close)="modalState.close(form)" width="800px">
+<app-modal [title]="editingSlug ? 'Edit Stadium' : 'Add Stadium'" (close)="closeModal()" width="800px">
     <form [formGroup]="form" (ngSubmit)="onSubmit()" id="stadium-form">
         <app-input-box
             label="Name"
@@ -33,11 +33,15 @@
             [control]="form.controls.pictureUrl"
         ></app-input-box>
 
-        <app-map 
+        <app-map
             style="grid-column: span 2"
+            [lat]="form.controls.latitude.value"
+            [lng]="form.controls.longitude.value"
+            [markerLat]="editingSlug ? form.controls.latitude.value : null"
+            [markerLng]="editingSlug ? form.controls.longitude.value : null"
             (locationSelected)="onLocationSelected($event)">
         </app-map>
-        
+
         <app-input-box
             label="Location Description"
             type="textarea"
@@ -50,7 +54,7 @@
         <app-button
             type="submit"
             form="stadium-form"
-            text="Submit"
+            [text]="editingSlug ? 'Update' : 'Submit'"
         ></app-button>
     </footer>
 </app-modal>

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, Output, EventEmitter } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputBox } from '../../shared/components/input-box/input-box';
 import { Modal } from '../../shared/components/modal/modal';
@@ -8,6 +8,7 @@ import { Button } from '../../shared/components/button/button';
 import { Dropdown } from '../../shared/components/dropdown/dropdown';
 import { Map } from '../../shared/components/map/map';
 import { ModalState } from '../../core/helpers/modal-state.helper';
+import { StadiumDetailsDto } from '../../core/models/stadium';
 
 @Component({
   selector: 'app-stadium-form',
@@ -18,11 +19,14 @@ import { ModalState } from '../../core/helpers/modal-state.helper';
 })
 export class StadiumForm implements OnInit {
   private fb = inject(NonNullableFormBuilder);
-  modalState = new ModalState();
-  
   private cityService = inject(CityService);
   private stadiumService = inject(StadiumService);
+
+  modalState = new ModalState();
+  editingSlug: string | null = null;
   cities: any[] = [];
+
+  @Output() saved = new EventEmitter<void>();
 
   form = this.fb.group({
     name: this.fb.control('', { validators: Validators.required }),
@@ -30,50 +34,69 @@ export class StadiumForm implements OnInit {
     dateOfConstruction: this.fb.control('', { validators: Validators.required }),
     pictureUrl: this.fb.control(''),
     cityId: this.fb.control('', { validators: Validators.required }),
-    latitude: this.fb.control(40, { validators: Validators.required }),
-    longitude: this.fb.control(41, { validators: Validators.required }),
+    latitude: this.fb.control(43.8563, { validators: Validators.required }),
+    longitude: this.fb.control(18.4131, { validators: Validators.required }),
     geoDescription: this.fb.control('', { validators: Validators.required })
   });
 
   ngOnInit(): void {
     this.loadCities();
   }
-  
+
   loadCities(): void {
     this.cityService.getAll().subscribe({
-      next: (data) => {
-        this.cities = data;
-      },
-      error: (err) => {
-        console.error("Error loading cities: ", err);
-      }
+      next: (data) => { this.cities = data; },
+      error: (err) => console.error('Error loading cities: ', err)
     });
   }
 
-  onLocationSelected(event: { lat: number, lng: number }) {
+  openModal(): void {
+    this.editingSlug = null;
+    this.modalState.open();
+  }
+
+  openForEdit(stadium: StadiumDetailsDto): void {
+    this.editingSlug = stadium.slug ?? null;
     this.form.patchValue({
-      latitude: event.lat,
-      longitude: event.lng
+      name: stadium.name ?? '',
+      capacity: stadium.capacity,
+      dateOfConstruction: new Date(stadium.dateOfConstruction).toISOString().split('T')[0],
+      pictureUrl: stadium.pictureUrl ?? '',
+      cityId: stadium.cityId as unknown as string,
+      latitude: Number(stadium.latitude),
+      longitude: Number(stadium.longitude),
+      geoDescription: stadium.geoDescription ?? ''
     });
+    this.modalState.open();
   }
 
-  onSubmit() {
+  closeModal(): void {
+    this.editingSlug = null;
+    this.modalState.close(this.form);
+  }
+
+  onLocationSelected(event: { lat: number, lng: number }): void {
+    this.form.patchValue({ latitude: event.lat, longitude: event.lng });
+  }
+
+  onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    this.stadiumService.create(this.form.getRawValue()).subscribe({
-      next: (data) => {
-        this.modalState.close(this.form);
-        console.log("Stadium created: ", data);
-        // Refresh list would be good here, maybe emit an event
-      },
-      error: (err) => console.error("Error creating stadium: ", err)
-    });
-  }
+    const value = this.form.getRawValue();
 
-  openModal(): void {
-    this.modalState.open();
+    if (this.editingSlug) {
+      this.stadiumService.update(this.editingSlug, value).subscribe({
+        next: () => { this.closeModal(); this.saved.emit(); },
+        error: (err) => console.error('Error updating stadium: ', err)
+      });
+    } else {
+      this.stadiumService.create(value).subscribe({
+        next: () => { this.closeModal(); this.saved.emit(); },
+        error: (err) => console.error('Error creating stadium: ', err)
+      });
+    }
   }
 }

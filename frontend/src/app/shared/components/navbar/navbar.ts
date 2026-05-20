@@ -46,6 +46,14 @@ export class Navbar {
     this.router.navigate(['/stadium-list']);
   }
 
+  openCities() {
+    this.router.navigate(['/city-list']);
+  }
+
+  openCountries() {
+    this.router.navigate(['/country-list']);
+  }
+
   @ViewChild(AuthModalComponent)
   authModal!: AuthModalComponent;
 

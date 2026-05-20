@@ -13,6 +13,8 @@ export const routes: Routes = [
     {path:'manage-referees',component:ManageReferees},
     {path:'manage-managers',component:ManageManagers},
     {path:'stadium-list', loadComponent: () => import('./pages/stadium-list/stadium-list').then(m => m.StadiumList)},
+    {path:'city-list', loadComponent: () => import('./pages/city-list/city-list').then(m => m.CityList)},
+    {path:'country-list', loadComponent: () => import('./pages/country-list/country-list').then(m => m.CountryList)},
     {path:'player-list', loadComponent: () => import('./pages/player-list/player-list').then(m => m.PlayerList)},
     {path:'player/:id', loadComponent: () => import('./pages/player-view/player-view').then(m => m.PlayerView)},
     {

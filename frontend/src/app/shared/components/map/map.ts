@@ -22,6 +22,8 @@ export class Map implements AfterViewInit, OnDestroy {
   lat = input<number>(43.8563);
   lng = input<number>(18.4131);
   zoom = input<number>(6);
+  markerLat = input<number | null>(null);
+  markerLng = input<number | null>(null);
 
   locationSelected = output<{ lat: number, lng: number }>();
 
@@ -40,6 +42,12 @@ export class Map implements AfterViewInit, OnDestroy {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
+
+    const mLat = this.markerLat();
+    const mLng = this.markerLng();
+    if (mLat !== null && mLng !== null) {
+      this.placeMarker(L.latLng(mLat, mLng));
+    }
 
     this.map.on('click', (e: L.LeafletMouseEvent) => {
       this.placeMarker(e.latlng);
