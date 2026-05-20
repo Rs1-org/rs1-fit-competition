@@ -19,6 +19,17 @@ export class Dropdown {
   isOpen = signal(false);
   selectedValue = signal<any>(null);
 
+  constructor() {
+    effect(() => {
+      const opts = this.options();
+      const val = this.control().value;
+      if (val && opts.length > 0) {
+        const found = opts.find((o: any) => o[this.optionValue()] === val);
+        if (found) this.selectedValue.set(found);
+      }
+    });
+  }
+
   toggle() {
     this.isOpen.update(v => !v);
   }
@@ -36,6 +47,7 @@ export class Dropdown {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
+    if (!this.isOpen()) return;
     const target = event.target as HTMLElement;
     if (!target.closest('app-dropdown')) {
       this.isOpen.set(false);

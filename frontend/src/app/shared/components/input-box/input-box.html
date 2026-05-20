@@ -1,6 +1,6 @@
 <div [class.checkbox-wrapper]="type() === 'checkbox'">
   <label>{{ label() }}</label>
-  
+
   @if (type() === 'file') {
     <input
       type="file"
@@ -8,9 +8,6 @@
       class="input-value"
       (change)="fileChange.emit($event)"
     />
-      @if (control().invalid && control().touched) {
-      <span>This field is required</span>
-    }
   }
   @else if (type() === 'checkbox') {
       <input
@@ -25,8 +22,8 @@
         class="input-value textarea"
       ></textarea>
       @if (control().invalid && control().touched) {
-      <span>This field is required</span>
-    }
+        <span>{{ errorMessage() }}</span>
+      }
   }
    @else {
     <input
@@ -36,7 +33,7 @@
       class="input-value"
     />
     @if (control().invalid && control().touched) {
-      <span>This field is required</span>
+      <span>{{ errorMessage() }}</span>
     }
   }
 </div>

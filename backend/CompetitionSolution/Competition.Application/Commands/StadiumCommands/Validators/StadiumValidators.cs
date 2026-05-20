@@ -12,6 +12,8 @@ public class CreateStadiumCommandValidator : AbstractValidator<CreateStadiumComm
         RuleFor(x => x.Name).NotEmpty().MaximumLength(150);
         RuleFor(x => x.Capacity).GreaterThan(0);
         RuleFor(x => x.CityId).NotEmpty();
+        RuleFor(x => x.DateOfConstruction).NotEmpty();
+        RuleFor(x => x.GeoDescription).NotEmpty().MaximumLength(500);
         RuleFor(x => x.Latitude).InclusiveBetween(-90, 90);
         RuleFor(x => x.Longitude).InclusiveBetween(-180, 180);
     }
@@ -25,6 +27,8 @@ public class UpdateStadiumCommandValidator : AbstractValidator<UpdateStadiumComm
         RuleFor(x => x.Name).NotEmpty().MaximumLength(150);
         RuleFor(x => x.Capacity).GreaterThan(0);
         RuleFor(x => x.CityId).NotEmpty();
+        RuleFor(x => x.DateOfConstruction).NotEmpty();
+        RuleFor(x => x.GeoDescription).NotEmpty().MaximumLength(500);
         RuleFor(x => x.Latitude).InclusiveBetween(-90, 90);
         RuleFor(x => x.Longitude).InclusiveBetween(-180, 180);
     }
