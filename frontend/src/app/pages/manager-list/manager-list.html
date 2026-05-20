@@ -1,20 +1,19 @@
 <div class="container">
   <h1>Lista menadžera</h1>
 
-  <app-generic-search 
-    placeholder="Pretraži menadžere..." 
-    (onSearch)="search($event)">
-  </app-generic-search>
-  <app-generic-list 
-    [items]="managers" 
+  <app-generic-search placeholder="Pretraži menadžere..." (onSearch)="search($event)"></app-generic-search>
+
+  <app-generic-list
+    [items]="managers"
     variant="card"
     (view)="view($event)"
     (update)="edit($event)"
-    (delete)="delete($event)">
-    
+    (delete)="delete($event)"
+  >
     <ng-template #itemTemplate let-manager>
-      <div class="item-title">Početak karijere: {{ manager.careerStart | date:'mediumDate' }}</div>
+      <div class="item-title">{{ manager.firstName }} {{ manager.lastName }}</div>
+      <div class="item-subtitle">Datum rođenja: {{ manager.dateOfBirth || '—' }}</div>
+      <div class="item-meta">Početak karijere: {{ manager.careerStart || '—' }}</div>
     </ng-template>
-
   </app-generic-list>
 </div>

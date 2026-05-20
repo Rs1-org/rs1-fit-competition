@@ -1,50 +1,47 @@
 <div class="player-card-wrapper">
-    <div class="player-card">
+  <div class="player-card">
     <h2>Add Player</h2>
 
     <form (ngSubmit)="savePlayer()" #playerForm="ngForm">
-        <!-- Height -->
-        <div class="form-group">
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" name="firstName" [(ngModel)]="player.firstName" required />
+      </div>
+
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" name="lastName" [(ngModel)]="player.lastName" required />
+      </div>
+
+      <div class="form-group">
+        <label for="dateOfBirth">Date of Birth (time)</label>
+        <input type="time" id="dateOfBirth" name="dateOfBirth" [(ngModel)]="player.dateOfBirth" />
+      </div>
+
+      <div class="form-group">
+        <label for="picture">Picture</label>
+        <input type="file" id="picture" name="picture" accept="image/*" (change)="onPictureSelected($event)" />
+      </div>
+
+      <div class="form-group">
         <label for="height">Height (m)</label>
-        <input
-            type="number"
-            step="0.01"
-            id="height"
-            name="height"
-            [(ngModel)]="player.height"
-            required
-        />
-        </div>
+        <input type="number" step="0.01" id="height" name="height" [(ngModel)]="player.height" required />
+      </div>
 
-        <!-- Shirt Number -->
-        <div class="form-group">
+      <div class="form-group">
         <label for="shirtNumber">Shirt Number</label>
-        <input
-            type="number"
-            id="shirtNumber"
-            name="shirtNumber"
-            [(ngModel)]="player.shirtNumber"
-            required
-        />
-        </div>
+        <input type="number" id="shirtNumber" name="shirtNumber" [(ngModel)]="player.shirtNumber" required />
+      </div>
 
-        <!-- Transfer Value -->
-        <div class="form-group">
+      <div class="form-group">
         <label for="transferValue">Transfer Value (€)</label>
-        <input
-            type="number"
-            step="0.01"
-            id="transferValue"
-            name="transferValue"
-            [(ngModel)]="player.transferValue"
-            required
-        />
-        </div>
-        <div class="button-group">
-            <button type="submit" [disabled]="isPlayerInvalid">Save Player</button>
-            <button type="button" style="background-color:  #e74c3c;;" (click)="cancel()" [disabled]="!playerForm.form.valid">Cancel</button>
-        </div>
-        
+        <input type="number" step="0.01" id="transferValue" name="transferValue" [(ngModel)]="player.transferValue" required />
+      </div>
+
+      <div class="button-group">
+        <button type="submit" [disabled]="isPlayerInvalid">Save Player</button>
+        <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+      </div>
     </form>
-    </div>
+  </div>
 </div>

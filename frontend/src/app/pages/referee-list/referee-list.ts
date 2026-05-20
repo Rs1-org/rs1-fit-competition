@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { Router } from '@angular/router';
+import { Referee } from '../../core/models/person.models';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-referee-list',
@@ -11,62 +13,55 @@ import { Router } from '@angular/router';
   styleUrl: './referee-list.css',
 })
 export class RefereeList implements OnInit {
+  referees: Referee[] = [];
 
-  referees: any[] = [];
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+  ) {}
 
-  constructor(private cdr: ChangeDetectorRef, private router: Router) {}
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.getAllReferees();
   }
 
-  view(referee: any) {
+  view(referee: Referee): void {
     this.router.navigate(['/referee', referee.id]);
   }
 
-  getAllReferees() {
-    fetch('https://localhost:7208/api/referee')
-      .then(response => response.json())
-      .then(data => {
+  getAllReferees(): void {
+    fetch(`${environment.apiUrl}/api/referee`)
+      .then((response) => response.json())
+      .then((data) => {
         this.referees = Array.isArray(data) ? data : [data];
         this.cdr.detectChanges();
       })
-      .catch(error => console.error('Greška pri dohvaćanju sudija:', error));
+      .catch((error) => console.error('Greška pri dohvaćanju sudija:', error));
   }
 
-  edit(referee: any) {
-    console.log('Uređujem sudiju:', referee.id);
+  edit(referee: Referee): void {
+    console.log('Uređujem sudiju:', referee.firstName, referee.lastName);
   }
 
-  delete(referee: any) {
-    fetch(`https://localhost:7208/api/referee`, {
+  delete(referee: Referee): void {
+    fetch(`${environment.apiUrl}/api/referee/${referee.id}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(referee)
     })
-    .then(response => {
-      if (response.ok) {
-        console.log('Sudija obrisan:', referee.id);
-        this.referees = this.referees.filter(r => r.id !== referee.id);
-        this.cdr.detectChanges();
-        this.getAllReferees();
-      } else {
-        console.error('Greška pri brisanju sudije:', response.statusText);
-      }
-    })
-    .catch(error => console.error('Greška pri brisanju sudije:', error));
+      .then((response) => {
+        if (response.ok) {
+          this.referees = this.referees.filter((r) => r.id !== referee.id);
+          this.cdr.detectChanges();
+        }
+      })
+      .catch((error) => console.error('Greška pri brisanju sudije:', error));
   }
 
-  search(term: string) {
-    fetch(`https://localhost:7208/api/referee/search?term=${encodeURIComponent(term)}`)
-      .then(res => res.json())
-      .then(data => {
+  search(term: string): void {
+    fetch(`${environment.apiUrl}/api/referee/search?term=${encodeURIComponent(term)}`)
+      .then((res) => res.json())
+      .then((data) => {
         this.referees = Array.isArray(data) ? data : [data];
         this.cdr.detectChanges();
       })
-      .catch(error => console.error('Greška pri pretraživanju sudija:', error));
+      .catch((error) => console.error('Greška pri pretraživanju sudija:', error));
   }
 }

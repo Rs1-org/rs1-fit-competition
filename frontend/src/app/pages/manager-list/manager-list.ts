@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { Router } from '@angular/router';
+import { Manager } from '../../core/models/person.models';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-manager-list',
@@ -11,62 +13,55 @@ import { Router } from '@angular/router';
   styleUrl: './manager-list.css',
 })
 export class ManagerList implements OnInit {
+  managers: Manager[] = [];
 
-  managers: any[] = [];
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+  ) {}
 
-  constructor(private cdr: ChangeDetectorRef, private router: Router) {}
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.getAllManagers();
   }
 
-  view(manager: any) {
+  view(manager: Manager): void {
     this.router.navigate(['/manager', manager.id]);
   }
 
-  getAllManagers() {
-    fetch('https://localhost:7208/api/manager')
-      .then(response => response.json())
-      .then(data => {
+  getAllManagers(): void {
+    fetch(`${environment.apiUrl}/api/manager`)
+      .then((response) => response.json())
+      .then((data) => {
         this.managers = Array.isArray(data) ? data : [data];
         this.cdr.detectChanges();
       })
-      .catch(error => console.error('Greška pri dohvaćanju menadžera:', error));
+      .catch((error) => console.error('Greška pri dohvaćanju menadžera:', error));
   }
 
-  edit(manager: any) {
-    console.log('Uređujem menadžera:', manager.id);
+  edit(manager: Manager): void {
+    console.log('Uređujem menadžera:', manager.firstName, manager.lastName);
   }
 
-  delete(manager: any) {
-    fetch(`https://localhost:7208/api/manager`, {
+  delete(manager: Manager): void {
+    fetch(`${environment.apiUrl}/api/manager/${manager.id}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(manager)
     })
-    .then(response => {
-      if (response.ok) {
-        console.log('Menadžer obrisan:', manager.id);
-        this.managers = this.managers.filter(m => m.id !== manager.id);
-        this.cdr.detectChanges();
-        this.getAllManagers();
-      } else {
-        console.error('Greška pri brisanju menadžera:', response.statusText);
-      }
-    })
-    .catch(error => console.error('Greška pri brisanju menadžera:', error));
+      .then((response) => {
+        if (response.ok) {
+          this.managers = this.managers.filter((m) => m.id !== manager.id);
+          this.cdr.detectChanges();
+        }
+      })
+      .catch((error) => console.error('Greška pri brisanju menadžera:', error));
   }
 
-  search(term: string) {
-    fetch(`https://localhost:7208/api/manager/search?term=${encodeURIComponent(term)}`)
-      .then(res => res.json())
-      .then(data => {
+  search(term: string): void {
+    fetch(`${environment.apiUrl}/api/manager/search?term=${encodeURIComponent(term)}`)
+      .then((res) => res.json())
+      .then((data) => {
         this.managers = Array.isArray(data) ? data : [data];
         this.cdr.detectChanges();
       })
-      .catch(error => console.error('Greška pri pretraživanju menadžera:', error));
+      .catch((error) => console.error('Greška pri pretraživanju menadžera:', error));
   }
 }
