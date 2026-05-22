@@ -89,7 +89,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<Country> Countries { get; set; }
     public DbSet<GeoData> GeoDatas { get; set; }
     public DbSet<City> Cities { get; set; }
-    public DbSet<Stadium> Stadiums { get; set; }
     public DbSet<Person> Persons { get; set; } = null!;
+    public DbSet<Stadium> Stadiums { get; set; }
 
 }
