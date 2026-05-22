@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { Modal } from '../../shared/components/modal/modal';
 import { CountryForm } from '../../components/country-form/country-form';
 // import { Navbar } from '../../shared/components/navbar/navbar';
 

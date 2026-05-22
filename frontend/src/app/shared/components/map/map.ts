@@ -1,7 +1,6 @@
-import { Component, OnInit, output, input } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef, output, input } from '@angular/core';
 import * as L from 'leaflet';
 
-// Fix leaflet default marker icon
 const iconDefault = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -19,31 +18,45 @@ L.Marker.prototype.options.icon = iconDefault;
   templateUrl: './map.html',
   styleUrl: './map.css'
 })
-export class Map implements OnInit {
+export class Map implements AfterViewInit, OnDestroy {
   lat = input<number>(43.8563);
   lng = input<number>(18.4131);
   zoom = input<number>(6);
-  
+  markerLat = input<number | null>(null);
+  markerLng = input<number | null>(null);
+
   locationSelected = output<{ lat: number, lng: number }>();
+
+  @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLDivElement>;
 
   private map!: L.Map;
   private marker: L.Marker | null = null;
 
-  ngOnInit() {
-    this.initMap();
+  ngAfterViewInit() {
+    requestAnimationFrame(() => setTimeout(() => this.initMap(), 0));
   }
 
   private initMap() {
-    this.map = L.map('map').setView([this.lat(), this.lng()], this.zoom());
+    this.map = L.map(this.mapContainer.nativeElement).setView([this.lat(), this.lng()], this.zoom());
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
 
+    const mLat = this.markerLat();
+    const mLng = this.markerLng();
+    if (mLat !== null && mLng !== null) {
+      this.placeMarker(L.latLng(mLat, mLng));
+    }
+
     this.map.on('click', (e: L.LeafletMouseEvent) => {
       this.placeMarker(e.latlng);
       this.locationSelected.emit({ lat: e.latlng.lat, lng: e.latlng.lng });
     });
+  }
+
+  ngOnDestroy() {
+    this.map?.remove();
   }
 
   private placeMarker(latlng: L.LatLng) {

@@ -1,0 +1,36 @@
+
+<div class="container">
+  <div class="header-actions">
+    <h1>Stadiums</h1>
+    <app-stadium-form (saved)="loadStadiums()"></app-stadium-form>
+  </div>
+
+  <app-generic-search 
+    placeholder="Search stadiums..." 
+    (onSearch)="search($event)">
+  </app-generic-search>
+
+  <app-generic-list 
+    [items]="stadiums" 
+    variant="card"
+    (view)="view($event)"
+    (update)="edit($event)"
+    (delete)="delete($event)">
+    
+    <ng-template #itemTemplate let-stadium>
+      <div class="stadium-card-content">
+        @if (stadium.pictureUrl) {
+          <img [src]="stadium.pictureUrl" alt="{{stadium.name}}" class="stadium-img">
+        } @else {
+          <div class="stadium-placeholder">No Image</div>
+        }
+        <div class="stadium-info">
+          <div class="item-title">{{ stadium.name }}</div>
+          <div class="item-subtitle">{{ stadium.cityName }}, {{ stadium.countryName }}</div>
+          <div class="item-meta">Capacity: {{ stadium.capacity | number }}</div>
+        </div>
+      </div>
+    </ng-template>
+
+  </app-generic-list>
+</div>

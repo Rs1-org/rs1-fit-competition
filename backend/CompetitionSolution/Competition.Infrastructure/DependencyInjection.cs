@@ -20,6 +20,7 @@ namespace Competition.Infrastructure
             services.AddScoped<ICity,CityRepository>();
             services.AddScoped<IGeoData,GeoDataRepository>();
             services.AddScoped<ICountry,CountryRepository>();
+            services.AddScoped<IStadium,StadiumRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IBlobStorageService, BlobStorageService>();
             services.AddScoped<IImageService,ImageService>();
