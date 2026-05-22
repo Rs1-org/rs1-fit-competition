@@ -28,6 +28,10 @@ namespace Competition.Infrastructure
             services.AddScoped<IPlayerService,PlayerService>();
             services.AddScoped<IManagerService, ManagerService>();
             services.AddScoped<IRefereeService, RefereeService>();
+            services.AddScoped<IPlayerSelectionHistoryService, PlayerSelectionHistoryService>();
+            services.AddScoped<ISelectionManagerHistoryService, SelectionManagerHistoryService>();
+            services.AddScoped<ITransferValueHistoryService, TransferValueHistoryService>();
+            services.AddScoped<IMandatDateService, MandatDateService>();
 
             return services;
         }
