@@ -2,31 +2,81 @@
   <div class="manager-card">
     <h2>{{ isEditMode ? 'Edit Manager' : 'Add Manager' }}</h2>
 
+    <div class="form-tabs">
+      <button type="button" class="form-tab" [class.active]="activeTab === 'info'" (click)="activeTab = 'info'">
+        Podaci
+      </button>
+      <button type="button" class="form-tab" [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
+        Historija
+      </button>
+    </div>
+
     <form (ngSubmit)="saveManager()" #managerForm="ngForm">
-      <div class="form-group">
-        <label for="firstName">First Name</label>
-        <input type="text" id="firstName" name="firstName" [(ngModel)]="manager.firstName" required />
-      </div>
+      <ng-container *ngIf="activeTab === 'info'">
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input type="text" id="firstName" name="firstName" [(ngModel)]="manager.firstName" required />
+        </div>
 
-      <div class="form-group">
-        <label for="lastName">Last Name</label>
-        <input type="text" id="lastName" name="lastName" [(ngModel)]="manager.lastName" required />
-      </div>
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input type="text" id="lastName" name="lastName" [(ngModel)]="manager.lastName" required />
+        </div>
 
-      <div class="form-group">
-        <label for="dateOfBirth">Date of Birth</label>
-        <input type="date" id="dateOfBirth" name="dateOfBirth" [(ngModel)]="manager.dateOfBirth" required />
-      </div>
+        <div class="form-group">
+          <label for="dateOfBirth">Date of Birth</label>
+          <input type="date" id="dateOfBirth" name="dateOfBirth" [(ngModel)]="manager.dateOfBirth" required />
+        </div>
 
-      <div class="form-group">
-        <label for="picture">Picture</label>
-        <input type="file" id="picture" name="picture" accept="image/*" (change)="onPictureSelected($event)" />
-      </div>
+        <div class="form-group">
+          <label for="picture">Picture</label>
+          <input type="file" id="picture" name="picture" accept="image/*" (change)="onPictureSelected($event)" />
+          <img *ngIf="picturePreview" [src]="picturePreview" alt="Preview slike" class="person-picture-preview" />
+        </div>
 
-      <div class="form-group">
-        <label for="careerStart">Career Start</label>
-        <input type="date" id="careerStart" name="careerStart" [(ngModel)]="manager.careerStart" />
-      </div>
+        <div class="form-group">
+          <label for="careerStart">Career Start</label>
+          <input type="date" id="careerStart" name="careerStart" [(ngModel)]="manager.careerStart" />
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="activeTab === 'history'">
+        <div class="history-tab-content">
+        <p class="history-section-title">Selekcija</p>
+
+        <div class="form-group">
+          <label for="notes">Bilješke</label>
+          <input type="text" id="notes" name="notes" [(ngModel)]="history.selection.notes" />
+        </div>
+
+        <div class="form-group">
+          <label for="wins">Pobjede</label>
+          <input type="number" id="wins" name="wins" [(ngModel)]="history.selection.wins" />
+        </div>
+
+        <div class="form-group">
+          <label for="loses">Porazi</label>
+          <input type="number" id="loses" name="loses" [(ngModel)]="history.selection.loses" />
+        </div>
+
+        <div class="form-group">
+          <label for="draw">Neriješeno</label>
+          <input type="number" id="draw" name="draw" [(ngModel)]="history.selection.draw" />
+        </div>
+
+        <p class="history-section-title">Mandat</p>
+
+        <div class="form-group">
+          <label for="startMandatDate">Početak mandata</label>
+          <input type="date" id="startMandatDate" name="startMandatDate" [(ngModel)]="history.mandat.startMandatDate" />
+        </div>
+
+        <div class="form-group">
+          <label for="endMandatDate">Kraj mandata</label>
+          <input type="date" id="endMandatDate" name="endMandatDate" [(ngModel)]="history.mandat.endMandatDate" />
+        </div>
+        </div>
+      </ng-container>
 
       <div class="button-group">
         <button type="submit" [disabled]="isManagerInvalid">

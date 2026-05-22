@@ -64,21 +64,20 @@ button:disabled {
 }
 .player-card-wrapper {
   display: flex;
-  justify-content: center; /* horizontalno */
-  align-items: center;     /* vertikalno */
-  height: 75vh;           /* puni ekran */
-  width: 100%;
-
-}
-body {
-  display: flex;
   justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0; /* uklanja defaultni margin */
-  background-color: var(--bg-secondary);
+  align-items: flex-start;
+  width: 100%;
+  padding: 2rem 1rem 3rem;
+  box-sizing: border-box;
 }
+
+.history-tab-content {
+  max-height: calc(100vh - 320px);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
 .player-card {
   width: 90%;
-  max-width: 400px;
+  max-width: 450px;
 }

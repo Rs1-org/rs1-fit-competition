@@ -3,7 +3,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
-import { emptyPersonFields, Player } from '../../core/models/person.models';
+import {
+  emptyPlayerHistoryForm,
+  PlayerHistoryForm,
+} from '../../core/models/history.models';
+import { emptyPersonFields, pictureToDataUrl, Player } from '../../core/models/person.models';
+import { HistoryService } from '../../core/services/history.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -20,6 +25,8 @@ export class ManagePlayers implements OnInit {
     transferValue: 0,
   };
 
+  history: PlayerHistoryForm = emptyPlayerHistoryForm();
+  activeTab: 'info' | 'history' = 'info';
   editingId: string | null = null;
   isEditMode = false;
   pictureChanged = false;
@@ -27,6 +34,7 @@ export class ManagePlayers implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
+    private historyService: HistoryService,
   ) {}
 
   ngOnInit(): void {
@@ -52,6 +60,10 @@ export class ManagePlayers implements OnInit {
     );
   }
 
+  get picturePreview(): string | null {
+    return pictureToDataUrl(this.player.picture);
+  }
+
   async loadPlayer(id: string): Promise<void> {
     const response = await fetch(`${environment.apiUrl}/api/player/${id}`);
     if (!response.ok) return;
@@ -68,6 +80,7 @@ export class ManagePlayers implements OnInit {
       transferValue: data.transferValue,
     };
     this.pictureChanged = false;
+    this.history = await this.historyService.loadPlayerHistory(id);
   }
 
   async onPictureSelected(event: Event): Promise<void> {
@@ -103,9 +116,18 @@ export class ManagePlayers implements OnInit {
       body: JSON.stringify(payload),
     });
 
-    if (response.ok) {
-      this.router.navigate(['/player-list']);
+    if (!response.ok) return;
+
+    const saved = await response.json();
+    const playerId = this.isEditMode ? this.editingId! : saved.id;
+
+    try {
+      await this.historyService.savePlayerHistory(playerId, this.history);
+    } catch {
+      return;
     }
+
+    this.router.navigate(['/player-list']);
   }
 
   cancel(): void {
