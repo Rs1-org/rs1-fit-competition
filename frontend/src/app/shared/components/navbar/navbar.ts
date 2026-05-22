@@ -41,6 +41,12 @@ export class Navbar {
   openListPlayers() {
     this.router.navigate(['/player-list']);
   }
+  openListReferees() {
+    this.router.navigate(['/referee-list']);
+  }
+  openListManagers() {
+    this.router.navigate(['/manager-list']);
+  }
 
   openStadiums() {
     this.router.navigate(['/stadium-list']);

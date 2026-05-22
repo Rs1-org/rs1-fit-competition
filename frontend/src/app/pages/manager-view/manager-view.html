@@ -1,0 +1,13 @@
+<div class="container">
+  <button class="btn-back" (click)="goBack()">⬅ Natrag na listu</button>
+
+  <app-generic-view
+    *ngIf="selectedManager" 
+    [data]="selectedManager" 
+    title="Karton Menadžera">
+  </app-generic-view>
+
+  <div *ngIf="!selectedManager" class="loading">
+    Učitavanje podataka o menadžeru...
+  </div>
+</div>

@@ -1,0 +1,15 @@
+.referee-details {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.referee-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.referee-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
