@@ -1,27 +1,39 @@
 <div class="referee-card-wrapper">
-    <div class="referee-card">
-    <h2>Add Referee</h2>
+  <div class="referee-card">
+    <h2>{{ isEditMode ? 'Edit Referee' : 'Add Referee' }}</h2>
 
     <form (ngSubmit)="saveReferee()" #refereeForm="ngForm">
-        <!-- Height -->
-        <div class="form-group">
-        <label for="height">Career start date</label>
-        <input
-            type="date"
-            step="0.01"
-            id="careerStart"
-            name="careerStart"
-            [(ngModel)]="referee.careerStart"
-            required
-        />
-        </div>
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" name="firstName" [(ngModel)]="referee.firstName" required />
+      </div>
 
-        
-        <div class="button-group">
-            <button type="submit" [disabled]="!referee.careerStart">Save Referee</button>
-            <button type="button" style="background-color:  #e74c3c;;" (click)="cancel()" >Cancel</button>
-        </div>
-        
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" name="lastName" [(ngModel)]="referee.lastName" required />
+      </div>
+
+      <div class="form-group">
+        <label for="dateOfBirth">Date of Birth</label>
+        <input type="date" id="dateOfBirth" name="dateOfBirth" [(ngModel)]="referee.dateOfBirth" required />
+      </div>
+
+      <div class="form-group">
+        <label for="picture">Picture</label>
+        <input type="file" id="picture" name="picture" accept="image/*" (change)="onPictureSelected($event)" />
+      </div>
+
+      <div class="form-group">
+        <label for="careerStart">Career Start</label>
+        <input type="date" id="careerStart" name="careerStart" [(ngModel)]="referee.careerStart" />
+      </div>
+
+      <div class="button-group">
+        <button type="submit" [disabled]="isRefereeInvalid">
+          {{ isEditMode ? 'Update Referee' : 'Save Referee' }}
+        </button>
+        <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+      </div>
     </form>
-    </div>
+  </div>
 </div>

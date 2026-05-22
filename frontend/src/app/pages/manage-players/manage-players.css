@@ -48,6 +48,14 @@ button:disabled {
   background-color: #aaa;
   cursor: not-allowed;
 }
+
+.btn-cancel {
+  background-color: #e74c3c;
+}
+
+.btn-cancel:hover {
+  background-color: #c0392b;
+}
 .button-group {
   display: flex;
   justify-content: center;

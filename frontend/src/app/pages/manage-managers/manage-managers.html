@@ -1,28 +1,39 @@
 <div class="manager-card-wrapper">
-    <div class="manager-card">
-    <h2>Add Manager</h2>
+  <div class="manager-card">
+    <h2>{{ isEditMode ? 'Edit Manager' : 'Add Manager' }}</h2>
 
     <form (ngSubmit)="saveManager()" #managerForm="ngForm">
-        <!-- Height -->
-        <div class="form-group">
-        <label for="height">Career start date</label>
-        <input
-            type="date"
-            step="0.01"
-            id="careerStart"
-            name="careerStart"
-            [(ngModel)]="manager.careerStart"
-            required
-        />
-        </div>
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" name="firstName" [(ngModel)]="manager.firstName" required />
+      </div>
 
-        
-        <div class="button-group">
-            <button type="submit" [disabled]="!manager.careerStart">Save Manager</button>
-            <button type="button" style="background-color:  #e74c3c;;" (click)="cancel()" >Cancel</button>
-        </div>
-        
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" name="lastName" [(ngModel)]="manager.lastName" required />
+      </div>
+
+      <div class="form-group">
+        <label for="dateOfBirth">Date of Birth</label>
+        <input type="date" id="dateOfBirth" name="dateOfBirth" [(ngModel)]="manager.dateOfBirth" required />
+      </div>
+
+      <div class="form-group">
+        <label for="picture">Picture</label>
+        <input type="file" id="picture" name="picture" accept="image/*" (change)="onPictureSelected($event)" />
+      </div>
+
+      <div class="form-group">
+        <label for="careerStart">Career Start</label>
+        <input type="date" id="careerStart" name="careerStart" [(ngModel)]="manager.careerStart" />
+      </div>
+
+      <div class="button-group">
+        <button type="submit" [disabled]="isManagerInvalid">
+          {{ isEditMode ? 'Update Manager' : 'Save Manager' }}
+        </button>
+        <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+      </div>
     </form>
-    </div>
+  </div>
 </div>
-

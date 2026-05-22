@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { GenericView } from '../../generic/generic-view/generic-view';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { formatPictureForView } from '../../core/models/person.models';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-referee-view',
@@ -10,25 +12,34 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
   styleUrl: './referee-view.css',
 })
 export class RefereeView implements OnInit {
-  selectedReferee: any;
-  
-  constructor(private route: ActivatedRoute, private cdr: ChangeDetectorRef, private router: Router) {}
+  selectedReferee: Record<string, unknown> | null = null;
 
-  ngOnInit() {
+  constructor(
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+  ) {}
+
+  ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    
-    if (id) {
-      fetch(`https://localhost:7208/api/referee/${id}`)
-        .then(res => res.json())
-        .then(data => {
-          this.selectedReferee = data;
-          this.cdr.detectChanges();
-        })
-        .catch(err => console.error('Greška pri dohvaćanju:', err));
-    }
+    if (!id) return;
+
+    fetch(`${environment.apiUrl}/api/referee/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        this.selectedReferee = {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          dateOfBirth: data.dateOfBirth,
+          picture: formatPictureForView(data.picture),
+          careerStart: data.careerStart || '—',
+        };
+        this.cdr.detectChanges();
+      })
+      .catch((err) => console.error('Greška pri dohvaćanju:', err));
   }
 
-  goBack() {
+  goBack(): void {
     this.router.navigate(['/referee-list']);
   }
 }
