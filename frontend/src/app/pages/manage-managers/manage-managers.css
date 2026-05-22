@@ -64,21 +64,20 @@ button:disabled {
 }
 .manager-card-wrapper {
   display: flex;
-  justify-content: center; 
-  align-items: center;    
-  height: 75vh;          
-  width: 100%;
-
-}
-body {
-  display: flex;
   justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  background-color: var(--bg-secondary);
+  align-items: flex-start;
+  width: 100%;
+  padding: 2rem 1rem 3rem;
+  box-sizing: border-box;
 }
+
+.history-tab-content {
+  max-height: calc(100vh - 320px);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
 .manager-card {
   width: 90%;
-  max-width: 400px;
+  max-width: 450px;
 }

@@ -1,11 +1,47 @@
 <div class="container">
   <button class="btn-back" (click)="goBack()">⬅ Natrag na listu</button>
 
-  <app-generic-view
-    *ngIf="selectedManager" 
-    [data]="selectedManager" 
-    title="Karton Menadžera">
-  </app-generic-view>
+  <div class="detail-card" *ngIf="selectedManager">
+    <div class="detail-header">
+      <h2>Karton Menadžera</h2>
+      <div class="card-tabs" *ngIf="showHistoryTab">
+        <button
+          type="button"
+          class="card-tab"
+          [class.active]="activeTab === 'info'"
+          (click)="activeTab = 'info'">
+          Podaci
+        </button>
+        <button
+          type="button"
+          class="card-tab"
+          [class.active]="activeTab === 'history'"
+          (click)="activeTab = 'history'">
+          Historija
+        </button>
+      </div>
+    </div>
+
+    <div class="detail-body">
+      <div class="detail-picture-wrap" *ngIf="pictureUrl && activeTab === 'info'">
+        <img [src]="pictureUrl" alt="Slika menadžera" class="person-picture-preview" />
+      </div>
+
+      <ng-container *ngIf="activeTab === 'info'">
+        <div class="detail-row" *ngFor="let prop of displayProperties">
+          <span class="label">{{ prop.key }}:</span>
+          <span class="value">{{ prop.value }}</span>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="activeTab === 'history'">
+        <div class="detail-row" *ngFor="let row of historyRows">
+          <span class="label">{{ row.label }}:</span>
+          <span class="value">{{ row.value }}</span>
+        </div>
+      </ng-container>
+    </div>
+  </div>
 
   <div *ngIf="!selectedManager" class="loading">
     Učitavanje podataka o menadžeru...

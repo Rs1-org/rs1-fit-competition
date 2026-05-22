@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
-import { emptyPersonFields, Referee } from '../../core/models/person.models';
+import { emptyPersonFields, pictureToDataUrl, Referee } from '../../core/models/person.models';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -42,6 +42,10 @@ export class ManageReferees implements OnInit {
       !this.referee.lastName.trim() ||
       !this.referee.dateOfBirth
     );
+  }
+
+  get picturePreview(): string | null {
+    return pictureToDataUrl(this.referee.picture);
   }
 
   async loadReferee(id: string): Promise<void> {

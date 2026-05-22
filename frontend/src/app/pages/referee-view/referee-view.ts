@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { GenericView } from '../../generic/generic-view/generic-view';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { formatPictureForView } from '../../core/models/person.models';
+import { pictureToDataUrl } from '../../core/models/person.models';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -13,6 +13,7 @@ import { environment } from '../../../environments/environment';
 })
 export class RefereeView implements OnInit {
   selectedReferee: Record<string, unknown> | null = null;
+  pictureUrl: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -31,9 +32,9 @@ export class RefereeView implements OnInit {
           firstName: data.firstName,
           lastName: data.lastName,
           dateOfBirth: data.dateOfBirth,
-          picture: formatPictureForView(data.picture),
           careerStart: data.careerStart || '—',
         };
+        this.pictureUrl = pictureToDataUrl(data.picture);
         this.cdr.detectChanges();
       })
       .catch((err) => console.error('Greška pri dohvaćanju:', err));

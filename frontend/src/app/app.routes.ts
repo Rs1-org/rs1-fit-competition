@@ -1,14 +1,21 @@
 import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
 import { CityList } from './pages/city-list/city-list';
+import { CountryList } from './pages/country-list/country-list';
 import { ManagePlayers } from './pages/manage-players/manage-players';
 import { ManageReferees } from './pages/manage-referees/manage-referees';
 import { ManageManagers } from './pages/manage-managers/manage-managers';
 import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', component: CityList },
   { path: '', component: Home },
+  { path: 'city-list', component: CityList },
+  { path: 'country-list', component: CountryList },
+  {
+    path: 'stadium-list',
+    loadComponent: () =>
+      import('./pages/stadium-list/stadium-list').then((m) => m.StadiumList),
+  },
   { path: 'manage-players', component: ManagePlayers },
   { path: 'manage-players/:id', component: ManagePlayers },
   { path: 'manage-referees', component: ManageReferees },

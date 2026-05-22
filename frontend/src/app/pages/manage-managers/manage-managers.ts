@@ -3,7 +3,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
-import { emptyPersonFields, Manager } from '../../core/models/person.models';
+import {
+  emptyManagerHistoryForm,
+  ManagerHistoryForm,
+} from '../../core/models/history.models';
+import { emptyPersonFields, pictureToDataUrl, Manager } from '../../core/models/person.models';
+import { HistoryService } from '../../core/services/history.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -18,6 +23,8 @@ export class ManageManagers implements OnInit {
     careerStart: null,
   };
 
+  history: ManagerHistoryForm = emptyManagerHistoryForm();
+  activeTab: 'info' | 'history' = 'info';
   editingId: string | null = null;
   isEditMode = false;
   pictureChanged = false;
@@ -25,6 +32,7 @@ export class ManageManagers implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
+    private historyService: HistoryService,
   ) {}
 
   ngOnInit(): void {
@@ -44,6 +52,10 @@ export class ManageManagers implements OnInit {
     );
   }
 
+  get picturePreview(): string | null {
+    return pictureToDataUrl(this.manager.picture);
+  }
+
   async loadManager(id: string): Promise<void> {
     const response = await fetch(`${environment.apiUrl}/api/manager/${id}`);
     if (!response.ok) return;
@@ -58,6 +70,7 @@ export class ManageManagers implements OnInit {
       careerStart: data.careerStart ?? null,
     };
     this.pictureChanged = false;
+    this.history = await this.historyService.loadManagerHistory(id);
   }
 
   async onPictureSelected(event: Event): Promise<void> {
@@ -91,9 +104,18 @@ export class ManageManagers implements OnInit {
       body: JSON.stringify(payload),
     });
 
-    if (response.ok) {
-      this.router.navigate(['/manager-list']);
+    if (!response.ok) return;
+
+    const saved = await response.json();
+    const managerId = this.isEditMode ? this.editingId! : saved.id;
+
+    try {
+      await this.historyService.saveManagerHistory(managerId, this.history);
+    } catch {
+      return;
     }
+
+    this.router.navigate(['/manager-list']);
   }
 
   cancel(): void {
