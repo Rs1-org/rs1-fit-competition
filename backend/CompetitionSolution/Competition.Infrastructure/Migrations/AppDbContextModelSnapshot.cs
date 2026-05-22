@@ -229,7 +229,6 @@ namespace Competition.Infrastructure.Migrations
                     b.ToTable("GeoDatas");
                 });
 
-            modelBuilder.Entity("Competition.Domain.Entities.Person.Person", b =>
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Stadium", b =>
                 {
                     b.Property<Guid>("Id")
@@ -276,31 +275,7 @@ namespace Competition.Infrastructure.Migrations
                     b.ToTable("Stadiums");
                 });
 
-            modelBuilder.Entity("Competition.Domain.Entities.Person.Manager", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("gen_random_uuid()");
-
-                    b.Property<DateTime>("CareerStart")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Instant>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Instant?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Instant>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Managers");
-                });
-
-            modelBuilder.Entity("Competition.Domain.Entities.Person.Player", b =>
+            modelBuilder.Entity("Competition.Domain.Entities.Person.Person", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -323,11 +298,6 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("text");
-                    b.Property<Instant?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("Height")
-                        .HasColumnType("numeric");
 
                     b.Property<Instant>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -341,65 +311,6 @@ namespace Competition.Infrastructure.Migrations
                     b.ToTable("Persons", (string)null);
 
                     b.UseTptMappingStrategy();
-                });
-
-            modelBuilder.Entity("Competition.Domain.Entities.Person.Manager", b =>
-                {
-                    b.HasBaseType("Competition.Domain.Entities.Person.Person");
-
-                    b.Property<LocalDate?>("CareerStart")
-                        .HasColumnType("date");
-
-                    b.ToTable("Managers", (string)null);
-                });
-
-            modelBuilder.Entity("Competition.Domain.Entities.Person.Player", b =>
-                {
-                    b.HasBaseType("Competition.Domain.Entities.Person.Person");
-
-                    b.Property<decimal>("Height")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("ShirtNumber")
-                        .HasColumnType("integer");
-
-                    b.Property<float>("TransferValue")
-                        .HasColumnType("real");
-
-                    b.ToTable("Players", (string)null);
-                    b.HasKey("Id");
-
-                    b.ToTable("Players");
-                });
-
-            modelBuilder.Entity("Competition.Domain.Entities.Person.Referee", b =>
-                {
-                    b.HasBaseType("Competition.Domain.Entities.Person.Person");
-
-                    b.Property<LocalDate?>("CareerStart")
-                        .HasColumnType("date");
-
-                    b.ToTable("Referees", (string)null);
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("gen_random_uuid()");
-
-                    b.Property<LocalTime>("CareerStart")
-                        .HasColumnType("time");
-
-                    b.Property<Instant>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Instant?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Instant>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Referees");
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.RefreshToken", b =>
@@ -531,6 +442,42 @@ namespace Competition.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Competition.Domain.Entities.Person.Manager", b =>
+                {
+                    b.HasBaseType("Competition.Domain.Entities.Person.Person");
+
+                    b.Property<LocalDate?>("CareerStart")
+                        .HasColumnType("date");
+
+                    b.ToTable("Managers", (string)null);
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.Person.Player", b =>
+                {
+                    b.HasBaseType("Competition.Domain.Entities.Person.Person");
+
+                    b.Property<decimal>("Height")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("ShirtNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<float>("TransferValue")
+                        .HasColumnType("real");
+
+                    b.ToTable("Players", (string)null);
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.Person.Referee", b =>
+                {
+                    b.HasBaseType("Competition.Domain.Entities.Person.Person");
+
+                    b.Property<LocalDate?>("CareerStart")
+                        .HasColumnType("date");
+
+                    b.ToTable("Referees", (string)null);
+                });
+
             modelBuilder.Entity("Competition.Domain.Entities.City", b =>
                 {
                     b.HasOne("Competition.Domain.Entities.Country", "Country")
@@ -550,11 +497,6 @@ namespace Competition.Infrastructure.Migrations
                     b.Navigation("GeoData");
                 });
 
-            modelBuilder.Entity("Competition.Domain.Entities.Person.Manager", b =>
-                {
-                    b.HasOne("Competition.Domain.Entities.Person.Person", null)
-                        .WithOne()
-                        .HasForeignKey("Competition.Domain.Entities.Person.Manager", "Id")
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Stadium", b =>
                 {
                     b.HasOne("Competition.Domain.Entities.City", "City")
@@ -594,11 +536,6 @@ namespace Competition.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Competition.Domain.Entities.Person.Player", b =>
-                {
-                    b.HasOne("Competition.Domain.Entities.Person.Person", null)
-                        .WithOne()
-                        .HasForeignKey("Competition.Domain.Entities.Person.Player", "Id")
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
                     b.HasOne("Competition.Domain.Entities.ApplicationUser", null)
@@ -608,11 +545,6 @@ namespace Competition.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Competition.Domain.Entities.Person.Referee", b =>
-                {
-                    b.HasOne("Competition.Domain.Entities.Person.Person", null)
-                        .WithOne()
-                        .HasForeignKey("Competition.Domain.Entities.Person.Referee", "Id")
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
                     b.HasOne("Competition.Domain.Entities.ApplicationUser", null)
@@ -642,6 +574,33 @@ namespace Competition.Infrastructure.Migrations
                     b.HasOne("Competition.Domain.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.Person.Manager", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.Person.Person", null)
+                        .WithOne()
+                        .HasForeignKey("Competition.Domain.Entities.Person.Manager", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.Person.Player", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.Person.Person", null)
+                        .WithOne()
+                        .HasForeignKey("Competition.Domain.Entities.Person.Player", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.Person.Referee", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.Person.Person", null)
+                        .WithOne()
+                        .HasForeignKey("Competition.Domain.Entities.Person.Referee", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
