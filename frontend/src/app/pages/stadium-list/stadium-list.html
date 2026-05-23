@@ -10,9 +10,13 @@
     (onSearch)="search($event)">
   </app-generic-search>
 
-  <app-generic-list 
-    [items]="stadiums" 
+  <app-generic-list
+    [items]="pagedResult?.items ?? []"
+    [pageSize]="pageSize"
+    [serverTotalItems]="pagedResult?.totalCount"
+    [serverCurrentPage]="currentPage"
     variant="card"
+    (pageChange)="onPageChange($event)"
     (view)="view($event)"
     (update)="edit($event)"
     (delete)="delete($event)">

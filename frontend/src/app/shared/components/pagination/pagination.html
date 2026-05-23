@@ -1,0 +1,38 @@
+@if (totalItems() > 0) {
+<div class="pagination-wrapper">
+  <span class="pagination-info">
+    Showing {{ rangeStart() }}&ndash;{{ rangeEnd() }} of {{ totalItems() }}
+  </span>
+
+  @if (totalPages() > 1) {
+  <nav class="pagination-nav" aria-label="Pagination">
+    <button
+      class="page-btn nav-btn"
+      [disabled]="currentPage() === 1"
+      (click)="prev()"
+      aria-label="Previous page"
+    >&#8249;</button>
+
+    @for (page of pages(); track $index) {
+      @if (page === '...') {
+        <span class="page-ellipsis">&hellip;</span>
+      } @else {
+        <button
+          class="page-btn"
+          [class.active]="page === currentPage()"
+          (click)="goTo(page)"
+          [attr.aria-current]="page === currentPage() ? 'page' : null"
+        >{{ page }}</button>
+      }
+    }
+
+    <button
+      class="page-btn nav-btn"
+      [disabled]="currentPage() === totalPages()"
+      (click)="next()"
+      aria-label="Next page"
+    >&#8250;</button>
+  </nav>
+  }
+</div>
+}

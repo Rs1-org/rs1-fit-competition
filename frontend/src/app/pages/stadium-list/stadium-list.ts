@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { StadiumService } from '../../core/services/stadium.service';
 import { StadiumListDto } from '../../core/models/stadium';
 import { StadiumForm } from '../../components/stadium-form/stadium-form';
+import { PagedResult } from '../../core/models/paged-result';
 
 @Component({
   selector: 'app-stadium-list',
@@ -17,7 +18,10 @@ import { StadiumForm } from '../../components/stadium-form/stadium-form';
 export class StadiumList implements OnInit {
   @ViewChild(StadiumForm) stadiumFormRef!: StadiumForm;
 
-  stadiums: StadiumListDto[] = [];
+  pagedResult: PagedResult<StadiumListDto> | null = null;
+  currentPage = 1;
+  readonly pageSize = 10;
+
   private stadiumService = inject(StadiumService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
@@ -26,14 +30,19 @@ export class StadiumList implements OnInit {
     this.loadStadiums();
   }
 
-  loadStadiums() {
-    this.stadiumService.getAll().subscribe({
+  loadStadiums(page = this.currentPage) {
+    this.stadiumService.getAll(page, this.pageSize).subscribe({
       next: (data) => {
-        this.stadiums = data;
+        this.pagedResult = data;
+        this.currentPage = data.page;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error("Error loading stadiums: ", err)
+      error: (err) => console.error('Error loading stadiums: ', err)
     });
+  }
+
+  onPageChange(page: number) {
+    this.loadStadiums(page);
   }
 
   view(stadium: StadiumListDto) {
@@ -51,23 +60,16 @@ export class StadiumList implements OnInit {
     if (confirm(`Are you sure you want to delete ${stadium.name}?`)) {
       this.stadiumService.delete(stadium.id).subscribe({
         next: () => {
-          this.stadiums = this.stadiums.filter(s => s.id !== stadium.id);
-          this.cdr.detectChanges();
+          this.loadStadiums(this.currentPage);
         },
-        error: (err) => console.error("Error deleting stadium: ", err)
+        error: (err) => console.error('Error deleting stadium: ', err)
       });
     }
   }
 
   search(term: string) {
-    // If backend has search, use it. Otherwise filter locally.
     if (!term) {
-        this.loadStadiums();
-        return;
+      this.loadStadiums(1);
     }
-    this.stadiums = this.stadiums.filter(s => 
-        s.name?.toLowerCase().includes(term.toLowerCase()) || 
-        s.cityName?.toLowerCase().includes(term.toLowerCase())
-    );
   }
 }
