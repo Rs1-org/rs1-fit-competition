@@ -1,6 +1,8 @@
 ﻿using System.Linq.Expressions;
+using Competition.Application.Common.Models;
 using Competition.Application.Interfaces;
 using Competition.Infrastructure.Data;
+using Competition.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -31,7 +33,10 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate) =>
         await _dbSet.Where(predicate).ToListAsync();
 
-    public async Task<IEnumerable<TEntity>> GetAllAsync() => await _dbSet.ToListAsync();
+    public virtual async Task<IEnumerable<TEntity>> GetAllAsync() => await _dbSet.ToListAsync();
+
+    public virtual async Task<PagedResult<TEntity>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default) =>
+        await _dbSet.AsQueryable().ToPagedResultAsync(page, pageSize, cancellationToken);
 
     public async Task<TEntity?> GetByIdAsync(Guid id) => await _dbSet.FindAsync(id);
 
