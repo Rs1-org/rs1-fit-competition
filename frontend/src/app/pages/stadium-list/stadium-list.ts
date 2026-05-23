@@ -7,20 +7,24 @@ import { StadiumService } from '../../core/services/stadium.service';
 import { StadiumListDto } from '../../core/models/stadium';
 import { StadiumForm } from '../../components/stadium-form/stadium-form';
 import { PagedResult } from '../../core/models/paged-result';
+import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-stadium-list',
   standalone: true,
-  imports: [GenericListComponent, CommonModule, GenericSearch, StadiumForm],
+  imports: [GenericListComponent, CommonModule, GenericSearch, StadiumForm, ConfirmDialog],
   templateUrl: './stadium-list.html',
   styleUrl: './stadium-list.css',
 })
 export class StadiumList implements OnInit {
-  @ViewChild(StadiumForm) stadiumFormRef!: StadiumForm;
+  @ViewChild(StadiumForm)    stadiumFormRef!: StadiumForm;
+  @ViewChild(ConfirmDialog)  confirmDialogRef!: ConfirmDialog;
 
   pagedResult: PagedResult<StadiumListDto> | null = null;
   currentPage = 1;
   readonly pageSize = 10;
+
+  pendingDelete: StadiumListDto | null = null;
 
   private stadiumService = inject(StadiumService);
   private router = inject(Router);
@@ -57,14 +61,22 @@ export class StadiumList implements OnInit {
   }
 
   delete(stadium: StadiumListDto) {
-    if (confirm(`Are you sure you want to delete ${stadium.name}?`)) {
-      this.stadiumService.delete(stadium.id).subscribe({
-        next: () => {
-          this.loadStadiums(this.currentPage);
-        },
-        error: (err) => console.error('Error deleting stadium: ', err)
-      });
-    }
+    this.pendingDelete = stadium;
+    this.confirmDialogRef.open();
+  }
+
+  confirmDelete() {
+    if (!this.pendingDelete) return;
+    this.stadiumService.delete(this.pendingDelete.id).subscribe({
+      next: () => {
+        this.pendingDelete = null;
+        this.loadStadiums(this.currentPage);
+      },
+      error: (err) => {
+        this.pendingDelete = null;
+        console.error('Error deleting stadium: ', err);
+      }
+    });
   }
 
   search(term: string) {

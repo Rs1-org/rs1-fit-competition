@@ -1,0 +1,9 @@
+@if (state.isOpen()) {
+  <app-modal [title]="title" width="420px" (close)="cancel()">
+    <p class="confirm-message">{{ message }}</p>
+    <div class="confirm-actions">
+      <button class="btn-cancel" (click)="cancel()">{{ cancelLabel }}</button>
+      <button class="btn-confirm" (click)="confirm()">{{ confirmLabel }}</button>
+    </div>
+  </app-modal>
+}

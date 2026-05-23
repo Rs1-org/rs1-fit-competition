@@ -1,11 +1,6 @@
 import { inject, Injectable } from "@angular/core";
-<<<<<<< HEAD
-import { environment } from "src/enviroments/enviroment";
-import { HttpClient, HttpParams } from "@angular/common/http";
-=======
 import { environment } from '../../../environments/environment';
-import { HttpClient } from "@angular/common/http";
->>>>>>> main
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { StadiumDetailsDto, StadiumListDto } from "../models/stadium";
 import { PagedResult } from "../models/paged-result";
