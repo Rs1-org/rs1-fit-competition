@@ -91,6 +91,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<City> Cities { get; set; }
     public DbSet<Person> Persons { get; set; } = null!;
     public DbSet<Stadium> Stadiums { get; set; }
+    public DbSet<Club> Clubs { get; set; }
     public DbSet<PlayerSelectionHistory> PlayerSelectionHistories { get; set; } = null!;
     public DbSet<SelectionManagerHistory> SelectionManagerHistories { get; set; } = null!;
     public DbSet<TransferValueHistory> TransferValueHistories { get; set; } = null!;

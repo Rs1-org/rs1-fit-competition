@@ -50,7 +50,7 @@ public class UpdateStadiumCommandHandler : IRequestHandler<UpdateStadiumCommand,
         }
 
         await _stadium.UpdateAsync(stadium);
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return _mapper.Map<StadiumDetailsDto>(stadium);
     }

@@ -10,30 +10,20 @@ using System.Threading.Tasks;
 
 namespace Competition.Application.Commands.CityCommands.Update
 {
-    public class UpdateCityCommandHandler : IRequestHandler<UpdateCityCommands,CityNameDto>
+    public class UpdateCityCommandHandler(IMapper mapper, ICity city, IUnitOfWork unitOfWork)
+        : IRequestHandler<UpdateCityCommands, CityNameDto>
     {
-        private readonly IMapper _mapper;
-        private readonly ICity _city;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public UpdateCityCommandHandler(IMapper mapper, ICity city, IUnitOfWork unitOfWork)
-        {
-            _mapper = mapper;
-            _city = city;
-            _unitOfWork = unitOfWork;
-        }
-
         public async Task<CityNameDto>Handle(UpdateCityCommands request, CancellationToken cancellationToken)
         {
-            var city = await _city.GetBySlugAsync(request.Slug);
-            if(city== null)
+            var city1 = await city.GetBySlugAsync(request.Slug);
+            if(city1== null)
             {
                 throw new KeyNotFoundException($"Couldn't find any city with {request.Slug}");
             }
-            await _city.UpdateAsync(city);
-            await _unitOfWork.SaveChangesAsync();
+            await city.UpdateAsync(city1);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return _mapper.Map<CityNameDto>(city);
+            return mapper.Map<CityNameDto>(city1);
         }
     }
 }

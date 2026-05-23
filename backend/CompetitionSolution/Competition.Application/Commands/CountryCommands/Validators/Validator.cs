@@ -2,11 +2,6 @@
 using Competition.Application.Commands.CountryCommands.Delete;
 using Competition.Application.Commands.CountryCommands.Update;
 using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Competition.Application.Commands.CountryCommands.Validators
 {

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Competition.Application.Auth.Commands;
 using Competition.Application.Commands.CityCommands.Create;
+using Competition.Application.Commands.ClubCommands.Create;
 using Competition.Application.Commands.CountryCommands.Create;
 using Competition.Application.DTOs.CityDto;
 using Competition.Application.DTOs.CountryDto;
@@ -8,6 +9,7 @@ using Competition.Application.Helpers;
 using Competition.Domain.Entities;
 
 using Competition.Application.Commands.StadiumCommands.Create;
+using Competition.Application.DTOs.ClubDto;
 using Competition.Application.DTOs.StadiumDto;
 using Competition.Domain.Entities.MatchEntities;
 
@@ -52,5 +54,11 @@ public class MappingProfile:Profile
             .ForMember(m => m.Longitude, opt => opt.MapFrom(src => src.GeoData != null ? src.GeoData.Longitude : (decimal)0))
             .ForMember(m => m.GeoDescription, opt => opt.MapFrom(src => src.GeoData != null ? src.GeoData.Description : null));
 
+        CreateMap<Club, ClubResponseDto>()
+            .ForMember(d => d.FoundingDate, o => o.MapFrom(s => s.FoundingDate.HasValue ? s.FoundingDate.Value.ToString("yyyy-MM-dd", null) : null))
+            .ForMember(d => d.CityName, o => o.MapFrom(s => s.City != null ? s.City.Name : null))
+            .ForMember(d => d.StadiumName, o => o.MapFrom(s => s.Stadium != null ? s.Stadium.Name : null))
+            .ForMember(d => d.City, o => o.MapFrom(s => s.City))
+            .ForMember(d => d.Stadium, o => o.MapFrom(s => s.Stadium));
     }
 }

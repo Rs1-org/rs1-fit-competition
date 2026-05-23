@@ -1,0 +1,113 @@
+.club-page {
+  max-width: 1120px;
+  margin: 32px auto;
+  padding: 0 20px;
+  display: grid;
+  gap: 24px;
+}
+
+.club-panel {
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+  padding: 20px;
+  background: #ffffff;
+}
+
+h1,
+h2 {
+  margin: 0 0 18px;
+  font-size: 24px;
+  color: #172033;
+}
+
+.club-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+  color: #243047;
+}
+
+input,
+select {
+  min-height: 40px;
+  border: 1px solid #c4ccda;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font: inherit;
+}
+
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  border: 0;
+  border-radius: 6px;
+  padding: 10px 14px;
+  background: #1f6feb;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.secondary {
+  background: #64748b;
+}
+
+.danger {
+  background: #dc2626;
+}
+
+.error {
+  margin: 0 0 14px;
+  color: #b42318;
+  font-weight: 600;
+}
+
+.club-table {
+  display: grid;
+  gap: 8px;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1.3fr 0.6fr 1fr 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf1f7;
+}
+
+.table-head {
+  font-weight: 700;
+  color: #475569;
+}
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 760px) {
+  .club-form,
+  .table-row {
+    grid-template-columns: 1fr;
+  }
+
+  .row-actions {
+    justify-content: flex-start;
+  }
+}

@@ -13,39 +13,32 @@ using System.Threading.Tasks;
 
 namespace Competition.Application.Commands.CountryCommands.Create
 {
-    public class CreateCountryCommandHandler : IRequestHandler<CreateCountryCommands,CountryNameDto>
+    public class CreateCountryCommandHandler(
+        IMapper mapper,
+        ICountry country,
+        IUnitOfWork unitOfWork,
+        IImageService imageService)
+        : IRequestHandler<CreateCountryCommands, CountryNameDto>
     {
-        private readonly IMapper _mapper;
-        private readonly ICountry _country;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IImageService _imageService;
-        public CreateCountryCommandHandler(IMapper mapper, ICountry country, IUnitOfWork unitOfWork, IImageService imageService)
-        {
-            _mapper = mapper;
-            _country = country;
-            _unitOfWork = unitOfWork;
-            _imageService = imageService;
-        }
-
         public async Task<CountryNameDto>Handle(CreateCountryCommands request,CancellationToken cancellationToken)
         {
-            var pictureUrl = await _imageService.UploadImageAsync(request.Picture);
+            var pictureUrl = await imageService.UploadImageAsync(request.Picture);
             
-            var country = _mapper.Map<Country>(request);
+            var country1 = mapper.Map<Country>(request);
 
-            if (country == null)
+            if (country1 == null)
             {
                 throw new ValidationException("Couldn't create country");
             }
 
 
-            country.PictureUrl = pictureUrl;
+            country1.PictureUrl = pictureUrl;
 
 
-            await _country.AddAsync(country);
-            await _unitOfWork.SaveChangesAsync();
+            await country.AddAsync(country1);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return _mapper.Map<CountryNameDto>(country);
+            return mapper.Map<CountryNameDto>(country1);
         }
     }
 }

@@ -15,57 +15,7 @@
       test: ["CMD-SHELL", "pg_isready -U postgres -d competition"]
       interval: 5s
       timeout: 5s
-      retries: 10
-      start_period: 10s
-
-  migrator:
-    build:
-      context: .
-      dockerfile: Competition.Api/Dockerfile
-      target: migrator
-    container_name: competition_migrator
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=competition;Username=postgres;Password=postgres"
-    command: >
-      dotnet-ef database update
-        --project Competition.Infrastructure
-        --startup-project Competition.Api
-        --configuration Release
-        --no-build
-    restart: "no"
-
-  api:
-    build:
-      context: .
-      dockerfile: Competition.Api/Dockerfile
-      target: final
-    container_name: competition_api
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-      migrator:
-        condition: service_completed_successfully
-    ports:
-      - "${API_PORT:-8080}:8080"
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-competition};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
-
-  frontend:                 
-      build:
-        context: ../../frontend
-        dockerfile: dockerFile
-      container_name: competition_frontend
-      restart: unless-stopped
-      depends_on:
-        - api
-      ports:
-        - "4200:4200"
+      retries: 5
 
 volumes:
   postgres_data:
-    

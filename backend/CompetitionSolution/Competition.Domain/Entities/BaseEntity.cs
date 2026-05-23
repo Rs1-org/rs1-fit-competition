@@ -9,4 +9,5 @@ public abstract class BaseEntity
     public Instant CreatedAt { get; set; }
     public Instant ModifiedAt { get; set; }
     public Instant? DeletedAt { get; set; }
+    public virtual string DisplayName => Id.ToString();
 }

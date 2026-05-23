@@ -10,30 +10,20 @@ using System.Threading.Tasks;
 
 namespace Competition.Application.Commands.CountryCommands.Delete
 {
-    internal class DeleteCountryCommandsHandler : IRequestHandler<DeleteCountryCommands, CountryNameDto>
+    internal class DeleteCountryCommandsHandler(IMapper mapper, ICountry country, IUnitOfWork unitOfWork)
+        : IRequestHandler<DeleteCountryCommands, CountryNameDto>
     {
-        private readonly ICountry _country;
-        private readonly IMapper _mapper;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public DeleteCountryCommandsHandler(IMapper mapper, ICountry country, IUnitOfWork unitOfWork)
-        {
-            _country = country;
-            _mapper = mapper;
-            _unitOfWork = unitOfWork;
-        }
-
         public async Task<CountryNameDto>Handle(DeleteCountryCommands request, CancellationToken cancellationToken)
         {
-            var country=await _country.GetByIdAsync(request.Id);
+            var country1=await country.GetByIdAsync(request.Id);
 
-            if (country == null)
+            if (country1 == null)
                 throw new KeyNotFoundException($"Couldn't find any city with {request.Id}");
 
-            await _country.DeleteAsync(country);
-            await _unitOfWork.SaveChangesAsync();
+            await country.DeleteAsync(country1);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return _mapper.Map<CountryNameDto>(country);
+            return mapper.Map<CountryNameDto>(country1);
         }
     }
 }

@@ -33,7 +33,7 @@ namespace Competition.Application.Commands.CityCommands.Delete
             }
 
             await _city.DeleteAsync(city);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return _mapper.Map<CityNameDto>(city);
             

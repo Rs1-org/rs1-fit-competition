@@ -38,6 +38,11 @@ export class Navbar {
     this.router.navigate(['/manage-managers']);
     this.openManageTab = !this.openManageTab;
   }
+  openManageClubs(event:MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/manage-clubs']);
+    this.openManageTab = !this.openManageTab;
+  }
   openListPlayers() {
     this.router.navigate(['/player-list']);
   }

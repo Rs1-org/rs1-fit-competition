@@ -1,10 +1,4 @@
-﻿using Competition.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Competition.Application.DTOs.CityDto
 {

@@ -1,6 +1,4 @@
 using System.Globalization;
-using System.Security.Claims;
-using System.Text;
 using Competition.Api.Middlewares;
 using Competition.Application;
 using Competition.Domain.Entities;
@@ -11,19 +9,21 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NodaTime;
+using System.Text;
+using System.Text.Json.Serialization;
 
 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var jwtKey = builder.Configuration["Jwt:Key"];
-var jwtIssuer = builder.Configuration["Jwt:Issuer"];
-var jwtAudience = builder.Configuration["Jwt:Audience"];
-
 builder.Services.AddSingleton<IClock>(SystemClock.Instance);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -61,46 +61,15 @@ builder.Services.AddAuthentication(options =>
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidateIssuerSigningKey = true,
             ValidateLifetime = true,
-
-            ValidIssuer = jwtIssuer,
-            ValidAudience = jwtAudience,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey!)
-            ),
-
-            RoleClaimType = ClaimTypes.Role
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]
+                    ?? throw new ArgumentNullException("Jwt:Key missing")))
         };
     });
-
-builder.Services.AddSwaggerGen(options =>
-{
-    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Description = "Enter: Bearer {your JWT token}"
-    });
-
-    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-    {
-        {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
-        }
-    });
-});
 
 builder.Services.AddAuthorization();
 

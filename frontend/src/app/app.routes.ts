@@ -5,6 +5,7 @@ import { CountryList } from './pages/country-list/country-list';
 import { ManagePlayers } from './pages/manage-players/manage-players';
 import { ManageReferees } from './pages/manage-referees/manage-referees';
 import { ManageManagers } from './pages/manage-managers/manage-managers';
+import { ManageClubs } from './pages/manage-clubs/manage-clubs';
 import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -32,6 +33,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/player-view/player-view').then((m) => m.PlayerView),
   },
+  {path:'manage-clubs',component:ManageClubs, canActivate: [AuthGuard]},
   {
     path: 'referee-list',
     loadComponent: () =>
