@@ -10,10 +10,11 @@ import { Component, Input } from '@angular/core';
 export class GenericView {
   @Input() data: any;
   @Input() title: string = 'Details';
+  @Input() pictureSrc: string | null = null;
 
   get displayProperties() {
     if (!this.data) return [];
-    const hiddenFields = ['id', 'deletedAt', 'id_key']; 
+    const hiddenFields = ['id', 'deletedAt', 'id_key', 'picture']; 
     return Object.keys(this.data)
       .filter(key => !hiddenFields.includes(key))
       .map(key => ({

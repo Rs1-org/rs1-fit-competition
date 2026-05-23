@@ -1,19 +1,13 @@
-﻿using Competition.Application.Interfaces;
-using Competition.Domain.Entities.Person;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Competition.Application.DTOs.PersonDto;
 
-namespace Competition.Application.Services
+namespace Competition.Application.Services;
+
+public interface IManagerService
 {
-    public interface IManagerService:IRepository<Manager>
-    {
-        //Task AddManager(Manager manager);
-        //Task UpdateManager(Manager manager);
-        //Task DeleteManager(Manager manager);
-        Task<IEnumerable<Manager>> GetAllManagers();
-        //Task<Manager> GetManagerById(Guid id);
-    }
+    Task<ManagerDto?> GetByIdAsync(Guid id);
+    Task<IEnumerable<ManagerDto>> GetAllAsync();
+    Task<IEnumerable<ManagerDto>> SearchAsync(string term);
+    Task<ManagerDto> CreateAsync(ManagerDto dto);
+    Task<ManagerDto> UpdateAsync(Guid id, ManagerDto dto);
+    Task DeleteAsync(Guid id);
 }

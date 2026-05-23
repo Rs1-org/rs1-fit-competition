@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { environment } from "src/enviroments/enviroment";
+import { environment } from '../../../environments/environment';
 import { Observable } from "rxjs";
 import { CityName } from "../models/city";
 import { HttpClient } from "@angular/common/http";

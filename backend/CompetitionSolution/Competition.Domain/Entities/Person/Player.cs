@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Competition.Domain.Entities.Person
 {
-    public class Player:BaseEntity
+    public class Player:Person
     {
         public decimal Height {  get; set; }
         public int ShirtNumber {  get; set; }

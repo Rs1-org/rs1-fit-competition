@@ -1,19 +1,13 @@
-﻿using Competition.Application.Interfaces;
-using Competition.Domain.Entities.Person;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Competition.Application.DTOs.PersonDto;
 
-namespace Competition.Application.Services
+namespace Competition.Application.Services;
+
+public interface IPlayerService
 {
-    public interface IPlayerService:IRepository<Player>
-    {
-        //Task AddPlayer(Player player);
-        //Task UpdatePlayer(Player player);
-        //Task DeletePlayer(Player player);
-        Task<IEnumerable<Player>> GetAllPlayers();
-        //Task<Player> GetPlayerById(Guid id);
-    }
+    Task<PlayerDto?> GetByIdAsync(Guid id);
+    Task<IEnumerable<PlayerDto>> GetAllAsync();
+    Task<IEnumerable<PlayerDto>> SearchAsync(string term);
+    Task<PlayerDto> CreateAsync(PlayerDto dto);
+    Task<PlayerDto> UpdateAsync(Guid id, PlayerDto dto);
+    Task DeleteAsync(Guid id);
 }

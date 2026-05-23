@@ -61,3 +61,90 @@ body {
   color: var(--text-primary);
   min-height: 100vh;  /* ← important */
 }
+
+.card-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.card-tab {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card-tab:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.card-tab.active {
+  background: white;
+  color: #1e3a8a;
+  border-color: white;
+}
+
+.form-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-tab {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.form-tab:hover {
+  border-color: var(--accent);
+}
+
+.form-tab.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.history-section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin: 0.75rem 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.history-section-title:first-child {
+  margin-top: 0;
+}
+
+.person-picture-preview {
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  max-height: 220px;
+  margin: 0.75rem auto 0;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.detail-picture-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 1.25rem 1.5rem 0.5rem;
+}

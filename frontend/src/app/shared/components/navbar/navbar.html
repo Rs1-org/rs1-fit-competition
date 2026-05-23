@@ -15,6 +15,12 @@
     <div class="navbar-text" (click)="openListPlayers()">
       <i class="fa-solid fa-person"></i> Players
     </div>
+    <div class="navbar-text" (click)="openListReferees()">
+      <i class="fa-solid fa-gavel"></i> Referees
+    </div>
+    <div class="navbar-text" (click)="openListManagers()">
+      <i class="fa-solid fa-user-tie"></i> Managers
+    </div>
     <div class="navbar-text manage-wrapper" (click)="openManage()">
       <i class="fa-solid fa-gear" ></i> Manage
        <div class="manage-dropdown" *ngIf="openManageTab">

@@ -1,81 +1,65 @@
-import { Component,OnInit,ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { Router } from '@angular/router';
-
-interface Player {
-  id: string;
-  height: number;
-  shirtNumber: number;
-  transferValue: number;
-}
+import { Player } from '../../core/models/person.models';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-player-list',
-  imports: [GenericListComponent,CommonModule,GenericSearch],
+  imports: [GenericListComponent, CommonModule, GenericSearch],
   templateUrl: './player-list.html',
   styleUrl: './player-list.css',
 })
-export class PlayerList {
+export class PlayerList implements OnInit {
+  players: Player[] = [];
 
-players: any[] = [];
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+  ) {}
 
-constructor(private cdr: ChangeDetectorRef,private router:Router) {}
-// constructor() {
-//   this.getAllPlayers();
-// }
-  ngOnInit() {
+  ngOnInit(): void {
     this.getAllPlayers();
   }
-  view(player: any) {
+
+  view(player: Player): void {
     this.router.navigate(['/player', player.id]);
   }
-  getAllPlayers() {
-    fetch('https://localhost:7208/api/player')
-      .then(response => response.json())
-      .then(data => {
-        console.log(data)
+
+  getAllPlayers(): void {
+    fetch(`${environment.apiUrl}/api/player`)
+      .then((response) => response.json())
+      .then((data) => {
         this.players = Array.isArray(data) ? data : [data];
         this.cdr.detectChanges();
-        console.log(this.players);
       });
   }
 
-  edit(player: any) {
-    console.log('Uređujem igrača:', player.name);
-    // Ovdje bi išla logika za otvaranje modala ili navigaciju
+  edit(player: Player): void {
+    this.router.navigate(['/manage-players', player.id]);
   }
 
-  delete(player: any) {
-    fetch(`https://localhost:7208/api/player/${player.id}`, {
+  delete(player: Player): void {
+    fetch(`${environment.apiUrl}/api/player/${player.id}`, {
       method: 'DELETE',
-      headers: {
-      'Content-Type': 'application/json', // Ovo rješava "Unsupported Media Type"
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify(player)
     })
-    .then(response => {
-      if (response.ok) {
-        console.log('Igrač obrisan:', player.height);
-        this.players = this.players.filter(p => p.id !== player.id);
-        this.cdr.detectChanges();
-        this.getAllPlayers();
-      } else {
-        console.error('Greška pri brisanju igrača:', response.statusText);
-      }
-    })
-    .catch(error => console.error('Greška pri brisanju igrača:', error));
+      .then((response) => {
+        if (response.ok) {
+          this.players = this.players.filter((p) => p.id !== player.id);
+          this.cdr.detectChanges();
+        }
+      })
+      .catch((error) => console.error('Greška pri brisanju igrača:', error));
   }
 
-  search(term: string) {
-  // Šaljemo upit na backend
-  fetch(`https://localhost:7208/api/player/search?term=${encodeURIComponent(term)}`)
-    .then(res => res.json())
-    .then(data => {
-      this.players = Array.isArray(data) ? data : [data];
-      this.cdr.detectChanges();
-    });
+  search(term: string): void {
+    fetch(`${environment.apiUrl}/api/player/search?term=${encodeURIComponent(term)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        this.players = Array.isArray(data) ? data : [data];
+        this.cdr.detectChanges();
+      });
   }
 }

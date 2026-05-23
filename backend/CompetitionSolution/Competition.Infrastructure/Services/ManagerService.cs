@@ -1,58 +1,102 @@
-﻿using Competition.Application.Interfaces;
+﻿using Competition.Application.DTOs.PersonDto;
+using Competition.Application.Helpers;
 using Competition.Application.Services;
 using Competition.Domain.Entities.Person;
 using Competition.Infrastructure.Data;
-using Competition.Infrastructure.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
-namespace Competition.Infrastructure.Services
+namespace Competition.Infrastructure.Services;
+
+public class ManagerService : IManagerService
 {
-    public class ManagerService:Repository<Manager>,IManagerService
+    private readonly AppDbContext _context;
+
+    public ManagerService(AppDbContext context)
     {
-        private readonly AppDbContext context;
-        private readonly IRepository<Manager> repository;
+        _context = context;
+    }
 
-        public ManagerService(AppDbContext context,IRepository<Manager> repository) : base(context)
-        {
-            this.context = context;
-            this.repository = repository;
-        }
-        //        private readonly IRepository<Manager> repository;
+    public async Task<ManagerDto?> GetByIdAsync(Guid id)
+    {
+        var manager = await ActiveManagers().FirstOrDefaultAsync(m => m.Id == id);
+        return manager == null ? null : MapToDto(manager);
+    }
 
-        //        public ManagerService(AppDbContext context,IRepository<Manager> repository)
-        //        {
-        //            this.context = context;
-        //            this.repository = repository;
-        //        }
+    public async Task<IEnumerable<ManagerDto>> GetAllAsync()
+    {
+        var managers = await ActiveManagers().ToListAsync();
+        return managers.Select(MapToDto);
+    }
 
-        //        public async Task AddManager(Manager manager)
-        //        {
-        //            await repository.AddAsync(manager);
-        //            await context.SaveChangesAsync();
-        //        }
-        //        public async Task UpdateManager(Manager manager)
-        //        {
-        //            await repository.UpdateAsync(manager);
-        //            await context.SaveChangesAsync();
-        //        }
-        //        public async Task DeleteManager(Manager manager)
-        //{
-        //            await repository.DeleteAsync(manager);
-        //            await context.SaveChangesAsync();
-        //        }
-        public async Task<IEnumerable<Manager>> GetAllManagers()
-        {
-            var manager = await repository.GetAllAsync();
-            manager=manager.Where(x=>x.DeletedAt==null).ToList();
-            return manager;
-        }
-        //        public async Task<Manager> GetManagerById(Guid id)
-        //{
-        //           return await repository.GetByIdAsync(id);
-        //        }
+    public async Task<IEnumerable<ManagerDto>> SearchAsync(string term)
+    {
+        var managers = await ActiveManagers().ToListAsync();
+
+        return managers
+            .Where(m =>
+                m.FirstName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                m.LastName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                (m.CareerStart != null &&
+                 NodaTimeMappingHelper.FormatNullableLocalDate(m.CareerStart)!.Contains(term, StringComparison.OrdinalIgnoreCase)))
+            .Select(MapToDto);
+    }
+
+    public async Task<ManagerDto> CreateAsync(ManagerDto dto)
+    {
+        var manager = MapToEntity(dto);
+        await _context.Managers.AddAsync(manager);
+        await _context.SaveChangesAsync();
+        return MapToDto(manager);
+    }
+
+    public async Task<ManagerDto> UpdateAsync(Guid id, ManagerDto dto)
+    {
+        var manager = await ActiveManagers().FirstOrDefaultAsync(m => m.Id == id)
+            ?? throw new KeyNotFoundException($"Manager with id {id} not found");
+
+        ApplyDto(dto, manager);
+        await _context.SaveChangesAsync();
+        return MapToDto(manager);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var manager = await ActiveManagers().FirstOrDefaultAsync(m => m.Id == id)
+            ?? throw new KeyNotFoundException($"Manager with id {id} not found");
+
+        _context.Managers.Remove(manager);
+        await _context.SaveChangesAsync();
+    }
+
+    private IQueryable<Manager> ActiveManagers() =>
+        _context.Managers.Where(m => m.DeletedAt == null);
+
+    private static ManagerDto MapToDto(Manager manager) => new()
+    {
+        Id = manager.Id,
+        FirstName = manager.FirstName,
+        LastName = manager.LastName,
+        DateOfBirth = NodaTimeMappingHelper.FormatLocalDate(manager.DateOfBirth),
+        Picture = manager.Picture,
+        CareerStart = NodaTimeMappingHelper.FormatNullableLocalDate(manager.CareerStart)
+    };
+
+    private static Manager MapToEntity(ManagerDto dto) => new()
+    {
+        FirstName = dto.FirstName,
+        LastName = dto.LastName,
+        DateOfBirth = NodaTimeMappingHelper.ParseLocalDate(dto.DateOfBirth),
+        Picture = dto.Picture ?? Array.Empty<byte>(),
+        CareerStart = NodaTimeMappingHelper.ParseNullableLocalDate(dto.CareerStart)
+    };
+
+    private static void ApplyDto(ManagerDto dto, Manager manager)
+    {
+        manager.FirstName = dto.FirstName;
+        manager.LastName = dto.LastName;
+        manager.DateOfBirth = NodaTimeMappingHelper.ParseLocalDate(dto.DateOfBirth);
+        if (dto.Picture != null)
+            manager.Picture = dto.Picture;
+        manager.CareerStart = NodaTimeMappingHelper.ParseNullableLocalDate(dto.CareerStart);
     }
 }
