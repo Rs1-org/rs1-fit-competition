@@ -1,0 +1,12 @@
+@if (svc.options(); as opts) {
+  <app-modal
+    [title]="opts.title ?? 'Potvrda'"
+    width="420px"
+    (close)="svc.dismiss()">
+    <p class="confirm-message">{{ opts.message }}</p>
+    <div class="confirm-actions">
+      <button class="btn-cancel"  (click)="svc.dismiss()">{{ opts.cancelLabel  ?? 'Odustani' }}</button>
+      <button class="btn-confirm" (click)="svc.accept()">{{ opts.confirmLabel ?? 'Potvrdi'  }}</button>
+    </div>
+  </app-modal>
+}
