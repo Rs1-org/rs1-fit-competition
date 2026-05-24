@@ -1,10 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { CityForm } from '../../components/city-form/city-form';
 import { CityService } from '../../core/services/city-services';
 import { CityDetailsDto, CityListDto } from '../../core/models/city';
 import { UserStateService } from '../../core/services/user-state.service';
-import { UserDto } from '../../core/models/auth.models';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { BehaviorSubject, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-city-list',
@@ -12,26 +13,19 @@ import { UserDto } from '../../core/models/auth.models';
   templateUrl: './city-list.html',
   styleUrl: './city-list.css',
 })
-export class CityList implements OnInit {
+export class CityList {
   private cityService = inject(CityService);
   private userStateService = inject(UserStateService);
+  private refresh$ = new BehaviorSubject<void>(undefined);
 
-  cities: CityListDto[] = [];
+  cities = toSignal(
+    this.refresh$.pipe(switchMap(() => this.cityService.getAll())),
+    { initialValue: [] }
+  );
+
+  user = this.userStateService.getUser();
   isFormOpen = false;
   selectedCity: CityDetailsDto | null = null;
-  user: UserDto | null = null;
-
-  ngOnInit(): void {
-    this.userStateService.user$.subscribe((u) => (this.user = u));
-    this.loadCities();
-  }
-
-  loadCities(): void {
-    this.cityService.getAll().subscribe({
-      next: (data) => { this.cities = data; },
-      error: (err) => console.error(err)
-    });
-  }
 
   onAdd(): void {
     this.selectedCity = null;
@@ -51,7 +45,7 @@ export class CityList implements OnInit {
   onDelete(id: string): void {
     if (!confirm('Are you sure you want to delete this city?')) return;
     this.cityService.delete(id).subscribe({
-      next: () => this.loadCities(),
+      next: () => this.refresh$.next(),
       error: (err) => console.error(err)
     });
   }
@@ -59,7 +53,7 @@ export class CityList implements OnInit {
   onFormSaved(): void {
     this.isFormOpen = false;
     this.selectedCity = null;
-    this.loadCities();
+    this.refresh$.next();
   }
 
   onFormClosed(): void {

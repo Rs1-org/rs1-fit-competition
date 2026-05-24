@@ -6,7 +6,7 @@
         }
     </div>
 
-    @if(cities.length === 0){
+    @if(cities().length === 0){
         <p class="empty-message">No cities found.</p>
     } @else {
         <table class="data-table">
@@ -20,7 +20,7 @@
                 </tr>
             </thead>
             <tbody>
-                @for(city of cities; track city.id){
+                @for(city of cities(); track city.id){
                     <tr>
                         <td>{{ city.name }}</td>
                         <td>{{ city.countryName }}</td>

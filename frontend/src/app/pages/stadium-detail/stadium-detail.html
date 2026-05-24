@@ -1,63 +1,63 @@
 <div class="container">
   <button class="btn-back" (click)="goBack()">&#8592; Back to Stadiums</button>
 
-  @if (loading) {
+  @if (stadium() === undefined) {
     <div class="loading">Loading stadium...</div>
   }
 
-  @if (!loading && !stadium) {
+  @if (stadium() === null) {
     <div class="not-found">Stadium not found.</div>
   }
 
-  @if (stadium) {
+  @if (stadium(); as data) {
     <div class="detail-card">
 
       <div class="detail-hero">
-        @if (stadium.pictureUrl) {
-          <img [src]="stadium.pictureUrl" [alt]="stadium.name" class="hero-img" />
+        @if (data.pictureUrl) {
+          <img [src]="data.pictureUrl" [alt]="data.name" class="hero-img" />
         } @else {
           <div class="hero-placeholder">No Image</div>
         }
         <div class="hero-overlay">
-          <h1 class="hero-title">{{ stadium.name }}</h1>
-          <p class="hero-sub">{{ stadium.cityName }}</p>
+          <h1 class="hero-title">{{ data.name }}</h1>
+          <p class="hero-sub">{{ data.cityName }}</p>
         </div>
       </div>
 
       <div class="info-grid">
         <div class="info-item">
           <span class="info-label">City</span>
-          <span class="info-value">{{ stadium.cityName }}</span>
+          <span class="info-value">{{ data.cityName }}</span>
         </div>
         <div class="info-item">
           <span class="info-label">Capacity</span>
-          <span class="info-value">{{ stadium.capacity | number }}</span>
+          <span class="info-value">{{ data.capacity | number }}</span>
         </div>
         <div class="info-item">
           <span class="info-label">Opened</span>
-          <span class="info-value">{{ stadium.dateOfConstruction | date:'mediumDate' }}</span>
+          <span class="info-value">{{ data.dateOfConstruction | date:'mediumDate' }}</span>
         </div>
         <div class="info-item">
           <span class="info-label">Coordinates</span>
-          <span class="info-value">{{ stadium.latitude }}, {{ stadium.longitude }}</span>
+          <span class="info-value">{{ data.latitude }}, {{ data.longitude }}</span>
         </div>
       </div>
 
-      @if (stadium.geoDescription) {
+      @if (data.geoDescription) {
         <div class="description">
           <h3 class="section-title">Location</h3>
-          <p>{{ stadium.geoDescription }}</p>
+          <p>{{ data.geoDescription }}</p>
         </div>
       }
 
       <div class="map-section">
         <h3 class="section-title">Map</h3>
         <app-map
-          [lat]="stadium.latitude"
-          [lng]="stadium.longitude"
+          [lat]="data.latitude"
+          [lng]="data.longitude"
           [zoom]="14"
-          [markerLat]="stadium.latitude"
-          [markerLng]="stadium.longitude">
+          [markerLat]="data.latitude"
+          [markerLng]="data.longitude">
         </app-map>
       </div>
 
