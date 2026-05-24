@@ -25,15 +25,11 @@ export class CityService{
         return this.http.delete<CityName>(`${this.apiUrl}deleteCity/${id}`);
     }
 
-    getAll():Observable<CityListDto[]>{
+    getAll(): Observable<CityListDto[]> {
         return this.http.get<CityListDto[]>(`${this.apiUrl}getCities`);
     }
 
-    getBySlug(slug:string):Observable<CityDetailsDto>{
+    getBySlug(slug: string): Observable<CityDetailsDto> {
         return this.http.get<CityDetailsDto>(`${this.apiUrl}getCity/${slug}`);
-    }
-
-    getAll(): Observable<any[]> {
-        return this.http.get<any[]>(`${this.apiUrl}getCities`);
     }
 }
