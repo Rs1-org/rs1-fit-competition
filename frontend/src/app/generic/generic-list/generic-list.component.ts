@@ -21,6 +21,9 @@ export class GenericListComponent<T> implements OnChanges {
   /** Current page controlled by the parent in server-side mode. */
   @Input() serverCurrentPage = 1;
 
+  /** When false, hides the update and delete action buttons. */
+  @Input() showActions = true;
+
   @ContentChild('itemTemplate', { static: false })
   itemTemplate!: TemplateRef<any>;
 

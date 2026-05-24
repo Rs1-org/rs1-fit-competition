@@ -8,6 +8,8 @@ import { StadiumListDto } from '../../core/models/stadium';
 import { StadiumForm } from '../../components/stadium-form/stadium-form';
 import { PagedResult } from '../../core/models/paged-result';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { UserStateService } from '../../core/services/user-state.service';
+import { UserDto } from '../../core/models/auth.models';
 
 @Component({
   selector: 'app-stadium-list',
@@ -23,12 +25,16 @@ export class StadiumList implements OnInit {
   currentPage = 1;
   readonly pageSize = 10;
 
-  private stadiumService = inject(StadiumService);
-  private confirmDialog  = inject(ConfirmDialogService);
-  private router         = inject(Router);
-  private cdr            = inject(ChangeDetectorRef);
+  private stadiumService   = inject(StadiumService);
+  private confirmDialog    = inject(ConfirmDialogService);
+  private router           = inject(Router);
+  private cdr              = inject(ChangeDetectorRef);
+  private userStateService = inject(UserStateService);
+
+  user: UserDto | null = null;
 
   ngOnInit() {
+    this.userStateService.user$.subscribe((u) => (this.user = u));
     this.loadStadiums();
   }
 
