@@ -22,7 +22,7 @@ export class CountryForm implements OnChanges {
   private fb = inject(NonNullableFormBuilder);
 
   form = this.fb.group({
-    name: this.fb.control('', { validators: [Validators.required] }),
+    name: this.fb.control('', { validators: [Validators.required, Validators.maxLength(100)] }),
     picture: this.fb.control<File | null>(null)
   });
 
