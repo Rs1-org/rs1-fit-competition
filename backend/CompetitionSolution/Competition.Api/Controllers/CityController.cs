@@ -5,6 +5,7 @@ using Competition.Application.Queries.City.GetAll;
 using Competition.Application.Queries.City.GetAllByCountry;
 using Competition.Application.Queries.City.GetBySlug;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -17,6 +18,7 @@ public class CityController : ControllerBase
         _mediator=mediator;
     }
 
+    [Authorize]
     [HttpPost("createCity")]
     public async Task<IActionResult>CreateCity([FromBody]CreateCityCommand request, CancellationToken cancellationToken)
     {
@@ -24,6 +26,7 @@ public class CityController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("deleteCity/{id}")]
     public async Task<IActionResult> DeleteCity(Guid id, CancellationToken cancellationToken)
     {
@@ -31,6 +34,7 @@ public class CityController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpPut("updateCity/{slug}")]
     public async Task<IActionResult> UpdateCity(string slug, [FromBody] UpdateCityCommands request, CancellationToken cancellationToken)
     {
