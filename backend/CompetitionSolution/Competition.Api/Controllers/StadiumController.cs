@@ -4,6 +4,7 @@ using Competition.Application.Commands.StadiumCommands.Update;
 using Competition.Application.Queries.Stadium.GetAll;
 using Competition.Application.Queries.Stadium.GetBySlug;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Competition.Api.Controllers;
@@ -19,6 +20,7 @@ public class StadiumController : ControllerBase
         _mediator = mediator;
     }
 
+    [Authorize]
     [HttpPost("createStadium")]
     public async Task<IActionResult> CreateStadium([FromForm] CreateStadiumCommand request, CancellationToken cancellationToken)
     {
@@ -26,6 +28,7 @@ public class StadiumController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("deleteStadium/{id}")]
     public async Task<IActionResult> DeleteStadium(Guid id, CancellationToken cancellationToken)
     {
@@ -33,6 +36,7 @@ public class StadiumController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpPut("updateStadium/{slug}")]
     public async Task<IActionResult> UpdateStadium(string slug, [FromForm] UpdateStadiumCommand request, CancellationToken cancellationToken)
     {
