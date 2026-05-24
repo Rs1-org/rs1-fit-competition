@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, inject, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
@@ -7,28 +7,26 @@ import { StadiumService } from '../../core/services/stadium.service';
 import { StadiumListDto } from '../../core/models/stadium';
 import { StadiumForm } from '../../components/stadium-form/stadium-form';
 import { PagedResult } from '../../core/models/paged-result';
-import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 
 @Component({
   selector: 'app-stadium-list',
   standalone: true,
-  imports: [GenericListComponent, CommonModule, GenericSearch, StadiumForm, ConfirmDialog],
+  imports: [GenericListComponent, CommonModule, GenericSearch, StadiumForm],
   templateUrl: './stadium-list.html',
   styleUrl: './stadium-list.css',
 })
 export class StadiumList implements OnInit {
-  @ViewChild(StadiumForm)    stadiumFormRef!: StadiumForm;
-  @ViewChild(ConfirmDialog)  confirmDialogRef!: ConfirmDialog;
+  @ViewChild(StadiumForm) stadiumFormRef!: StadiumForm;
 
   pagedResult: PagedResult<StadiumListDto> | null = null;
   currentPage = 1;
   readonly pageSize = 10;
 
-  pendingDelete: StadiumListDto | null = null;
-
   private stadiumService = inject(StadiumService);
-  private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef);
+  private confirmDialog  = inject(ConfirmDialogService);
+  private router         = inject(Router);
+  private cdr            = inject(ChangeDetectorRef);
 
   ngOnInit() {
     this.loadStadiums();
@@ -60,22 +58,15 @@ export class StadiumList implements OnInit {
     });
   }
 
-  delete(stadium: StadiumListDto) {
-    this.pendingDelete = stadium;
-    this.confirmDialogRef.open();
-  }
+  async delete(stadium: StadiumListDto) {
+    const confirmed = await this.confirmDialog.confirm({
+      message: `Jeste li sigurni da želite obrisati ${stadium.name}?`
+    });
+    if (!confirmed) return;
 
-  confirmDelete() {
-    if (!this.pendingDelete) return;
-    this.stadiumService.delete(this.pendingDelete.id).subscribe({
-      next: () => {
-        this.pendingDelete = null;
-        this.loadStadiums(this.currentPage);
-      },
-      error: (err) => {
-        this.pendingDelete = null;
-        console.error('Error deleting stadium: ', err);
-      }
+    this.stadiumService.delete(stadium.id).subscribe({
+      next: () => this.loadStadiums(this.currentPage),
+      error: (err) => console.error('Error deleting stadium: ', err)
     });
   }
 
