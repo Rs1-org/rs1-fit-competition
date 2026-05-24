@@ -1,7 +1,9 @@
+using Competition.Application.Common.Models;
 using Competition.Application.DTOs.CityDto;
 using Competition.Application.Interfaces;
 using Competition.Domain.Entities;
 using Competition.Infrastructure.Data;
+using Competition.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Competition.Infrastructure.Repositories;
@@ -22,5 +24,12 @@ public class CityRepository : Repository<City>, ICity
     public async Task<City?> GetBySlugAsync(string slug)
     {
         return await _context.Cities.FirstOrDefaultAsync(c => c.Slug == slug);
+    }
+
+    public async Task<PagedResult<City>> GetPagedByCountryAsync(Guid countryId, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        return await _context.Cities
+            .Where(c => c.CountryId == countryId)
+            .ToPagedResultAsync(page, pageSize, cancellationToken);
     }
 }

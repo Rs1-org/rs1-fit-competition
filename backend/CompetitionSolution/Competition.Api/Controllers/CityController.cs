@@ -39,9 +39,9 @@ public class CityController : ControllerBase
     }
 
     [HttpGet("getCities")]
-    public async Task<IActionResult> GetCities(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCities([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
-        var result = await _mediator.Send(new GetAllCitiesCommand());
+        var result = await _mediator.Send(new GetAllCitiesCommand { Page = page, PageSize = pageSize }, cancellationToken);
         return Ok(result);
     }
 
@@ -53,9 +53,9 @@ public class CityController : ControllerBase
     }
 
     [HttpGet("getCitiesByCountry/{countryId}")]
-    public async Task<IActionResult> GetCitiesByCountry(Guid countryId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCitiesByCountry(Guid countryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
-        var result = await _mediator.Send(new GetAllCitiesByCountryCommand { CountryId = countryId });
+        var result = await _mediator.Send(new GetAllCitiesByCountryCommand { CountryId = countryId, Page = page, PageSize = pageSize }, cancellationToken);
         return Ok(result);
     }
 }

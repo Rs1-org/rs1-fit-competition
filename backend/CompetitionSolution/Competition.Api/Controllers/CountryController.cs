@@ -52,9 +52,9 @@ namespace Competition.Api.Controllers
 
 
         [HttpGet("getAll")]
-        public async Task<IActionResult> GetCountries(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetCountries([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
         {
-            var result = await _mediator.Send(new GetAllCountriesCommand());
+            var result = await _mediator.Send(new GetAllCountriesCommand { Page = page, PageSize = pageSize }, cancellationToken);
             return Ok(result);
         }
     }
