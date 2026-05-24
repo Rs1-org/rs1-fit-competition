@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, inject, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
@@ -7,6 +7,7 @@ import { StadiumService } from '../../core/services/stadium.service';
 import { StadiumListDto } from '../../core/models/stadium';
 import { StadiumForm } from '../../components/stadium-form/stadium-form';
 import { PagedResult } from '../../core/models/paged-result';
+import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 
 @Component({
   selector: 'app-stadium-list',
@@ -23,8 +24,9 @@ export class StadiumList implements OnInit {
   readonly pageSize = 10;
 
   private stadiumService = inject(StadiumService);
-  private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef);
+  private confirmDialog  = inject(ConfirmDialogService);
+  private router         = inject(Router);
+  private cdr            = inject(ChangeDetectorRef);
 
   ngOnInit() {
     this.loadStadiums();
@@ -56,15 +58,16 @@ export class StadiumList implements OnInit {
     });
   }
 
-  delete(stadium: StadiumListDto) {
-    if (confirm(`Are you sure you want to delete ${stadium.name}?`)) {
-      this.stadiumService.delete(stadium.id).subscribe({
-        next: () => {
-          this.loadStadiums(this.currentPage);
-        },
-        error: (err) => console.error('Error deleting stadium: ', err)
-      });
-    }
+  async delete(stadium: StadiumListDto) {
+    const confirmed = await this.confirmDialog.confirm({
+      message: `Jeste li sigurni da želite obrisati ${stadium.name}?`
+    });
+    if (!confirmed) return;
+
+    this.stadiumService.delete(stadium.id).subscribe({
+      next: () => this.loadStadiums(this.currentPage),
+      error: (err) => console.error('Error deleting stadium: ', err)
+    });
   }
 
   search(term: string) {
