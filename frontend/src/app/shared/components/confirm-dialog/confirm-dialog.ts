@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Modal } from '../modal/modal';
-import { ModalState } from '../../../core/helpers/modal-state.helper';
+import { ConfirmDialogService } from './confirm-dialog.service';
 
 @Component({
   selector: 'app-confirm-dialog',
@@ -10,25 +10,5 @@ import { ModalState } from '../../../core/helpers/modal-state.helper';
   styleUrl: './confirm-dialog.css',
 })
 export class ConfirmDialog {
-  @Input() title = 'Potvrda';
-  @Input() message = 'Jeste li sigurni?';
-  @Input() confirmLabel = 'Potvrdi';
-  @Input() cancelLabel  = 'Odustani';
-
-  @Output() confirmed = new EventEmitter<void>();
-  @Output() cancelled = new EventEmitter<void>();
-
-  state = new ModalState();
-
-  open()  { this.state.open(); }
-
-  confirm() {
-    this.state.close();
-    this.confirmed.emit();
-  }
-
-  cancel() {
-    this.state.close();
-    this.cancelled.emit();
-  }
+  svc = inject(ConfirmDialogService);
 }
