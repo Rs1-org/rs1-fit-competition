@@ -31,7 +31,9 @@ namespace Competition.Application.Commands.CountryCommands.Update
             var country = await _country.GetBySlugAsync(request.Slug);
 
             if (country == null)
-                throw new KeyNotFoundException($"Couldn't find any city with {request.Slug}");
+                throw new KeyNotFoundException($"Couldn't find any country with {request.Slug}");
+
+            country.Name = request.Name;
 
             if (request.Picture != null)
             {

@@ -14,13 +14,18 @@ public class CityRepository : Repository<City>, ICity
         _context = context;
     }
 
+    public new async Task<IEnumerable<City>> GetAllAsync()
+    {
+        return await _context.Cities.Include(c => c.Country).ToListAsync();
+    }
+
     public async Task<List<City>> GetAllByCountryAsync(Guid id)
     {
-        return await _context.Cities.Where(s => s.CountryId == id).ToListAsync();
+        return await _context.Cities.Include(c => c.Country).Where(s => s.CountryId == id).ToListAsync();
     }
 
     public async Task<City?> GetBySlugAsync(string slug)
     {
-        return await _context.Cities.FirstOrDefaultAsync(c => c.Slug == slug);
+        return await _context.Cities.Include(c => c.GeoData).FirstOrDefaultAsync(c => c.Slug == slug);
     }
 }

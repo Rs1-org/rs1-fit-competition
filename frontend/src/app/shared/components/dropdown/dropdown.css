@@ -92,6 +92,12 @@ label {
   }
 }
 
+.error-message {
+  font-size: 12px;
+  color: var(--live-color);
+  font-weight: 500;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

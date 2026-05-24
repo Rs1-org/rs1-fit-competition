@@ -1,2 +1,51 @@
-<!-- <app-navbar></app-navbar> -->
-<app-country-form></app-country-form>
+<div class="page">
+    <div class="page-header">
+        <h2>Countries</h2>
+        @if(user) {
+            <button class="btn-add" (click)="onAdd()">+ Add Country</button>
+        }
+    </div>
+
+    @if(countries.length === 0){
+        <p class="empty-message">No countries found.</p>
+    } @else {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Flag / Picture</th>
+                    <th>Name</th>
+                    <th>Slug</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(country of countries; track country.id){
+                    <tr>
+                        <td>
+                            @if(country.pictureUrl){
+                                <img [src]="country.pictureUrl" [alt]="country.name" class="country-img" />
+                            } @else {
+                                <span class="no-img">—</span>
+                            }
+                        </td>
+                        <td>{{ country.name }}</td>
+                        <td class="slug">{{ country.slug }}</td>
+                        <td class="actions">
+                            @if(user) {
+                                <button class="btn-edit" (click)="onEdit(country)">Edit</button>
+                                <button class="btn-delete" (click)="onDelete(country.id)">Delete</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<app-country-form
+    [isOpen]="isFormOpen"
+    [editCountry]="selectedCountry"
+    (saved)="onFormSaved()"
+    (closed)="onFormClosed()">
+</app-country-form>
