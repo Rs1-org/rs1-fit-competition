@@ -30,13 +30,13 @@ export class StadiumForm implements OnInit {
   @Output() saved = new EventEmitter<void>();
 
   form = this.fb.group({
-    name: this.fb.control('', { validators: Validators.required }),
+    name: this.fb.control('', { validators: [Validators.required, Validators.maxLength(150)] }),
     capacity: this.fb.control(0, { validators: [Validators.required, Validators.min(1)] }),
     dateOfConstruction: this.fb.control('', { validators: Validators.required }),
     cityId: this.fb.control('', { validators: Validators.required }),
-    latitude: this.fb.control(43.8563, { validators: Validators.required }),
-    longitude: this.fb.control(18.4131, { validators: Validators.required }),
-    geoDescription: this.fb.control('', { validators: Validators.required })
+    latitude: this.fb.control(43.8563, { validators: [Validators.required, Validators.min(-90), Validators.max(90)] }),
+    longitude: this.fb.control(18.4131, { validators: [Validators.required, Validators.min(-180), Validators.max(180)] }),
+    geoDescription: this.fb.control('', { validators: [Validators.required, Validators.maxLength(500)] })
   });
 
   ngOnInit(): void {
