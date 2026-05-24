@@ -1,0 +1,64 @@
+@if(modalState.isOpen()){
+<app-modal [title]="editingSlug ? 'Edit Stadium' : 'Add Stadium'" (close)="closeModal()" width="800px">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" id="stadium-form">
+        <app-input-box
+            label="Name"
+            placeholder="Stadium Name..."
+            [control]="form.controls.name"
+        ></app-input-box>
+
+        <app-input-box
+            label="Capacity"
+            type="number"
+            placeholder="Capacity..."
+            [control]="form.controls.capacity"
+        ></app-input-box>
+
+        <app-input-box
+            label="Date of Construction"
+            type="date"
+            [control]="form.controls.dateOfConstruction"
+        ></app-input-box>
+
+        <app-dropdown
+            label="City"
+            placeholder="Select a city"
+            [options]="cities"
+            [control]="form.controls.cityId">
+        </app-dropdown>
+
+        <app-input-box
+            label="Picture"
+            type="file"
+            accept="image/*"
+            (fileChange)="onFileChange($event)"
+        ></app-input-box>
+
+        <app-map
+            style="grid-column: span 2"
+            [lat]="form.controls.latitude.value"
+            [lng]="form.controls.longitude.value"
+            [markerLat]="editingSlug ? form.controls.latitude.value : null"
+            [markerLng]="editingSlug ? form.controls.longitude.value : null"
+            (locationSelected)="onLocationSelected($event)">
+        </app-map>
+
+        <app-input-box
+            label="Location Description"
+            type="textarea"
+            placeholder="Description of the location..."
+            [control]="form.controls.geoDescription"
+        ></app-input-box>
+    </form>
+
+    <footer>
+        <app-button
+            type="submit"
+            form="stadium-form"
+            [text]="editingSlug ? 'Update' : 'Submit'"
+        ></app-button>
+    </footer>
+</app-modal>
+}
+
+<button class="btn" (click)="openModal()">Add Stadium</button>

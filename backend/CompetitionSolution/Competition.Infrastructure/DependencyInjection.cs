@@ -20,6 +20,7 @@ namespace Competition.Infrastructure
             services.AddScoped<ICity,CityRepository>();
             services.AddScoped<IGeoData,GeoDataRepository>();
             services.AddScoped<ICountry,CountryRepository>();
+            services.AddScoped<IStadium,StadiumRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IBlobStorageService, BlobStorageService>();
             services.AddScoped<IImageService,ImageService>();
@@ -27,6 +28,10 @@ namespace Competition.Infrastructure
             services.AddScoped<IPlayerService,PlayerService>();
             services.AddScoped<IManagerService, ManagerService>();
             services.AddScoped<IRefereeService, RefereeService>();
+            services.AddScoped<IPlayerSelectionHistoryService, PlayerSelectionHistoryService>();
+            services.AddScoped<ISelectionManagerHistoryService, SelectionManagerHistoryService>();
+            services.AddScoped<ITransferValueHistoryService, TransferValueHistoryService>();
+            services.AddScoped<IMandatDateService, MandatDateService>();
 
             return services;
         }

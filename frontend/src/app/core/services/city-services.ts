@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { environment } from "../../../environments/environment";
+import { environment } from '../../../environments/environment';
 import { Observable } from "rxjs";
 import { CityDetailsDto, CityListDto, CityName } from "../models/city";
 import { HttpClient } from "@angular/common/http";
@@ -31,5 +31,9 @@ export class CityService{
 
     getBySlug(slug:string):Observable<CityDetailsDto>{
         return this.http.get<CityDetailsDto>(`${this.apiUrl}getCity/${slug}`);
+    }
+
+    getAll(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}getCities`);
     }
 }

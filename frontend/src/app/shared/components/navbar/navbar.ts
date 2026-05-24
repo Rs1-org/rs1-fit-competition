@@ -51,6 +51,24 @@ export class Navbar implements OnInit {
   openListPlayers() {
     this.router.navigate(['/player-list']);
   }
+  openListReferees() {
+    this.router.navigate(['/referee-list']);
+  }
+  openListManagers() {
+    this.router.navigate(['/manager-list']);
+  }
+
+  openStadiums() {
+    this.router.navigate(['/stadium-list']);
+  }
+
+  openCities() {
+    this.router.navigate(['/city-list']);
+  }
+
+  openCountries() {
+    this.router.navigate(['/country-list']);
+  }
 
   @ViewChild(AuthModalComponent)
   authModal!: AuthModalComponent;

@@ -1,0 +1,58 @@
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.stadium-card-content {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.stadium-img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.stadium-placeholder {
+    width: 100px;
+    height: 100px;
+    background-color: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    border-radius: 8px;
+    font-size: 0.8rem;
+}
+
+.stadium-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.item-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.item-subtitle {
+    color: #666;
+}
+
+.item-meta {
+    font-size: 0.9rem;
+    color: #888;
+}

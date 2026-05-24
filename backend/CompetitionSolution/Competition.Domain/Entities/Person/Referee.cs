@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Competition.Domain.Entities.Person
 {
-    public class Referee:BaseEntity
+    public class Referee:Person
     {
-        public LocalTime CareerStart {  get; set; }
+        public LocalDate? CareerStart { get; set; }
     }
 }

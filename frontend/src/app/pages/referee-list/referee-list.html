@@ -1,0 +1,19 @@
+<div class="container">
+  <h1>Lista sudija</h1>
+
+  <app-generic-search placeholder="Pretraži sudije..." (onSearch)="search($event)"></app-generic-search>
+
+  <app-generic-list
+    [items]="referees"
+    variant="card"
+    (view)="view($event)"
+    (update)="edit($event)"
+    (delete)="delete($event)"
+  >
+    <ng-template #itemTemplate let-referee>
+      <div class="item-title">{{ referee.firstName }} {{ referee.lastName }}</div>
+      <div class="item-subtitle">Datum rođenja: {{ referee.dateOfBirth || '—' }}</div>
+      <div class="item-meta">Početak karijere: {{ referee.careerStart || '—' }}</div>
+    </ng-template>
+  </app-generic-list>
+</div>

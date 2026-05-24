@@ -1,0 +1,104 @@
+/* Kontejner za gumb (opcionalno za pozicioniranje) */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Stil za gumb "Natrag" */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background-color: #ffffff;
+  color: #1e3a8a; /* Tamno plava kao u headeru kartice */
+  border: 2px solid #eef2f7;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Efekt pri prelasku mišem */
+.btn-back:hover {
+  background-color: #f8fafc;
+  border-color: #3b82f6;
+  color: #3b82f6;
+  transform: translateX(-5px); /* Gumb se lagano pomakne ulijevo */
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+/* Efekt pri kliku */
+.btn-back:active {
+  transform: scale(0.95) translateX(-5px);
+}
+
+/* Stil za loading tekst */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.detail-card {
+  max-width: 600px;
+  margin: 20px auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid #eef2f7;
+}
+
+.detail-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  padding: 20px 25px;
+  color: white;
+}
+
+.detail-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.detail-body {
+  padding: 10px 0;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 25px;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.2s ease;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row:hover {
+  background-color: #f8fafc;
+}
+
+.label {
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.3px;
+}
+
+.value {
+  color: #1e293b;
+  font-weight: 500;
+  font-size: 1rem;
+}

@@ -6,11 +6,8 @@
 *.userosscache
 *.sln.docstates
 
-# VS Code (keep shared config)
-.vscode/*
-!.vscode/settings.json
-!.vscode/launch.json
-!.vscode/extensions.json
+# VS Code
+.vscode/
 
 # Build
 bin/
@@ -43,3 +40,4 @@ docker-compose.override.yml
 *.dotCover
 *.ReSharper
 *.resharper
+.claude
