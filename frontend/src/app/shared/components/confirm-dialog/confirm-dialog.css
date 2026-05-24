@@ -1,0 +1,45 @@
+.confirm-message {
+  margin: 0 0 8px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.btn-cancel,
+.btn-confirm {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-cancel {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.btn-cancel:hover {
+  background: var(--bg-secondary);
+  border-color: var(--accent);
+}
+
+.btn-confirm {
+  background: var(--danger, #e53e3e);
+  border-color: var(--danger, #e53e3e);
+  color: #fff;
+}
+
+.btn-confirm:hover {
+  opacity: 0.88;
+}
