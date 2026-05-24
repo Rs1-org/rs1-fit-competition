@@ -21,7 +21,7 @@ export class CountryList implements OnInit {
   user: UserDto | null = null;
 
   ngOnInit(): void {
-    this.userStateService.user$.subscribe((u) => (this.user = u));
+    this.user=this.userStateService.getUser();
     this.loadCountries();
   }
 
