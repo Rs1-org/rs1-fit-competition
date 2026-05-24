@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, inject, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputBox } from '../../shared/components/input-box/input-box';
 import { Modal } from '../../shared/components/modal/modal';
@@ -27,6 +27,7 @@ export class StadiumForm implements OnInit {
   cities: any[] = [];
   private selectedPicture: File | null = null;
 
+  @Input() showTrigger = true;
   @Output() saved = new EventEmitter<void>();
 
   form = this.fb.group({
