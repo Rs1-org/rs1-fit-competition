@@ -1,0 +1,66 @@
+<div class="container">
+  <button class="btn-back" (click)="goBack()">&#8592; Back to Stadiums</button>
+
+  @if (loading) {
+    <div class="loading">Loading stadium...</div>
+  }
+
+  @if (!loading && !stadium) {
+    <div class="not-found">Stadium not found.</div>
+  }
+
+  @if (stadium) {
+    <div class="detail-card">
+
+      <div class="detail-hero">
+        @if (stadium.pictureUrl) {
+          <img [src]="stadium.pictureUrl" [alt]="stadium.name" class="hero-img" />
+        } @else {
+          <div class="hero-placeholder">No Image</div>
+        }
+        <div class="hero-overlay">
+          <h1 class="hero-title">{{ stadium.name }}</h1>
+          <p class="hero-sub">{{ stadium.cityName }}</p>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">City</span>
+          <span class="info-value">{{ stadium.cityName }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Capacity</span>
+          <span class="info-value">{{ stadium.capacity | number }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Opened</span>
+          <span class="info-value">{{ stadium.dateOfConstruction | date:'mediumDate' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Coordinates</span>
+          <span class="info-value">{{ stadium.latitude }}, {{ stadium.longitude }}</span>
+        </div>
+      </div>
+
+      @if (stadium.geoDescription) {
+        <div class="description">
+          <h3 class="section-title">Location</h3>
+          <p>{{ stadium.geoDescription }}</p>
+        </div>
+      }
+
+      <div class="map-section">
+        <h3 class="section-title">Map</h3>
+        <app-map
+          [lat]="stadium.latitude"
+          [lng]="stadium.longitude"
+          [zoom]="14"
+          [markerLat]="stadium.latitude"
+          [markerLng]="stadium.longitude">
+        </app-map>
+      </div>
+
+    </div>
+  }
+</div>

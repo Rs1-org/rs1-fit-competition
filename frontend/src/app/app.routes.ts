@@ -22,6 +22,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/stadium-list/stadium-list').then((m) => m.StadiumList),
   },
+  {
+    path: 'stadium/:slug',
+    loadComponent: () =>
+      import('./pages/stadium-detail/stadium-detail').then((m) => m.StadiumDetail),
+  },
   { path: 'manage-players', component: ManagePlayers },
   { path: 'manage-players/:id', component: ManagePlayers },
   { path: 'manage-referees', component: ManageReferees },
