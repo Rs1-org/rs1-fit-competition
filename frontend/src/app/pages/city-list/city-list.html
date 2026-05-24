@@ -1,7 +1,9 @@
 <div class="page">
     <div class="page-header">
         <h2>Cities</h2>
-        <button class="btn-add" (click)="onAdd()">+ Add City</button>
+        @if(user) {
+            <button class="btn-add" (click)="onAdd()">+ Add City</button>
+        }
     </div>
 
     @if(cities.length === 0){
@@ -31,8 +33,10 @@
                             }
                         </td>
                         <td class="actions">
-                            <button class="btn-edit" (click)="onEdit(city)">Edit</button>
-                            <button class="btn-delete" (click)="onDelete(city.id)">Delete</button>
+                            @if(user) {
+                                <button class="btn-edit" (click)="onEdit(city)">Edit</button>
+                                <button class="btn-delete" (click)="onDelete(city.id)">Delete</button>
+                            }
                         </td>
                     </tr>
                 }

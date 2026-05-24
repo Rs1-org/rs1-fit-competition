@@ -3,6 +3,8 @@ import { DecimalPipe } from '@angular/common';
 import { CityForm } from '../../components/city-form/city-form';
 import { CityService } from '../../core/services/city-services';
 import { CityDetailsDto, CityListDto } from '../../core/models/city';
+import { UserStateService } from '../../core/services/user-state.service';
+import { UserDto } from '../../core/models/auth.models';
 
 @Component({
   selector: 'app-city-list',
@@ -12,12 +14,15 @@ import { CityDetailsDto, CityListDto } from '../../core/models/city';
 })
 export class CityList implements OnInit {
   private cityService = inject(CityService);
+  private userStateService = inject(UserStateService);
 
   cities: CityListDto[] = [];
   isFormOpen = false;
   selectedCity: CityDetailsDto | null = null;
+  user: UserDto | null = null;
 
   ngOnInit(): void {
+    this.userStateService.user$.subscribe((u) => (this.user = u));
     this.loadCities();
   }
 

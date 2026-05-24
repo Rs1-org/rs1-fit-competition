@@ -1,7 +1,9 @@
 <div class="page">
     <div class="page-header">
         <h2>Countries</h2>
-        <button class="btn-add" (click)="onAdd()">+ Add Country</button>
+        @if(user) {
+            <button class="btn-add" (click)="onAdd()">+ Add Country</button>
+        }
     </div>
 
     @if(countries.length === 0){
@@ -29,8 +31,10 @@
                         <td>{{ country.name }}</td>
                         <td class="slug">{{ country.slug }}</td>
                         <td class="actions">
-                            <button class="btn-edit" (click)="onEdit(country)">Edit</button>
-                            <button class="btn-delete" (click)="onDelete(country.id)">Delete</button>
+                            @if(user) {
+                                <button class="btn-edit" (click)="onEdit(country)">Edit</button>
+                                <button class="btn-delete" (click)="onDelete(country.id)">Delete</button>
+                            }
                         </td>
                     </tr>
                 }

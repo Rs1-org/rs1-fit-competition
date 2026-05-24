@@ -2,6 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CountryForm } from '../../components/country-form/country-form';
 import { CountryService } from '../../core/services/country-service';
 import { CountryListDto } from '../../core/models/country';
+import { UserStateService } from '../../core/services/user-state.service';
+import { UserDto } from '../../core/models/auth.models';
 
 @Component({
   selector: 'app-country-list',
@@ -11,12 +13,15 @@ import { CountryListDto } from '../../core/models/country';
 })
 export class CountryList implements OnInit {
   private countryService = inject(CountryService);
+  private userStateService = inject(UserStateService);
 
   countries: CountryListDto[] = [];
   isFormOpen = false;
   selectedCountry: CountryListDto | null = null;
+  user: UserDto | null = null;
 
   ngOnInit(): void {
+    this.userStateService.user$.subscribe((u) => (this.user = u));
     this.loadCountries();
   }
 
