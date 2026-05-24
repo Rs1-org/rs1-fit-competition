@@ -23,7 +23,8 @@ public class MappingProfile:Profile
         CreateMap<CreateCityCommand, City>()
             .ForMember(m => m.Slug, opt => opt.MapFrom(src => SlugHelper.GenerateSlug(src.Name)));
         CreateMap<City, CityNameDto>();
-        CreateMap<City, CityListDto>();
+        CreateMap<City, CityListDto>()
+            .ForMember(m => m.CountryName, opt => opt.MapFrom(src => src.Country != null ? src.Country.Name : null));
         CreateMap<City, CityDetailsDto>()
             .ForMember(m => m.CountryName, opt => opt.MapFrom(src => src.Country!.Name))
             .ForMember(m => m.Latitude, opt => opt.MapFrom(src => src.GeoData!.Latitude))

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Competition.Application.Commands.CountryCommands.Delete
 {
-    internal class DeleteCountryCommandsHandler : IRequestHandler<DeleteCountryCommands, CountryNameDto>
+    public class DeleteCountryCommandsHandler : IRequestHandler<DeleteCountryCommands, CountryNameDto>
     {
         private readonly ICountry _country;
         private readonly IMapper _mapper;
@@ -28,7 +28,7 @@ namespace Competition.Application.Commands.CountryCommands.Delete
             var country=await _country.GetByIdAsync(request.Id);
 
             if (country == null)
-                throw new KeyNotFoundException($"Couldn't find any city with {request.Id}");
+                throw new KeyNotFoundException($"Couldn't find any country with {request.Id}");
 
             await _country.DeleteAsync(country);
             await _unitOfWork.SaveChangesAsync();

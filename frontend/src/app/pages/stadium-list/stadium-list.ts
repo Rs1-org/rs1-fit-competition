@@ -1,50 +1,49 @@
-import { Component, inject, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, ViewChild } from '@angular/core';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { Router } from '@angular/router';
 import { StadiumService } from '../../core/services/stadium.service';
 import { StadiumListDto } from '../../core/models/stadium';
 import { StadiumForm } from '../../components/stadium-form/stadium-form';
-import { PagedResult } from '../../core/models/paged-result';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { UserStateService } from '../../core/services/user-state.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { BehaviorSubject, combineLatest, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-stadium-list',
   standalone: true,
-  imports: [GenericListComponent, CommonModule, GenericSearch, StadiumForm],
+  imports: [GenericListComponent, CommonModule, GenericSearch, StadiumForm, DecimalPipe],
   templateUrl: './stadium-list.html',
   styleUrl: './stadium-list.css',
 })
-export class StadiumList implements OnInit {
+export class StadiumList {
   @ViewChild(StadiumForm) stadiumFormRef!: StadiumForm;
 
-  pagedResult: PagedResult<StadiumListDto> | null = null;
-  currentPage = 1;
+  private stadiumService   = inject(StadiumService);
+  private confirmDialog    = inject(ConfirmDialogService);
+  private router           = inject(Router);
+  private userStateService = inject(UserStateService);
+
+  private refresh$ = new BehaviorSubject<void>(undefined);
+  private page$ = new BehaviorSubject<number>(1);
   readonly pageSize = 10;
 
-  private stadiumService = inject(StadiumService);
-  private confirmDialog  = inject(ConfirmDialogService);
-  private router         = inject(Router);
-  private cdr            = inject(ChangeDetectorRef);
+  user = this.userStateService.getUser();
 
-  ngOnInit() {
-    this.loadStadiums();
-  }
-
-  loadStadiums(page = this.currentPage) {
-    this.stadiumService.getAll(page, this.pageSize).subscribe({
-      next: (data) => {
-        this.pagedResult = data;
-        this.currentPage = data.page;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error('Error loading stadiums: ', err)
-    });
-  }
+  pagedResult = toSignal(
+    combineLatest([this.page$, this.refresh$]).pipe(
+      switchMap(([page]) => this.stadiumService.getAll(page, this.pageSize))
+    )
+  );
 
   onPageChange(page: number) {
-    this.loadStadiums(page);
+    this.page$.next(page);
+  }
+
+  onFormSaved(): void {
+    this.refresh$.next();
   }
 
   view(stadium: StadiumListDto) {
@@ -65,14 +64,14 @@ export class StadiumList implements OnInit {
     if (!confirmed) return;
 
     this.stadiumService.delete(stadium.id).subscribe({
-      next: () => this.loadStadiums(this.currentPage),
+      next: () => this.refresh$.next(),
       error: (err) => console.error('Error deleting stadium: ', err)
     });
   }
 
   search(term: string) {
     if (!term) {
-      this.loadStadiums(1);
+      this.page$.next(1);
     }
   }
 }

@@ -40,3 +40,4 @@ docker-compose.override.yml
 *.dotCover
 *.ReSharper
 *.resharper
+.claude

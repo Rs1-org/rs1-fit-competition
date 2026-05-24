@@ -4,7 +4,7 @@ using Competition.Application.DTOs.CountryDto;
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Queries.City.GetAll
+namespace Competition.Application.Queries.Country.GetAll
 {
     public class GetAllCountriesCommandHandler : IRequestHandler<GetAllCountriesCommand, PagedResult<CountryListDto>>
     {

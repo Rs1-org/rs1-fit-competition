@@ -2,7 +2,7 @@
 using Competition.Application.DTOs.CountryDto;
 using MediatR;
 
-namespace Competition.Application.Queries.City.GetAll
+namespace Competition.Application.Queries.Country.GetAll
 {
     public class GetAllCountriesCommand : IRequest<PagedResult<CountryListDto>>
     {
