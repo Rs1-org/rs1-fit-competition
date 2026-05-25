@@ -16,6 +16,7 @@
     "module": "preserve",
     "moduleResolution": "bundler",
     "baseUrl": "./",
+    "ignoreDeprecations": "5.0",
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

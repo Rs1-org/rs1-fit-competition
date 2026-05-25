@@ -1,46 +1,41 @@
-<div class="page">
-    <div class="page-header">
-        <h2>Countries</h2>
+<div class="container">
+    <div class="header-actions">
+        <h1>Countries</h1>
         @if(user) {
             <button class="btn-add" (click)="onAdd()">+ Add Country</button>
         }
     </div>
 
-    @if(countries.length === 0){
-        <p class="empty-message">No countries found.</p>
-    } @else {
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Flag / Picture</th>
-                    <th>Name</th>
-                    <th>Slug</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for(country of countries; track country.id){
-                    <tr>
-                        <td>
-                            @if(country.pictureUrl){
-                                <img [src]="country.pictureUrl" [alt]="country.name" class="country-img" />
-                            } @else {
-                                <span class="no-img">—</span>
-                            }
-                        </td>
-                        <td>{{ country.name }}</td>
-                        <td class="slug">{{ country.slug }}</td>
-                        <td class="actions">
-                            @if(user) {
-                                <button class="btn-edit" (click)="onEdit(country)">Edit</button>
-                                <button class="btn-delete" (click)="onDelete(country.id)">Delete</button>
-                            }
-                        </td>
-                    </tr>
+    <app-generic-search 
+        placeholder="Search countries..." 
+        (onSearch)="search($event)">
+    </app-generic-search>
+
+    <app-generic-list
+        [items]="countriesResult()?.items ?? []"
+        [pageSize]="pageSize"
+        [serverTotalItems]="countriesResult()?.totalCount"
+        [serverCurrentPage]="countriesResult()?.page ?? 1"
+        [showActions]="!!user"
+        variant="card"
+        (update)="onEdit($event)"
+        (delete)="onDelete($event)"
+        (pageChange)="onPageChange($event)">
+        
+        <ng-template #itemTemplate let-country>
+            <div class="country-card-content">
+                @if (country.pictureUrl) {
+                    <img [src]="country.pictureUrl" [alt]="country.name" class="country-img">
+                } @else {
+                    <div class="country-placeholder">No Image</div>
                 }
-            </tbody>
-        </table>
-    }
+                <div class="country-info">
+                    <div class="item-title">{{ country.name }}</div>
+                    <div class="item-subtitle">{{ country.slug }}</div>
+                </div>
+            </div>
+        </ng-template>
+    </app-generic-list>
 </div>
 
 <app-country-form

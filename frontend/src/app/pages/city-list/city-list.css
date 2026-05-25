@@ -1,121 +1,75 @@
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap');
-
-.page {
-    padding: 32px 48px;
-    font-family: 'Rajdhani', sans-serif;
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.page-header {
+.header-actions {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin-bottom: 24px;
-}
-
-.page-header h2 {
-    font-size: 28px;
-    font-weight: 700;
-    margin: 0;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
 .btn-add {
-    padding: 10px 20px;
-    background-color: #2563eb;
+    background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 6px;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    font-weight: 600;
 }
 
 .btn-add:hover {
-    background-color: #1d4ed8;
+    background-color: #0056b3;
 }
 
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 15px;
+.city-card-content {
+    display: flex;
+    gap: 20px;
+    align-items: center;
 }
 
-.data-table th {
-    text-align: left;
-    padding: 12px 16px;
-    background-color: #f1f5f9;
-    font-weight: 700;
-    border-bottom: 2px solid #e2e8f0;
+.city-placeholder {
+    width: 100px;
+    height: 100px;
+    background-color: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    border-radius: 8px;
+    font-size: 0.8rem;
 }
 
-.data-table td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #e2e8f0;
-    vertical-align: middle;
+.city-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.data-table tr:hover td {
-    background-color: #f8fafc;
+.item-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.item-subtitle {
+    color: #666;
+}
+
+.item-meta {
+    font-size: 0.9rem;
+    color: #888;
 }
 
 .badge-capital {
-    display: inline-block;
-    padding: 2px 10px;
-    background-color: #dcfce7;
-    color: #16a34a;
+    background-color: #ffc107;
+    color: #000;
+    padding: 2px 8px;
     border-radius: 12px;
-    font-size: 13px;
+    font-size: 0.75rem;
+    margin-left: 8px;
     font-weight: 600;
-}
-
-.badge-no {
-    display: inline-block;
-    padding: 2px 10px;
-    background-color: #f1f5f9;
-    color: #64748b;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.actions {
-    display: flex;
-    gap: 8px;
-}
-
-.btn-edit, .btn-delete {
-    padding: 6px 14px;
-    border: none;
-    border-radius: 4px;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.btn-edit {
-    background-color: #e2e8f0;
-    color: #1e293b;
-}
-
-.btn-edit:hover {
-    background-color: #cbd5e1;
-}
-
-.btn-delete {
-    background-color: #fee2e2;
-    color: #dc2626;
-}
-
-.btn-delete:hover {
-    background-color: #fecaca;
-}
-
-.empty-message {
-    color: #94a3b8;
-    font-size: 16px;
-    margin-top: 32px;
-    text-align: center;
 }

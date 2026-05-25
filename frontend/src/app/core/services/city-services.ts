@@ -2,7 +2,8 @@ import { inject, Injectable } from "@angular/core";
 import { environment } from '../../../environments/environment';
 import { Observable } from "rxjs";
 import { CityDetailsDto, CityListDto, CityName } from "../models/city";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { PagedResult } from "../models/paged-result";
 
 @Injectable({
     providedIn:'root'
@@ -25,8 +26,11 @@ export class CityService{
         return this.http.delete<CityName>(`${this.apiUrl}deleteCity/${id}`);
     }
 
-    getAll(): Observable<CityListDto[]> {
-        return this.http.get<CityListDto[]>(`${this.apiUrl}getCities`);
+    getAll(page = 1, pageSize = 10): Observable<PagedResult<CityListDto>> {
+        const params = new HttpParams()
+            .set('page', page)
+            .set('pageSize', pageSize);
+        return this.http.get<PagedResult<CityListDto>>(`${this.apiUrl}getCities`, { params });
     }
 
     getBySlug(slug: string): Observable<CityDetailsDto> {

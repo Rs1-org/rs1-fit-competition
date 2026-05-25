@@ -1,17 +1,12 @@
 ﻿using AutoMapper;
+using Competition.Application.Common.Models;
 using Competition.Application.DTOs.CityDto;
 using Competition.Application.Interfaces;
-using Competition.Application.Queries.City.GetAll;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Competition.Application.Queries.City.GetAllByCountry
 {
-    public class GetAllCitiesByCountryCommandHandler : IRequestHandler<GetAllCitiesByCountryCommand, List<CityListDto>>
+    public class GetAllCitiesByCountryCommandHandler : IRequestHandler<GetAllCitiesByCountryCommand, PagedResult<CityListDto>>
     {
         private readonly ICity _city;
         private readonly IMapper _mapper;
@@ -21,14 +16,11 @@ namespace Competition.Application.Queries.City.GetAllByCountry
             _city = city;
         }
 
-        public async Task<List<CityListDto>> Handle(GetAllCitiesByCountryCommand request, CancellationToken cancellationToken)
+        public async Task<PagedResult<CityListDto>> Handle(GetAllCitiesByCountryCommand request, CancellationToken cancellationToken)
         {
-            var cities = await _city.GetAllByCountryAsync(request.CountryId);
-
-            if (cities == null)
-                throw new KeyNotFoundException();
-
-            return _mapper.Map<List<CityListDto>>(cities);
+            var paged = await _city.GetPagedByCountryAsync(request.CountryId, request.Page, request.PageSize, cancellationToken);
+            var items = _mapper.Map<IReadOnlyList<CityListDto>>(paged.Items);
+            return new PagedResult<CityListDto>(items, paged.TotalCount, paged.Page, paged.PageSize);
         }
     }
 }
