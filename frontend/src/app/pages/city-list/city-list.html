@@ -1,48 +1,43 @@
-<div class="page">
-    <div class="page-header">
-        <h2>Cities</h2>
+<div class="container">
+    <div class="header-actions">
+        <h1>Cities</h1>
         @if(user) {
             <button class="btn-add" (click)="onAdd()">+ Add City</button>
         }
     </div>
 
-    @if(cities().length === 0){
-        <p class="empty-message">No cities found.</p>
-    } @else {
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Country</th>
-                    <th>Population</th>
-                    <th>Capital</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for(city of cities(); track city.id){
-                    <tr>
-                        <td>{{ city.name }}</td>
-                        <td>{{ city.countryName }}</td>
-                        <td>{{ city.population | number }}</td>
-                        <td>
-                            @if(city.isCapital){
-                                <span class="badge-capital">Yes</span>
-                            } @else {
-                                <span class="badge-no">No</span>
-                            }
-                        </td>
-                        <td class="actions">
-                            @if(user) {
-                                <button class="btn-edit" (click)="onEdit(city)">Edit</button>
-                                <button class="btn-delete" (click)="onDelete(city.id)">Delete</button>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
+    <app-generic-search 
+        placeholder="Search cities..." 
+        (onSearch)="search($event)">
+    </app-generic-search>
+
+    <app-generic-list
+        [items]="citiesResult()?.items ?? []"
+        [pageSize]="pageSize"
+        [serverTotalItems]="citiesResult()?.totalCount"
+        [serverCurrentPage]="citiesResult()?.page ?? 1"
+        [showActions]="!!user"
+        variant="card"
+        (update)="onEdit($event)"
+        (delete)="onDelete($event)"
+        (pageChange)="onPageChange($event)">
+        
+        <ng-template #itemTemplate let-city>
+            <div class="city-card-content">
+                <div class="city-placeholder">City</div>
+                <div class="city-info">
+                    <div class="item-title">{{ city.name }}</div>
+                    <div class="item-subtitle">{{ city.countryName }}</div>
+                    <div class="item-meta">
+                        Population: {{ city.population | number }}
+                        @if(city.isCapital){
+                            <span class="badge-capital">Capital</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+    </app-generic-list>
 </div>
 
 <app-city-form
