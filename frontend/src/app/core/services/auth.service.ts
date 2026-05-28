@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, RegisterRequest, AuthResponse, AuthApiResponse } from '../models/auth.models';
+import { LoginRequest, RegisterRequest, RegisterResponse, AuthResponse, AuthApiResponse } from '../models/auth.models';
 import { tap, map } from 'rxjs';
 import { TokenService } from './token.service';
 import { UserStateService } from './user-state.service';
@@ -32,7 +32,7 @@ export class AuthService {
 }
 
   register(request: RegisterRequest) {
-    return this.http.post<string>(`${this.api}/register`, request);
+    return this.http.post<RegisterResponse>(`${this.api}/register`, request);
   }
 
   refreshToken() {

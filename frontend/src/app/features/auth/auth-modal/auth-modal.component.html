@@ -1,19 +1,11 @@
-@if(showLogin || showRegister){
-<div class="modal-overlay">
-  <div class="modal-container">
+<app-login
+  [show]="showLogin"
+  (closeModal)="close()"
+  (switchToRegister)="openRegister()">
+</app-login>
 
-    <app-login
-      [show]="showLogin"
-      (closeModal)="close()"
-      (switchToRegister)="openRegister()">
-    </app-login>
-
-    <app-register
-      [show]="showRegister"
-      (closeModal)="close()"
-      (switchToLogin)="openLogin()">
-    </app-register>
-
-  </div>
-</div>
-}
+<app-register
+  [show]="showRegister"
+  (closeModal)="close()"
+  (switchToLogin)="openLogin()">
+</app-register>
