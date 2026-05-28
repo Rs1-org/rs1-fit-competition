@@ -25,9 +25,9 @@ namespace Competition.Infrastructure
             services.AddScoped<IBlobStorageService, BlobStorageService>();
             services.AddScoped<IImageService,ImageService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddScoped<IPlayerService,PlayerService>();
-            services.AddScoped<IManagerService, ManagerService>();
-            services.AddScoped<IRefereeService, RefereeService>();
+            services.AddScoped<IPlayer, PlayerRepository>();
+            services.AddScoped<IReferee, RefereeRepository>();
+            services.AddScoped<IManager, ManagerRepository>();
             services.AddScoped<IPlayerSelectionHistoryService, PlayerSelectionHistoryService>();
             services.AddScoped<ISelectionManagerHistoryService, SelectionManagerHistoryService>();
             services.AddScoped<ITransferValueHistoryService, TransferValueHistoryService>();
