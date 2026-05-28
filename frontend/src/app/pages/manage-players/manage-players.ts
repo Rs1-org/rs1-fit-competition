@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
@@ -29,21 +29,43 @@ export class ManagePlayers implements OnInit {
   activeTab: 'info' | 'history' = 'info';
   editingId: string | null = null;
   isEditMode = false;
+  isLoading = false;
   pictureChanged = false;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private historyService: HistoryService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.editingId = id;
-      this.isEditMode = true;
-      void this.loadPlayer(id);
-    }
+    this.route.paramMap.subscribe((params) => {
+      const id = params.get('id');
+      if (id) {
+        this.editingId = id;
+        this.isEditMode = true;
+        void this.loadPlayer(id);
+        return;
+      }
+
+      this.editingId = null;
+      this.isEditMode = false;
+      this.resetForm();
+      this.cdr.detectChanges();
+    });
+  }
+
+  private resetForm(): void {
+    this.player = {
+      ...emptyPersonFields(),
+      height: 0,
+      shirtNumber: 0,
+      transferValue: 0,
+    };
+    this.history = emptyPlayerHistoryForm();
+    this.activeTab = 'info';
+    this.pictureChanged = false;
   }
 
   get isPlayerInvalid(): boolean {
@@ -65,8 +87,13 @@ export class ManagePlayers implements OnInit {
   }
 
   async loadPlayer(id: string): Promise<void> {
+    this.isLoading = true;
     const response = await fetch(`${environment.apiUrl}/api/player/${id}`);
-    if (!response.ok) return;
+    if (!response.ok) {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+      return;
+    }
 
     const data = await response.json();
     this.player = {
@@ -81,6 +108,8 @@ export class ManagePlayers implements OnInit {
     };
     this.pictureChanged = false;
     this.history = await this.historyService.loadPlayerHistory(id);
+    this.isLoading = false;
+    this.cdr.detectChanges();
   }
 
   async onPictureSelected(event: Event): Promise<void> {
