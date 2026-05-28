@@ -25,7 +25,7 @@ export class AuthService {
   return this.http.post<AuthApiResponse>(`${this.api}/login`, request).pipe(
     tap(res => {
       this.tokenService.setTokens(res.accessToken, res.refreshToken);
-      this.userState.setUser(res.user);
+      this.userState.setUser(res.user, res.roles ?? []);
     }),
     map(res => res.user)
   );
@@ -45,13 +45,16 @@ export class AuthService {
     ).pipe(
       tap(res => {
         this.tokenService.setTokens(res.accessToken, res.refreshToken);
+        if (res.user) {
+          this.userState.setUser(res.user, res.roles ?? []);
+        }
       })
     );
   }
 
 
   logout() {
-  const token = localStorage.getItem('refreshToken');
+  const token = this.tokenService.getRefreshToken();
   if (!token) {
     this.clearUserData();
     return;
@@ -64,9 +67,7 @@ export class AuthService {
 }
 
 private clearUserData() {
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('user'); // if you store user info
+  this.tokenService.clear();
   this.userState.clearUser();
   this.router.navigate(['']);
 }

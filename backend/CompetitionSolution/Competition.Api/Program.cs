@@ -123,7 +123,7 @@ app.MapControllers();
 using var roleScope = app.Services.CreateScope();
 var roleManager = roleScope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
-string[] roles = new[] { "Admin", "User", "Manager" };
+string[] roles = new[] { "Admin", "Moderator", "User", "Manager" };
 
 foreach (var role in roles)
 {

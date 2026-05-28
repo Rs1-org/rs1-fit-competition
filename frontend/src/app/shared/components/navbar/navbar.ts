@@ -74,10 +74,14 @@ export class Navbar implements OnInit {
   authModal!: AuthModalComponent;
 
   user: UserDto | null = null;
+  canManagePersons = false;
 
   ngOnInit(): void {
     this.userStateService.user$.subscribe((userData) => {
       this.user = userData;
+    });
+    this.userStateService.roles$.subscribe(() => {
+      this.canManagePersons = this.userStateService.canManagePersons();
     });
   }
 

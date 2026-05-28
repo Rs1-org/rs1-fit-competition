@@ -31,7 +31,7 @@ public class PlayerController(IMediator mediator) : ControllerBase
         return Ok(await mediator.Send(new GetAllPlayersQuery()));
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPost]
     public async Task<IActionResult> AddPlayer([FromBody] PlayerDto dto)
     {
@@ -39,7 +39,7 @@ public class PlayerController(IMediator mediator) : ControllerBase
         return Ok(created);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdatePlayer(Guid id, [FromBody] PlayerDto dto)
     {
@@ -47,7 +47,7 @@ public class PlayerController(IMediator mediator) : ControllerBase
         return Ok(updated);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePlayer(Guid id)
     {

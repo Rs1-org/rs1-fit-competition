@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
 import { emptyPersonFields, pictureToDataUrl, Referee } from '../../core/models/person.models';
+import { authJsonHeaders } from '../../core/helpers/auth-fetch.helper';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -109,7 +110,7 @@ export class ManageReferees implements OnInit {
 
     const response = await fetch(url, {
       method: this.isEditMode ? 'PUT' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authJsonHeaders(),
       body: JSON.stringify(payload),
     });
 

@@ -31,7 +31,7 @@ public class RefereeController(IMediator mediator) : ControllerBase
         return Ok(await mediator.Send(new GetAllRefereesQuery()));
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPost]
     public async Task<IActionResult> AddReferee([FromBody] RefereeDto dto)
     {
@@ -39,7 +39,7 @@ public class RefereeController(IMediator mediator) : ControllerBase
         return Ok(created);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateReferee(Guid id, [FromBody] RefereeDto dto)
     {
@@ -47,7 +47,7 @@ public class RefereeController(IMediator mediator) : ControllerBase
         return Ok(updated);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteReferee(Guid id)
     {

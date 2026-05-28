@@ -31,7 +31,7 @@ public class ManagerController(IMediator mediator) : ControllerBase
         return Ok(await mediator.Send(new GetAllManagersQuery()));
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPost]
     public async Task<IActionResult> AddManager([FromBody] ManagerDto dto)
     {
@@ -39,7 +39,7 @@ public class ManagerController(IMediator mediator) : ControllerBase
         return Ok(created);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateManager(Guid id, [FromBody] ManagerDto dto)
     {
@@ -47,7 +47,7 @@ public class ManagerController(IMediator mediator) : ControllerBase
         return Ok(updated);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteManager(Guid id)
     {

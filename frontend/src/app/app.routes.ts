@@ -4,6 +4,7 @@ import { ManagePlayers } from './pages/manage-players/manage-players';
 import { ManageReferees } from './pages/manage-referees/manage-referees';
 import { ManageManagers } from './pages/manage-managers/manage-managers';
 import { AuthGuard } from './core/guards/auth.guard';
+import { AdminModeratorGuard } from './core/guards/admin-moderator.guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -27,12 +28,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/stadium-detail/stadium-detail').then((m) => m.StadiumDetail),
   },
-  { path: 'manage-players', component: ManagePlayers },
-  { path: 'manage-players/:id', component: ManagePlayers },
-  { path: 'manage-referees', component: ManageReferees },
-  { path: 'manage-referees/:id', component: ManageReferees },
-  { path: 'manage-managers', component: ManageManagers },
-  { path: 'manage-managers/:id', component: ManageManagers },
+  { path: 'manage-players', component: ManagePlayers, canActivate: [AdminModeratorGuard] },
+  { path: 'manage-players/:id', component: ManagePlayers, canActivate: [AdminModeratorGuard] },
+  { path: 'manage-referees', component: ManageReferees, canActivate: [AdminModeratorGuard] },
+  { path: 'manage-referees/:id', component: ManageReferees, canActivate: [AdminModeratorGuard] },
+  { path: 'manage-managers', component: ManageManagers, canActivate: [AdminModeratorGuard] },
+  { path: 'manage-managers/:id', component: ManageManagers, canActivate: [AdminModeratorGuard] },
   {
     path: 'player-list',
     loadComponent: () =>
