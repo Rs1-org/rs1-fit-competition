@@ -13,15 +13,12 @@ public class AuthController(IMediator mediator) : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserDto user)
     {
-        try
-        {
-            var userId = await mediator.Send(new RegisterUserCommand(user));
-            return Ok(new { userId });
-        }
-        catch (ApplicationException ex)
-        {
-            return BadRequest(new { Error = ex.Message });
-        }
+        var response = await mediator.Send(new RegisterUserCommand(user));
+
+        if (!response.Success)
+            return BadRequest(new { message = "Registration failed", errors = response.Errors });
+
+        return Ok(new { userId = response.UserId });
     }
 
     [HttpPost("login")]

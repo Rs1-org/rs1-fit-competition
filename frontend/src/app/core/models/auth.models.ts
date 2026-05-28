@@ -19,6 +19,15 @@ export interface UserDto {
   phoneNumber: string;
 }
 
+export interface RegisterResponse {
+  userId: string;
+}
+
+export interface RegisterErrorResponse {
+  message?: string;
+  errors?: Record<string, string[]>;
+}
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;

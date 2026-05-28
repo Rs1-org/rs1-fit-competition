@@ -4,13 +4,72 @@
     <span class="modal-close" (click)="close()">&times;</span>
     <h2>Register</h2>
     <form [formGroup]="form" (ngSubmit)="submit()">
-      <input type="email" formControlName="email" placeholder="Email" />
-      <input type="password" formControlName="password" placeholder="Password" />
-      <input type="text" formControlName="firstName" placeholder="First Name" />
-      <input type="text" formControlName="lastName" placeholder="Last Name" />
-      <input type="text" formControlName="phoneNumber" placeholder="Phone Number" />
-      <button type="submit">Register</button>
+      <input
+        type="email"
+        formControlName="email"
+        placeholder="Email"
+        [class.field-invalid]="isInvalid('email')"
+      />
+
+      <div class="password-field">
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="Password"
+          [class.field-invalid]="isInvalid('password')"
+        />
+        <button
+          type="button"
+          class="password-toggle"
+          (click)="togglePasswordVisibility()"
+          [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+        >
+          <i class="fa-solid" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
+        </button>
+      </div>
+
+      <small class="password-hint">
+        Password must be at least 6 characters and include uppercase, lowercase, and a special character (e.g. Test123!).
+      </small>
+
+      <input
+        type="text"
+        formControlName="firstName"
+        placeholder="First Name"
+        [class.field-invalid]="isInvalid('firstName')"
+      />
+      <input
+        type="text"
+        formControlName="lastName"
+        placeholder="Last Name"
+        [class.field-invalid]="isInvalid('lastName')"
+      />
+      <input
+        type="text"
+        formControlName="phoneNumber"
+        placeholder="Phone Number"
+        [class.field-invalid]="isInvalid('phoneNumber')"
+      />
+
+      <button type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Registering...' : 'Register' }}
+      </button>
     </form>
+
+    @if (successMessage) {
+      <div class="success">
+        <p>{{ successMessage }}</p>
+      </div>
+    }
+
+    @if (errors.length > 0) {
+      <div class="error">
+        @for (item of errors; track item) {
+          <p>{{ item }}</p>
+        }
+      </div>
+    }
+
     <div class="redirect-link">
       Already have an account? <a (click)="goToLogin()">Login here</a>
     </div>
