@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Manager } from '../models/person.models';
 
@@ -10,6 +10,13 @@ export type ManagerWriteDto = Omit<Manager, 'id' | 'picture'> & { picture?: stri
 export class ManagerService {
   private readonly apiUrl = `${environment.apiUrl}/api/manager`;
   private http = inject(HttpClient);
+  private readonly listRefresh$ = new BehaviorSubject<void>(undefined);
+
+  readonly listRefreshChanges$ = this.listRefresh$.asObservable();
+
+  notifyListRefresh(): void {
+    this.listRefresh$.next();
+  }
 
   getAll(): Observable<Manager[]> {
     return this.http.get<Manager[]>(this.apiUrl);

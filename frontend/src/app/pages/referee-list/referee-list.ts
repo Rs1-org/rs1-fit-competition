@@ -26,7 +26,7 @@ export class RefereeList {
   private refresh$ = new BehaviorSubject<void>(undefined);
 
   referees = toSignal(
-    combineLatest([this.searchTerm$, this.refresh$]).pipe(
+    combineLatest([this.searchTerm$, this.refresh$, this.refereeService.listRefreshChanges$]).pipe(
       switchMap(([term]) =>
         term.trim() ? this.refereeService.search(term) : this.refereeService.getAll(),
       ),

@@ -26,7 +26,7 @@ export class PlayerList {
   private refresh$ = new BehaviorSubject<void>(undefined);
 
   players = toSignal(
-    combineLatest([this.searchTerm$, this.refresh$]).pipe(
+    combineLatest([this.searchTerm$, this.refresh$, this.playerService.listRefreshChanges$]).pipe(
       switchMap(([term]) =>
         term.trim() ? this.playerService.search(term) : this.playerService.getAll(),
       ),

@@ -134,10 +134,11 @@ export class ManageManagers implements OnInit {
         const managerId = this.isEditMode ? this.editingId! : saved.id!;
         try {
           await this.historyService.saveManagerHistory(managerId, this.history);
-          this.router.navigate(['/manager-list']);
-        } catch {
-          // history save failed — stay on form
+        } catch (err) {
+          console.error('Greška pri spremanju historije menadžera:', err);
         }
+        this.managerService.notifyListRefresh();
+        this.router.navigate(['/manager-list']);
       },
       error: (err) => console.error('Greška pri spremanju menadžera:', err),
     });

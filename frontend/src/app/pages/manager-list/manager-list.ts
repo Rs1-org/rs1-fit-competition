@@ -26,7 +26,7 @@ export class ManagerList {
   private refresh$ = new BehaviorSubject<void>(undefined);
 
   managers = toSignal(
-    combineLatest([this.searchTerm$, this.refresh$]).pipe(
+    combineLatest([this.searchTerm$, this.refresh$, this.managerService.listRefreshChanges$]).pipe(
       switchMap(([term]) =>
         term.trim() ? this.managerService.search(term) : this.managerService.getAll(),
       ),

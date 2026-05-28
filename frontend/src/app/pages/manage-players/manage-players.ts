@@ -146,10 +146,11 @@ export class ManagePlayers implements OnInit {
         const playerId = this.isEditMode ? this.editingId! : saved.id!;
         try {
           await this.historyService.savePlayerHistory(playerId, this.history);
-          this.router.navigate(['/player-list']);
-        } catch {
-          // history save failed — stay on form
+        } catch (err) {
+          console.error('Greška pri spremanju historije igrača:', err);
         }
+        this.playerService.notifyListRefresh();
+        this.router.navigate(['/player-list']);
       },
       error: (err) => console.error('Greška pri spremanju igrača:', err),
     });

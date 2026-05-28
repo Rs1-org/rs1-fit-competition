@@ -109,7 +109,10 @@ export class ManageReferees implements OnInit {
       : this.refereeService.create(payload);
 
     request$.subscribe({
-      next: () => this.router.navigate(['/referee-list']),
+      next: () => {
+        this.refereeService.notifyListRefresh();
+        this.router.navigate(['/referee-list']);
+      },
       error: (err) => console.error('Greška pri spremanju suca:', err),
     });
   }
