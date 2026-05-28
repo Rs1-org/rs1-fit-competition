@@ -1,13 +1,14 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { Router } from '@angular/router';
 import { Manager } from '../../core/models/person.models';
-import { environment } from '../../../environments/environment';
 import { UserStateService } from '../../core/services/user-state.service';
-import { authJsonHeaders } from '../../core/helpers/auth-fetch.helper';
-import { Subscription } from 'rxjs';
+import { ManagerService } from '../../core/services/manager.service';
+import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-manager-list',
@@ -15,69 +16,52 @@ import { Subscription } from 'rxjs';
   templateUrl: './manager-list.html',
   styleUrl: './manager-list.css',
 })
-export class ManagerList implements OnInit, OnDestroy {
-  managers: Manager[] = [];
-  canManagePersons = false;
-  private rolesSub?: Subscription;
+export class ManagerList {
+  private managerService = inject(ManagerService);
+  private confirmDialog = inject(ConfirmDialogService);
+  private router = inject(Router);
+  private userState = inject(UserStateService);
 
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private router: Router,
-    private userState: UserStateService,
-  ) {}
+  private searchTerm$ = new BehaviorSubject<string>('');
+  private refresh$ = new BehaviorSubject<void>(undefined);
 
-  ngOnInit(): void {
-    this.canManagePersons = this.userState.canManagePersons();
-    this.rolesSub = this.userState.roles$.subscribe(() => {
-      this.canManagePersons = this.userState.canManagePersons();
-      this.cdr.detectChanges();
-    });
-    this.getAllManagers();
-  }
+  managers = toSignal(
+    combineLatest([this.searchTerm$, this.refresh$]).pipe(
+      switchMap(([term]) =>
+        term.trim() ? this.managerService.search(term) : this.managerService.getAll(),
+      ),
+    ),
+    { initialValue: [] as Manager[] },
+  );
 
-  ngOnDestroy(): void {
-    this.rolesSub?.unsubscribe();
-  }
+  canManagePersons = toSignal(
+    this.userState.roles$.pipe(map(() => this.userState.canManagePersons())),
+    { initialValue: this.userState.canManagePersons() },
+  );
 
   view(manager: Manager): void {
     this.router.navigate(['/manager', manager.id]);
-  }
-
-  getAllManagers(): void {
-    fetch(`${environment.apiUrl}/api/manager`)
-      .then((response) => response.json())
-      .then((data) => {
-        this.managers = Array.isArray(data) ? data : [data];
-        this.cdr.detectChanges();
-      })
-      .catch((error) => console.error('Greška pri dohvaćanju menadžera:', error));
   }
 
   edit(manager: Manager): void {
     this.router.navigate(['/manage-managers', manager.id]);
   }
 
-  delete(manager: Manager): void {
-    fetch(`${environment.apiUrl}/api/manager/${manager.id}`, {
-      method: 'DELETE',
-      headers: authJsonHeaders(),
-    })
-      .then((response) => {
-        if (response.ok) {
-          this.managers = this.managers.filter((m) => m.id !== manager.id);
-          this.cdr.detectChanges();
-        }
-      })
-      .catch((error) => console.error('Greška pri brisanju menadžera:', error));
+  async delete(manager: Manager): Promise<void> {
+    if (!manager.id) return;
+
+    const confirmed = await this.confirmDialog.confirm({
+      message: `Jeste li sigurni da želite obrisati menadžera ${manager.firstName} ${manager.lastName}?`,
+    });
+    if (!confirmed) return;
+
+    this.managerService.delete(manager.id).subscribe({
+      next: () => this.refresh$.next(),
+      error: (err) => console.error('Greška pri brisanju menadžera:', err),
+    });
   }
 
   search(term: string): void {
-    fetch(`${environment.apiUrl}/api/manager/search?term=${encodeURIComponent(term)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        this.managers = Array.isArray(data) ? data : [data];
-        this.cdr.detectChanges();
-      })
-      .catch((error) => console.error('Greška pri pretraživanju menadžera:', error));
+    this.searchTerm$.next(term);
   }
 }

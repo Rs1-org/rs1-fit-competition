@@ -1,13 +1,14 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { Router } from '@angular/router';
 import { Player } from '../../core/models/person.models';
-import { environment } from '../../../environments/environment';
 import { UserStateService } from '../../core/services/user-state.service';
-import { authJsonHeaders } from '../../core/helpers/auth-fetch.helper';
-import { Subscription } from 'rxjs';
+import { PlayerService } from '../../core/services/player.service';
+import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-player-list',
@@ -15,67 +16,52 @@ import { Subscription } from 'rxjs';
   templateUrl: './player-list.html',
   styleUrl: './player-list.css',
 })
-export class PlayerList implements OnInit, OnDestroy {
-  players: Player[] = [];
-  canManagePersons = false;
-  private rolesSub?: Subscription;
+export class PlayerList {
+  private playerService = inject(PlayerService);
+  private confirmDialog = inject(ConfirmDialogService);
+  private router = inject(Router);
+  private userState = inject(UserStateService);
 
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private router: Router,
-    private userState: UserStateService,
-  ) {}
+  private searchTerm$ = new BehaviorSubject<string>('');
+  private refresh$ = new BehaviorSubject<void>(undefined);
 
-  ngOnInit(): void {
-    this.canManagePersons = this.userState.canManagePersons();
-    this.rolesSub = this.userState.roles$.subscribe(() => {
-      this.canManagePersons = this.userState.canManagePersons();
-      this.cdr.detectChanges();
-    });
-    this.getAllPlayers();
-  }
+  players = toSignal(
+    combineLatest([this.searchTerm$, this.refresh$]).pipe(
+      switchMap(([term]) =>
+        term.trim() ? this.playerService.search(term) : this.playerService.getAll(),
+      ),
+    ),
+    { initialValue: [] as Player[] },
+  );
 
-  ngOnDestroy(): void {
-    this.rolesSub?.unsubscribe();
-  }
+  canManagePersons = toSignal(
+    this.userState.roles$.pipe(map(() => this.userState.canManagePersons())),
+    { initialValue: this.userState.canManagePersons() },
+  );
 
   view(player: Player): void {
     this.router.navigate(['/player', player.id]);
-  }
-
-  getAllPlayers(): void {
-    fetch(`${environment.apiUrl}/api/player`)
-      .then((response) => response.json())
-      .then((data) => {
-        this.players = Array.isArray(data) ? data : [data];
-        this.cdr.detectChanges();
-      });
   }
 
   edit(player: Player): void {
     this.router.navigate(['/manage-players', player.id]);
   }
 
-  delete(player: Player): void {
-    fetch(`${environment.apiUrl}/api/player/${player.id}`, {
-      method: 'DELETE',
-      headers: authJsonHeaders(),
-    })
-      .then((response) => {
-        if (response.ok) {
-          this.players = this.players.filter((p) => p.id !== player.id);
-          this.cdr.detectChanges();
-        }
-      })
-      .catch((error) => console.error('Greška pri brisanju igrača:', error));
+  async delete(player: Player): Promise<void> {
+    if (!player.id) return;
+
+    const confirmed = await this.confirmDialog.confirm({
+      message: `Jeste li sigurni da želite obrisati igrača ${player.firstName} ${player.lastName}?`,
+    });
+    if (!confirmed) return;
+
+    this.playerService.delete(player.id).subscribe({
+      next: () => this.refresh$.next(),
+      error: (err) => console.error('Greška pri brisanju igrača:', err),
+    });
   }
 
   search(term: string): void {
-    fetch(`${environment.apiUrl}/api/player/search?term=${encodeURIComponent(term)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        this.players = Array.isArray(data) ? data : [data];
-        this.cdr.detectChanges();
-      });
+    this.searchTerm$.next(term);
   }
 }

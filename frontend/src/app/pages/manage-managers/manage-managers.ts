@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
@@ -9,8 +9,8 @@ import {
 } from '../../core/models/history.models';
 import { emptyPersonFields, pictureToDataUrl, Manager } from '../../core/models/person.models';
 import { HistoryService } from '../../core/services/history.service';
-import { authJsonHeaders } from '../../core/helpers/auth-fetch.helper';
-import { environment } from '../../../environments/environment';
+import { ManagerService, ManagerWriteDto } from '../../core/services/manager.service';
+import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 
 @Component({
   selector: 'app-manage-managers',
@@ -19,6 +19,13 @@ import { environment } from '../../../environments/environment';
   styleUrl: './manage-managers.css',
 })
 export class ManageManagers implements OnInit {
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private historyService = inject(HistoryService);
+  private managerService = inject(ManagerService);
+  private confirmDialog = inject(ConfirmDialogService);
+  private cdr = inject(ChangeDetectorRef);
+
   manager: Manager = {
     ...emptyPersonFields(),
     careerStart: null,
@@ -31,20 +38,13 @@ export class ManageManagers implements OnInit {
   isLoading = false;
   pictureChanged = false;
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private historyService: HistoryService,
-    private cdr: ChangeDetectorRef,
-  ) {}
-
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.editingId = id;
         this.isEditMode = true;
-        void this.loadManager(id);
+        this.loadManager(id);
         return;
       }
 
@@ -77,25 +77,29 @@ export class ManageManagers implements OnInit {
     return pictureToDataUrl(this.manager.picture);
   }
 
-  async loadManager(id: string): Promise<void> {
+  loadManager(id: string): void {
     this.isLoading = true;
-    const response = await fetch(`${environment.apiUrl}/api/manager/${id}`);
-    if (!response.ok) {
-      this.isLoading = false;
-      this.cdr.detectChanges();
-      return;
-    }
+    this.managerService.getById(id).subscribe({
+      next: (data) => {
+        this.manager = {
+          id: data.id,
+          firstName: data.firstName ?? '',
+          lastName: data.lastName ?? '',
+          dateOfBirth: data.dateOfBirth ?? '',
+          picture: data.picture ?? null,
+          careerStart: data.careerStart ?? null,
+        };
+        this.pictureChanged = false;
+        void this.loadHistory(id);
+      },
+      error: () => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
 
-    const data = await response.json();
-    this.manager = {
-      id: data.id,
-      firstName: data.firstName ?? '',
-      lastName: data.lastName ?? '',
-      dateOfBirth: data.dateOfBirth ?? '',
-      picture: data.picture ?? null,
-      careerStart: data.careerStart ?? null,
-    };
-    this.pictureChanged = false;
+  private async loadHistory(id: string): Promise<void> {
     this.history = await this.historyService.loadManagerHistory(id);
     this.isLoading = false;
     this.cdr.detectChanges();
@@ -111,42 +115,52 @@ export class ManageManagers implements OnInit {
   }
 
   async saveManager(): Promise<void> {
-    const payload: Record<string, unknown> = {
-      firstName: this.manager.firstName.trim(),
-      lastName: this.manager.lastName.trim(),
-      dateOfBirth: this.manager.dateOfBirth,
-      careerStart: this.manager.careerStart || null,
-    };
+    if (this.isManagerInvalid) return;
 
-    if (!this.isEditMode || this.pictureChanged) {
-      payload['picture'] = this.manager.picture;
+    if (this.isEditMode) {
+      const confirmed = await this.confirmDialog.confirm({
+        message: `Jeste li sigurni da želite spremiti promjene za menadžera ${this.manager.firstName} ${this.manager.lastName}?`,
+      });
+      if (!confirmed) return;
     }
 
-    const url = this.isEditMode
-      ? `${environment.apiUrl}/api/manager/${this.editingId}`
-      : `${environment.apiUrl}/api/manager`;
+    const payload = this.buildPayload();
+    const request$ = this.isEditMode
+      ? this.managerService.update(this.editingId!, payload)
+      : this.managerService.create(payload);
 
-    const response = await fetch(url, {
-      method: this.isEditMode ? 'PUT' : 'POST',
-      headers: authJsonHeaders(),
-      body: JSON.stringify(payload),
+    request$.subscribe({
+      next: async (saved) => {
+        const managerId = this.isEditMode ? this.editingId! : saved.id!;
+        try {
+          await this.historyService.saveManagerHistory(managerId, this.history);
+          this.router.navigate(['/manager-list']);
+        } catch {
+          // history save failed — stay on form
+        }
+      },
+      error: (err) => console.error('Greška pri spremanju menadžera:', err),
     });
-
-    if (!response.ok) return;
-
-    const saved = await response.json();
-    const managerId = this.isEditMode ? this.editingId! : saved.id;
-
-    try {
-      await this.historyService.saveManagerHistory(managerId, this.history);
-    } catch {
-      return;
-    }
-
-    this.router.navigate(['/manager-list']);
   }
 
   cancel(): void {
     this.router.navigate(['/manager-list']);
+  }
+
+  private buildPayload(): ManagerWriteDto {
+    const payload: ManagerWriteDto = {
+      firstName: this.manager.firstName.trim(),
+      lastName: this.manager.lastName.trim(),
+      dateOfBirth: this.manager.dateOfBirth,
+      picture: this.manager.picture,
+      careerStart: this.manager.careerStart || null,
+    };
+
+    if (this.isEditMode && !this.pictureChanged) {
+      const { picture: _picture, ...rest } = payload;
+      return rest;
+    }
+
+    return payload;
   }
 }

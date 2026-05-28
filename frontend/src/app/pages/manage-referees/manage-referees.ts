@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
 import { emptyPersonFields, pictureToDataUrl, Referee } from '../../core/models/person.models';
-import { authJsonHeaders } from '../../core/helpers/auth-fetch.helper';
-import { environment } from '../../../environments/environment';
+import { RefereeService, RefereeWriteDto } from '../../core/services/referee.service';
+import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 
 @Component({
   selector: 'app-manage-referees',
@@ -14,6 +14,12 @@ import { environment } from '../../../environments/environment';
   styleUrl: './manage-referees.css',
 })
 export class ManageReferees implements OnInit {
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private refereeService = inject(RefereeService);
+  private confirmDialog = inject(ConfirmDialogService);
+  private cdr = inject(ChangeDetectorRef);
+
   referee: Referee = {
     ...emptyPersonFields(),
     careerStart: null,
@@ -23,19 +29,13 @@ export class ManageReferees implements OnInit {
   isEditMode = false;
   pictureChanged = false;
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef,
-  ) {}
-
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.editingId = id;
         this.isEditMode = true;
-        void this.loadReferee(id);
+        this.loadReferee(id);
         return;
       }
 
@@ -66,21 +66,22 @@ export class ManageReferees implements OnInit {
     return pictureToDataUrl(this.referee.picture);
   }
 
-  async loadReferee(id: string): Promise<void> {
-    const response = await fetch(`${environment.apiUrl}/api/referee/${id}`);
-    if (!response.ok) return;
-
-    const data = await response.json();
-    this.referee = {
-      id: data.id,
-      firstName: data.firstName ?? '',
-      lastName: data.lastName ?? '',
-      dateOfBirth: data.dateOfBirth ?? '',
-      picture: data.picture ?? null,
-      careerStart: data.careerStart ?? null,
-    };
-    this.pictureChanged = false;
-    this.cdr.detectChanges();
+  loadReferee(id: string): void {
+    this.refereeService.getById(id).subscribe({
+      next: (data) => {
+        this.referee = {
+          id: data.id,
+          firstName: data.firstName ?? '',
+          lastName: data.lastName ?? '',
+          dateOfBirth: data.dateOfBirth ?? '',
+          picture: data.picture ?? null,
+          careerStart: data.careerStart ?? null,
+        };
+        this.pictureChanged = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Greška pri učitavanju suca:', err),
+    });
   }
 
   async onPictureSelected(event: Event): Promise<void> {
@@ -93,33 +94,44 @@ export class ManageReferees implements OnInit {
   }
 
   async saveReferee(): Promise<void> {
-    const payload: Record<string, unknown> = {
-      firstName: this.referee.firstName.trim(),
-      lastName: this.referee.lastName.trim(),
-      dateOfBirth: this.referee.dateOfBirth,
-      careerStart: this.referee.careerStart || null,
-    };
+    if (this.isRefereeInvalid) return;
 
-    if (!this.isEditMode || this.pictureChanged) {
-      payload['picture'] = this.referee.picture;
+    if (this.isEditMode) {
+      const confirmed = await this.confirmDialog.confirm({
+        message: `Jeste li sigurni da želite spremiti promjene za suca ${this.referee.firstName} ${this.referee.lastName}?`,
+      });
+      if (!confirmed) return;
     }
 
-    const url = this.isEditMode
-      ? `${environment.apiUrl}/api/referee/${this.editingId}`
-      : `${environment.apiUrl}/api/referee`;
+    const payload = this.buildPayload();
+    const request$ = this.isEditMode
+      ? this.refereeService.update(this.editingId!, payload)
+      : this.refereeService.create(payload);
 
-    const response = await fetch(url, {
-      method: this.isEditMode ? 'PUT' : 'POST',
-      headers: authJsonHeaders(),
-      body: JSON.stringify(payload),
+    request$.subscribe({
+      next: () => this.router.navigate(['/referee-list']),
+      error: (err) => console.error('Greška pri spremanju suca:', err),
     });
-
-    if (response.ok) {
-      this.router.navigate(['/referee-list']);
-    }
   }
 
   cancel(): void {
     this.router.navigate(['/referee-list']);
+  }
+
+  private buildPayload(): RefereeWriteDto {
+    const payload: RefereeWriteDto = {
+      firstName: this.referee.firstName.trim(),
+      lastName: this.referee.lastName.trim(),
+      dateOfBirth: this.referee.dateOfBirth,
+      picture: this.referee.picture,
+      careerStart: this.referee.careerStart || null,
+    };
+
+    if (this.isEditMode && !this.pictureChanged) {
+      const { picture: _picture, ...rest } = payload;
+      return rest;
+    }
+
+    return payload;
   }
 }
