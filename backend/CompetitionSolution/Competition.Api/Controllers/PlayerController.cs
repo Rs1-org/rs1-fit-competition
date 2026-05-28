@@ -1,24 +1,23 @@
 ﻿using Competition.Application.DTOs.PersonDto;
-using Competition.Application.Services;
+using Competition.Application.Features.PlayerCommands.Create;
+using Competition.Application.Features.PlayerCommands.Delete;
+using Competition.Application.Features.PlayerCommands.Update;
+using Competition.Application.Features.PlayerQueries.GetAll;
+using Competition.Application.Features.PlayerQueries.GetById;
+using Competition.Application.Features.PlayerQueries.Search;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Competition.Api.Controllers;
 
 [Route("api/player")]
 [ApiController]
-public class PlayerController : ControllerBase
+public class PlayerController(IMediator mediator) : ControllerBase
 {
-    private readonly IPlayerService _service;
-
-    public PlayerController(IPlayerService service)
-    {
-        _service = service;
-    }
-
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var player = await _service.GetByIdAsync(id);
+        var player = await mediator.Send(new GetPlayerByIdQuery(id));
         if (player == null)
             throw new KeyNotFoundException($"Player with id {id} not found");
 
@@ -28,36 +27,36 @@ public class PlayerController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        return Ok(await _service.GetAllAsync());
+        return Ok(await mediator.Send(new GetAllPlayersQuery()));
     }
 
     [HttpPost]
     public async Task<IActionResult> AddPlayer([FromBody] PlayerDto dto)
     {
-        var created = await _service.CreateAsync(dto);
+        var created = await mediator.Send(new CreatePlayerCommand(dto));
         return Ok(created);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdatePlayer(Guid id, [FromBody] PlayerDto dto)
     {
-        var updated = await _service.UpdateAsync(id, dto);
+        var updated = await mediator.Send(new UpdatePlayerCommand(id, dto));
         return Ok(updated);
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePlayer(Guid id)
     {
-        await _service.DeleteAsync(id);
-        return Ok(id);
+        var deletedId = await mediator.Send(new DeletePlayerCommand(id));
+        return Ok(deletedId);
     }
 
     [HttpGet("search")]
     public async Task<IActionResult> Search([FromQuery] string? term)
     {
         if (string.IsNullOrWhiteSpace(term))
-            return Ok(await _service.GetAllAsync());
+            return Ok(await mediator.Send(new GetAllPlayersQuery()));
 
-        return Ok(await _service.SearchAsync(term));
+        return Ok(await mediator.Send(new SearchPlayersQuery(term)));
     }
 }

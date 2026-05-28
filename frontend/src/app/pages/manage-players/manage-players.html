@@ -11,7 +11,9 @@
       </button>
     </div>
 
-    <form (ngSubmit)="savePlayer()" #playerForm="ngForm">
+    <p *ngIf="isLoading" class="loading-text">Učitavanje podataka...</p>
+
+    <form *ngIf="!isLoading" (ngSubmit)="savePlayer()" #playerForm="ngForm">
       <ng-container *ngIf="activeTab === 'info'">
         <div class="form-group">
           <label for="firstName">First Name</label>

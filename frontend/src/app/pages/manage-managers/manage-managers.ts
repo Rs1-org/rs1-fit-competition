@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
@@ -27,21 +27,41 @@ export class ManageManagers implements OnInit {
   activeTab: 'info' | 'history' = 'info';
   editingId: string | null = null;
   isEditMode = false;
+  isLoading = false;
   pictureChanged = false;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private historyService: HistoryService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.editingId = id;
-      this.isEditMode = true;
-      void this.loadManager(id);
-    }
+    this.route.paramMap.subscribe((params) => {
+      const id = params.get('id');
+      if (id) {
+        this.editingId = id;
+        this.isEditMode = true;
+        void this.loadManager(id);
+        return;
+      }
+
+      this.editingId = null;
+      this.isEditMode = false;
+      this.resetForm();
+      this.cdr.detectChanges();
+    });
+  }
+
+  private resetForm(): void {
+    this.manager = {
+      ...emptyPersonFields(),
+      careerStart: null,
+    };
+    this.history = emptyManagerHistoryForm();
+    this.activeTab = 'info';
+    this.pictureChanged = false;
   }
 
   get isManagerInvalid(): boolean {
@@ -57,8 +77,13 @@ export class ManageManagers implements OnInit {
   }
 
   async loadManager(id: string): Promise<void> {
+    this.isLoading = true;
     const response = await fetch(`${environment.apiUrl}/api/manager/${id}`);
-    if (!response.ok) return;
+    if (!response.ok) {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+      return;
+    }
 
     const data = await response.json();
     this.manager = {
@@ -71,6 +96,8 @@ export class ManageManagers implements OnInit {
     };
     this.pictureChanged = false;
     this.history = await this.historyService.loadManagerHistory(id);
+    this.isLoading = false;
+    this.cdr.detectChanges();
   }
 
   async onPictureSelected(event: Event): Promise<void> {

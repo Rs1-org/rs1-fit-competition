@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
@@ -25,15 +25,32 @@ export class ManageReferees implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.editingId = id;
-      this.isEditMode = true;
-      void this.loadReferee(id);
-    }
+    this.route.paramMap.subscribe((params) => {
+      const id = params.get('id');
+      if (id) {
+        this.editingId = id;
+        this.isEditMode = true;
+        void this.loadReferee(id);
+        return;
+      }
+
+      this.editingId = null;
+      this.isEditMode = false;
+      this.resetForm();
+      this.cdr.detectChanges();
+    });
+  }
+
+  private resetForm(): void {
+    this.referee = {
+      ...emptyPersonFields(),
+      careerStart: null,
+    };
+    this.pictureChanged = false;
   }
 
   get isRefereeInvalid(): boolean {
@@ -62,6 +79,7 @@ export class ManageReferees implements OnInit {
       careerStart: data.careerStart ?? null,
     };
     this.pictureChanged = false;
+    this.cdr.detectChanges();
   }
 
   async onPictureSelected(event: Event): Promise<void> {
