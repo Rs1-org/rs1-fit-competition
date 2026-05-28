@@ -4,8 +4,8 @@
   <app-generic-search placeholder="Pretraži igrače..." (onSearch)="search($event)"></app-generic-search>
 
   <app-generic-list
-    [items]="players"
-    [showActions]="canManagePersons"
+    [items]="players()"
+    [showActions]="canManagePersons()"
     variant="card"
     (view)="view($event)"
     (update)="edit($event)"

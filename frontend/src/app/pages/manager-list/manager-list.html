@@ -4,8 +4,8 @@
   <app-generic-search placeholder="Pretraži menadžere..." (onSearch)="search($event)"></app-generic-search>
 
   <app-generic-list
-    [items]="managers"
-    [showActions]="canManagePersons"
+    [items]="managers()"
+    [showActions]="canManagePersons()"
     variant="card"
     (view)="view($event)"
     (update)="edit($event)"

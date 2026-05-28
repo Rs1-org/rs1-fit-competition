@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
   hasManagerHistoryData,
@@ -8,7 +8,7 @@ import {
 } from '../../core/models/history.models';
 import { pictureToDataUrl } from '../../core/models/person.models';
 import { HistoryService } from '../../core/services/history.service';
-import { environment } from '../../../environments/environment';
+import { ManagerService } from '../../core/services/manager.service';
 
 @Component({
   selector: 'app-manager-view',
@@ -17,6 +17,12 @@ import { environment } from '../../../environments/environment';
   styleUrl: './manager-view.css',
 })
 export class ManagerView implements OnInit {
+  private route = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
+  private historyService = inject(HistoryService);
+  private managerService = inject(ManagerService);
+
   selectedManager: Record<string, unknown> | null = null;
   pictureUrl: string | null = null;
   history: ManagerHistoryForm | null = null;
@@ -26,18 +32,11 @@ export class ManagerView implements OnInit {
 
   private readonly labels = managerHistoryViewLabels();
 
-  constructor(
-    private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef,
-    private router: Router,
-    private historyService: HistoryService,
-  ) {}
-
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
 
-    void this.loadManager(id);
+    this.loadManager(id);
   }
 
   get displayProperties(): { key: string; value: unknown }[] {
@@ -55,27 +54,24 @@ export class ManagerView implements OnInit {
     this.router.navigate(['/manager-list']);
   }
 
-  private async loadManager(id: string): Promise<void> {
-    try {
-      const response = await fetch(`${environment.apiUrl}/api/manager/${id}`);
-      if (!response.ok) return;
+  private loadManager(id: string): void {
+    this.managerService.getById(id).subscribe({
+      next: async (data) => {
+        this.selectedManager = {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          dateOfBirth: data.dateOfBirth,
+          careerStart: data.careerStart || '—',
+        };
+        this.pictureUrl = pictureToDataUrl(data.picture);
 
-      const data = await response.json();
-      this.selectedManager = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        dateOfBirth: data.dateOfBirth,
-        careerStart: data.careerStart || '—',
-      };
-      this.pictureUrl = pictureToDataUrl(data.picture);
-
-      this.history = await this.historyService.loadManagerHistory(id);
-      this.showHistoryTab = hasManagerHistoryData(this.history);
-      this.historyRows = this.buildHistoryRows(this.history);
-      this.cdr.detectChanges();
-    } catch (err) {
-      console.error('Greška pri dohvaćanju:', err);
-    }
+        this.history = await this.historyService.loadManagerHistory(id);
+        this.showHistoryTab = hasManagerHistoryData(this.history);
+        this.historyRows = this.buildHistoryRows(this.history);
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Greška pri dohvaćanju:', err),
+    });
   }
 
   private buildHistoryRows(

@@ -4,8 +4,8 @@
   <app-generic-search placeholder="Pretraži sudije..." (onSearch)="search($event)"></app-generic-search>
 
   <app-generic-list
-    [items]="referees"
-    [showActions]="canManagePersons"
+    [items]="referees()"
+    [showActions]="canManagePersons()"
     variant="card"
     (view)="view($event)"
     (update)="edit($event)"
