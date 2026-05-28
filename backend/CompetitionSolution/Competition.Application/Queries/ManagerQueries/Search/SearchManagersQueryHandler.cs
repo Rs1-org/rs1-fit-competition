@@ -1,3 +1,4 @@
+using AutoMapper;
 using Competition.Application.DTOs.PersonDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
@@ -5,7 +6,7 @@ using MediatR;
 
 namespace Competition.Application.Features.ManagerQueries.Search;
 
-public class SearchManagersQueryHandler(IManager managerRepository)
+public class SearchManagersQueryHandler(IManager managerRepository, IMapper mapper)
     : IRequestHandler<SearchManagersQuery, IEnumerable<ManagerDto>>
 {
     public async Task<IEnumerable<ManagerDto>> Handle(SearchManagersQuery request, CancellationToken cancellationToken)
@@ -19,6 +20,6 @@ public class SearchManagersQueryHandler(IManager managerRepository)
                 (m.CareerStart != null &&
                  NodaTimeMappingHelper.FormatNullableLocalDate(m.CareerStart)!
                      .Contains(request.Term, StringComparison.OrdinalIgnoreCase)))
-            .Select(PersonMappingHelper.ToDto);
+            .Select(mapper.Map<ManagerDto>);
     }
 }

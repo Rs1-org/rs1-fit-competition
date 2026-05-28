@@ -5,6 +5,7 @@
 
   <app-generic-list
     [items]="referees"
+    [showActions]="canManagePersons"
     variant="card"
     (view)="view($event)"
     (update)="edit($event)"

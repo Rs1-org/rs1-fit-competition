@@ -1,10 +1,13 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { Router } from '@angular/router';
 import { Player } from '../../core/models/person.models';
 import { environment } from '../../../environments/environment';
+import { UserStateService } from '../../core/services/user-state.service';
+import { authJsonHeaders } from '../../core/helpers/auth-fetch.helper';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-player-list',
@@ -12,16 +15,28 @@ import { environment } from '../../../environments/environment';
   templateUrl: './player-list.html',
   styleUrl: './player-list.css',
 })
-export class PlayerList implements OnInit {
+export class PlayerList implements OnInit, OnDestroy {
   players: Player[] = [];
+  canManagePersons = false;
+  private rolesSub?: Subscription;
 
   constructor(
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private userState: UserStateService,
   ) {}
 
   ngOnInit(): void {
+    this.canManagePersons = this.userState.canManagePersons();
+    this.rolesSub = this.userState.roles$.subscribe(() => {
+      this.canManagePersons = this.userState.canManagePersons();
+      this.cdr.detectChanges();
+    });
     this.getAllPlayers();
+  }
+
+  ngOnDestroy(): void {
+    this.rolesSub?.unsubscribe();
   }
 
   view(player: Player): void {
@@ -44,6 +59,7 @@ export class PlayerList implements OnInit {
   delete(player: Player): void {
     fetch(`${environment.apiUrl}/api/player/${player.id}`, {
       method: 'DELETE',
+      headers: authJsonHeaders(),
     })
       .then((response) => {
         if (response.ok) {

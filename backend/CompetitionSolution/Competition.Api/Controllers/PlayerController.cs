@@ -6,6 +6,7 @@ using Competition.Application.Features.PlayerQueries.GetAll;
 using Competition.Application.Features.PlayerQueries.GetById;
 using Competition.Application.Features.PlayerQueries.Search;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Competition.Api.Controllers;
@@ -30,6 +31,7 @@ public class PlayerController(IMediator mediator) : ControllerBase
         return Ok(await mediator.Send(new GetAllPlayersQuery()));
     }
 
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPost]
     public async Task<IActionResult> AddPlayer([FromBody] PlayerDto dto)
     {
@@ -37,6 +39,7 @@ public class PlayerController(IMediator mediator) : ControllerBase
         return Ok(created);
     }
 
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdatePlayer(Guid id, [FromBody] PlayerDto dto)
     {
@@ -44,6 +47,7 @@ public class PlayerController(IMediator mediator) : ControllerBase
         return Ok(updated);
     }
 
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePlayer(Guid id)
     {

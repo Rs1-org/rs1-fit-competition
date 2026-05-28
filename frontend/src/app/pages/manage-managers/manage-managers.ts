@@ -9,6 +9,7 @@ import {
 } from '../../core/models/history.models';
 import { emptyPersonFields, pictureToDataUrl, Manager } from '../../core/models/person.models';
 import { HistoryService } from '../../core/services/history.service';
+import { authJsonHeaders } from '../../core/helpers/auth-fetch.helper';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -127,7 +128,7 @@ export class ManageManagers implements OnInit {
 
     const response = await fetch(url, {
       method: this.isEditMode ? 'PUT' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authJsonHeaders(),
       body: JSON.stringify(payload),
     });
 

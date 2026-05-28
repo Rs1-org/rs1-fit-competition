@@ -1,7 +1,7 @@
 using Competition.Application.DTOs.PersonDto;
 using MediatR;
 
-namespace Competition.Application.Queries.PlayerQueries.GetById;
+namespace Competition.Application.Features.PlayerQueries.GetById;
 
 public class GetPlayerByIdQuery(Guid id) : IRequest<PlayerDto?>
 {

@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace Competition.Application.Commands.ManagerCommands.Delete;
+namespace Competition.Application.Features.ManagerCommands.Delete;
 
 public class DeleteManagerCommand(Guid id) : IRequest<Guid>
 {

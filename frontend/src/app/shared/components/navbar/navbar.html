@@ -24,9 +24,9 @@
     <div class="navbar-text manage-wrapper" (click)="openManage()">
       <i class="fa-solid fa-gear" ></i> Manage
        <div class="manage-dropdown" *ngIf="openManageTab">
-        <button (click)="openManagePlayers($event)">Manage Players</button>
-        <button (click)="openManageReferees($event)">Manage Referees</button>
-        <button (click)="openManageManagers($event)">Manage Managers</button>
+        <button *ngIf="canManagePersons" (click)="openManagePlayers($event)">Manage Players</button>
+        <button *ngIf="canManagePersons" (click)="openManageReferees($event)">Manage Referees</button>
+        <button *ngIf="canManagePersons" (click)="openManageManagers($event)">Manage Managers</button>
         <button (click)="openCities()">Manage Cities</button>
         <button (click)="openCountries()">Manage Countries</button>
         <button (click)="openStadiums()">Manage Stadiums</button>

@@ -1,11 +1,11 @@
+using AutoMapper;
 using Competition.Application.DTOs.PersonDto;
-using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Queries.PlayerQueries.Search;
+namespace Competition.Application.Features.PlayerQueries.Search;
 
-public class SearchPlayersQueryHandler(IPlayer playerRepository)
+public class SearchPlayersQueryHandler(IPlayer playerRepository, IMapper mapper)
     : IRequestHandler<SearchPlayersQuery, IEnumerable<PlayerDto>>
 {
     public async Task<IEnumerable<PlayerDto>> Handle(SearchPlayersQuery request, CancellationToken cancellationToken)
@@ -18,6 +18,6 @@ public class SearchPlayersQueryHandler(IPlayer playerRepository)
                 p.LastName.Contains(request.Term, StringComparison.OrdinalIgnoreCase) ||
                 p.ShirtNumber.ToString().Contains(request.Term, StringComparison.OrdinalIgnoreCase) ||
                 p.Height.ToString().Contains(request.Term, StringComparison.OrdinalIgnoreCase))
-            .Select(PersonMappingHelper.ToDto);
+            .Select(mapper.Map<PlayerDto>);
     }
 }

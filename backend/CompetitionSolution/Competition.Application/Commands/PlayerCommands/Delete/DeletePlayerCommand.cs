@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace Competition.Application.Commands.PlayerCommands.Delete;
+namespace Competition.Application.Features.PlayerCommands.Delete;
 
 public class DeletePlayerCommand(Guid id) : IRequest<Guid>
 {
