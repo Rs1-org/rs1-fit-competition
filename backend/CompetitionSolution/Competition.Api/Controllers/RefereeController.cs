@@ -6,6 +6,7 @@ using Competition.Application.Features.RefereeQueries.GetAll;
 using Competition.Application.Features.RefereeQueries.GetById;
 using Competition.Application.Features.RefereeQueries.Search;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Competition.Api.Controllers;
@@ -30,6 +31,7 @@ public class RefereeController(IMediator mediator) : ControllerBase
         return Ok(await mediator.Send(new GetAllRefereesQuery()));
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> AddReferee([FromBody] RefereeDto dto)
     {
@@ -37,6 +39,7 @@ public class RefereeController(IMediator mediator) : ControllerBase
         return Ok(created);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateReferee(Guid id, [FromBody] RefereeDto dto)
     {
@@ -44,6 +47,7 @@ public class RefereeController(IMediator mediator) : ControllerBase
         return Ok(updated);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteReferee(Guid id)
     {

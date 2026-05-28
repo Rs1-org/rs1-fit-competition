@@ -1,7 +1,7 @@
 using Competition.Application.DTOs.PersonDto;
 using MediatR;
 
-namespace Competition.Application.Queries.PlayerQueries.Search;
+namespace Competition.Application.Features.PlayerQueries.Search;
 
 public class SearchPlayersQuery(string term) : IRequest<IEnumerable<PlayerDto>>
 {

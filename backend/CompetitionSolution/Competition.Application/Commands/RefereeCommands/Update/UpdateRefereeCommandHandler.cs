@@ -1,11 +1,11 @@
+using AutoMapper;
 using Competition.Application.DTOs.PersonDto;
-using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Commands.RefereeCommands.Update;
+namespace Competition.Application.Features.RefereeCommands.Update;
 
-public class UpdateRefereeCommandHandler(IReferee refereeRepository, IUnitOfWork unitOfWork)
+public class UpdateRefereeCommandHandler(IReferee refereeRepository, IUnitOfWork unitOfWork, IMapper mapper)
     : IRequestHandler<UpdateRefereeCommand, RefereeDto>
 {
     public async Task<RefereeDto> Handle(UpdateRefereeCommand request, CancellationToken cancellationToken)
@@ -13,8 +13,8 @@ public class UpdateRefereeCommandHandler(IReferee refereeRepository, IUnitOfWork
         var referee = await refereeRepository.GetActiveByIdAsync(request.Id, cancellationToken)
             ?? throw new KeyNotFoundException($"Referee with id {request.Id} not found");
 
-        PersonMappingHelper.Apply(request.Dto, referee);
+        mapper.Map(request, referee);
         await unitOfWork.SaveChangesAsync();
-        return PersonMappingHelper.ToDto(referee);
+        return mapper.Map<RefereeDto>(referee);
     }
 }

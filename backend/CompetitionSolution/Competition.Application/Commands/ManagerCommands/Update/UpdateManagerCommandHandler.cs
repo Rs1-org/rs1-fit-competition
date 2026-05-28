@@ -1,11 +1,11 @@
+using AutoMapper;
 using Competition.Application.DTOs.PersonDto;
-using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Commands.ManagerCommands.Update;
+namespace Competition.Application.Features.ManagerCommands.Update;
 
-public class UpdateManagerCommandHandler(IManager managerRepository, IUnitOfWork unitOfWork)
+public class UpdateManagerCommandHandler(IManager managerRepository, IUnitOfWork unitOfWork, IMapper mapper)
     : IRequestHandler<UpdateManagerCommand, ManagerDto>
 {
     public async Task<ManagerDto> Handle(UpdateManagerCommand request, CancellationToken cancellationToken)
@@ -13,8 +13,8 @@ public class UpdateManagerCommandHandler(IManager managerRepository, IUnitOfWork
         var manager = await managerRepository.GetActiveByIdAsync(request.Id, cancellationToken)
             ?? throw new KeyNotFoundException($"Manager with id {request.Id} not found");
 
-        PersonMappingHelper.Apply(request.Dto, manager);
+        mapper.Map(request, manager);
         await unitOfWork.SaveChangesAsync();
-        return PersonMappingHelper.ToDto(manager);
+        return mapper.Map<ManagerDto>(manager);
     }
 }

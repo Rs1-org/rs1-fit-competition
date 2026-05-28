@@ -1,7 +1,7 @@
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Commands.RefereeCommands.Delete;
+namespace Competition.Application.Features.RefereeCommands.Delete;
 
 public class DeleteRefereeCommandHandler(IReferee refereeRepository, IUnitOfWork unitOfWork)
     : IRequestHandler<DeleteRefereeCommand, Guid>

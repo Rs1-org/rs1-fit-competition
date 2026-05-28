@@ -6,6 +6,7 @@ using Competition.Application.Features.ManagerQueries.GetAll;
 using Competition.Application.Features.ManagerQueries.GetById;
 using Competition.Application.Features.ManagerQueries.Search;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Competition.Api.Controllers;
@@ -30,6 +31,7 @@ public class ManagerController(IMediator mediator) : ControllerBase
         return Ok(await mediator.Send(new GetAllManagersQuery()));
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> AddManager([FromBody] ManagerDto dto)
     {
@@ -37,6 +39,7 @@ public class ManagerController(IMediator mediator) : ControllerBase
         return Ok(created);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateManager(Guid id, [FromBody] ManagerDto dto)
     {
@@ -44,6 +47,7 @@ public class ManagerController(IMediator mediator) : ControllerBase
         return Ok(updated);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteManager(Guid id)
     {
