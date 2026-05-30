@@ -40,5 +40,3 @@ docker-compose.override.yml
 *.dotCover
 *.ReSharper
 *.resharper
-# Claude
-.claude/previews/
