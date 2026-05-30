@@ -42,8 +42,8 @@ namespace Competition.Application.Commands.CountryCommands.Create
             country.PictureUrl = pictureUrl;
 
 
-            await _country.AddAsync(country);
-            await _unitOfWork.SaveChangesAsync();
+            await _country.AddAsync(country, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return _mapper.Map<CountryNameDto>(country);
         }

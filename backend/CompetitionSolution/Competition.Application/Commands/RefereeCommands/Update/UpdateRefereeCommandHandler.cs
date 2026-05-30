@@ -14,7 +14,7 @@ public class UpdateRefereeCommandHandler(IReferee refereeRepository, IUnitOfWork
             ?? throw new KeyNotFoundException($"Referee with id {request.Id} not found");
 
         mapper.Map(request, referee);
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         return mapper.Map<RefereeDto>(referee);
     }
 }

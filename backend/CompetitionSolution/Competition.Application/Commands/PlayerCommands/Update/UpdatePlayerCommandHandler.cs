@@ -14,7 +14,7 @@ public class UpdatePlayerCommandHandler(IPlayer playerRepository, IUnitOfWork un
             ?? throw new KeyNotFoundException($"Player with id {request.Id} not found");
 
         mapper.Map(request, player);
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         return mapper.Map<PlayerDto>(player);
     }
 }

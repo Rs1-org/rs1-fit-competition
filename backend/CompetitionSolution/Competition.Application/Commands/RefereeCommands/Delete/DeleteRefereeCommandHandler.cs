@@ -12,7 +12,7 @@ public class DeleteRefereeCommandHandler(IReferee refereeRepository, IUnitOfWork
             ?? throw new KeyNotFoundException($"Referee with id {request.Id} not found");
 
         refereeRepository.Remove(referee);
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         return request.Id;
     }
 }

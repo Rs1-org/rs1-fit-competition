@@ -16,14 +16,14 @@ public class DeleteStadiumCommandHandler : IRequestHandler<DeleteStadiumCommand,
 
     public async Task<bool> Handle(DeleteStadiumCommand request, CancellationToken cancellationToken)
     {
-        var stadium = await _stadium.GetByIdAsync(request.Id);
+        var stadium = await _stadium.GetByIdAsync(request.Id, cancellationToken);
         if (stadium == null)
         {
             throw new KeyNotFoundException($"Couldn't find any stadium with ID {request.Id}");
         }
 
-        await _stadium.DeleteAsync(stadium);
-        await _unitOfWork.SaveChangesAsync();
+        await _stadium.DeleteAsync(stadium, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return true;
     }

@@ -18,7 +18,7 @@ public class GetStadiumBySlugQueryHandler : IRequestHandler<GetStadiumBySlugQuer
 
     public async Task<StadiumDetailsDto> Handle(GetStadiumBySlugQuery request, CancellationToken cancellationToken)
     {
-        var stadium = await _stadium.GetBySlugAsync(request.Slug!);
+        var stadium = await _stadium.GetBySlugAsync(request.Slug!, cancellationToken);
         if (stadium == null)
         {
             throw new KeyNotFoundException($"Couldn't find any stadium with slug {request.Slug}");

@@ -19,31 +19,33 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
         _dbSet = _context.Set<TEntity>();
     }
 
-    public async Task AddAsync(TEntity entity) 
+    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        await _dbSet.AddAsync(entity);
-        await _context.SaveChangesAsync();
+        await _dbSet.AddAsync(entity, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(TEntity entity)
+    public async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         _dbSet.Remove(entity);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
-    public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate) =>
-        await _dbSet.Where(predicate).ToListAsync();
 
-    public virtual async Task<IEnumerable<TEntity>> GetAllAsync() => await _dbSet.ToListAsync();
+    public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) =>
+        await _dbSet.Where(predicate).ToListAsync(cancellationToken);
+
+    public virtual async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default) =>
+        await _dbSet.ToListAsync(cancellationToken);
 
     public virtual async Task<PagedResult<TEntity>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default) =>
         await _dbSet.AsQueryable().ToPagedResultAsync(page, pageSize, cancellationToken);
 
-    public async Task<TEntity?> GetByIdAsync(Guid id) => await _dbSet.FindAsync(id);
+    public async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+        await _dbSet.FindAsync(new object?[] { id }, cancellationToken);
 
-    public async Task UpdateAsync(TEntity entity)
+    public async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         _dbSet.Update(entity);
-        await _context.SaveChangesAsync();
-        await Task.CompletedTask;
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

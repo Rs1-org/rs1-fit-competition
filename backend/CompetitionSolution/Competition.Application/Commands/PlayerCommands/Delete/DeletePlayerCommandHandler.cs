@@ -12,7 +12,7 @@ public class DeletePlayerCommandHandler(IPlayer playerRepository, IUnitOfWork un
             ?? throw new KeyNotFoundException($"Player with id {request.Id} not found");
 
         playerRepository.Remove(player);
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         return request.Id;
     }
 }

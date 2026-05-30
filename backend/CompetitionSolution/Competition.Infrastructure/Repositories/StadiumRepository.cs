@@ -15,21 +15,21 @@ public class StadiumRepository : Repository<Stadium>, IStadium
         _context = context;
     }
 
-    public async Task<Stadium?> GetBySlugAsync(string slug)
+    public async Task<Stadium?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
     {
         return await _context.Stadiums
             .Include(s => s.GeoData)
             .Include(s => s.City)
-            .FirstOrDefaultAsync(s => s.Slug == slug);
+            .FirstOrDefaultAsync(s => s.Slug == slug, cancellationToken);
     }
 
-    public override async Task<IEnumerable<Stadium>> GetAllAsync()
+    public override async Task<IEnumerable<Stadium>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Stadiums
             .Include(s => s.GeoData)
             .Include(s => s.City)
                 .ThenInclude(c => c!.Country)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
     public override async Task<PagedResult<Stadium>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)

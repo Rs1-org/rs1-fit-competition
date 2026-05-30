@@ -29,8 +29,8 @@ public class CreateStadiumCommandHandler : IRequestHandler<CreateStadiumCommand,
     public async Task<StadiumDetailsDto> Handle(CreateStadiumCommand request, CancellationToken cancellationToken)
     {
         var geoData = _mapper.Map<GeoData>(request);
-        await _geoData.AddAsync(geoData);
-        await _unitOfWork.SaveChangesAsync();
+        await _geoData.AddAsync(geoData, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var stadium = _mapper.Map<Stadium>(request);
         if (stadium == null)
@@ -44,10 +44,10 @@ public class CreateStadiumCommandHandler : IRequestHandler<CreateStadiumCommand,
         if (request.Picture != null)
             stadium.PictureUrl = await _imageService.UploadImageAsync(request.Picture);
 
-        await _stadium.AddAsync(stadium);
-        await _unitOfWork.SaveChangesAsync();
+        await _stadium.AddAsync(stadium, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var created = await _stadium.GetBySlugAsync(stadium.Slug!);
+        var created = await _stadium.GetBySlugAsync(stadium.Slug!, cancellationToken);
         return _mapper.Map<StadiumDetailsDto>(created);
     }
 }

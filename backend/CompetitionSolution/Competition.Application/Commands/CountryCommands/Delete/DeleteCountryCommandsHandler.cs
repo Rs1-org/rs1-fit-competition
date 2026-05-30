@@ -25,13 +25,13 @@ namespace Competition.Application.Commands.CountryCommands.Delete
 
         public async Task<CountryNameDto>Handle(DeleteCountryCommands request, CancellationToken cancellationToken)
         {
-            var country=await _country.GetByIdAsync(request.Id);
+            var country = await _country.GetByIdAsync(request.Id, cancellationToken);
 
             if (country == null)
                 throw new KeyNotFoundException($"Couldn't find any country with {request.Id}");
 
-            await _country.DeleteAsync(country);
-            await _unitOfWork.SaveChangesAsync();
+            await _country.DeleteAsync(country, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return _mapper.Map<CountryNameDto>(country);
         }

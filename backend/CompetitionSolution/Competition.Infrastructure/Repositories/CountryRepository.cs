@@ -20,9 +20,9 @@ namespace Competition.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Country?> GetBySlugAsync(string slug)
+        public async Task<Country?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
         {
-            return await _context.Countries.FirstOrDefaultAsync(c => c.Slug == slug);
+            return await _context.Countries.FirstOrDefaultAsync(c => c.Slug == slug, cancellationToken);
         }
 
         public async Task<PagedResult<Country>> GetPagedWithSearchAsync(int page, int pageSize, string? searchTerm, CancellationToken cancellationToken = default)

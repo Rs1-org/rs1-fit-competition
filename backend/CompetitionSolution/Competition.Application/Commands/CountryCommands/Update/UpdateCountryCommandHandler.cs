@@ -28,7 +28,7 @@ namespace Competition.Application.Commands.CountryCommands.Update
 
         public async Task<CountryNameDto> Handle(UpdateCountryCommands request, CancellationToken cancellationToken)
         {
-            var country = await _country.GetBySlugAsync(request.Slug);
+            var country = await _country.GetBySlugAsync(request.Slug, cancellationToken);
 
             if (country == null)
                 throw new KeyNotFoundException($"Couldn't find any country with {request.Slug}");
@@ -42,9 +42,9 @@ namespace Competition.Application.Commands.CountryCommands.Update
                 country.PictureUrl = pictureUrl;
             }
 
-            await _country.UpdateAsync(country);
+            await _country.UpdateAsync(country, cancellationToken);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return _mapper.Map<CountryNameDto>(country);
         }

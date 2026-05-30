@@ -12,7 +12,7 @@ public class DeleteManagerCommandHandler(IManager managerRepository, IUnitOfWork
             ?? throw new KeyNotFoundException($"Manager with id {request.Id} not found");
 
         managerRepository.Remove(manager);
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         return request.Id;
     }
 }
