@@ -19,7 +19,7 @@ namespace Competition.Application.Queries.Country.GetAll
 
         public async Task<PagedResult<CountryListDto>> Handle(GetAllCountriesCommand request, CancellationToken cancellationToken)
         {
-            var paged = await _country.GetPagedAsync(request.Page, request.PageSize, cancellationToken);
+            var paged = await _country.GetPagedWithSearchAsync(request.Page, request.PageSize, request.SearchTerm, cancellationToken);
             var items = _mapper.Map<IReadOnlyList<CountryListDto>>(paged.Items);
             return new PagedResult<CountryListDto>(items, paged.TotalCount, paged.Page, paged.PageSize);
         }

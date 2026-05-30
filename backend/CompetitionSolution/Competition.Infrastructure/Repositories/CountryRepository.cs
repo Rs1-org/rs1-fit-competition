@@ -1,6 +1,8 @@
-﻿using Competition.Application.Interfaces;
+﻿using Competition.Application.Common.Models;
+using Competition.Application.Interfaces;
 using Competition.Domain.Entities;
 using Competition.Infrastructure.Data;
+using Competition.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -21,6 +23,14 @@ namespace Competition.Infrastructure.Repositories
         public async Task<Country?> GetBySlugAsync(string slug)
         {
             return await _context.Countries.FirstOrDefaultAsync(c => c.Slug == slug);
+        }
+
+        public async Task<PagedResult<Country>> GetPagedWithSearchAsync(int page, int pageSize, string? searchTerm, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Countries.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+                query = query.Where(c => EF.Functions.ILike(c.Name!, $"%{searchTerm}%"));
+            return await query.ToPagedResultAsync(page, pageSize, cancellationToken);
         }
     }
 }

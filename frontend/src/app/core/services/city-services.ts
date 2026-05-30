@@ -26,10 +26,11 @@ export class CityService{
         return this.http.delete<CityName>(`${this.apiUrl}deleteCity/${id}`);
     }
 
-    getAll(page = 1, pageSize = 10): Observable<PagedResult<CityListDto>> {
-        const params = new HttpParams()
+    getAll(page = 1, pageSize = 10, searchTerm?: string): Observable<PagedResult<CityListDto>> {
+        let params = new HttpParams()
             .set('page', page)
             .set('pageSize', pageSize);
+        if (searchTerm) params = params.set('searchTerm', searchTerm);
         return this.http.get<PagedResult<CityListDto>>(`${this.apiUrl}getCities`, { params });
     }
 

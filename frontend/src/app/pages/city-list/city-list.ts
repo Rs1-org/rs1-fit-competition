@@ -23,11 +23,12 @@ export class CityList {
   private userStateService = inject(UserStateService);
   private refresh$ = new BehaviorSubject<void>(undefined);
   private page$ = new BehaviorSubject<number>(1);
+  private search$ = new BehaviorSubject<string>('');
   readonly pageSize = 10;
 
   citiesResult = toSignal(
-    combineLatest([this.page$, this.refresh$]).pipe(
-      switchMap(([page]) => this.cityService.getAll(page, this.pageSize))
+    combineLatest([this.page$, this.search$, this.refresh$]).pipe(
+      switchMap(([page, term]) => this.cityService.getAll(page, this.pageSize, term || undefined))
     )
   );
 
@@ -66,9 +67,8 @@ export class CityList {
   }
 
   search(term: string) {
-    if (!term) {
-      this.page$.next(1);
-    }
+    this.search$.next(term);
+    this.page$.next(1);
   }
 
   onFormSaved(): void {

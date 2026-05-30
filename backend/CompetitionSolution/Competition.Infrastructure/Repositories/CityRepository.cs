@@ -1,5 +1,4 @@
 using Competition.Application.Common.Models;
-using Competition.Application.DTOs.CityDto;
 using Competition.Application.Interfaces;
 using Competition.Domain.Entities;
 using Competition.Infrastructure.Data;
@@ -36,5 +35,13 @@ public class CityRepository : Repository<City>, ICity
         return await _context.Cities
             .Where(c => c.CountryId == countryId)
             .ToPagedResultAsync(page, pageSize, cancellationToken);
+    }
+
+    public async Task<PagedResult<City>> GetPagedWithSearchAsync(int page, int pageSize, string? searchTerm, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Cities.Include(c => c.Country).AsQueryable();
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+            query = query.Where(c => EF.Functions.ILike(c.Name!, $"%{searchTerm}%"));
+        return await query.ToPagedResultAsync(page, pageSize, cancellationToken);
     }
 }

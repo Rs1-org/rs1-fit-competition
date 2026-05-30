@@ -56,9 +56,9 @@ namespace Competition.Api.Controllers
 
 
         [HttpGet("getAll")]
-        public async Task<IActionResult> GetCountries([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetCountries([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, CancellationToken cancellationToken = default)
         {
-            var result = await _mediator.Send(new GetAllCountriesCommand { Page = page, PageSize = pageSize }, cancellationToken);
+            var result = await _mediator.Send(new GetAllCountriesCommand { Page = page, PageSize = pageSize, SearchTerm = searchTerm }, cancellationToken);
             return Ok(result);
         }
     }
