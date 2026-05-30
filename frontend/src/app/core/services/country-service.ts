@@ -24,10 +24,11 @@ export class CountryService{
         return this.http.delete<CountryName>(`${this.apiUrl}/delete/${id}`);
     }
 
-    getAll(page = 1, pageSize = 10):Observable<PagedResult<CountryListDto>>{
-        const params = new HttpParams()
+    getAll(page = 1, pageSize = 10, searchTerm?: string):Observable<PagedResult<CountryListDto>>{
+        let params = new HttpParams()
             .set('page', page)
             .set('pageSize', pageSize);
+        if (searchTerm) params = params.set('searchTerm', searchTerm);
         return this.http.get<PagedResult<CountryListDto>>(`${this.apiUrl}/getAll`, { params });
     }
 }
