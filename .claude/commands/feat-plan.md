@@ -27,6 +27,10 @@ The description in quotes becomes the plan name and file name.
 
 ## Agent Instructions
 
+### Step 0 — Clear previews
+- Delete all files in `.claude/previews/` before generating the new plan
+- This ensures stale plans from previous features don't cause confusion
+
 ### Step 1 — Load context
 - Read `CLAUDE.md` — exact folder paths and naming conventions for this project
 - Read `.claude/docs/RS1_REQUIREMENTS.md` — every mandatory RS1 rule
