@@ -8,69 +8,102 @@ FlashScore-like sports competition web application. A university course project 
 - **Edin:** Player, Referee, Manager, Dark/Light Theme, Angular Animations
 
 ## Essential Folder Paths
+
+### Backend (.NET)
+- **Controllers:** `backend/CompetitionSolution/Competition.Api/Controllers/`
 - **MediatR Handlers:**
+  - Auth: `backend/CompetitionSolution/Competition.Application/Auth/Handlers/`
   - Commands: `backend/CompetitionSolution/Competition.Application/Commands/[Entity]Commands/[Action]/`
   - Queries: `backend/CompetitionSolution/Competition.Application/Queries/[Entity]/[Action]/`
-- **Validators:** `backend/CompetitionSolution/Competition.Application/Commands/[Entity]Commands/Validators/`
-- **EF Fluent API:** `backend/CompetitionSolution/Competition.Infrastructure/Data/AppDbContext.cs` (in `OnModelCreating`)
-- **Controllers:** `backend/CompetitionSolution/Competition.Api/Controllers/`
-- **Angular Features:** `frontend/src/app/features/`
-- **Angular Guards:** `frontend/src/app/core/guards/`
+- **Validators:**
+  - Auth: `backend/CompetitionSolution/Competition.Application/Auth/Validators/`
+  - Commands: `backend/CompetitionSolution/Competition.Application/Commands/[Entity]Commands/Validators/`
+- **EF Config:** `backend/CompetitionSolution/Competition.Infrastructure/Data/AppDbContext.cs` → `OnModelCreating`
+- **Domain Entities:** `backend/CompetitionSolution/Competition.Domain/Entities/`
+- **BaseEntity:** `backend/CompetitionSolution/Competition.Domain/Entities/BaseEntity.cs`
+- **Interfaces:** `backend/CompetitionSolution/Competition.Application/Interfaces/`
+- **Repositories:** `backend/CompetitionSolution/Competition.Infrastructure/Repositories/`
+- **PagedResult:** `backend/CompetitionSolution/Competition.Application/Common/Models/PagedResult.cs`
+
+### Frontend (Angular)
+- **Feature Modules:** `frontend/src/app/features/`
+- **Pages:** `frontend/src/app/pages/`
+- **Shared Components:** `frontend/src/app/shared/components/`
+- **Services:** `frontend/src/app/core/services/`
+- **Guards:** `frontend/src/app/core/guards/`
+- **Interceptors:** `frontend/src/app/core/interceptors/`
+- **Models:** `frontend/src/app/core/models/`
 
 ## Naming Conventions
-- **C# Commands:** `[Action][Entity]Command` (e.g., `CreateCityCommand`) or `[Action][Entity]Commands` (e.g., `UpdateCityCommands`).
-- **C# Queries:** `GetAll[Entities]Query` or `Get[Entity]ByIdQuery`. *Note: Some queries are incorrectly named as `Command` (e.g., `GetAllCitiesCommand`).*
-- **C# Handlers:** `[Command/QueryName]Handler`.
-- **C# DTOs:** `[Entity][Type]Dto` (e.g., `CityListDto`, `ManagerDto`).
+- **Commands:** `[Action][Entity]Command` (e.g. `CreateCityCommand`)
+- **Handlers:** `[Command/QueryName]Handler` (e.g. `CreateCityCommandHandler`)
+- **Queries:** `GetAll[Entities]Query` or `Get[Entity]ByIdQuery`
+- **DTOs:** `[Entity][Type]Dto` (e.g. `CityListDto`, `CityDetailsDto`)
+- **Note:** Some existing queries are incorrectly named `*Command` — see DECISIONS.md ADR-007. Do not flag as violations.
 
-## Current Implementation Status
+## RS1 Architecture Rules (non-negotiable)
+1. **CQRS via MediatR** — controllers only call `_mediator.Send()`, zero direct service injection
+   → `Competition.Api/Controllers/`
+2. **Clean Architecture** — Domain → Application → Infrastructure → API, no reverse dependencies
+3. **FluentValidation** — every Command has `AbstractValidator<T>` with real rules, not empty
+   → `Competition.Application/Commands/[Entity]Commands/Validators/`
+4. **CancellationToken** — every `Handle()` accepts it AND passes it through to repository calls
+5. **EF Fluent API** — all config in `AppDbContext.OnModelCreating`, no DataAnnotations for DB config
+   → `Competition.Infrastructure/Data/AppDbContext.cs`
+6. **Soft delete** — all entities inherit `BaseEntity`, Delete sets `DeletedAt`, never hard deletes
+   → `Competition.Domain/Entities/BaseEntity.cs`
+7. **DTOs only** — handlers and controllers never return domain entities
+8. **Auth guards** — write endpoints have `[Authorize]`, FE routes use `admin-moderator.guard.ts`
+   → `frontend/src/app/core/guards/`
+9. **Backend paging** — all list endpoints return `PagedResult<T>`, never raw `IEnumerable<T>`
+   → `Competition.Application/Common/Models/PagedResult.cs`
 
-### Muhamed
-- **Implemented:**
-  - **Entities:** `Country`, `City`, `GeoData`, `Stadium` (in `MatchEntities/Stadium.cs`)
-  - **Controllers:** `CountryController`, `CityController`, `StadiumController`
-  - **Handlers:** `CreateCityCommandHandler`, `UpdateCityCommandHandler`, `DeleteCityCommandHandler`, `GetAllCitiesCommandHandler`, `CreateCountryCommandHandler`, `UpdateCountryCommandHandler`, `DeleteCountryCommandsHandler`, `GetAllCountriesCommandHandler`, `CreateStadiumCommandHandler`, `UpdateStadiumCommandHandler`, `DeleteStadiumCommandHandler`, `GetAllStadiumsQueryHandler`
-  - **Frontend:** `city-list`, `country-list`, `stadium-list`, `stadium-detail` components.
-- **Missing / RS1 Compliance Issues:**
-  - `GetAllCitiesByCountryCommandHandler` uses `CancellationToken` correctly, but some `Delete` handlers are missing `CancellationToken` in repository calls.
-  - `RegisterUserValidator` is empty.
-  - `Validator.cs` for City and Country are minimal or improperly named.
+## Workflow
 
-### Edin
-- **Implemented:**
-  - **Entities:** `Player`, `Referee`, `Manager` (in `Person/` folder)
-  - **Controllers:** `PlayerController`, `RefereeController`, `ManagerController`
-  - **Handlers:** `CreatePlayerCommandHandler`, `UpdatePlayerCommandHandler`, `DeletePlayerCommandHandler`, `GetAllPlayersQueryHandler`, `SearchPlayersQueryHandler`, etc.
-  - **Frontend:** `manage-players`, `manage-referees`, `manage-managers`, `player-list`, `referee-list`, `manager-list`.
-- **Missing / RS1 Compliance Issues:**
-  - `ManagerController` actions (e.g., `GetAll`) do not accept or pass `CancellationToken`.
-  - `GetAllManagersQueryHandler` returns `IEnumerable<ManagerDto>` instead of `PagedResult<ManagerDto>`.
+```
+/feat-plan "description"   →   .claude/previews/plan-<name>.md
+                                step-by-step implementation plan
+                                includes ENTITIES.md update as first step
+    ↓
+git checkout -b feat/<name>
+    ↓
+/feat-do "description"     →   reads plan-<name>.md
+                                writes all source code in layer order
+                                Domain → EF → DTOs → Commands → Queries
+                                → Repository → Controller → Frontend → Tests
+                                self-checks RS1 compliance before finishing
+    ↓
+/feat-check                →   .claude/previews/<branch-name>.md
+                                RS1 compliance check
+                                entity sync check (ENTITIES.md in sync?)
+                                points earned
+                                YES/NO ready for /feat-update
+    ↓
+if NO → fix issues, run /feat-check again
+if YES → continue
+    ↓
+/feat-update               →   syncs ENTITIES.md (new/modified entities)
+                                checks off items in features_<member>.md
+                                adds points row to POINTS_TRACKER.md
+    ↓
+git add .
+git commit -m "feat: <feature name>"
+git add .claude/docs/
+git commit -m "docs: update after <feature> — +Xb <member>"
+git push
+```
 
-### Dino
-- **Implemented:** None found in `Competition.Domain/Entities`.
-- **Missing:** Everything related to Club, Selection, and Match Events.
+> Never run `/feat-update` if `/feat-check` says `Ready for /feat-update: NO`.
+> Never skip `ENTITIES.md` update when adding a new entity — `/feat-check` will block you if you do.
 
-## RS1 Architecture Rules & Compliance
-1. **CQRS via MediatR:** Every controller action must use `_mediator.Send()`.
-   - *Status:* Mostly followed. Check `ManagerController.cs` and `CityController.cs`.
-2. **FluentValidation:** Every Command must have a validator.
-   - *Status:* **Failing.** Many validators (e.g., `RegisterUserValidator.cs`) are empty or missing logic.
-3. **CancellationToken:** Every handler and controller action must pass `CancellationToken`.
-   - *Status:* **Failing.** Missing in `ManagerController` and several repository calls.
-4. **EF Fluent API:** Use `OnModelCreating` in `AppDbContext.cs`. No DataAnnotations.
-   - *Status:* Followed in `AppDbContext.cs`.
-5. **DTOs Only:** Handlers and Controllers must return DTOs, never Domain Entities.
-   - *Status:* Mostly followed (e.g., `CityNameDto`, `ManagerDto`).
-6. **Auth Guards:** Write operations must have `[Authorize]`.
-   - *Status:* Followed in `CityController.cs` and `ManagerController.cs`.
-7. **Backend Paging:** List endpoints must return `PagedResult<T>`.
-   - *Status:* Followed for `City` but missing for `Manager` and `Referee`.
-8. **Automated Tests:** Unit and Integration tests required.
-   - *Status:* **Missing.** No test projects found in the solution.
+## Slash Commands
 
-## Agent Workflow
-- **`/feat-req`**: Agent scans branch for RS1 compliance (CQRS, Validators, Tokens) and writes preview to `.claude/previews/`.
-- **`/update`**: Agent updates `features_<member>.md` and `POINTS_TRACKER.md`.
+| Command | Input | Output | Modifies |
+|---|---|---|---|
+| `/feat-plan "description"` | description string | `.claude/previews/plan-<name>.md` | nothing |
+| `/feat-do "description"` | description string | source code | `Competition.*` + `frontend/` |
+| `/feat-check` | current branch | `.claude/previews/<branch>.md` | nothing |
+| `/feat-update` | current branch preview | synced docs | `ENTITIES.md`, `features_<member>.md`, `POINTS_TRACKER.md` |
 
 ## Documentation Index
 - [RS1 Requirements](.claude/docs/RS1_REQUIREMENTS.md)
