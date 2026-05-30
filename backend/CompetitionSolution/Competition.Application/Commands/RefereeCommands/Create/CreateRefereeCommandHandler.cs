@@ -13,7 +13,7 @@ public class CreateRefereeCommandHandler(IReferee refereeRepository, IUnitOfWork
     {
         var entity = mapper.Map<Referee>(request);
         await refereeRepository.AddAsync(entity, cancellationToken);
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         return mapper.Map<RefereeDto>(entity);
     }
 }

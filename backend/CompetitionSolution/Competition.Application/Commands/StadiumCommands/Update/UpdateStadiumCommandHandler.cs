@@ -27,7 +27,7 @@ public class UpdateStadiumCommandHandler : IRequestHandler<UpdateStadiumCommand,
 
     public async Task<StadiumDetailsDto> Handle(UpdateStadiumCommand request, CancellationToken cancellationToken)
     {
-        var stadium = await _stadium.GetBySlugAsync(request.Slug!);
+        var stadium = await _stadium.GetBySlugAsync(request.Slug!, cancellationToken);
         if (stadium == null)
         {
             throw new KeyNotFoundException($"Couldn't find any stadium with slug {request.Slug}");
@@ -49,8 +49,8 @@ public class UpdateStadiumCommandHandler : IRequestHandler<UpdateStadiumCommand,
             stadium.GeoData.Description = request.GeoDescription;
         }
 
-        await _stadium.UpdateAsync(stadium);
-        await _unitOfWork.SaveChangesAsync();
+        await _stadium.UpdateAsync(stadium, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return _mapper.Map<StadiumDetailsDto>(stadium);
     }

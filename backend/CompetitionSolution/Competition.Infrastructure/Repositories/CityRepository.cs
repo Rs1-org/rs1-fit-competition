@@ -15,19 +15,19 @@ public class CityRepository : Repository<City>, ICity
         _context = context;
     }
 
-    public new async Task<IEnumerable<City>> GetAllAsync()
+    public new async Task<IEnumerable<City>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Cities.Include(c => c.Country).ToListAsync();
+        return await _context.Cities.Include(c => c.Country).ToListAsync(cancellationToken);
     }
 
-    public async Task<List<City>> GetAllByCountryAsync(Guid id)
+    public async Task<List<City>> GetAllByCountryAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.Cities.Include(c => c.Country).Where(s => s.CountryId == id).ToListAsync();
+        return await _context.Cities.Include(c => c.Country).Where(s => s.CountryId == id).ToListAsync(cancellationToken);
     }
 
-    public async Task<City?> GetBySlugAsync(string slug)
+    public async Task<City?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
     {
-        return await _context.Cities.Include(c => c.GeoData).FirstOrDefaultAsync(c => c.Slug == slug);
+        return await _context.Cities.Include(c => c.GeoData).FirstOrDefaultAsync(c => c.Slug == slug, cancellationToken);
     }
 
     public async Task<PagedResult<City>> GetPagedByCountryAsync(Guid countryId, int page, int pageSize, CancellationToken cancellationToken = default)

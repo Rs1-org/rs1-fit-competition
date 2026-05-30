@@ -13,7 +13,7 @@ public class CreateManagerCommandHandler(IManager managerRepository, IUnitOfWork
     {
         var entity = mapper.Map<Manager>(request);
         await managerRepository.AddAsync(entity, cancellationToken);
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         return mapper.Map<ManagerDto>(entity);
     }
 }

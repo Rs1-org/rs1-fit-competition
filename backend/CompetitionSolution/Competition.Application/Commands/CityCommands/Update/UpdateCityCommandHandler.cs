@@ -26,8 +26,8 @@ namespace Competition.Application.Commands.CityCommands.Update
 
         public async Task<CityNameDto>Handle(UpdateCityCommands request, CancellationToken cancellationToken)
         {
-            var city = await _city.GetBySlugAsync(request.Slug);
-            if(city== null)
+            var city = await _city.GetBySlugAsync(request.Slug, cancellationToken);
+            if (city == null)
             {
                 throw new KeyNotFoundException($"Couldn't find any city with {request.Slug}");
             }
@@ -44,8 +44,8 @@ namespace Competition.Application.Commands.CityCommands.Update
                 city.GeoData.Description = request.Description;
             }
 
-            await _city.UpdateAsync(city);
-            await _unitOfWork.SaveChangesAsync();
+            await _city.UpdateAsync(city, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return _mapper.Map<CityNameDto>(city);
         }

@@ -25,8 +25,8 @@ public class CreateCityCommandHandler:IRequestHandler<CreateCityCommand,CityName
     public async Task<CityNameDto> Handle(CreateCityCommand request, CancellationToken cancellationToken)
     {
         var geoData = _mapper.Map<GeoData>(request);
-        await _geoData.AddAsync(geoData);
-        await _unitOfWork.SaveChangesAsync(); 
+        await _geoData.AddAsync(geoData, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var city = _mapper.Map<City>(request);
 
@@ -37,8 +37,8 @@ public class CreateCityCommandHandler:IRequestHandler<CreateCityCommand,CityName
 
         city.GeoDataId = geoData.Id;
 
-        await _city.AddAsync(city);
-        await _unitOfWork.SaveChangesAsync();
+        await _city.AddAsync(city, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return _mapper.Map<CityNameDto>(city);
 

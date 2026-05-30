@@ -13,7 +13,7 @@ public class CreatePlayerCommandHandler(IPlayer playerRepository, IUnitOfWork un
     {
         var entity = mapper.Map<Player>(request);
         await playerRepository.AddAsync(entity, cancellationToken);
-        await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         return mapper.Map<PlayerDto>(entity);
     }
 }
