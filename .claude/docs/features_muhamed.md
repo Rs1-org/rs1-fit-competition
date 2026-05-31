@@ -52,6 +52,22 @@
 - [x] `CityControllerTests.cs` — `GET /api/City/getCities` → 200 OK + `PagedResult<CityListDto>`
 - [x] All 11 tests pass: `Passed! Failed: 0, Passed: 11`
 
+### Match Entity — Domain + EF Migration (mandatory — entity count)
+> Sprint scope: Steps 1–3 only. Steps 4–10 deferred to next sprint.
+- [x] `Match.cs` — inherits `BaseEntity`; `Date (Instant)`, `FollowersCount`, `HomeScore?`, `AwayScore?`, `HalfHomeScore?`, `HalfAwayScore?`, `IsPostponed`, `Slug`; FKs to `MatchStatus` + `Stadium`
+- [x] `MatchStatus.cs` — inherits `BaseEntity`; `Name (required, max 50)`, `Slug`; `ICollection<Match>`
+- [x] EF config in `AppDbContext.OnModelCreating` — `HasQueryFilter`, `HasIndex(Slug).IsUnique`, `HasOne→MatchStatus (Restrict)`, `HasOne→Stadium (Restrict)`
+- [x] Migration `20260531083023_AddMatchAndMatchStatus` generated and reviewed
+- [x] `ENTITIES.md` updated — entity count 13 → 15 (1 still needed for 16-entity minimum)
+- [ ] DTOs (`MatchListDto`, `MatchDetailsDto`, `MatchStatusListDto`)
+- [ ] Commands + Validators (Create, Update, Delete)
+- [ ] Queries (GetAll with filters + paging, GetBySlug)
+- [ ] Repository (`IMatch`, `MatchRepository`) + DI registration
+- [ ] Controller (`MatchController`) with `[Authorize]` on writes
+- [ ] Frontend (`match-list`, `match-form`, `match.service.ts`)
+- [ ] Tests (`CreateMatchCommandHandlerTests`, `MatchControllerTests`)
+- [ ] Connect to advanced feature for points (SignalR +8b / charts +4b / PDF +3b)
+
 ### Stripe Payment Integration — 10b (RS1 Item 3)
 - [ ] Define business process (what does user pay for? ticket / match pass / subscription)
 - [ ] Install `Stripe.net` NuGet package

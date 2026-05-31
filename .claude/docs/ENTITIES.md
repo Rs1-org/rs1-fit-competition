@@ -8,9 +8,9 @@
 ## Entity Count
 | Status | Count |
 |---|---|
-| Confirmed in codebase | 13 |
+| Confirmed in codebase | 15 |
 | Required minimum | 16 |
-| Still needed | 3 |
+| Still needed | 1 |
 
 ---
 
@@ -210,6 +210,48 @@ RefreshToken {
   User        : ApplicationUser
 }
 ```
+
+---
+
+## Match (Owner: Muhamed)
+
+### MatchStatus
+```
+MatchStatus : BaseEntity {
+  Name          : string (required, max 50)   // "Scheduled" | "Live" | "Finished" | "Postponed" | "Cancelled"
+  Slug          : string? (unique index, nullable filter)
+
+  // Navigation
+  Matches       : ICollection<Match>
+}
+```
+**Location:** `Competition.Domain/Entities/MatchEntities/MatchStatus.cs` | **EF config:** `AppDbContext.OnModelCreating` | **Table:** `MatchStatuses`
+
+---
+
+### Match
+```
+Match : BaseEntity {
+  Date          : Instant   (required — NodaTime, maps to timestamptz)
+  FollowersCount: int       (default 0)
+  HomeScore     : int?
+  AwayScore     : int?
+  HalfHomeScore : int?
+  HalfAwayScore : int?
+  IsPostponed   : bool      (default false)
+  Slug          : string?   (unique index, nullable filter)
+
+  // FKs
+  StatusId      : Guid      (FK → MatchStatus, Restrict)
+  StadiumId     : Guid      (FK → Stadium, Restrict)
+
+  // Navigation
+  Status        : MatchStatus?
+  Stadium       : Stadium?
+}
+```
+**Location:** `Competition.Domain/Entities/MatchEntities/Match.cs` | **EF config:** `AppDbContext.OnModelCreating` | **Table:** `Matches`
+**Soft delete:** `HasQueryFilter(x => x.DeletedAt == null)` applied (first entity in project to use EF-level filter)
 
 ---
 

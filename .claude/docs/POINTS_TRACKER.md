@@ -28,6 +28,7 @@
 |---|---|---|---|---|
 | 2026-03-04 | feat-stadiums | Country + City + Stadium CRUD + filter + paging | +15b | 15b |
 | 2026-05-31 | feature/comp-37/xUnit-test | Testing infrastructure (unit + integration tests) | +10b | 25b |
+| 2026-05-31 | feature/comp-59/match-domain-entity-EF-migration | Match + MatchStatus domain entities + EF migration (mandatory, entity count 13→15) | +0b | 25b |
 
 ---
 
