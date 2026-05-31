@@ -8,7 +8,7 @@
 
 | Member | Basic | Advanced | Total | Defense Ready |
 |---|---|---|---|---|
-| Muhamed | 15b | 0b | 15b | 🔴 Need 25b more advanced |
+| Muhamed | 15b | 10b | 25b | 🔴 Need 15b more advanced |
 | Dino | 0b | 0b | 0b | 🔴 Need 40b |
 | Edin | 0b | 0b | 0b | 🔴 Need 40b |
 
@@ -27,6 +27,7 @@
 | Date | Branch | Feature | Points | Total |
 |---|---|---|---|---|
 | 2026-03-04 | feat-stadiums | Country + City + Stadium CRUD + filter + paging | +15b | 15b |
+| 2026-05-31 | feature/comp-37/xUnit-test | Testing infrastructure (unit + integration tests) | +10b | 25b |
 
 ---
 
