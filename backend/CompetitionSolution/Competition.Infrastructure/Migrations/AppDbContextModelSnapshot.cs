@@ -266,6 +266,98 @@ namespace Competition.Infrastructure.Migrations
                     b.ToTable("MandatDates");
                 });
 
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Match", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<int?>("AwayScore")
+                        .HasColumnType("integer");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("FollowersCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("HalfAwayScore")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("HalfHomeScore")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("HomeScore")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsPostponed")
+                        .HasColumnType("boolean");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("StadiumId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("StatusId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("\"Slug\" IS NOT NULL");
+
+                    b.HasIndex("StadiumId");
+
+                    b.HasIndex("StatusId");
+
+                    b.ToTable("Matches", (string)null);
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchStatus", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("\"Slug\" IS NOT NULL");
+
+                    b.ToTable("MatchStatuses", (string)null);
+                });
+
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Stadium", b =>
                 {
                     b.Property<Guid>("Id")
@@ -657,6 +749,25 @@ namespace Competition.Infrastructure.Migrations
                     b.Navigation("SelectionManagerHistory");
                 });
 
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Match", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.MatchEntities.Stadium", "Stadium")
+                        .WithMany()
+                        .HasForeignKey("StadiumId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Competition.Domain.Entities.MatchEntities.MatchStatus", "Status")
+                        .WithMany("Matches")
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Stadium");
+
+                    b.Navigation("Status");
+                });
+
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Stadium", b =>
                 {
                     b.HasOne("Competition.Domain.Entities.City", "City")
@@ -806,6 +917,11 @@ namespace Competition.Infrastructure.Migrations
             modelBuilder.Entity("Competition.Domain.Entities.Country", b =>
                 {
                     b.Navigation("Cities");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchStatus", b =>
+                {
+                    b.Navigation("Matches");
                 });
 #pragma warning restore 612, 618
         }
