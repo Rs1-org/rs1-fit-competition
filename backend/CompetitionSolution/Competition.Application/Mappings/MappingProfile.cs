@@ -2,9 +2,11 @@
 using Competition.Application.Auth.Commands;
 using Competition.Application.Commands.CityCommands.Create;
 using Competition.Application.Commands.CountryCommands.Create;
+using Competition.Application.Commands.MatchCommands.Create;
 using Competition.Application.Commands.StadiumCommands.Create;
 using Competition.Application.DTOs.CityDto;
 using Competition.Application.DTOs.CountryDto;
+using Competition.Application.DTOs.MatchDto;
 using Competition.Application.DTOs.PersonDto;
 using Competition.Application.DTOs.StadiumDto;
 using Competition.Application.Features.ManagerCommands.Create;
@@ -66,7 +68,33 @@ public class MappingProfile:Profile
             .ForMember(m => m.Longitude, opt => opt.MapFrom(src => src.GeoData != null ? src.GeoData.Longitude : (decimal)0))
             .ForMember(m => m.GeoDescription, opt => opt.MapFrom(src => src.GeoData != null ? src.GeoData.Description : null));
 
+        ConfigureMatchMappings();
         ConfigurePersonMappings();
+    }
+
+    private void ConfigureMatchMappings()
+    {
+        CreateMap<CreateMatchCommand, Match>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.CreatedAt, opt => opt.Ignore())
+            .ForMember(d => d.ModifiedAt, opt => opt.Ignore())
+            .ForMember(d => d.DeletedAt, opt => opt.Ignore())
+            .ForMember(d => d.Date, opt => opt.Ignore())         // set manually in handler
+            .ForMember(d => d.Status, opt => opt.Ignore())
+            .ForMember(d => d.Stadium, opt => opt.Ignore())
+            .ForMember(d => d.Slug, opt => opt.MapFrom(src => SlugHelper.GenerateSlug(src.Slug)));
+
+        CreateMap<Match, MatchDetailsDto>()
+            .ForMember(d => d.Date, opt => opt.MapFrom(src => NodaTimeMappingHelper.FormatInstant(src.Date)))
+            .ForMember(d => d.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.Name : null))
+            .ForMember(d => d.StadiumName, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Name : null));
+
+        CreateMap<Match, MatchListDto>()
+            .ForMember(d => d.Date, opt => opt.MapFrom(src => NodaTimeMappingHelper.FormatInstant(src.Date)))
+            .ForMember(d => d.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.Name : null))
+            .ForMember(d => d.StadiumName, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Name : null));
+
+        CreateMap<MatchStatus, MatchStatusListDto>();
     }
 
     private void ConfigurePersonMappings()
