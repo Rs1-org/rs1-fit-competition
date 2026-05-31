@@ -61,12 +61,23 @@
 - [x] `ENTITIES.md` updated — entity count 13 → 15 (1 still needed for 16-entity minimum)
 - [x] DTOs (`MatchListDto`, `MatchDetailsDto`, `MatchStatusListDto`)
 - [x] Commands + Validators (Create, Update, Delete) — see Match Commands section below
-- [ ] Queries (GetAll with filters + paging, GetBySlug)
+- [x] Queries (GetAll with filters + paging, GetBySlug, GetById) — see Match Queries section below
 - [x] Repository (`IMatch`, `MatchRepository`) + DI registration
-- [ ] Controller (`MatchController`) with `[Authorize]` on writes
+- [x] Controller (`MatchController`) with `[Authorize]` on writes
 - [ ] Frontend (`match-list`, `match-form`, `match.service.ts`)
 - [ ] Tests (`CreateMatchCommandHandlerTests`, `MatchControllerTests`)
 - [ ] Connect to advanced feature for points (SignalR +8b / charts +4b / PDF +3b)
+
+### Match Queries + Controller — CQRS Read Side + API (mandatory prerequisite)
+- [x] `IMatch` extended — `GetByIdWithNavAsync(Guid, ct)` + `GetPagedWithFiltersAsync(page, pageSize, statusId?, stadiumId?, isPostponed?, dateFrom?, dateTo?, ct)`
+- [x] `MatchRepository` — both methods implemented; `GetPagedWithFiltersAsync` uses conditional `Where` + `OrderBy(Date ASC)` + `Include(Status, Stadium)`
+- [x] `GetAllMatchesQuery` — 5 optional filters + pagination; `GetAllMatchesQueryHandler` returns `PagedResult<MatchListDto>`
+- [x] `GetMatchBySlugQuery` + `GetMatchBySlugQueryHandler` — returns `MatchDetailsDto`
+- [x] `GetMatchByIdQuery` + `GetMatchByIdQueryHandler` — uses `GetByIdWithNavAsync`, returns `MatchDetailsDto`
+- [x] `MatchController` — `GET /getAll` (7 query params), `GET /get/{slug}`, `GET /getById/{id}`, `POST /create [Authorize]`, `PUT /update/{slug} [Authorize]`, `DELETE /delete/{id} [Authorize(Roles="Admin")]`
+- [x] All 6 controller actions pass `CancellationToken` to `_mediator.Send()`
+- [x] Build clean, 11/11 tests passing
+- [x] **Match CRUD fully wired end-to-end** ✅
 
 ### Match Commands — CQRS Write Side (mandatory prerequisite)
 - [x] `NodaTimeMappingHelper` — `FormatInstant(Instant)` + `ParseInstant(string?)` added
