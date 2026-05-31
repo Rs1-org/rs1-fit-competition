@@ -112,7 +112,10 @@ app.UseSwaggerUI();
 using var scope = app.Services.CreateScope();
 using var dbScope = app.Services.CreateScope();
 var db = dbScope.ServiceProvider.GetRequiredService<AppDbContext>();
-db.Database.Migrate();
+if (db.Database.IsRelational())
+    db.Database.Migrate();
+else
+    db.Database.EnsureCreated();
 
 app.UseCors("AllowAll");
 
@@ -133,4 +136,4 @@ foreach (var role in roles)
     }
 }
 
-app.Run();
+app.Run();public partial class Program { }
