@@ -4,17 +4,43 @@
     <span class="modal-close" (click)="close()">&times;</span>
     <h2>Login</h2>
     <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
-      <input type="email" formControlName="email" placeholder="Email" />
-      <input type="password" formControlName="password" placeholder="Password" />
-      <button type="submit">Login</button>
+      <input
+        type="email"
+        formControlName="email"
+        placeholder="Email"
+        [class.field-invalid]="isInvalid('email')"
+      />
+
+      <div class="password-field">
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="Password"
+          [class.field-invalid]="isInvalid('password')"
+        />
+        <button
+          type="button"
+          class="password-toggle"
+          (click)="togglePasswordVisibility()"
+          [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+        >
+          <i class="fa-solid" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
+        </button>
+      </div>
+
+      <button type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Logging in...' : 'Login' }}
+      </button>
     </form>
-    @if(errors.length > 0){
-    <div class="error">
-      @for (item of errors; track item) {
-      <h3>{{item}}</h3>
-      }
-    </div>
+
+    @if (errors.length > 0) {
+      <div class="error">
+        @for (item of errors; track item) {
+          <p>{{ item }}</p>
+        }
+      </div>
     }
+
     <div class="redirect-link">
       Not registered? <a (click)="openRegister()">Register here</a>
     </div>

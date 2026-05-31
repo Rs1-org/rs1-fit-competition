@@ -1,10 +1,14 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { Router } from '@angular/router';
 import { Referee } from '../../core/models/person.models';
-import { environment } from '../../../environments/environment';
+import { UserStateService } from '../../core/services/user-state.service';
+import { RefereeService } from '../../core/services/referee.service';
+import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-referee-list',
@@ -12,56 +16,52 @@ import { environment } from '../../../environments/environment';
   templateUrl: './referee-list.html',
   styleUrl: './referee-list.css',
 })
-export class RefereeList implements OnInit {
-  referees: Referee[] = [];
+export class RefereeList {
+  private refereeService = inject(RefereeService);
+  private confirmDialog = inject(ConfirmDialogService);
+  private router = inject(Router);
+  private userState = inject(UserStateService);
 
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private router: Router,
-  ) {}
+  private searchTerm$ = new BehaviorSubject<string>('');
+  private refresh$ = new BehaviorSubject<void>(undefined);
 
-  ngOnInit(): void {
-    this.getAllReferees();
-  }
+  referees = toSignal(
+    combineLatest([this.searchTerm$, this.refresh$, this.refereeService.listRefreshChanges$]).pipe(
+      switchMap(([term]) =>
+        term.trim() ? this.refereeService.search(term) : this.refereeService.getAll(),
+      ),
+    ),
+    { initialValue: [] as Referee[] },
+  );
+
+  canManagePersons = toSignal(
+    this.userState.roles$.pipe(map(() => this.userState.canManagePersons())),
+    { initialValue: this.userState.canManagePersons() },
+  );
 
   view(referee: Referee): void {
     this.router.navigate(['/referee', referee.id]);
-  }
-
-  getAllReferees(): void {
-    fetch(`${environment.apiUrl}/api/referee`)
-      .then((response) => response.json())
-      .then((data) => {
-        this.referees = Array.isArray(data) ? data : [data];
-        this.cdr.detectChanges();
-      })
-      .catch((error) => console.error('Greška pri dohvaćanju sudija:', error));
   }
 
   edit(referee: Referee): void {
     this.router.navigate(['/manage-referees', referee.id]);
   }
 
-  delete(referee: Referee): void {
-    fetch(`${environment.apiUrl}/api/referee/${referee.id}`, {
-      method: 'DELETE',
-    })
-      .then((response) => {
-        if (response.ok) {
-          this.referees = this.referees.filter((r) => r.id !== referee.id);
-          this.cdr.detectChanges();
-        }
-      })
-      .catch((error) => console.error('Greška pri brisanju sudije:', error));
+  async delete(referee: Referee): Promise<void> {
+    if (!referee.id) return;
+
+    const confirmed = await this.confirmDialog.confirm({
+      message: `Jeste li sigurni da želite obrisati suca ${referee.firstName} ${referee.lastName}?`,
+    });
+    if (!confirmed) return;
+
+    this.refereeService.delete(referee.id).subscribe({
+      next: () => this.refresh$.next(),
+      error: (err) => console.error('Greška pri brisanju suca:', err),
+    });
   }
 
   search(term: string): void {
-    fetch(`${environment.apiUrl}/api/referee/search?term=${encodeURIComponent(term)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        this.referees = Array.isArray(data) ? data : [data];
-        this.cdr.detectChanges();
-      })
-      .catch((error) => console.error('Greška pri pretraživanju sudija:', error));
+    this.searchTerm$.next(term);
   }
 }

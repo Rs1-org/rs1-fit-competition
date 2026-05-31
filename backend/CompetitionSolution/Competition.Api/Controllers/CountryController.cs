@@ -3,9 +3,10 @@ using Competition.Application.Commands.CityCommands.Update;
 using Competition.Application.Commands.CountryCommands.Create;
 using Competition.Application.Commands.CountryCommands.Delete;
 using Competition.Application.Commands.CountryCommands.Update;
-using Competition.Application.Queries.City.GetAll;
+using Competition.Application.Queries.Country.GetAll;
 using Competition.Application.Queries.Country.GetBySlug;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +22,7 @@ namespace Competition.Api.Controllers
             _mediator = mediator;
         }
 
+        [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateCountry([FromForm] CreateCountryCommands request, CancellationToken cancellationToken)
         {
@@ -28,6 +30,7 @@ namespace Competition.Api.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteCountry(Guid id, CancellationToken cancellationToken)
         {
@@ -35,6 +38,7 @@ namespace Competition.Api.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpPut("update/{slug}")]
         public async Task<IActionResult> UpdateCountry(string slug, [FromForm] UpdateCountryCommands request, CancellationToken cancellationToken)
         {
@@ -52,9 +56,9 @@ namespace Competition.Api.Controllers
 
 
         [HttpGet("getAll")]
-        public async Task<IActionResult> GetCountries(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetCountries([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, CancellationToken cancellationToken = default)
         {
-            var result = await _mediator.Send(new GetAllCountriesCommand());
+            var result = await _mediator.Send(new GetAllCountriesCommand { Page = page, PageSize = pageSize, SearchTerm = searchTerm }, cancellationToken);
             return Ok(result);
         }
     }

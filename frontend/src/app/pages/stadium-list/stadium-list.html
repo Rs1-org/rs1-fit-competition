@@ -1,8 +1,7 @@
-
 <div class="container">
   <div class="header-actions">
     <h1>Stadiums</h1>
-    <app-stadium-form (saved)="loadStadiums()"></app-stadium-form>
+    <app-stadium-form [showTrigger]="!!user" (saved)="onFormSaved()"></app-stadium-form>
   </div>
 
   <app-generic-search 
@@ -10,9 +9,14 @@
     (onSearch)="search($event)">
   </app-generic-search>
 
-  <app-generic-list 
-    [items]="stadiums" 
+  <app-generic-list
+    [items]="pagedResult()?.items ?? []"
+    [pageSize]="pageSize"
+    [serverTotalItems]="pagedResult()?.totalCount"
+    [serverCurrentPage]="pagedResult()?.page ?? 1"
+    [showActions]="!!user"
     variant="card"
+    (pageChange)="onPageChange($event)"
     (view)="view($event)"
     (update)="edit($event)"
     (delete)="delete($event)">

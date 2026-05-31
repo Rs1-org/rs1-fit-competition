@@ -1,2 +1,46 @@
-<!-- <app-navbar></app-navbar> -->
-<app-country-form></app-country-form>
+<div class="container">
+    <div class="header-actions">
+        <h1>Countries</h1>
+        @if(user) {
+            <button class="btn-add" (click)="onAdd()">+ Add Country</button>
+        }
+    </div>
+
+    <app-generic-search 
+        placeholder="Search countries..." 
+        (onSearch)="search($event)">
+    </app-generic-search>
+
+    <app-generic-list
+        [items]="countriesResult()?.items ?? []"
+        [pageSize]="pageSize"
+        [serverTotalItems]="countriesResult()?.totalCount"
+        [serverCurrentPage]="countriesResult()?.page ?? 1"
+        [showActions]="!!user"
+        variant="card"
+        (update)="onEdit($event)"
+        (delete)="onDelete($event)"
+        (pageChange)="onPageChange($event)">
+        
+        <ng-template #itemTemplate let-country>
+            <div class="country-card-content">
+                @if (country.pictureUrl) {
+                    <img [src]="country.pictureUrl" [alt]="country.name" class="country-img">
+                } @else {
+                    <div class="country-placeholder">No Image</div>
+                }
+                <div class="country-info">
+                    <div class="item-title">{{ country.name }}</div>
+                    <div class="item-subtitle">{{ country.slug }}</div>
+                </div>
+            </div>
+        </ng-template>
+    </app-generic-list>
+</div>
+
+<app-country-form
+    [isOpen]="isFormOpen"
+    [editCountry]="selectedCountry"
+    (saved)="onFormSaved()"
+    (closed)="onFormClosed()">
+</app-country-form>

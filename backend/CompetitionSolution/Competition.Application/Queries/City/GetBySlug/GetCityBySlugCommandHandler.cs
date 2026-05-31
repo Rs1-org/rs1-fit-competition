@@ -23,7 +23,7 @@ namespace Competition.Application.Queries.City.GetBySlug
 
         public async Task<CityDetailsDto> Handle(GetCityBySlugCommand request, CancellationToken cancellationToken)
         {
-            var city = await _city.GetBySlugAsync(request.Slug);
+            var city = await _city.GetBySlugAsync(request.Slug, cancellationToken);
 
             if (city == null)
                 throw new KeyNotFoundException();

@@ -17,6 +17,7 @@ namespace Competition.Application.DTOs.CityDto
         public decimal Longitude { get; set; }
         public string? Description { get; set; }
         public string CountryName { get; set; }
+        public Guid CountryId { get; set; }
 
     }
 }

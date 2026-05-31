@@ -81,11 +81,13 @@ app.UseSwaggerUI();
 using var scope = app.Services.CreateScope();
 using var dbScope = app.Services.CreateScope();
 var db = dbScope.ServiceProvider.GetRequiredService<AppDbContext>();
-db.Database.Migrate();
+if (db.Database.IsRelational())
+    db.Database.Migrate();
+else
+    db.Database.EnsureCreated();
 
 app.UseCors("AllowAll");
 
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -93,7 +95,7 @@ app.MapControllers();
 using var roleScope = app.Services.CreateScope();
 var roleManager = roleScope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
-string[] roles = new[] { "Admin", "User", "Manager" };
+string[] roles = new[] { "Admin", "Moderator", "User", "Manager" };
 
 foreach (var role in roles)
 {

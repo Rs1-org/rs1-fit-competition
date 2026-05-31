@@ -11,32 +11,42 @@ using System.Threading.Tasks;
 
 namespace Competition.Application.Commands.CountryCommands.Update
 {
-    public class UpdateCountryCommandHandler(
-        IMapper mapper,
-        ICountry country,
-        IUnitOfWork unitOfWork,
-        IImageService imageService)
-        : IRequestHandler<UpdateCountryCommands, CountryNameDto>
+    public class UpdateCountryCommandHandler : IRequestHandler<UpdateCountryCommands,CountryNameDto>
     {
+        private readonly ICountry _country;
+        private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IImageService _imageService;
+
+        public UpdateCountryCommandHandler(IMapper mapper, ICountry country, IUnitOfWork unitOfWork, IImageService imageService)
+        {
+            _country = country;
+            _mapper = mapper;
+            _unitOfWork = unitOfWork;
+            _imageService = imageService;
+        }
+
         public async Task<CountryNameDto> Handle(UpdateCountryCommands request, CancellationToken cancellationToken)
         {
-            var country1 = await country.GetBySlugAsync(request.Slug);
+            var country = await _country.GetBySlugAsync(request.Slug, cancellationToken);
 
-            if (country1 == null)
-                throw new KeyNotFoundException($"Couldn't find any city with {request.Slug}");
+            if (country == null)
+                throw new KeyNotFoundException($"Couldn't find any country with {request.Slug}");
+
+            country.Name = request.Name;
 
             if (request.Picture != null)
             {
-                await imageService.DeleteImageAsync(country1.PictureUrl);
-                var pictureUrl = await imageService.UploadImageAsync(request.Picture);
-                country1.PictureUrl = pictureUrl;
+                await _imageService.DeleteImageAsync(country.PictureUrl);
+                var pictureUrl = await _imageService.UploadImageAsync(request.Picture);
+                country.PictureUrl = pictureUrl;
             }
 
-            await country.UpdateAsync(country1);
+            await _country.UpdateAsync(country, cancellationToken);
 
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return mapper.Map<CountryNameDto>(country1);
+            return _mapper.Map<CountryNameDto>(country);
         }
     }
 }

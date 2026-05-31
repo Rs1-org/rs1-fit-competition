@@ -36,7 +36,8 @@ export class Dropdown {
 
   selectOption(option: any) {
     this.control().setValue(option[this.optionValue()]);
-    this.selectedValue.set(option);  // ← store full option
+    this.control().markAsTouched();
+    this.selectedValue.set(option);
     this.isOpen.set(false);
   }
 

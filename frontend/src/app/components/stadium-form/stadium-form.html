@@ -61,4 +61,6 @@
 </app-modal>
 }
 
-<button class="btn" (click)="openModal()">Add Stadium</button>
+@if (showTrigger) {
+  <button class="btn" (click)="openModal()">Add Stadium</button>
+}

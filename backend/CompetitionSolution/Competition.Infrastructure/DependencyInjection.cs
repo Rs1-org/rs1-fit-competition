@@ -21,14 +21,15 @@ namespace Competition.Infrastructure
             services.AddScoped<IGeoData,GeoDataRepository>();
             services.AddScoped<ICountry,CountryRepository>();
             services.AddScoped<IStadium,StadiumRepository>();
+            services.AddScoped<IMatch, MatchRepository>();
             services.AddScoped<IClubRepository, ClubRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IBlobStorageService, BlobStorageService>();
             services.AddScoped<IImageService,ImageService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddScoped<IPlayerService,PlayerService>();
-            services.AddScoped<IManagerService, ManagerService>();
-            services.AddScoped<IRefereeService, RefereeService>();
+            services.AddScoped<IPlayer, PlayerRepository>();
+            services.AddScoped<IReferee, RefereeRepository>();
+            services.AddScoped<IManager, ManagerRepository>();
             services.AddScoped<IPlayerSelectionHistoryService, PlayerSelectionHistoryService>();
             services.AddScoped<ISelectionManagerHistoryService, SelectionManagerHistoryService>();
             services.AddScoped<ITransferValueHistoryService, TransferValueHistoryService>();

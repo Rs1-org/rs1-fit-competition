@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
@@ -9,7 +9,8 @@ import {
 } from '../../core/models/history.models';
 import { emptyPersonFields, pictureToDataUrl, Player } from '../../core/models/person.models';
 import { HistoryService } from '../../core/services/history.service';
-import { environment } from '../../../environments/environment';
+import { PlayerService, PlayerWriteDto } from '../../core/services/player.service';
+import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 
 @Component({
   selector: 'app-manage-players',
@@ -18,6 +19,13 @@ import { environment } from '../../../environments/environment';
   styleUrl: './manage-players.css',
 })
 export class ManagePlayers implements OnInit {
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private historyService = inject(HistoryService);
+  private playerService = inject(PlayerService);
+  private confirmDialog = inject(ConfirmDialogService);
+  private cdr = inject(ChangeDetectorRef);
+
   player: Player = {
     ...emptyPersonFields(),
     height: 0,
@@ -29,21 +37,36 @@ export class ManagePlayers implements OnInit {
   activeTab: 'info' | 'history' = 'info';
   editingId: string | null = null;
   isEditMode = false;
+  isLoading = false;
   pictureChanged = false;
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private historyService: HistoryService,
-  ) {}
-
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.editingId = id;
-      this.isEditMode = true;
-      void this.loadPlayer(id);
-    }
+    this.route.paramMap.subscribe((params) => {
+      const id = params.get('id');
+      if (id) {
+        this.editingId = id;
+        this.isEditMode = true;
+        this.loadPlayer(id);
+        return;
+      }
+
+      this.editingId = null;
+      this.isEditMode = false;
+      this.resetForm();
+      this.cdr.detectChanges();
+    });
+  }
+
+  private resetForm(): void {
+    this.player = {
+      ...emptyPersonFields(),
+      height: 0,
+      shirtNumber: 0,
+      transferValue: 0,
+    };
+    this.history = emptyPlayerHistoryForm();
+    this.activeTab = 'info';
+    this.pictureChanged = false;
   }
 
   get isPlayerInvalid(): boolean {
@@ -64,23 +87,34 @@ export class ManagePlayers implements OnInit {
     return pictureToDataUrl(this.player.picture);
   }
 
-  async loadPlayer(id: string): Promise<void> {
-    const response = await fetch(`${environment.apiUrl}/api/player/${id}`);
-    if (!response.ok) return;
+  loadPlayer(id: string): void {
+    this.isLoading = true;
+    this.playerService.getById(id).subscribe({
+      next: (data) => {
+        this.player = {
+          id: data.id,
+          firstName: data.firstName ?? '',
+          lastName: data.lastName ?? '',
+          dateOfBirth: data.dateOfBirth ?? '',
+          picture: data.picture ?? null,
+          height: data.height,
+          shirtNumber: data.shirtNumber,
+          transferValue: data.transferValue,
+        };
+        this.pictureChanged = false;
+        void this.loadHistory(id);
+      },
+      error: () => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
 
-    const data = await response.json();
-    this.player = {
-      id: data.id,
-      firstName: data.firstName ?? '',
-      lastName: data.lastName ?? '',
-      dateOfBirth: data.dateOfBirth ?? '',
-      picture: data.picture ?? null,
-      height: data.height,
-      shirtNumber: data.shirtNumber,
-      transferValue: data.transferValue,
-    };
-    this.pictureChanged = false;
+  private async loadHistory(id: string): Promise<void> {
     this.history = await this.historyService.loadPlayerHistory(id);
+    this.isLoading = false;
+    this.cdr.detectChanges();
   }
 
   async onPictureSelected(event: Event): Promise<void> {
@@ -93,44 +127,55 @@ export class ManagePlayers implements OnInit {
   }
 
   async savePlayer(): Promise<void> {
-    const payload: Record<string, unknown> = {
+    if (this.isPlayerInvalid) return;
+
+    if (this.isEditMode) {
+      const confirmed = await this.confirmDialog.confirm({
+        message: `Jeste li sigurni da želite spremiti promjene za igrača ${this.player.firstName} ${this.player.lastName}?`,
+      });
+      if (!confirmed) return;
+    }
+
+    const payload = this.buildPayload();
+    const request$ = this.isEditMode
+      ? this.playerService.update(this.editingId!, payload)
+      : this.playerService.create(payload);
+
+    request$.subscribe({
+      next: async (saved) => {
+        const playerId = this.isEditMode ? this.editingId! : saved.id!;
+        try {
+          await this.historyService.savePlayerHistory(playerId, this.history);
+        } catch (err) {
+          console.error('Greška pri spremanju historije igrača:', err);
+        }
+        this.playerService.notifyListRefresh();
+        this.router.navigate(['/player-list']);
+      },
+      error: (err) => console.error('Greška pri spremanju igrača:', err),
+    });
+  }
+
+  cancel(): void {
+    this.router.navigate(['/player-list']);
+  }
+
+  private buildPayload(): PlayerWriteDto {
+    const payload: PlayerWriteDto = {
       firstName: this.player.firstName.trim(),
       lastName: this.player.lastName.trim(),
       dateOfBirth: this.player.dateOfBirth,
+      picture: this.player.picture,
       height: this.player.height,
       shirtNumber: this.player.shirtNumber,
       transferValue: this.player.transferValue,
     };
 
-    if (!this.isEditMode || this.pictureChanged) {
-      payload['picture'] = this.player.picture;
+    if (this.isEditMode && !this.pictureChanged) {
+      const { picture: _picture, ...rest } = payload;
+      return rest;
     }
 
-    const url = this.isEditMode
-      ? `${environment.apiUrl}/api/player/${this.editingId}`
-      : `${environment.apiUrl}/api/player`;
-
-    const response = await fetch(url, {
-      method: this.isEditMode ? 'PUT' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) return;
-
-    const saved = await response.json();
-    const playerId = this.isEditMode ? this.editingId! : saved.id;
-
-    try {
-      await this.historyService.savePlayerHistory(playerId, this.history);
-    } catch {
-      return;
-    }
-
-    this.router.navigate(['/player-list']);
-  }
-
-  cancel(): void {
-    this.router.navigate(['/player-list']);
+    return payload;
   }
 }

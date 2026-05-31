@@ -1,16 +1,12 @@
 ﻿using AutoMapper;
+using Competition.Application.Common.Models;
 using Competition.Application.DTOs.CityDto;
 using Competition.Application.Interfaces;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Competition.Application.Queries.City.GetAll
 {
-    public class GetAllCitiesCommandHandler : IRequestHandler<GetAllCitiesCommand, List<CityListDto>>
+    public class GetAllCitiesCommandHandler : IRequestHandler<GetAllCitiesCommand, PagedResult<CityListDto>>
     {
         private readonly ICity _city;
         private readonly IMapper _mapper;
@@ -20,14 +16,11 @@ namespace Competition.Application.Queries.City.GetAll
             _city = city;
         }
 
-        public async Task<List<CityListDto>>Handle(GetAllCitiesCommand request, CancellationToken cancellationToken)
+        public async Task<PagedResult<CityListDto>> Handle(GetAllCitiesCommand request, CancellationToken cancellationToken)
         {
-            var cities = await _city.GetAllAsync();
-
-            if (cities == null)
-                throw new KeyNotFoundException();
-
-            return _mapper.Map<List<CityListDto>>(cities);
+            var paged = await _city.GetPagedWithSearchAsync(request.Page, request.PageSize, request.SearchTerm, cancellationToken);
+            var items = _mapper.Map<IReadOnlyList<CityListDto>>(paged.Items);
+            return new PagedResult<CityListDto>(items, paged.TotalCount, paged.Page, paged.PageSize);
         }
     }
 }

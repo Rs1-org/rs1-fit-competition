@@ -24,7 +24,7 @@ namespace Competition.Application.Queries.Country.GetBySlug
 
         public async Task<CountryDetailsDto> Handle(GetCountryBySlugCommand request, CancellationToken cancellationToken)
         {
-            var country = await _country.GetBySlugAsync(request.Slug);
+            var country = await _country.GetBySlugAsync(request.Slug, cancellationToken);
 
             if (country == null)
                 throw new KeyNotFoundException();

@@ -10,20 +10,30 @@ using System.Threading.Tasks;
 
 namespace Competition.Application.Commands.CountryCommands.Delete
 {
-    internal class DeleteCountryCommandsHandler(IMapper mapper, ICountry country, IUnitOfWork unitOfWork)
-        : IRequestHandler<DeleteCountryCommands, CountryNameDto>
+    public class DeleteCountryCommandsHandler : IRequestHandler<DeleteCountryCommands, CountryNameDto>
     {
+        private readonly ICountry _country;
+        private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
+
+        public DeleteCountryCommandsHandler(IMapper mapper, ICountry country, IUnitOfWork unitOfWork)
+        {
+            _country = country;
+            _mapper = mapper;
+            _unitOfWork = unitOfWork;
+        }
+
         public async Task<CountryNameDto>Handle(DeleteCountryCommands request, CancellationToken cancellationToken)
         {
-            var country1=await country.GetByIdAsync(request.Id);
+            var country = await _country.GetByIdAsync(request.Id, cancellationToken);
 
-            if (country1 == null)
-                throw new KeyNotFoundException($"Couldn't find any city with {request.Id}");
+            if (country == null)
+                throw new KeyNotFoundException($"Couldn't find any country with {request.Id}");
 
-            await country.DeleteAsync(country1);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await _country.DeleteAsync(country, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return mapper.Map<CountryNameDto>(country1);
+            return _mapper.Map<CountryNameDto>(country);
         }
     }
 }

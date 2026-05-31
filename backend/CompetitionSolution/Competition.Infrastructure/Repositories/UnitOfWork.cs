@@ -8,11 +8,18 @@ using System.Threading.Tasks;
 
 namespace Competition.Infrastructure.Repositories
 {
-    public class UnitOfWork(AppDbContext context) : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
-        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+        private readonly AppDbContext _context;
+
+        public UnitOfWork(AppDbContext context)
         {
-            return await context.SaveChangesAsync(cancellationToken);
+            _context = context;
+        }
+
+        public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

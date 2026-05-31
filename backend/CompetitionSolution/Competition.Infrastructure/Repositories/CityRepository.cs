@@ -1,7 +1,8 @@
-using Competition.Application.DTOs.CityDto;
+using Competition.Application.Common.Models;
 using Competition.Application.Interfaces;
 using Competition.Domain.Entities;
 using Competition.Infrastructure.Data;
+using Competition.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Competition.Infrastructure.Repositories;
@@ -14,13 +15,33 @@ public class CityRepository : Repository<City>, ICity
         _context = context;
     }
 
-    public async Task<List<City>> GetAllByCountryAsync(Guid id)
+    public new async Task<IEnumerable<City>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Cities.Where(s => s.CountryId == id).ToListAsync();
+        return await _context.Cities.Include(c => c.Country).ToListAsync(cancellationToken);
     }
 
-    public async Task<City?> GetBySlugAsync(string slug)
+    public async Task<List<City>> GetAllByCountryAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.Cities.FirstOrDefaultAsync(c => c.Slug == slug);
+        return await _context.Cities.Include(c => c.Country).Where(s => s.CountryId == id).ToListAsync(cancellationToken);
+    }
+
+    public async Task<City?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
+    {
+        return await _context.Cities.Include(c => c.GeoData).FirstOrDefaultAsync(c => c.Slug == slug, cancellationToken);
+    }
+
+    public async Task<PagedResult<City>> GetPagedByCountryAsync(Guid countryId, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        return await _context.Cities
+            .Where(c => c.CountryId == countryId)
+            .ToPagedResultAsync(page, pageSize, cancellationToken);
+    }
+
+    public async Task<PagedResult<City>> GetPagedWithSearchAsync(int page, int pageSize, string? searchTerm, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Cities.Include(c => c.Country).AsQueryable();
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+            query = query.Where(c => EF.Functions.ILike(c.Name!, $"%{searchTerm}%"));
+        return await query.ToPagedResultAsync(page, pageSize, cancellationToken);
     }
 }

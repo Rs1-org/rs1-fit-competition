@@ -4,5 +4,5 @@ namespace Competition.Application.Interfaces;
 
 public interface IStadium : IRepository<Stadium>
 {
-    Task<Stadium?> GetBySlugAsync(string slug);
+    Task<Stadium?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default);
 }

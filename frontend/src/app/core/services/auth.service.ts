@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/enviroments/enviroment';
-import { LoginRequest, RegisterRequest, AuthResponse, AuthApiResponse } from '../models/auth.models';
+import { environment } from '../../../environments/environment';
+import { LoginRequest, RegisterRequest, RegisterResponse, AuthResponse, AuthApiResponse } from '../models/auth.models';
 import { tap, map } from 'rxjs';
 import { TokenService } from './token.service';
 import { UserStateService } from './user-state.service';
@@ -25,14 +25,14 @@ export class AuthService {
   return this.http.post<AuthApiResponse>(`${this.api}/login`, request).pipe(
     tap(res => {
       this.tokenService.setTokens(res.accessToken, res.refreshToken);
-      this.userState.setUser(res.user);
+      this.userState.setUser(res.user, res.roles ?? []);
     }),
     map(res => res.user)
   );
 }
 
   register(request: RegisterRequest) {
-    return this.http.post<string>(`${this.api}/register`, request);
+    return this.http.post<RegisterResponse>(`${this.api}/register`, request);
   }
 
   refreshToken() {
@@ -45,13 +45,16 @@ export class AuthService {
     ).pipe(
       tap(res => {
         this.tokenService.setTokens(res.accessToken, res.refreshToken);
+        if (res.user) {
+          this.userState.setUser(res.user, res.roles ?? []);
+        }
       })
     );
   }
 
 
   logout() {
-  const token = localStorage.getItem('refreshToken');
+  const token = this.tokenService.getRefreshToken();
   if (!token) {
     this.clearUserData();
     return;
@@ -64,9 +67,7 @@ export class AuthService {
 }
 
 private clearUserData() {
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('user'); // if you store user info
+  this.tokenService.clear();
   this.userState.clearUser();
   this.router.navigate(['']);
 }

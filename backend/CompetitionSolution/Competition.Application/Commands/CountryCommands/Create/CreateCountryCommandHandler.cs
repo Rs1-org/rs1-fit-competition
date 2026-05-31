@@ -13,32 +13,39 @@ using System.Threading.Tasks;
 
 namespace Competition.Application.Commands.CountryCommands.Create
 {
-    public class CreateCountryCommandHandler(
-        IMapper mapper,
-        ICountry country,
-        IUnitOfWork unitOfWork,
-        IImageService imageService)
-        : IRequestHandler<CreateCountryCommands, CountryNameDto>
+    public class CreateCountryCommandHandler : IRequestHandler<CreateCountryCommands,CountryNameDto>
     {
+        private readonly IMapper _mapper;
+        private readonly ICountry _country;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IImageService _imageService;
+        public CreateCountryCommandHandler(IMapper mapper, ICountry country, IUnitOfWork unitOfWork, IImageService imageService)
+        {
+            _mapper = mapper;
+            _country = country;
+            _unitOfWork = unitOfWork;
+            _imageService = imageService;
+        }
+
         public async Task<CountryNameDto>Handle(CreateCountryCommands request,CancellationToken cancellationToken)
         {
-            var pictureUrl = await imageService.UploadImageAsync(request.Picture);
+            var pictureUrl = await _imageService.UploadImageAsync(request.Picture);
             
-            var country1 = mapper.Map<Country>(request);
+            var country = _mapper.Map<Country>(request);
 
-            if (country1 == null)
+            if (country == null)
             {
                 throw new ValidationException("Couldn't create country");
             }
 
 
-            country1.PictureUrl = pictureUrl;
+            country.PictureUrl = pictureUrl;
 
 
-            await country.AddAsync(country1);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await _country.AddAsync(country, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return mapper.Map<CountryNameDto>(country1);
+            return _mapper.Map<CountryNameDto>(country);
         }
     }
 }

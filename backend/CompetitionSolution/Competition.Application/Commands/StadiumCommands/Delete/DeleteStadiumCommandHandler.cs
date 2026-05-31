@@ -3,19 +3,27 @@ using MediatR;
 
 namespace Competition.Application.Commands.StadiumCommands.Delete;
 
-public class DeleteStadiumCommandHandler(IStadium stadium, IUnitOfWork unitOfWork)
-    : IRequestHandler<DeleteStadiumCommand, bool>
+public class DeleteStadiumCommandHandler : IRequestHandler<DeleteStadiumCommand, bool>
 {
+    private readonly IStadium _stadium;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public DeleteStadiumCommandHandler(IStadium stadium, IUnitOfWork unitOfWork)
+    {
+        _stadium = stadium;
+        _unitOfWork = unitOfWork;
+    }
+
     public async Task<bool> Handle(DeleteStadiumCommand request, CancellationToken cancellationToken)
     {
-        var stadium1 = await stadium.GetByIdAsync(request.Id);
-        if (stadium1 == null)
+        var stadium = await _stadium.GetByIdAsync(request.Id, cancellationToken);
+        if (stadium == null)
         {
             throw new KeyNotFoundException($"Couldn't find any stadium with ID {request.Id}");
         }
 
-        await stadium.DeleteAsync(stadium1);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await _stadium.DeleteAsync(stadium, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return true;
     }

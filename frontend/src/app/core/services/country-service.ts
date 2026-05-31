@@ -1,8 +1,10 @@
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { environment } from '../../../environments/environment';
 import { CountryListDto, CountryName } from "../models/country";
+import { PagedResult } from "../models/paged-result";
+
 @Injectable({
     providedIn:'root'
 })
@@ -13,8 +15,20 @@ export class CountryService{
     create(form:FormData):Observable<CountryName>{
         return this.http.post<CountryName>(`${this.apiUrl}/create`, form);
     }
-    
-    getAll():Observable<CountryListDto[]>{
-        return this.http.get<CountryListDto[]>(`${this.apiUrl}/getAll`);
+
+    update(slug:string, form:FormData):Observable<CountryName>{
+        return this.http.put<CountryName>(`${this.apiUrl}/update/${slug}`, form);
+    }
+
+    delete(id:string):Observable<CountryName>{
+        return this.http.delete<CountryName>(`${this.apiUrl}/delete/${id}`);
+    }
+
+    getAll(page = 1, pageSize = 10, searchTerm?: string):Observable<PagedResult<CountryListDto>>{
+        let params = new HttpParams()
+            .set('page', page)
+            .set('pageSize', pageSize);
+        if (searchTerm) params = params.set('searchTerm', searchTerm);
+        return this.http.get<PagedResult<CountryListDto>>(`${this.apiUrl}/getAll`, { params });
     }
 }

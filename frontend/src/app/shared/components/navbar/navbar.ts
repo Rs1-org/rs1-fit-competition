@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ThemeService } from '../../../core/services/theme-service/theme-service';
 import { AuthModalComponent } from 'src/app/features/auth/auth-modal/auth-modal.component';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -16,7 +16,7 @@ import { RouterModule } from '@angular/router';
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
-export class Navbar {
+export class Navbar implements OnInit {
   constructor(private tokenService:TokenService, private router:Router, private redirectSerive:AuthRedirectService, private userStateService:UserStateService, private authService:AuthService,public themeService: ThemeService) {}
   openManageTab = false;
   openManage() {
@@ -37,6 +37,16 @@ export class Navbar {
     event.stopPropagation();
     this.router.navigate(['/manage-managers']);
     this.openManageTab = !this.openManageTab;
+  }
+  openManageCountries(event:MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/countries']);
+    this.openManageTab = false;
+  }
+  openManageCities(event:MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/cities']);
+    this.openManageTab = false;
   }
   openManageClubs(event:MouseEvent) {
     event.stopPropagation();
@@ -70,13 +80,16 @@ export class Navbar {
 
   user: UserDto | null = null;
   token:string|null = null;
+  canManagePersons = false;
 
-  ngOnInit(){
-    this.token = localStorage.getItem('refreshToken');
-        this.userStateService.user$.subscribe((userData)=>{
-            this.user = userData
-        })
-    }
+  ngOnInit(): void {
+    this.userStateService.user$.subscribe((userData) => {
+      this.user = userData;
+    });
+    this.userStateService.roles$.subscribe(() => {
+      this.canManagePersons = this.userStateService.canManagePersons();
+    });
+  }
 
   openAuth() {
     this.authModal.openLogin();

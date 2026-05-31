@@ -11,6 +11,7 @@ namespace Competition.Application.DTOs.CountryDto
     {
         public Guid Id { get; set; }
         public string? Name { get; set; }
+        public string? Slug { get; set; }
         public string? PictureUrl { get; set; }
     }
 }

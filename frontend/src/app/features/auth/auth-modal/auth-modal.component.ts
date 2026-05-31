@@ -16,7 +16,7 @@ export class AuthModalComponent {
   redirectAfterLogin: string | null = null;
 
   openLogin(route?: string){
-    this.showLogin = !this.showLogin;
+    this.showLogin = true;
     this.showRegister = false;
     this.redirectAfterLogin = route ?? null;
   }

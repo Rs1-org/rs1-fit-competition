@@ -1,6 +1,5 @@
-
-@if(isModalOpen){
-<app-modal [title]="'Add Country'" (close)="isModalOpen=false">
+@if(isOpen){
+<app-modal [title]="isEditMode ? 'Edit Country' : 'Add Country'" (close)="onClose()">
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <app-input-box
             label="Name"
@@ -14,17 +13,13 @@
             accept="image/*"
             (fileChange)="onFileChange($event)"
         ></app-input-box>
-        
+
         <footer>
             <app-button
-            type="submit"
-            text="Submit"
+                type="submit"
+                [text]="isEditMode ? 'Save Changes' : 'Submit'"
             ></app-button>
         </footer>
-
-
     </form>
 </app-modal>
 }
-
-<button class="btn" (click)="dodaj()">Dodaj</button>

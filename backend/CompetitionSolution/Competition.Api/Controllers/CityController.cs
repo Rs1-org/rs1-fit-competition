@@ -1,9 +1,11 @@
 using Competition.Application.Commands.CityCommands.Create;
+using Competition.Application.Commands.CityCommands.Delete;
 using Competition.Application.Commands.CityCommands.Update;
 using Competition.Application.Queries.City.GetAll;
 using Competition.Application.Queries.City.GetAllByCountry;
 using Competition.Application.Queries.City.GetBySlug;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -16,6 +18,7 @@ public class CityController : ControllerBase
         _mediator=mediator;
     }
 
+    [Authorize]
     [HttpPost("createCity")]
     public async Task<IActionResult>CreateCity([FromBody]CreateCityCommand request, CancellationToken cancellationToken)
     {
@@ -23,6 +26,7 @@ public class CityController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("deleteCity/{id}")]
     public async Task<IActionResult> DeleteCity(Guid id, CancellationToken cancellationToken)
     {
@@ -30,6 +34,7 @@ public class CityController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpPut("updateCity/{slug}")]
     public async Task<IActionResult> UpdateCity(string slug, [FromBody] UpdateCityCommands request, CancellationToken cancellationToken)
     {
@@ -39,9 +44,9 @@ public class CityController : ControllerBase
     }
 
     [HttpGet("getCities")]
-    public async Task<IActionResult> GetCities(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCities([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, CancellationToken cancellationToken = default)
     {
-        var result = await _mediator.Send(new GetAllCitiesCommand());
+        var result = await _mediator.Send(new GetAllCitiesCommand { Page = page, PageSize = pageSize, SearchTerm = searchTerm }, cancellationToken);
         return Ok(result);
     }
 
@@ -53,9 +58,9 @@ public class CityController : ControllerBase
     }
 
     [HttpGet("getCitiesByCountry/{countryId}")]
-    public async Task<IActionResult> GetCitiesByCountry(Guid countryId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCitiesByCountry(Guid countryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
-        var result = await _mediator.Send(new GetAllCitiesByCountryCommand { CountryId = countryId });
+        var result = await _mediator.Send(new GetAllCitiesByCountryCommand { CountryId = countryId, Page = page, PageSize = pageSize }, cancellationToken);
         return Ok(result);
     }
 }

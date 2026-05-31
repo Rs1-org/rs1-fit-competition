@@ -1,14 +1,13 @@
-﻿using Competition.Application.DTOs.CountryDto;
+﻿using Competition.Application.Common.Models;
+using Competition.Application.DTOs.CountryDto;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Competition.Application.Queries.City.GetAll
+namespace Competition.Application.Queries.Country.GetAll
 {
-    public class GetAllCountriesCommand : IRequest<List<CountryListDto>>
+    public class GetAllCountriesCommand : IRequest<PagedResult<CountryListDto>>
     {
+        public int Page { get; init; } = 1;
+        public int PageSize { get; init; } = 10;
+        public string? SearchTerm { get; init; }
     }
 }

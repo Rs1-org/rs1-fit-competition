@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { AuthRedirectService } from 'src/app/core/services/auth-redirect.service';
 import { UserStateService } from 'src/app/core/services/user-state.service';
+
 @Component({
   selector: 'app-login',
   imports: [ReactiveFormsModule],
@@ -11,11 +12,18 @@ import { UserStateService } from 'src/app/core/services/user-state.service';
   styleUrls: ['../auth-modal.component.css']
 })
 export class LoginComponent {
-  constructor(private router: Router, private redirectService: AuthRedirectService, private userStateService: UserStateService) { }
-  private fb = inject(FormBuilder); 
+  constructor(
+    private router: Router,
+    private redirectService: AuthRedirectService,
+    private userStateService: UserStateService,
+  ) {}
+
+  private fb = inject(FormBuilder);
   private authService = inject(AuthService);
 
-  errors = [""];
+  errors: string[] = [];
+  isSubmitting = false;
+  showPassword = false;
 
   @Input() show = false;
   @Output() switchToRegister = new EventEmitter<void>();
@@ -26,27 +34,58 @@ export class LoginComponent {
     password: ['', Validators.required]
   });
 
-  submit() {
-  if (this.form.invalid) return;
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
 
-  const loginData = this.form.getRawValue();
+  submit(): void {
+    this.errors = [];
 
-  this.authService.login(loginData).subscribe({
-    next: () => {
-      this.closeModal.emit();
-      this.redirectService.redirect();
-    },
-    error: (err) => {
-      this.errors = [err.error?.message || 'Login failed'];
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.errors = this.getValidationErrors();
+      return;
     }
-  });
-}
 
-  close() {
+    this.isSubmitting = true;
+    const loginData = this.form.getRawValue();
+
+    this.authService.login(loginData).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.closeModal.emit();
+        this.redirectService.redirect();
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        this.errors = [err.error?.message || 'Login failed. Check your email and password.'];
+      }
+    });
+  }
+
+  close(): void {
     this.closeModal.emit();
   }
 
-  openRegister() {
+  openRegister(): void {
     this.switchToRegister.emit();
+  }
+
+  isInvalid(controlName: keyof typeof this.form.controls): boolean {
+    const control = this.form.controls[controlName];
+    return control.invalid && control.touched;
+  }
+
+  private getValidationErrors(): string[] {
+    const messages: string[] = [];
+
+    if (this.form.controls.email.errors) {
+      messages.push('Enter a valid email address.');
+    }
+    if (this.form.controls.password.errors) {
+      messages.push('Password is required.');
+    }
+
+    return messages;
   }
 }

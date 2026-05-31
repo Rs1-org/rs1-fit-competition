@@ -1,23 +1,32 @@
-<div class="list-wrapper" [ngClass]="[variant,size]">
-  @for (item of items; track $index) {
+<div class="list-wrapper" [ngClass]="[variant, size]">
+  @for (item of pagedItems; track $index) {
     <div class="list-item" (click)="onView(item)">
       <div class="item-content">
-        <ng-container 
-          [ngTemplateOutlet]="itemTemplate" 
+        <ng-container
+          [ngTemplateOutlet]="itemTemplate"
           [ngTemplateOutletContext]="{ $implicit: item }">
         </ng-container>
       </div>
 
-      <div class="item-actions">
-        <button class="btn-update" (click)="onUpdate(item)">
-          Uredi
-        </button>
-        <button class="btn-delete" (click)="onDelete(item)">
-          Obriši
-        </button>
-      </div>
+      @if (showActions) {
+        <div class="item-actions">
+          <button class="btn-update" (click)="$event.stopPropagation(); onUpdate(item)">
+            Uredi
+          </button>
+          <button class="btn-delete" (click)="$event.stopPropagation(); onDelete(item)">
+            Obriši
+          </button>
+        </div>
+      }
     </div>
   } @empty {
     <div class="empty-state">Lista je trenutno prazna.</div>
   }
+
+  <app-pagination
+    [totalItems]="effectiveTotalItems"
+    [pageSize]="pageSize"
+    [currentPage]="effectiveCurrentPage"
+    (pageChange)="onPageChange($event)">
+  </app-pagination>
 </div>
