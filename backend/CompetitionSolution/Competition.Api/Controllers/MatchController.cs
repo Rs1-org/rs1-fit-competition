@@ -1,0 +1,86 @@
+using Competition.Application.Commands.MatchCommands.Create;
+using Competition.Application.Commands.MatchCommands.Delete;
+using Competition.Application.Commands.MatchCommands.Update;
+using Competition.Application.Queries.Match.GetAll;
+using Competition.Application.Queries.Match.GetById;
+using Competition.Application.Queries.Match.GetBySlug;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Competition.Api.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class MatchController : ControllerBase
+{
+    private readonly IMediator _mediator;
+
+    public MatchController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
+    [HttpGet("getAll")]
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] Guid? statusId = null,
+        [FromQuery] Guid? stadiumId = null,
+        [FromQuery] bool? isPostponed = null,
+        [FromQuery] DateTime? dateFrom = null,
+        [FromQuery] DateTime? dateTo = null,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(new GetAllMatchesQuery
+        {
+            Page = page,
+            PageSize = pageSize,
+            StatusId = statusId,
+            StadiumId = stadiumId,
+            IsPostponed = isPostponed,
+            DateFrom = dateFrom,
+            DateTo = dateTo
+        }, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("get/{slug}")]
+    public async Task<IActionResult> GetBySlug(string slug, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetMatchBySlugQuery { Slug = slug }, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("getById/{id}")]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetMatchByIdQuery { Id = id }, cancellationToken);
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPost("create")]
+    public async Task<IActionResult> Create([FromBody] CreateMatchCommand request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(request, cancellationToken);
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPut("update/{slug}")]
+    public async Task<IActionResult> Update(string slug, [FromBody] UpdateMatchCommand request, CancellationToken cancellationToken)
+    {
+        request.Slug = slug;
+        var result = await _mediator.Send(request, cancellationToken);
+        return Ok(result);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("delete/{id}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new DeleteMatchCommand { Id = id }, cancellationToken);
+        return Ok(result);
+    }
+}
