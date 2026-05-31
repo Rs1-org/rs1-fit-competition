@@ -59,14 +59,26 @@
 - [x] EF config in `AppDbContext.OnModelCreating` — `HasQueryFilter`, `HasIndex(Slug).IsUnique`, `HasOne→MatchStatus (Restrict)`, `HasOne→Stadium (Restrict)`
 - [x] Migration `20260531083023_AddMatchAndMatchStatus` generated and reviewed
 - [x] `ENTITIES.md` updated — entity count 13 → 15 (1 still needed for 16-entity minimum)
-- [ ] DTOs (`MatchListDto`, `MatchDetailsDto`, `MatchStatusListDto`)
-- [ ] Commands + Validators (Create, Update, Delete)
+- [x] DTOs (`MatchListDto`, `MatchDetailsDto`, `MatchStatusListDto`)
+- [x] Commands + Validators (Create, Update, Delete) — see Match Commands section below
 - [ ] Queries (GetAll with filters + paging, GetBySlug)
-- [ ] Repository (`IMatch`, `MatchRepository`) + DI registration
+- [x] Repository (`IMatch`, `MatchRepository`) + DI registration
 - [ ] Controller (`MatchController`) with `[Authorize]` on writes
 - [ ] Frontend (`match-list`, `match-form`, `match.service.ts`)
 - [ ] Tests (`CreateMatchCommandHandlerTests`, `MatchControllerTests`)
 - [ ] Connect to advanced feature for points (SignalR +8b / charts +4b / PDF +3b)
+
+### Match Commands — CQRS Write Side (mandatory prerequisite)
+- [x] `NodaTimeMappingHelper` — `FormatInstant(Instant)` + `ParseInstant(string?)` added
+- [x] `MappingProfile` — `CreateMatchCommand→Match`, `Match→MatchDetailsDto`, `Match→MatchListDto`, `MatchStatus→MatchStatusListDto`
+- [x] `IMatch` interface — `GetBySlugAsync(string, CancellationToken)` + inherits `IRepository<Match>`
+- [x] `MatchRepository` — `GetBySlugAsync` with `.Include(Status).Include(Stadium)`; registered in DI
+- [x] `CreateMatchCommand` + `CreateMatchCommandHandler` — maps, sets `Instant.FromDateTimeUtc`, saves, reloads, returns `MatchDetailsDto`
+- [x] `UpdateMatchCommand` (`[JsonIgnore] Slug`) + `UpdateMatchCommandHandler` — loads by slug, updates all fields, reloads, returns `MatchDetailsDto`
+- [x] `DeleteMatchCommand` + `DeleteMatchCommandHandler` — loads by ID, soft-deletes, returns `Guid`
+- [x] `MatchValidators.cs` — `CreateMatchCommandValidator` (date in future, slug max 200, paired FK fields); `UpdateMatchCommandValidator` (paired scores, half ≤ full, scores ≥ 0); `DeleteMatchCommandValidator` (Id not empty)
+- [x] CancellationToken in all 3 `Handle()` signatures + every repo/UoW call
+- [x] Build clean, 11/11 tests passing
 
 ### Stripe Payment Integration — 10b (RS1 Item 3)
 - [ ] Define business process (what does user pay for? ticket / match pass / subscription)
