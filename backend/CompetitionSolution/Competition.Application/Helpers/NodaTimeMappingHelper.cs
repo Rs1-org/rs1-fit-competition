@@ -36,4 +36,16 @@ public static class NodaTimeMappingHelper
 
     public static string? FormatNullableLocalDate(LocalDate? value) =>
         value.HasValue ? FormatLocalDate(value.Value) : null;
+
+    public static string FormatInstant(Instant value) =>
+        value.ToDateTimeUtc().ToString("o", System.Globalization.CultureInfo.InvariantCulture);
+
+    public static Instant ParseInstant(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Instant.MinValue;
+        var dt = DateTime.Parse(value, System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.RoundtripKind);
+        return Instant.FromDateTimeUtc(dt.ToUniversalTime());
+    }
 }
