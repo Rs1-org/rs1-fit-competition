@@ -83,7 +83,28 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             }
         }
 
-       
+        modelBuilder.Entity<MatchStatus>(e =>
+        {
+            e.ToTable("MatchStatuses");
+            e.Property(x => x.Name).IsRequired().HasMaxLength(50);
+            e.HasIndex(x => x.Slug).IsUnique().HasFilter("\"Slug\" IS NOT NULL");
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<Match>(e =>
+        {
+            e.ToTable("Matches");
+            e.HasIndex(x => x.Slug).IsUnique().HasFilter("\"Slug\" IS NOT NULL");
+            e.HasOne(x => x.Status)
+                .WithMany(s => s.Matches)
+                .HasForeignKey(x => x.StatusId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Stadium)
+                .WithMany()
+                .HasForeignKey(x => x.StadiumId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
     }
 
     public DbSet<Country> Countries { get; set; }
@@ -91,6 +112,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<City> Cities { get; set; }
     public DbSet<Person> Persons { get; set; } = null!;
     public DbSet<Stadium> Stadiums { get; set; }
+    public DbSet<MatchStatus> MatchStatuses { get; set; } = null!;
+    public DbSet<Match> Matches { get; set; } = null!;
     public DbSet<PlayerSelectionHistory> PlayerSelectionHistories { get; set; } = null!;
     public DbSet<SelectionManagerHistory> SelectionManagerHistories { get; set; } = null!;
     public DbSet<TransferValueHistory> TransferValueHistories { get; set; } = null!;
