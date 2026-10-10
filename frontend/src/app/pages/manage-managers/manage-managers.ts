@@ -12,10 +12,11 @@ import { emptyPersonFields, pictureToDataUrl, Manager } from '../../core/models/
 import { HistoryService } from '../../core/services/history.service';
 import { ManagerService, ManagerWriteDto } from '../../core/services/manager.service';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
 
 @Component({
   selector: 'app-manage-managers',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, UploadProgress],
   templateUrl: './manage-managers.html',
   styleUrl: './manage-managers.css',
 })
@@ -40,6 +41,7 @@ export class ManageManagers implements OnInit {
   isEditMode = false;
   isLoading = false;
   pictureChanged = false;
+  uploadProgress: number | null = null;
 
   ngOnInit(): void {
     this.selectionService.getAll(1, 100).subscribe((page) => {
@@ -132,9 +134,14 @@ export class ManageManagers implements OnInit {
     }
 
     const payload = this.buildPayload();
+    const onProgress = this.pictureChanged ? (percent: number) => this.setUploadProgress(percent) : undefined;
+    if (onProgress) {
+      this.activeTab = 'info';
+      this.setUploadProgress(0);
+    }
     const request$ = this.isEditMode
-      ? this.managerService.update(this.editingId!, payload)
-      : this.managerService.create(payload);
+      ? this.managerService.update(this.editingId!, payload, onProgress)
+      : this.managerService.create(payload, onProgress);
 
     request$.subscribe({
       next: async (saved) => {
@@ -147,12 +154,20 @@ export class ManageManagers implements OnInit {
         this.managerService.notifyListRefresh();
         this.router.navigate(['/manager-list']);
       },
-      error: (err) => console.error('Greška pri spremanju menadžera:', err),
+      error: (err) => {
+        this.setUploadProgress(null);
+        console.error('Greška pri spremanju menadžera:', err);
+      },
     });
   }
 
   cancel(): void {
     this.router.navigate(['/manager-list']);
+  }
+
+  private setUploadProgress(percent: number | null): void {
+    this.uploadProgress = percent;
+    this.cdr.detectChanges();
   }
 
   private buildPayload(): ManagerWriteDto {

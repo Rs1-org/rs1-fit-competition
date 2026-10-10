@@ -21,6 +21,7 @@
       <div class="form-group">
         <label for="picture">Picture</label>
         <input type="file" id="picture" name="picture" accept="image/*" (change)="onPictureSelected($event)" />
+        <app-upload-progress [percent]="uploadProgress"></app-upload-progress>
         <img *ngIf="picturePreview" [src]="picturePreview" alt="Preview slike" class="person-picture-preview" />
       </div>
 
