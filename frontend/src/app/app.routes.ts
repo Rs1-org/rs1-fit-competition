@@ -35,6 +35,30 @@ export const routes: Routes = [
   { path: 'manage-managers', component: ManageManagers, canActivate: [AdminModeratorGuard] },
   { path: 'manage-managers/:id', component: ManageManagers, canActivate: [AdminModeratorGuard] },
   {
+    path: 'manage-formation-marks',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () =>
+      import('./pages/manage-formation-mark/manage-formation-mark').then((m) => m.ManageFormationMark),
+  },
+  {
+    path: 'manage-formation-marks/:slug',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () =>
+      import('./pages/manage-formation-mark/manage-formation-mark').then((m) => m.ManageFormationMark),
+  },
+  {
+    path: 'manage-formations',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () =>
+      import('./pages/manage-formation/manage-formation').then((m) => m.ManageFormation),
+  },
+  {
+    path: 'manage-formations/:slug',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () =>
+      import('./pages/manage-formation/manage-formation').then((m) => m.ManageFormation),
+  },
+  {
     path: 'player-list',
     loadComponent: () =>
       import('./pages/player-list/player-list').then((m) => m.PlayerList),
@@ -63,6 +87,26 @@ export const routes: Routes = [
     path: 'manager/:id',
     loadComponent: () =>
       import('./pages/manager-view/manager-view').then((m) => m.ManagerView),
+  },
+  {
+    path: 'formation-mark-list',
+    loadComponent: () =>
+      import('./pages/formation-mark-list/formation-mark-list').then((m) => m.FormationMarkList),
+  },
+  {
+    path: 'formation-list',
+    loadComponent: () =>
+      import('./pages/formation-list/formation-list').then((m) => m.FormationList),
+  },
+  {
+    path: 'position-list',
+    loadComponent: () =>
+      import('./pages/position-list/position-list').then((m) => m.PositionList),
+  },
+  {
+    path: 'subposition-list',
+    loadComponent: () =>
+      import('./pages/subposition-list/subposition-list').then((m) => m.SubPositionList),
   },
   {
     path: 'profile',

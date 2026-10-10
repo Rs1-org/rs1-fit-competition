@@ -12,12 +12,18 @@
     (delete)="delete($event)"
   >
     <ng-template #itemTemplate let-player>
-      <div class="item-title">{{ player.firstName }} {{ player.lastName }}</div>
-      <div class="item-subtitle">
-        Visina: {{ player.height }} m | Dresa: #{{ player.shirtNumber }}
-      </div>
-      <div class="item-meta">
-        Datum rođenja: {{ player.dateOfBirth || '—' }} | Vrijednost: {{ player.transferValue }} €
+      <div class="player-row">
+        <div class="player-number">{{ player.shirtNumber }}</div>
+        <div class="player-info">
+          <div class="item-title">{{ player.firstName }} {{ player.lastName }}</div>
+          <div class="item-subtitle">
+            {{ player.height }} m
+            @if (player.positionName) {
+              · {{ player.positionName }}{{ player.subPositionName ? ' / ' + player.subPositionName : '' }}
+            }
+          </div>
+          <div class="item-meta">{{ player.dateOfBirth || '—' }} · {{ player.transferValue }} €</div>
+        </div>
       </div>
     </ng-template>
   </app-generic-list>

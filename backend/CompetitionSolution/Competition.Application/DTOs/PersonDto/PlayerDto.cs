@@ -10,4 +10,8 @@ public class PlayerDto
     public decimal Height { get; set; }
     public int ShirtNumber { get; set; }
     public float TransferValue { get; set; }
+    public Guid? PositionId { get; set; }
+    public Guid? SubPositionId { get; set; }
+    public string? PositionName { get; set; }
+    public string? SubPositionName { get; set; }
 }

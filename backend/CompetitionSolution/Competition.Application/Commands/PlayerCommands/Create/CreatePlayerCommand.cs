@@ -14,6 +14,8 @@ public class CreatePlayerCommand : IRequest<PlayerDto>
         Height = dto.Height;
         ShirtNumber = dto.ShirtNumber;
         TransferValue = dto.TransferValue;
+        PositionId = dto.PositionId;
+        SubPositionId = dto.SubPositionId;
     }
 
     public string FirstName { get; }
@@ -23,4 +25,6 @@ public class CreatePlayerCommand : IRequest<PlayerDto>
     public decimal Height { get; }
     public int ShirtNumber { get; }
     public float TransferValue { get; }
+    public Guid? PositionId { get; }
+    public Guid? SubPositionId { get; }
 }

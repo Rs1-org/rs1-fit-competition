@@ -10,6 +10,9 @@ import {
 import { emptyPersonFields, pictureToDataUrl, Player } from '../../core/models/person.models';
 import { HistoryService } from '../../core/services/history.service';
 import { PlayerService, PlayerWriteDto } from '../../core/services/player.service';
+import { PositionService } from '../../core/services/position.service';
+import { SubPositionService } from '../../core/services/subposition.service';
+import { Position, SubPosition } from '../../core/models/formation.models';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 
 @Component({
@@ -23,6 +26,8 @@ export class ManagePlayers implements OnInit {
   private route = inject(ActivatedRoute);
   private historyService = inject(HistoryService);
   private playerService = inject(PlayerService);
+  private positionService = inject(PositionService);
+  private subPositionService = inject(SubPositionService);
   private confirmDialog = inject(ConfirmDialogService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -39,8 +44,18 @@ export class ManagePlayers implements OnInit {
   isEditMode = false;
   isLoading = false;
   pictureChanged = false;
+  positions: Position[] = [];
+  subPositions: SubPosition[] = [];
 
   ngOnInit(): void {
+    this.positionService.getAll(1, 100).subscribe((page) => {
+      this.positions = page.items;
+      this.cdr.detectChanges();
+    });
+    this.subPositionService.getAll(1, 100).subscribe((page) => {
+      this.subPositions = page.items;
+      this.cdr.detectChanges();
+    });
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
@@ -100,6 +115,8 @@ export class ManagePlayers implements OnInit {
           height: data.height,
           shirtNumber: data.shirtNumber,
           transferValue: data.transferValue,
+          positionId: data.positionId ?? null,
+          subPositionId: data.subPositionId ?? null,
         };
         this.pictureChanged = false;
         void this.loadHistory(id);
@@ -156,6 +173,16 @@ export class ManagePlayers implements OnInit {
     });
   }
 
+  get filteredSubPositions(): SubPosition[] {
+    if (!this.player.positionId) return [];
+    return this.subPositions.filter((item) => item.positionId === this.player.positionId);
+  }
+
+  onPositionChange(): void {
+    const stillValid = this.filteredSubPositions.some((item) => item.id === this.player.subPositionId);
+    if (!stillValid) this.player.subPositionId = null;
+  }
+
   cancel(): void {
     this.router.navigate(['/player-list']);
   }
@@ -169,6 +196,8 @@ export class ManagePlayers implements OnInit {
       height: this.player.height,
       shirtNumber: this.player.shirtNumber,
       transferValue: this.player.transferValue,
+      positionId: this.player.positionId || null,
+      subPositionId: this.player.subPositionId || null,
     };
 
     if (this.isEditMode && !this.pictureChanged) {

@@ -27,7 +27,7 @@ label {
 }
 
 input {
-  background: var(--bg-secondary);
+  background: var(--field-bg);
   border: 1.5px solid var(--border-color);
   border-radius: 8px;
   padding: 10px 14px;
@@ -55,7 +55,7 @@ span {
 }
 
 input[type="file"] {
-  background: var(--bg-secondary);
+  background: var(--field-bg);
   border: 1.5px dashed var(--border-color);
   border-radius: 8px;
   padding: 10px 14px;
@@ -107,7 +107,7 @@ input[type="checkbox"] {
 }
 
 textarea {
-  background: var(--bg-secondary);
+  background: var(--field-bg);
   border: 1.5px solid var(--border-color);
   border-radius: 8px;
   padding: 10px 14px;
