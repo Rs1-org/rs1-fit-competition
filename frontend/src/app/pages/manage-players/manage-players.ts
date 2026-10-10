@@ -16,10 +16,11 @@ import { PositionService } from '../../core/services/position.service';
 import { SubPositionService } from '../../core/services/subposition.service';
 import { Position, SubPosition } from '../../core/models/formation.models';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
 
 @Component({
   selector: 'app-manage-players',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, UploadProgress],
   templateUrl: './manage-players.html',
   styleUrl: './manage-players.css',
 })
@@ -47,6 +48,7 @@ export class ManagePlayers implements OnInit {
   isEditMode = false;
   isLoading = false;
   pictureChanged = false;
+  uploadProgress: number | null = null;
   positions: Position[] = [];
   subPositions: SubPosition[] = [];
   selections: SelectionOption[] = [];
@@ -164,9 +166,14 @@ export class ManagePlayers implements OnInit {
     }
 
     const payload = this.buildPayload();
+    const onProgress = this.pictureChanged ? (percent: number) => this.setUploadProgress(percent) : undefined;
+    if (onProgress) {
+      this.activeTab = 'info';
+      this.setUploadProgress(0);
+    }
     const request$ = this.isEditMode
-      ? this.playerService.update(this.editingId!, payload)
-      : this.playerService.create(payload);
+      ? this.playerService.update(this.editingId!, payload, onProgress)
+      : this.playerService.create(payload, onProgress);
 
     request$.subscribe({
       next: async (saved) => {
@@ -179,7 +186,10 @@ export class ManagePlayers implements OnInit {
         this.playerService.notifyListRefresh();
         this.router.navigate(['/player-list']);
       },
-      error: (err) => console.error('Greška pri spremanju igrača:', err),
+      error: (err) => {
+        this.setUploadProgress(null);
+        console.error('Greška pri spremanju igrača:', err);
+      },
     });
   }
 
@@ -195,6 +205,11 @@ export class ManagePlayers implements OnInit {
 
   cancel(): void {
     this.router.navigate(['/player-list']);
+  }
+
+  private setUploadProgress(percent: number | null): void {
+    this.uploadProgress = percent;
+    this.cdr.detectChanges();
   }
 
   private buildPayload(): PlayerWriteDto {

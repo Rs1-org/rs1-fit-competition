@@ -104,6 +104,12 @@ export const routes: Routes = [
       import('./pages/selection-list/selection-list').then((m) => m.SelectionList),
   },
   {
+    path: 'image-gallery',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () =>
+      import('./pages/image-gallery/image-gallery').then((m) => m.ImageGallery),
+  },
+  {
     path: 'manage-selections',
     canActivate: [AdminModeratorGuard],
     loadComponent: () =>

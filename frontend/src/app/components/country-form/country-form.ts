@@ -5,10 +5,11 @@ import { InputBox } from '../../shared/components/input-box/input-box';
 import { Button } from '../../shared/components/button/button';
 import { CountryService } from '../../core/services/country-service';
 import { CountryListDto } from '../../core/models/country';
+import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
 
 @Component({
   selector: 'app-country-form',
-  imports: [Modal, InputBox, ReactiveFormsModule, Button],
+  imports: [Modal, InputBox, ReactiveFormsModule, Button, UploadProgress],
   templateUrl: './country-form.html',
   styleUrl: './country-form.css',
 })
@@ -20,6 +21,8 @@ export class CountryForm implements OnChanges {
 
   private countryService = inject(CountryService);
   private fb = inject(NonNullableFormBuilder);
+
+  uploadProgress: number | null = null;
 
   form = this.fb.group({
     name: this.fb.control('', { validators: [Validators.required, Validators.maxLength(100)] }),
@@ -46,6 +49,7 @@ export class CountryForm implements OnChanges {
   }
 
   onClose(): void {
+    this.uploadProgress = null;
     this.form.reset();
     this.closed.emit();
   }
@@ -61,23 +65,23 @@ export class CountryForm implements OnChanges {
 
     const picture = this.form.controls.picture.value;
     if (picture) formData.append('picture', picture);
+    const onProgress = picture ? (percent: number) => { this.uploadProgress = percent; } : undefined;
+    if (onProgress) this.uploadProgress = 0;
+
+    const done = () => {
+      this.uploadProgress = null;
+      this.form.reset();
+      this.saved.emit();
+    };
+    const fail = (err: unknown) => {
+      this.uploadProgress = null;
+      console.error(err);
+    };
 
     if (this.isEditMode) {
-      this.countryService.update(this.editCountry!.slug, formData).subscribe({
-        next: () => {
-          this.form.reset();
-          this.saved.emit();
-        },
-        error: (err) => console.error(err)
-      });
+      this.countryService.update(this.editCountry!.slug, formData, onProgress).subscribe({ next: done, error: fail });
     } else {
-      this.countryService.create(formData).subscribe({
-        next: () => {
-          this.form.reset();
-          this.saved.emit();
-        },
-        error: (err) => console.error(err)
-      });
+      this.countryService.create(formData, onProgress).subscribe({ next: done, error: fail });
     }
   }
 }

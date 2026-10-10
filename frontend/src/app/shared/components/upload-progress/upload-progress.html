@@ -1,0 +1,6 @@
+@if (percent !== null) {
+  <div class="progress" aria-label="Napredak uploada">
+    <div [style.width.%]="percent"></div>
+  </div>
+  <span class="progress-label">{{ percent }}%</span>
+}
