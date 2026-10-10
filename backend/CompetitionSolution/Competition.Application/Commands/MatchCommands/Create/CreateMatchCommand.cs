@@ -11,4 +11,6 @@ public class CreateMatchCommand : IRequest<MatchDetailsDto>
     public string? Slug { get; set; }
     public Guid StatusId { get; set; }
     public Guid StadiumId { get; set; }
+    public Guid? HomeSelectionId { get; set; }
+    public Guid? AwaySelectionId { get; set; }
 }

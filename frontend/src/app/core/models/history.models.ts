@@ -5,6 +5,7 @@ export interface PlayerSelectionHistory {
   assists: number | null;
   shirtNumber: number | null;
   playerId?: string;
+  selectionId?: string | null;
 }
 
 export interface TransferValueHistory {
@@ -21,6 +22,7 @@ export interface SelectionManagerHistory {
   loses: number | null;
   draw: number | null;
   managerId?: string;
+  selectionId?: string | null;
 }
 
 export interface MandatDate {
@@ -31,11 +33,23 @@ export interface MandatDate {
   selectionManagerHistoryId?: string | null;
 }
 
+export interface PlayerAppearance {
+  matchId: string;
+  matchSlug: string | null;
+  matchDate: string;
+  stadiumName: string | null;
+  selectionId: string;
+  selectionName: string;
+  side: string;
+  shirtNumber: number | null;
+}
+
 export interface PlayerHistoryForm {
   selection: PlayerSelectionHistory;
   transfer: TransferValueHistory;
   mandat: MandatDate;
   selectionId?: string;
+  teamSelectionId: string;
   transferId?: string;
   mandatId?: string;
 }
@@ -44,6 +58,7 @@ export interface ManagerHistoryForm {
   selection: SelectionManagerHistory;
   mandat: MandatDate;
   selectionId?: string;
+  teamSelectionId: string;
   mandatId?: string;
 }
 
@@ -63,6 +78,7 @@ export function emptyPlayerHistoryForm(): PlayerHistoryForm {
       startMandatDate: null,
       endMandatDate: null,
     },
+    teamSelectionId: '',
   };
 }
 
@@ -78,6 +94,7 @@ export function emptyManagerHistoryForm(): ManagerHistoryForm {
       startMandatDate: null,
       endMandatDate: null,
     },
+    teamSelectionId: '',
   };
 }
 
@@ -91,7 +108,8 @@ export function hasPlayerHistoryData(form: PlayerHistoryForm): boolean {
     !!transfer.date ||
     transfer.value != null ||
     !!mandat.startMandatDate ||
-    !!mandat.endMandatDate
+    !!mandat.endMandatDate ||
+    !!form.teamSelectionId
   );
 }
 
@@ -103,7 +121,8 @@ export function hasManagerHistoryData(form: ManagerHistoryForm): boolean {
     selection.loses != null ||
     selection.draw != null ||
     !!mandat.startMandatDate ||
-    !!mandat.endMandatDate
+    !!mandat.endMandatDate ||
+    !!form.teamSelectionId
   );
 }
 

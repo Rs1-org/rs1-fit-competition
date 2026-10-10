@@ -5,8 +5,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
 import {
   emptyPlayerHistoryForm,
+  PlayerAppearance,
   PlayerHistoryForm,
 } from '../../core/models/history.models';
+import { SelectionOption, SelectionService } from '../../core/services/selection.service';
 import { emptyPersonFields, pictureToDataUrl, Player } from '../../core/models/person.models';
 import { HistoryService } from '../../core/services/history.service';
 import { PlayerService, PlayerWriteDto } from '../../core/services/player.service';
@@ -28,6 +30,7 @@ export class ManagePlayers implements OnInit {
   private playerService = inject(PlayerService);
   private positionService = inject(PositionService);
   private subPositionService = inject(SubPositionService);
+  private selectionService = inject(SelectionService);
   private confirmDialog = inject(ConfirmDialogService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -46,6 +49,8 @@ export class ManagePlayers implements OnInit {
   pictureChanged = false;
   positions: Position[] = [];
   subPositions: SubPosition[] = [];
+  selections: SelectionOption[] = [];
+  appearances: PlayerAppearance[] = [];
 
   ngOnInit(): void {
     this.positionService.getAll(1, 100).subscribe((page) => {
@@ -54,6 +59,10 @@ export class ManagePlayers implements OnInit {
     });
     this.subPositionService.getAll(1, 100).subscribe((page) => {
       this.subPositions = page.items;
+      this.cdr.detectChanges();
+    });
+    this.selectionService.getAll(1, 100).subscribe((page) => {
+      this.selections = page.items;
       this.cdr.detectChanges();
     });
     this.route.paramMap.subscribe((params) => {
@@ -130,6 +139,7 @@ export class ManagePlayers implements OnInit {
 
   private async loadHistory(id: string): Promise<void> {
     this.history = await this.historyService.loadPlayerHistory(id);
+    this.appearances = await this.historyService.loadAppearances(id);
     this.isLoading = false;
     this.cdr.detectChanges();
   }

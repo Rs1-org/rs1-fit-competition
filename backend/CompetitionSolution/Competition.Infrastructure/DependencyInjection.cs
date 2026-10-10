@@ -26,6 +26,8 @@ namespace Competition.Infrastructure
             services.AddScoped<IFormation, FormationRepository>();
             services.AddScoped<IPosition, PositionRepository>();
             services.AddScoped<ISubPosition, SubPositionRepository>();
+            services.AddScoped<ISelection, SelectionRepository>();
+            services.AddScoped<IPlayerAppearances, PlayerAppearanceReader>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IBlobStorageService, BlobStorageService>();
             services.AddScoped<IImageService,ImageService>();

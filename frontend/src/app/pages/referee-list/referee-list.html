@@ -1,5 +1,10 @@
 <div class="container">
-  <h1>Lista sudija</h1>
+  <div class="header-actions">
+    <h1>Lista sudija</h1>
+    @if (canManagePersons()) {
+      <button class="btn-add" type="button" (click)="add()">+ Dodaj sudiju</button>
+    }
+  </div>
 
   <app-generic-search placeholder="Pretraži sudije..." (onSearch)="search($event)"></app-generic-search>
 

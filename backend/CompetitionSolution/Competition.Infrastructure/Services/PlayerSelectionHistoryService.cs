@@ -30,6 +30,7 @@ public class PlayerSelectionHistoryService : IPlayerSelectionHistoryService
     public async Task<PlayerSelectionHistoryDto> CreateAsync(PlayerSelectionHistoryDto dto)
     {
         await EnsurePlayerExistsAsync(dto.PlayerId);
+        await EnsureSelectionExistsAsync(dto.SelectionId);
 
         var entity = MapToEntity(dto);
         await _context.PlayerSelectionHistories.AddAsync(entity);
@@ -40,6 +41,7 @@ public class PlayerSelectionHistoryService : IPlayerSelectionHistoryService
     public async Task<PlayerSelectionHistoryDto> UpdateAsync(Guid id, PlayerSelectionHistoryDto dto)
     {
         await EnsurePlayerExistsAsync(dto.PlayerId);
+        await EnsureSelectionExistsAsync(dto.SelectionId);
 
         var entity = await ActiveRecords().FirstOrDefaultAsync(h => h.Id == id)
             ?? throw new KeyNotFoundException($"PlayerSelectionHistory with id {id} not found");
@@ -68,6 +70,14 @@ public class PlayerSelectionHistoryService : IPlayerSelectionHistoryService
             throw new KeyNotFoundException($"Player with id {playerId} not found");
     }
 
+    private async Task EnsureSelectionExistsAsync(Guid? selectionId)
+    {
+        if (selectionId is null) return;
+        var exists = await _context.Selections.AnyAsync(s => s.Id == selectionId && s.DeletedAt == null);
+        if (!exists)
+            throw new KeyNotFoundException($"Selection with id {selectionId} not found");
+    }
+
     private static PlayerSelectionHistoryDto MapToDto(PlayerSelectionHistory entity) => new()
     {
         Id = entity.Id,
@@ -75,7 +85,8 @@ public class PlayerSelectionHistoryService : IPlayerSelectionHistoryService
         MatchPlayed = entity.MatchPlayed,
         Assists = entity.Assists,
         ShirtNumber = entity.ShirtNumber,
-        PlayerId = entity.PlayerId
+        PlayerId = entity.PlayerId,
+        SelectionId = entity.SelectionId
     };
 
     private static PlayerSelectionHistory MapToEntity(PlayerSelectionHistoryDto dto) => new()
@@ -84,7 +95,8 @@ public class PlayerSelectionHistoryService : IPlayerSelectionHistoryService
         MatchPlayed = dto.MatchPlayed,
         Assists = dto.Assists,
         ShirtNumber = dto.ShirtNumber,
-        PlayerId = dto.PlayerId
+        PlayerId = dto.PlayerId,
+        SelectionId = dto.SelectionId
     };
 
     private static void ApplyDto(PlayerSelectionHistoryDto dto, PlayerSelectionHistory entity)
@@ -94,5 +106,6 @@ public class PlayerSelectionHistoryService : IPlayerSelectionHistoryService
         entity.Assists = dto.Assists;
         entity.ShirtNumber = dto.ShirtNumber;
         entity.PlayerId = dto.PlayerId;
+        entity.SelectionId = dto.SelectionId;
     }
 }

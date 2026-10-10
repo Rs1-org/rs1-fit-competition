@@ -15,4 +15,8 @@ public class MatchDetailsDto
     public string? StatusName { get; set; }
     public Guid StadiumId { get; set; }
     public string? StadiumName { get; set; }
+    public Guid? HomeSelectionId { get; set; }
+    public string? HomeSelectionName { get; set; }
+    public Guid? AwaySelectionId { get; set; }
+    public string? AwaySelectionName { get; set; }
 }
