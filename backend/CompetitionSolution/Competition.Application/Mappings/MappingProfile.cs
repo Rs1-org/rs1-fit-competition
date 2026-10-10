@@ -112,14 +112,20 @@ public class MappingProfile:Profile
             .ForMember(d => d.CreatedAt, opt => opt.Ignore())
             .ForMember(d => d.ModifiedAt, opt => opt.Ignore())
             .ForMember(d => d.DeletedAt, opt => opt.Ignore())
+            .ForMember(d => d.Position, opt => opt.Ignore())
+            .ForMember(d => d.SubPosition, opt => opt.Ignore())
             .ForMember(d => d.Picture, opt => opt.MapFrom(s => s.Picture ?? Array.Empty<byte>()));
         CreateMap<UpdatePlayerCommand, Player>()
             .ForMember(d => d.Id, opt => opt.Ignore())
             .ForMember(d => d.CreatedAt, opt => opt.Ignore())
             .ForMember(d => d.ModifiedAt, opt => opt.Ignore())
             .ForMember(d => d.DeletedAt, opt => opt.Ignore())
+            .ForMember(d => d.Position, opt => opt.Ignore())
+            .ForMember(d => d.SubPosition, opt => opt.Ignore())
             .ForMember(d => d.Picture, opt => opt.Condition(src => src.Picture != null));
-        CreateMap<Player, PlayerDto>();
+        CreateMap<Player, PlayerDto>()
+            .ForMember(d => d.PositionName, opt => opt.MapFrom(s => s.Position != null ? s.Position.Name : null))
+            .ForMember(d => d.SubPositionName, opt => opt.MapFrom(s => s.SubPosition != null ? s.SubPosition.Name : null));
 
         CreateMap<RefereeDto, CreateRefereeCommand>().ConstructUsing(d => new CreateRefereeCommand(d));
         CreateMap<RefereeDto, UpdateRefereeCommand>()

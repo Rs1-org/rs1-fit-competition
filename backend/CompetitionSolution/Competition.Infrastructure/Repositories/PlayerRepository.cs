@@ -9,11 +9,15 @@ public class PlayerRepository(AppDbContext context) : IPlayer
 {
     public Task<Player?> GetActiveByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         context.Players
+            .Include(p => p.Position)
+            .Include(p => p.SubPosition)
             .Where(p => p.DeletedAt == null)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
     public Task<List<Player>> GetAllActiveAsync(CancellationToken cancellationToken = default) =>
         context.Players
+            .Include(p => p.Position)
+            .Include(p => p.SubPosition)
             .Where(p => p.DeletedAt == null)
             .ToListAsync(cancellationToken);
 

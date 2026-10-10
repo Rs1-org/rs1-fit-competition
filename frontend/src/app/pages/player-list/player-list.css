@@ -1,33 +1,31 @@
-.player-details {
+.container {
+  width: min(1100px, calc(100% - 2.5rem));
+  margin: 1.5rem auto 3rem;
+}
+
+.player-row {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 0.9rem;
 }
 
 .player-number {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #007bff;
-  background: #e7f1ff;
-  width: 50px;
-  height: 50px;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: 12px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .player-info {
   display: flex;
   flex-direction: column;
-}
-
-.player-name {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-.player-pos {
-  font-size: 0.9rem;
-  color: #666;
+  gap: 0.1rem;
+  min-width: 0;
 }

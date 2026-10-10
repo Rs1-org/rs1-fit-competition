@@ -64,19 +64,11 @@ button:disabled {
 }
 .referee-card-wrapper {
   display: flex;
-  justify-content: center; 
-  align-items: center;    
-  height: 75vh;          
-  width: 100%;
-
-}
-body {
-  display: flex;
   justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  background-color: var(--bg-secondary);
+  align-items: flex-start;
+  width: 100%;
+  padding: 2.5rem 1rem 3rem;
+  box-sizing: border-box;
 }
 .referee-card {
   width: 90%;

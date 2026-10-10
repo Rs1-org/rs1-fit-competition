@@ -2,17 +2,17 @@
 .detail-card {
   max-width: 600px;
   margin: 20px auto;
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
-  border: 1px solid #eef2f7;
+  border: 1px solid var(--border-color);
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* Zaglavlje kartice */
 .detail-header {
-  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #0c3b32 0%, var(--accent-dark) 100%);
   padding: 20px 25px;
   color: white;
 }
@@ -34,7 +34,7 @@
   display: flex;
   justify-content: space-between;
   padding: 15px 25px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--border-color);
   transition: background 0.2s ease;
 }
 
@@ -43,13 +43,13 @@
 }
 
 .detail-row:hover {
-  background-color: #f8fafc;
+  background-color: var(--field-bg);
 }
 
 /* Naziv polja (Label) */
 .label {
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-muted);
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 0.3px;
@@ -57,7 +57,7 @@
 
 /* Vrijednost polja (Value) */
 .value {
-  color: #1e293b;
+  color: var(--text-primary);
   font-weight: 500;
   font-size: 1rem;
 }

@@ -18,5 +18,9 @@ public class UpdatePlayerCommandValidator : AbstractValidator<UpdatePlayerComman
         RuleFor(x => x.Height).GreaterThan(0).LessThanOrEqualTo(300);
         RuleFor(x => x.ShirtNumber).InclusiveBetween(1, 99);
         RuleFor(x => x.TransferValue).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.PositionId)
+            .NotEmpty()
+            .When(x => x.SubPositionId.HasValue)
+            .WithMessage("Position is required when a subposition is set.");
     }
 }
