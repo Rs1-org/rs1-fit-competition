@@ -47,6 +47,22 @@
         </div>
 
         <div class="form-group">
+          <label for="positionId">Position</label>
+          <select id="positionId" name="positionId" [(ngModel)]="player.positionId" (ngModelChange)="onPositionChange()">
+            <option [ngValue]="null">—</option>
+            <option *ngFor="let position of positions" [ngValue]="position.id">{{ position.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="subPositionId">Subposition</label>
+          <select id="subPositionId" name="subPositionId" [(ngModel)]="player.subPositionId">
+            <option [ngValue]="null">—</option>
+            <option *ngFor="let sub of filteredSubPositions" [ngValue]="sub.id">{{ sub.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
           <label for="transferValue">Transfer Value (€)</label>
           <input type="number" step="0.01" id="transferValue" name="transferValue" [(ngModel)]="player.transferValue" required />
         </div>

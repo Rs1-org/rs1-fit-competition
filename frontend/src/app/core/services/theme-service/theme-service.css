@@ -10,12 +10,11 @@
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0 4px;
   transition: background 0.3s;
+}
 
-  &.dark {
-    background: var(--black-200);
-  }
+.toggle-track.dark {
+  background: var(--black-200);
 }
 
 .toggle-thumb {
@@ -26,21 +25,21 @@
   position: absolute;
   left: 4px;
   transition: transform 0.3s;
-
-  .dark & {
-    transform: translateX(26px);
-  }
 }
 
+.toggle-track.dark .toggle-thumb {
+  transform: translateX(22px);
+}
 
 .toggle-icon {
   position: absolute;
-  right: 4px;
-  font-size: 1rem;
+  right: 6px;
+  font-size: 0.85rem;
+  line-height: 1;
   color: var(--text-primary);
+}
 
-  .dark & {
-    right: auto;
-    left: 4px;
-  }
+.toggle-track.dark .toggle-icon {
+  right: auto;
+  left: 6px;
 }

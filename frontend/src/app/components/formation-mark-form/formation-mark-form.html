@@ -1,0 +1,12 @@
+@if (isOpen) {
+  <app-modal [title]="isEditMode ? 'Edit formation mark' : 'Add formation mark'" (close)="onClose()">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <app-input-box label="Defenders" type="number" [control]="form.controls.defenders"></app-input-box>
+      <app-input-box label="Midfielders" type="number" [control]="form.controls.midfielders"></app-input-box>
+      <app-input-box label="Attackers" type="number" [control]="form.controls.attackers"></app-input-box>
+      <footer>
+        <app-button type="submit" [text]="isEditMode ? 'Save' : 'Create'"></app-button>
+      </footer>
+    </form>
+  </app-modal>
+}

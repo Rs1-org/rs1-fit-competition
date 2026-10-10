@@ -53,12 +53,15 @@
   }
 }
 .navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1300;
   background: var(--bg-secondary);
   padding: 1rem 2rem;
   display: flex;
   flex-direction: row;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); 
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .navbar-section {

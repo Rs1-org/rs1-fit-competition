@@ -1,0 +1,33 @@
+<div class="container">
+  <div class="header-actions">
+    <h1>Formation marks</h1>
+    @if (canManage()) {
+      <button class="btn-add" (click)="onAdd()">+ Add mark</button>
+    }
+  </div>
+
+  <app-generic-search placeholder="Search marks..." (onSearch)="search($event)"></app-generic-search>
+
+  <app-generic-list
+    [items]="result()?.items ?? []"
+    [pageSize]="pageSize"
+    [serverTotalItems]="result()?.totalCount"
+    [serverCurrentPage]="result()?.page ?? 1"
+    [showActions]="canManage()"
+    variant="card"
+    (update)="onEdit($event)"
+    (delete)="onDelete($event)"
+    (pageChange)="onPageChange($event)">
+    <ng-template #itemTemplate let-item>
+      <div class="formation-summary">
+        <div class="item-title">{{ item.defenders }}-{{ item.midfielders }}-{{ item.attackers }}</div>
+        <div class="line-row">
+          <span>Defenders <strong>{{ item.defenders }}</strong></span>
+          <span>Midfielders <strong>{{ item.midfielders }}</strong></span>
+          <span>Attackers <strong>{{ item.attackers }}</strong></span>
+        </div>
+      </div>
+    </ng-template>
+  </app-generic-list>
+</div>
+

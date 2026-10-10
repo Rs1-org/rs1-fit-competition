@@ -10,6 +10,10 @@ export interface Player extends PersonFields {
   height: number;
   shirtNumber: number;
   transferValue: number;
+  positionId?: string | null;
+  subPositionId?: string | null;
+  positionName?: string | null;
+  subPositionName?: string | null;
 }
 
 export interface Referee extends PersonFields {

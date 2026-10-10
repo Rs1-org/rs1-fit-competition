@@ -1,0 +1,33 @@
+:host ::ng-deep .list-wrapper.card .list-item {
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.15rem 1.4rem;
+  margin-bottom: 0.9rem;
+}
+
+.formation-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 0.35rem 0.25rem;
+}
+
+.line-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 0.85rem;
+}
+
+.line-row span {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.line-row strong {
+  color: var(--text-primary);
+  margin-left: 0.25rem;
+}
