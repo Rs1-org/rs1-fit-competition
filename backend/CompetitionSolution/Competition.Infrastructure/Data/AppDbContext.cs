@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using System.Security.Cryptography.X509Certificates;
 
+using Competition.Domain.Entities.FormationEntities;
 using Competition.Domain.Entities.MatchEntities;
 
 namespace Competition.Infrastructure.Data;
@@ -105,6 +106,61 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 .OnDelete(DeleteBehavior.Restrict);
             e.HasQueryFilter(x => x.DeletedAt == null);
         });
+
+        modelBuilder.Entity<FormationMark>(e =>
+        {
+            e.ToTable("FormationMarks");
+            e.Property(x => x.Defenders).IsRequired();
+            e.Property(x => x.Midfielders).IsRequired();
+            e.Property(x => x.Attackers).IsRequired();
+            e.HasIndex(x => x.Slug).IsUnique().HasFilter("\"Slug\" IS NOT NULL");
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<Formation>(e =>
+        {
+            e.ToTable("Formations");
+            e.Property(x => x.Code).IsRequired().HasMaxLength(20);
+            e.HasIndex(x => x.Slug).IsUnique().HasFilter("\"Slug\" IS NOT NULL");
+            e.HasIndex(x => x.FormationMarkId).IsUnique();
+            e.HasOne(x => x.FormationMark)
+                .WithOne(x => x.Formation)
+                .HasForeignKey<Formation>(x => x.FormationMarkId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<Position>(e =>
+        {
+            e.ToTable("Positions");
+            e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            e.HasIndex(x => x.Slug).IsUnique().HasFilter("\"Slug\" IS NOT NULL");
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<SubPosition>(e =>
+        {
+            e.ToTable("SubPositions");
+            e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            e.HasIndex(x => x.Slug).IsUnique().HasFilter("\"Slug\" IS NOT NULL");
+            e.HasOne(x => x.Position)
+                .WithMany(x => x.SubPositions)
+                .HasForeignKey(x => x.PositionId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<Player>(e =>
+        {
+            e.HasOne(x => x.Position)
+                .WithMany(x => x.Players)
+                .HasForeignKey(x => x.PositionId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.SubPosition)
+                .WithMany(x => x.Players)
+                .HasForeignKey(x => x.SubPositionId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 
     public DbSet<Country> Countries { get; set; }
@@ -114,6 +170,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<Stadium> Stadiums { get; set; }
     public DbSet<MatchStatus> MatchStatuses { get; set; } = null!;
     public DbSet<Match> Matches { get; set; } = null!;
+    public DbSet<FormationMark> FormationMarks { get; set; } = null!;
+    public DbSet<Formation> Formations { get; set; } = null!;
+    public DbSet<Position> Positions { get; set; } = null!;
+    public DbSet<SubPosition> SubPositions { get; set; } = null!;
     public DbSet<PlayerSelectionHistory> PlayerSelectionHistories { get; set; } = null!;
     public DbSet<SelectionManagerHistory> SelectionManagerHistories { get; set; } = null!;
     public DbSet<TransferValueHistory> TransferValueHistories { get; set; } = null!;

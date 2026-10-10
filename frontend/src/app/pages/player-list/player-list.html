@@ -15,6 +15,9 @@
       <div class="item-title">{{ player.firstName }} {{ player.lastName }}</div>
       <div class="item-subtitle">
         Visina: {{ player.height }} m | Dresa: #{{ player.shirtNumber }}
+        @if (player.positionName) {
+          | {{ player.positionName }}{{ player.subPositionName ? ' / ' + player.subPositionName : '' }}
+        }
       </div>
       <div class="item-meta">
         Datum rođenja: {{ player.dateOfBirth || '—' }} | Vrijednost: {{ player.transferValue }} €

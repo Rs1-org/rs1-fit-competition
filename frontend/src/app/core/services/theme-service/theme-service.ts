@@ -1,4 +1,5 @@
-import { Component, Injectable } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ThemeService } from '../theme.service';
 
 @Component({
   selector: 'app-theme-service',
@@ -6,16 +7,6 @@ import { Component, Injectable } from '@angular/core';
   templateUrl: './theme-service.html',
   styleUrl: './theme-service.css',
 })
-@Injectable({
-  providedIn:'root'
-})
-export class ThemeService {
-  isDark=false;
-
-  toggle():void{
-    this.isDark=!this.isDark;
-    document.documentElement.setAttribute('data-theme',
-      this.isDark? 'dark':'light'
-    );
-  }
+export class ThemeToggle {
+  theme = inject(ThemeService);
 }

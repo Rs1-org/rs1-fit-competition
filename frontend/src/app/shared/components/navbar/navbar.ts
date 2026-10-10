@@ -1,5 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ThemeService } from '../../../core/services/theme-service/theme-service';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { ThemeToggle } from '../../../core/services/theme-service/theme-service';
+import { ThemeService } from '../../../core/services/theme.service';
 import { AuthModalComponent } from 'src/app/features/auth/auth-modal/auth-modal.component';
 import { TokenService } from 'src/app/core/services/token.service';
 import { Router } from '@angular/router';
@@ -12,11 +13,14 @@ import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
-  imports: [ThemeService,CommonModule,RouterModule, AuthModalComponent],
+  imports: [ThemeToggle,CommonModule,RouterModule, AuthModalComponent],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
-export class Navbar implements OnInit {
+export class Navbar implements OnInit, AfterViewInit, OnDestroy {
+  private host = inject(ElementRef<HTMLElement>);
+  private navbarSize?: ResizeObserver;
+
   constructor(private tokenService:TokenService, private router:Router, private redirectSerive:AuthRedirectService, private userStateService:UserStateService, private authService:AuthService,public themeService: ThemeService) {}
   openManageTab = false;
   openManage() {
@@ -70,11 +74,62 @@ export class Navbar implements OnInit {
     this.router.navigate(['/country-list']);
   }
 
+  openPositions(event: MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/position-list']);
+    this.openManageTab = false;
+  }
+
+  openSubPositions(event: MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/subposition-list']);
+    this.openManageTab = false;
+  }
+
+  openFormationMarks(event: MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/formation-mark-list']);
+    this.openManageTab = false;
+  }
+
+  openFormations(event: MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/formation-list']);
+    this.openManageTab = false;
+  }
+
+  openAddFormationMark(event: MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/manage-formation-marks']);
+    this.openManageTab = false;
+  }
+
+  openAddFormation(event: MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/manage-formations']);
+    this.openManageTab = false;
+  }
+
   @ViewChild(AuthModalComponent)
   authModal!: AuthModalComponent;
 
   user: UserDto | null = null;
   canManagePersons = false;
+
+  ngAfterViewInit(): void {
+    const bar = this.host.nativeElement;
+    const syncHeight = () => {
+      document.documentElement.style.setProperty('--navbar-height', `${bar.offsetHeight}px`);
+    };
+    syncHeight();
+    if (typeof ResizeObserver === 'undefined') return;
+    this.navbarSize = new ResizeObserver(syncHeight);
+    this.navbarSize.observe(bar);
+  }
+
+  ngOnDestroy(): void {
+    this.navbarSize?.disconnect();
+  }
 
   ngOnInit(): void {
     this.userStateService.user$.subscribe((userData) => {

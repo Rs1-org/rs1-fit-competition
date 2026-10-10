@@ -21,7 +21,7 @@
     <div class="navbar-text" (click)="openListManagers()">
       <i class="fa-solid fa-user-tie"></i> Managers
     </div>
-    <div class="navbar-text manage-wrapper" (click)="openManage()">
+    <div class="navbar-text manage-wrapper" *ngIf="user" (click)="openManage()">
       <i class="fa-solid fa-gear" ></i> Manage
        <div class="manage-dropdown" *ngIf="openManageTab">
         <button *ngIf="canManagePersons" (click)="openManagePlayers($event)">Manage Players</button>
@@ -30,6 +30,12 @@
         <button (click)="openCities()">Manage Cities</button>
         <button (click)="openCountries()">Manage Countries</button>
         <button (click)="openStadiums()">Manage Stadiums</button>
+        <button (click)="openPositions($event)">Positions</button>
+        <button (click)="openSubPositions($event)">Subpositions</button>
+        <button (click)="openFormationMarks($event)">Formation marks</button>
+        <button *ngIf="canManagePersons" (click)="openAddFormationMark($event)">Add formation mark</button>
+        <button (click)="openFormations($event)">Formations</button>
+        <button *ngIf="canManagePersons" (click)="openAddFormation($event)">Add formation</button>
       </div>
     </div>
     <div class="account-icon" (click)="openProfile()">

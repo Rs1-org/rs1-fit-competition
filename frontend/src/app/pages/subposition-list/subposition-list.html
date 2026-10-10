@@ -1,0 +1,25 @@
+<div class="container">
+  <div class="header-actions">
+    <h1>Subpositions</h1>
+    @if (user) {
+      <button class="btn-add" (click)="onAdd()">+ Add subposition</button>
+    }
+  </div>
+  <app-generic-search placeholder="Search subpositions..." (onSearch)="search($event)"></app-generic-search>
+  <app-generic-list
+    [items]="result()?.items ?? []"
+    [pageSize]="pageSize"
+    [serverTotalItems]="result()?.totalCount"
+    [serverCurrentPage]="result()?.page ?? 1"
+    [showActions]="!!user"
+    variant="card"
+    (update)="onEdit($event)"
+    (delete)="onDelete($event)"
+    (pageChange)="onPageChange($event)">
+    <ng-template #itemTemplate let-item>
+      <div class="item-title">{{ item.name }}</div>
+      <div class="item-subtitle">{{ item.positionName }}</div>
+    </ng-template>
+  </app-generic-list>
+</div>
+<app-subposition-form [isOpen]="isFormOpen" [editItem]="selected" (saved)="onFormSaved()" (closed)="onFormClosed()"></app-subposition-form>

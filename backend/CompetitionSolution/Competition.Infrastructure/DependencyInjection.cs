@@ -22,6 +22,10 @@ namespace Competition.Infrastructure
             services.AddScoped<ICountry,CountryRepository>();
             services.AddScoped<IStadium,StadiumRepository>();
             services.AddScoped<IMatch, MatchRepository>();
+            services.AddScoped<IFormationMark, FormationMarkRepository>();
+            services.AddScoped<IFormation, FormationRepository>();
+            services.AddScoped<IPosition, PositionRepository>();
+            services.AddScoped<ISubPosition, SubPositionRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IBlobStorageService, BlobStorageService>();
             services.AddScoped<IImageService,ImageService>();

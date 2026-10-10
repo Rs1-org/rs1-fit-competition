@@ -1,0 +1,27 @@
+<div class="player-card-wrapper">
+  <div class="player-card">
+    <h2>{{ isEditMode ? 'Edit formation mark' : 'Add formation mark' }}</h2>
+    <p class="loading-text" *ngIf="error">{{ error }}</p>
+
+    <form class="formation-form" (ngSubmit)="save()">
+      <div class="mark-fields">
+        <div class="form-group">
+          <label for="defenders">Defenders</label>
+          <input type="number" id="defenders" name="defenders" min="0" max="10" [(ngModel)]="defenders" required />
+        </div>
+        <div class="form-group">
+          <label for="midfielders">Midfielders</label>
+          <input type="number" id="midfielders" name="midfielders" min="0" max="10" [(ngModel)]="midfielders" required />
+        </div>
+        <div class="form-group">
+          <label for="attackers">Attackers</label>
+          <input type="number" id="attackers" name="attackers" min="0" max="10" [(ngModel)]="attackers" required />
+        </div>
+      </div>
+      <div class="button-group">
+        <button type="submit" [disabled]="isInvalid">Save</button>
+        <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

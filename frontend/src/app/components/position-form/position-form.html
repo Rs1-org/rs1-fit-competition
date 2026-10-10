@@ -1,0 +1,10 @@
+@if (isOpen) {
+  <app-modal [title]="isEditMode ? 'Edit position' : 'Add position'" (close)="onClose()">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <app-input-box label="Name" placeholder="Defender" [control]="form.controls.name"></app-input-box>
+      <footer>
+        <app-button type="submit" [text]="isEditMode ? 'Save' : 'Create'"></app-button>
+      </footer>
+    </form>
+  </app-modal>
+}
