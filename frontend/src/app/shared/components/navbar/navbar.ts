@@ -1,7 +1,8 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
-import { ThemeToggle } from '../../../core/services/theme-service/theme-service';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { ThemeService } from '../../../core/services/theme.service';
+import { AppLanguage, LanguageService } from '../../../core/services/language.service';
 import { AuthModalComponent } from 'src/app/features/auth/auth-modal/auth-modal.component';
+import { Modal } from '../modal/modal';
 import { TokenService } from 'src/app/core/services/token.service';
 import { Router } from '@angular/router';
 import { AuthRedirectService } from 'src/app/core/services/auth-redirect.service';
@@ -9,23 +10,29 @@ import { UserStateService } from 'src/app/core/services/user-state.service';
 import { UserDto } from 'src/app/core/models/auth.models';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { popIn } from '../../../core/animations/motion';
 import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
-  imports: [ThemeToggle,CommonModule,RouterModule, AuthModalComponent],
+  imports: [CommonModule, RouterModule, AuthModalComponent, Modal],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
+  animations: [popIn],
 })
 export class Navbar implements OnInit, AfterViewInit, OnDestroy {
   private host = inject(ElementRef<HTMLElement>);
   private navbarSize?: ResizeObserver;
 
-  constructor(private tokenService:TokenService, private router:Router, private redirectSerive:AuthRedirectService, private userStateService:UserStateService, private authService:AuthService,public themeService: ThemeService) {}
+  constructor(private tokenService:TokenService, private router:Router, private redirectSerive:AuthRedirectService, private userStateService:UserStateService, private authService:AuthService, public themeService: ThemeService, public language: LanguageService) {}
   openManageTab = false;
+  accountOpen = false;
+  profileOpen = false;
+  settingsOpen = false;
+  roles: string[] = [];
   openManage() {
+    this.accountOpen = false;
     this.openManageTab = !this.openManageTab;
-
   }
   openManagePlayers(event:MouseEvent) {
     event.stopPropagation();
@@ -153,16 +160,62 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
     this.userStateService.user$.subscribe((userData) => {
       this.user = userData;
     });
-    this.userStateService.roles$.subscribe(() => {
+    this.userStateService.roles$.subscribe((roles) => {
+      this.roles = roles;
       this.canManagePersons = this.userStateService.canManagePersons();
     });
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeOnOutsideClick(event: MouseEvent): void {
+    if (!this.host.nativeElement.contains(event.target as Node)) {
+      this.accountOpen = false;
+      this.openManageTab = false;
+    }
+  }
+
+  toggleAccount(event: MouseEvent): void {
+    event.stopPropagation();
+    if (!this.tokenService.getAccessToken() || !this.user) {
+      this.authModal.openLogin();
+      this.redirectSerive.setRedirectUrl('/profile');
+      return;
+    }
+    this.openManageTab = false;
+    this.accountOpen = !this.accountOpen;
+  }
+
+  openProfilePopup(event: MouseEvent): void {
+    event.stopPropagation();
+    this.accountOpen = false;
+    this.settingsOpen = false;
+    this.profileOpen = true;
+  }
+
+  openSettingsPopup(event: MouseEvent): void {
+    event.stopPropagation();
+    this.accountOpen = false;
+    this.profileOpen = false;
+    this.settingsOpen = true;
+  }
+
+  setLanguage(language: AppLanguage, event: MouseEvent): void {
+    event.stopPropagation();
+    this.language.set(language);
+  }
+
+  setTheme(theme: 'light' | 'dark', event: MouseEvent): void {
+    event.stopPropagation();
+    this.themeService.set(theme);
   }
 
   openAuth() {
     this.authModal.openLogin();
   }
 
-  logout(){
+  logout(event?: MouseEvent): void {
+    event?.stopPropagation();
+    this.accountOpen = false;
     this.authService.logout();
   }
 

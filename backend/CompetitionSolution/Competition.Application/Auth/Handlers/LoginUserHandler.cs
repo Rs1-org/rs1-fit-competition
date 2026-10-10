@@ -47,7 +47,8 @@ public class LoginUserHandler(UserManager<ApplicationUser> userManager, IJwtToke
                 Id = user.Id,
                 Email = user.Email!,
                 FirstName = user.FirstName!,
-                LastName = user.LastName
+                LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber
             }
         };
     }

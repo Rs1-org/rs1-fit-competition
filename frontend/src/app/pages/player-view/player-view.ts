@@ -10,12 +10,14 @@ import {
 import { pictureToDataUrl } from '../../core/models/person.models';
 import { HistoryService } from '../../core/services/history.service';
 import { PlayerService } from '../../core/services/player.service';
+import { fadeSwap } from '../../core/animations/motion';
 
 @Component({
   selector: 'app-player-view',
   imports: [CommonModule, RouterModule],
   templateUrl: './player-view.html',
   styleUrl: './player-view.css',
+  animations: [fadeSwap],
 })
 export class PlayerView implements OnInit {
   private route = inject(ActivatedRoute);

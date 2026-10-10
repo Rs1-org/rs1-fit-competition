@@ -1,3 +1,5 @@
 <app-navbar></app-navbar>
-<router-outlet></router-outlet>
+<main class="page-shell" [@routeAnimations]="routeKey()">
+  <router-outlet></router-outlet>
+</main>
 <app-confirm-dialog></app-confirm-dialog>

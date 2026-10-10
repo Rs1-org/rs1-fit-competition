@@ -5,12 +5,14 @@ import { catchError, map } from 'rxjs/operators';
 import { GalleryItem, GallerySection, GalleryService } from '../../core/services/gallery.service';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
+import { listStagger, popIn } from '../../core/animations/motion';
 
 @Component({
   selector: 'app-image-gallery',
   imports: [UploadProgress],
   templateUrl: './image-gallery.html',
   styleUrl: './image-gallery.css',
+  animations: [popIn, listStagger],
 })
 export class ImageGallery implements OnDestroy {
   private gallery = inject(GalleryService);

@@ -1,6 +1,7 @@
 import { Component, Input, ContentChild, TemplateRef, Output, EventEmitter, ViewEncapsulation, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Pagination } from '../../shared/components/pagination/pagination';
+import { listStagger } from '../../core/animations/motion';
 
 @Component({
   selector: 'app-generic-list',
@@ -8,7 +9,8 @@ import { Pagination } from '../../shared/components/pagination/pagination';
   imports: [CommonModule, Pagination],
   templateUrl: './generic-list.component.html',
   styleUrl: './generic-list.component.css',
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  animations: [listStagger],
 })
 export class GenericListComponent<T> implements OnChanges {
   @Input() items: T[] = [];

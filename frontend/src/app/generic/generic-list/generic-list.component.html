@@ -1,4 +1,4 @@
-<div class="list-wrapper" [ngClass]="[variant, size]">
+<div class="list-wrapper" [ngClass]="[variant, size]" [@listStagger]="pagedItems.length + '-' + effectiveCurrentPage">
   @for (item of pagedItems; track $index) {
     <div class="list-item" (click)="onView(item)">
       <div class="item-content">

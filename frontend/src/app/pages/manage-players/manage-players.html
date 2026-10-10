@@ -14,6 +14,7 @@
     <p *ngIf="isLoading" class="loading-text">Učitavanje podataka...</p>
 
     <form *ngIf="!isLoading" (ngSubmit)="savePlayer()" #playerForm="ngForm">
+      <div [@fadeSwap]="activeTab">
       <ng-container *ngIf="activeTab === 'info'">
         <div class="form-group">
           <label for="firstName">First Name</label>
@@ -137,6 +138,7 @@
         </div>
         </div>
       </ng-container>
+      </div>
 
       <div class="button-group">
         <button type="submit" [disabled]="isPlayerInvalid">

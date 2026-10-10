@@ -23,7 +23,7 @@
     </div>
     <div class="navbar-text manage-wrapper" *ngIf="user" (click)="openManage()">
       <i class="fa-solid fa-gear" ></i> Manage
-       <div class="manage-dropdown" *ngIf="openManageTab">
+       <div class="manage-dropdown" *ngIf="openManageTab" @popIn>
         <button *ngIf="canManagePersons" (click)="openManagePlayers($event)">Manage Players</button>
         <button *ngIf="canManagePersons" (click)="openManageReferees($event)">Manage Referees</button>
         <button *ngIf="canManagePersons" (click)="openManageManagers($event)">Manage Managers</button>
@@ -41,19 +41,44 @@
         <button *ngIf="canManagePersons" (click)="openGallery($event)">Galerija slika</button>
       </div>
     </div>
-    <div class="account-icon" (click)="openProfile()">
+    <div class="navbar-text manage-wrapper" (click)="toggleAccount($event)">
       <i class="fa-solid fa-user"></i>
-      <p style="font-size: 14px;">
-        {{ user?.email || 'Guest' }}
-      </p>
+      {{ user?.email || 'Guest' }}
+      <div class="manage-dropdown" *ngIf="user && accountOpen" @popIn>
+        <button type="button" (click)="openProfilePopup($event)">{{ language.language() === 'en' ? 'My profile' : 'Moj profil' }}</button>
+        <button type="button" (click)="openSettingsPopup($event)">Settings</button>
+        <button type="button" (click)="logout($event)">{{ language.language() === 'en' ? 'Log out' : 'Odjavi se' }}</button>
+      </div>
     </div>
 
-    @if (user) {
-    <button (click)="logout()">logout</button>
-    } @else {
+    @if (!user) {
     <button (click)="openAuth()">login</button>
     }
     <app-auth-modal></app-auth-modal>
-    <app-theme-service></app-theme-service>
+    @if (profileOpen && user) {
+      <app-modal [title]="language.language() === 'en' ? 'My profile' : 'Moj profil'" width="420px" (close)="profileOpen = false">
+        <div class="account-profile">
+          <p><span>{{ language.language() === 'en' ? 'First name' : 'Ime' }}</span>{{ user.firstName || '—' }}</p>
+          <p><span>{{ language.language() === 'en' ? 'Last name' : 'Prezime' }}</span>{{ user.lastName || '—' }}</p>
+          <p><span>Email</span>{{ user.email || '—' }}</p>
+          <p><span>{{ language.language() === 'en' ? 'Phone' : 'Broj' }}</span>{{ user.phoneNumber || '—' }}</p>
+          <p><span>{{ language.language() === 'en' ? 'Role' : 'Uloga' }}</span>{{ roles.length ? roles.join(', ') : '—' }}</p>
+        </div>
+      </app-modal>
+    }
+    @if (settingsOpen) {
+      <app-modal title="Settings" width="420px" (close)="settingsOpen = false">
+        <p class="account-label">{{ language.language() === 'en' ? 'Language' : 'Jezik' }}</p>
+        <div class="account-choices">
+          <button type="button" [class.active]="language.language() === 'bs'" (click)="setLanguage('bs', $event)">Bosanski</button>
+          <button type="button" [class.active]="language.language() === 'en'" (click)="setLanguage('en', $event)">English</button>
+        </div>
+        <p class="account-label">{{ language.language() === 'en' ? 'Theme' : 'Tema' }}</p>
+        <div class="account-choices">
+          <button type="button" [class.active]="!themeService.isDark()" (click)="setTheme('light', $event)">{{ language.language() === 'en' ? 'Light' : 'Svijetla' }}</button>
+          <button type="button" [class.active]="themeService.isDark()" (click)="setTheme('dark', $event)">{{ language.language() === 'en' ? 'Dark' : 'Tamna' }}</button>
+        </div>
+      </app-modal>
+    }
   </div>
 </div>

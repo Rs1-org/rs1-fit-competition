@@ -11,8 +11,7 @@
 .manage-dropdown {
   position: absolute;
   top: calc(100% + 8px); /* mali razmak ispod */
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   background: var(--bg-card);
   border-radius: 8px;
   padding: 0.5rem 0;
@@ -21,7 +20,6 @@
   display: flex;
   flex-direction: column;
   z-index: 1000;
-  animation: dropdownFade 0.2s ease;
 }
 
 /* Dugmad da izgledaju kao navbar-text */
@@ -41,17 +39,6 @@
   background-color: var(--bg-secondary);
 }
 
-/* mala animacija */
-@keyframes dropdownFade {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-}
 .navbar {
   position: sticky;
   top: 0;
@@ -94,6 +81,57 @@
   background-color: var(--bg-card);
   border-radius: 5px;
   transform: scale(1.08);
+}
+
+.account-choices button.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.account-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.35rem 0.45rem 0.6rem;
+}
+
+.account-profile p {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 0;
+  max-width: none;
+  color: var(--text-primary);
+}
+
+.account-profile span,
+.account-label {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.account-label {
+  margin: 0.35rem 0.4rem 0;
+}
+
+.account-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+.account-choices button {
+  text-align: center;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--field-bg);
+  color: var(--text-primary);
+  padding: 0.65rem 0.4rem;
+  cursor: pointer;
+  font-weight: 650;
 }
 
 .live-dot {
