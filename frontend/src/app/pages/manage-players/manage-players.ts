@@ -16,6 +16,7 @@ import { PositionService } from '../../core/services/position.service';
 import { SubPositionService } from '../../core/services/subposition.service';
 import { Position, SubPosition } from '../../core/models/formation.models';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { fadeSwap } from '../../core/animations/motion';
 import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
 
 @Component({
@@ -23,6 +24,7 @@ import { UploadProgress } from '../../shared/components/upload-progress/upload-p
   imports: [CommonModule, FormsModule, UploadProgress],
   templateUrl: './manage-players.html',
   styleUrl: './manage-players.css',
+  animations: [fadeSwap],
 })
 export class ManagePlayers implements OnInit {
   private router = inject(Router);

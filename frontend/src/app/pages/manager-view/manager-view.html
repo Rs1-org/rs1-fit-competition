@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <div class="detail-body">
+    <div class="detail-body" [@fadeSwap]="activeTab">
       <div class="detail-picture-wrap" *ngIf="pictureUrl && activeTab === 'info'">
         <img [src]="pictureUrl" alt="Slika menadžera" class="person-picture-preview" />
       </div>

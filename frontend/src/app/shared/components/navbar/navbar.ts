@@ -9,13 +9,15 @@ import { UserStateService } from 'src/app/core/services/user-state.service';
 import { UserDto } from 'src/app/core/models/auth.models';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { popIn } from '../../../core/animations/motion';
 import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
-  imports: [ThemeToggle,CommonModule,RouterModule, AuthModalComponent],
+  imports: [ThemeToggle, CommonModule, RouterModule, AuthModalComponent],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
+  animations: [popIn],
 })
 export class Navbar implements OnInit, AfterViewInit, OnDestroy {
   private host = inject(ElementRef<HTMLElement>);
