@@ -15,14 +15,14 @@
   }
 
   @for (section of sections(); track section.kind) {
-    <section class="gallery-section">
+    <section class="gallery-section" @popIn>
       <h2>{{ section.title }}</h2>
 
       <h3>Sa slikom <span>{{ section.withPicture.length }}</span></h3>
       @if (section.withPicture.length === 0) {
         <p class="gallery-note">Niko iz ove grupe još nema sliku.</p>
       } @else {
-        <div class="gallery-grid">
+        <div class="gallery-grid" [@listStagger]="section.withPicture.length">
           @for (item of section.withPicture; track item.id) {
             <article class="gallery-card">
               <button class="thumb" type="button" (click)="open(item)" [disabled]="!preview(item)">
@@ -50,7 +50,7 @@
       @if (section.withoutPicture.length === 0) {
         <p class="gallery-note">Svi iz ove grupe već imaju sliku.</p>
       } @else {
-        <div class="gallery-grid">
+        <div class="gallery-grid" [@listStagger]="section.withoutPicture.length">
           @for (item of section.withoutPicture; track item.id) {
             <article class="gallery-card empty">
               <div class="thumb placeholder">Nema slike</div>
@@ -71,7 +71,7 @@
 </div>
 
 @if (viewer(); as photo) {
-  <div class="viewer" (click)="closeViewer()">
+  <div class="viewer" @popIn (click)="closeViewer()">
     <figure (click)="$event.stopPropagation()">
       <img [src]="photo.src" [alt]="photo.name" />
       <figcaption>{{ photo.name }}</figcaption>

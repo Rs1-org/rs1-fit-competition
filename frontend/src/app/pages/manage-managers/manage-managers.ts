@@ -12,6 +12,7 @@ import { emptyPersonFields, pictureToDataUrl, Manager } from '../../core/models/
 import { HistoryService } from '../../core/services/history.service';
 import { ManagerService, ManagerWriteDto } from '../../core/services/manager.service';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { fadeSwap } from '../../core/animations/motion';
 import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
 
 @Component({
@@ -19,6 +20,7 @@ import { UploadProgress } from '../../shared/components/upload-progress/upload-p
   imports: [CommonModule, FormsModule, UploadProgress],
   templateUrl: './manage-managers.html',
   styleUrl: './manage-managers.css',
+  animations: [fadeSwap],
 })
 export class ManageManagers implements OnInit {
   private router = inject(Router);

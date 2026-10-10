@@ -9,12 +9,14 @@ import {
 import { pictureToDataUrl } from '../../core/models/person.models';
 import { HistoryService } from '../../core/services/history.service';
 import { ManagerService } from '../../core/services/manager.service';
+import { fadeSwap } from '../../core/animations/motion';
 
 @Component({
   selector: 'app-manager-view',
   imports: [CommonModule, RouterModule],
   templateUrl: './manager-view.html',
   styleUrl: './manager-view.css',
+  animations: [fadeSwap],
 })
 export class ManagerView implements OnInit {
   private route = inject(ActivatedRoute);

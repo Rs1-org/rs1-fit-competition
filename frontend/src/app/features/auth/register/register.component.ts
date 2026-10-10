@@ -2,12 +2,14 @@ import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { RegisterErrorResponse } from 'src/app/core/models/auth.models';
+import { popIn } from 'src/app/core/animations/motion';
 
 @Component({
   selector: 'app-register',
   imports: [ReactiveFormsModule],
   templateUrl: './register.component.html',
   styleUrls: ['../auth-modal.component.css'],
+  animations: [popIn],
 })
 export class RegisterComponent {
 
