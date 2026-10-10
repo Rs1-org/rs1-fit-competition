@@ -7,6 +7,7 @@ import {
   emptyManagerHistoryForm,
   ManagerHistoryForm,
 } from '../../core/models/history.models';
+import { SelectionOption, SelectionService } from '../../core/services/selection.service';
 import { emptyPersonFields, pictureToDataUrl, Manager } from '../../core/models/person.models';
 import { HistoryService } from '../../core/services/history.service';
 import { ManagerService, ManagerWriteDto } from '../../core/services/manager.service';
@@ -23,6 +24,7 @@ export class ManageManagers implements OnInit {
   private route = inject(ActivatedRoute);
   private historyService = inject(HistoryService);
   private managerService = inject(ManagerService);
+  private selectionService = inject(SelectionService);
   private confirmDialog = inject(ConfirmDialogService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -32,6 +34,7 @@ export class ManageManagers implements OnInit {
   };
 
   history: ManagerHistoryForm = emptyManagerHistoryForm();
+  selections: SelectionOption[] = [];
   activeTab: 'info' | 'history' = 'info';
   editingId: string | null = null;
   isEditMode = false;
@@ -39,6 +42,10 @@ export class ManageManagers implements OnInit {
   pictureChanged = false;
 
   ngOnInit(): void {
+    this.selectionService.getAll(1, 100).subscribe((page) => {
+      this.selections = page.items;
+      this.cdr.detectChanges();
+    });
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {

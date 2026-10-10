@@ -10,4 +10,6 @@ public class MatchListDto
     public bool IsPostponed { get; set; }
     public string? StatusName { get; set; }
     public string? StadiumName { get; set; }
+    public string? HomeSelectionName { get; set; }
+    public string? AwaySelectionName { get; set; }
 }

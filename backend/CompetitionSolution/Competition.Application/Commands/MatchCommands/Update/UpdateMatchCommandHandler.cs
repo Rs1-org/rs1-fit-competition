@@ -33,6 +33,8 @@ public class UpdateMatchCommandHandler : IRequestHandler<UpdateMatchCommand, Mat
         match.IsPostponed = request.IsPostponed;
         match.StatusId = request.StatusId;
         match.StadiumId = request.StadiumId;
+        match.HomeSelectionId = request.HomeSelectionId;
+        match.AwaySelectionId = request.AwaySelectionId;
 
         await _match.UpdateAsync(match, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

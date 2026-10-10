@@ -15,5 +15,7 @@ namespace Competition.Domain.Entities
         public int? Draw {  get; set; }
         public Guid ManagerId {  get; set; }
         public Manager Manager { get; set; }
+        public Guid? SelectionId { get; set; }
+        public Selection? Selection { get; set; }
     }
 }

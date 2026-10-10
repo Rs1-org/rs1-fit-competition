@@ -19,12 +19,16 @@ public class MatchRepository : Repository<Match>, IMatch
         await _context.Matches
             .Include(m => m.Status)
             .Include(m => m.Stadium)
+            .Include(m => m.HomeSelection)
+            .Include(m => m.AwaySelection)
             .FirstOrDefaultAsync(m => m.Slug == slug, cancellationToken);
 
     public async Task<Match?> GetByIdWithNavAsync(Guid id, CancellationToken cancellationToken = default) =>
         await _context.Matches
             .Include(m => m.Status)
             .Include(m => m.Stadium)
+            .Include(m => m.HomeSelection)
+            .Include(m => m.AwaySelection)
             .FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
 
     public async Task<PagedResult<Match>> GetPagedWithFiltersAsync(
@@ -37,6 +41,8 @@ public class MatchRepository : Repository<Match>, IMatch
         var query = _context.Matches
             .Include(m => m.Status)
             .Include(m => m.Stadium)
+            .Include(m => m.HomeSelection)
+            .Include(m => m.AwaySelection)
             .AsQueryable();
 
         if (statusId.HasValue)

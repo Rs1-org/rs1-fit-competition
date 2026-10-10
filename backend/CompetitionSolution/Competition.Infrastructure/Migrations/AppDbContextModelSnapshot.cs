@@ -423,6 +423,9 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<int?>("AwayScore")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("AwaySelectionId")
+                        .HasColumnType("uuid");
+
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -444,6 +447,9 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<int?>("HomeScore")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("HomeSelectionId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("IsPostponed")
                         .HasColumnType("boolean");
 
@@ -460,6 +466,10 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AwaySelectionId");
+
+                    b.HasIndex("HomeSelectionId");
 
                     b.HasIndex("Slug")
                         .IsUnique()
@@ -617,12 +627,17 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<Guid>("PlayerId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("SelectionId")
+                        .HasColumnType("uuid");
+
                     b.Property<int?>("ShirtNumber")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PlayerId");
+
+                    b.HasIndex("SelectionId");
 
                     b.ToTable("PlayerSelectionHistories");
                 });
@@ -653,6 +668,55 @@ namespace Competition.Infrastructure.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
+            modelBuilder.Entity("Competition.Domain.Entities.Selection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("Abbreviation")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<Guid>("CountryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("FollowersCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("PictureUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("\"Slug\" IS NOT NULL");
+
+                    b.ToTable("Selections", (string)null);
+                });
+
             modelBuilder.Entity("Competition.Domain.Entities.SelectionManagerHistory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -681,12 +745,17 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("SelectionId")
+                        .HasColumnType("uuid");
+
                     b.Property<int?>("Wins")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ManagerId");
+
+                    b.HasIndex("SelectionId");
 
                     b.ToTable("SelectionManagerHistories");
                 });
@@ -930,6 +999,16 @@ namespace Competition.Infrastructure.Migrations
 
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Match", b =>
                 {
+                    b.HasOne("Competition.Domain.Entities.Selection", "AwaySelection")
+                        .WithMany("AwayMatches")
+                        .HasForeignKey("AwaySelectionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Competition.Domain.Entities.Selection", "HomeSelection")
+                        .WithMany("HomeMatches")
+                        .HasForeignKey("HomeSelectionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Competition.Domain.Entities.MatchEntities.Stadium", "Stadium")
                         .WithMany()
                         .HasForeignKey("StadiumId")
@@ -941,6 +1020,10 @@ namespace Competition.Infrastructure.Migrations
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("AwaySelection");
+
+                    b.Navigation("HomeSelection");
 
                     b.Navigation("Stadium");
 
@@ -971,10 +1054,17 @@ namespace Competition.Infrastructure.Migrations
                     b.HasOne("Competition.Domain.Entities.Person.Player", "Player")
                         .WithMany()
                         .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Competition.Domain.Entities.Selection", "Selection")
+                        .WithMany("PlayerHistories")
+                        .HasForeignKey("SelectionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Player");
+
+                    b.Navigation("Selection");
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.RefreshToken", b =>
@@ -988,15 +1078,33 @@ namespace Competition.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Competition.Domain.Entities.Selection", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Country");
+                });
+
             modelBuilder.Entity("Competition.Domain.Entities.SelectionManagerHistory", b =>
                 {
                     b.HasOne("Competition.Domain.Entities.Person.Manager", "Manager")
                         .WithMany()
                         .HasForeignKey("ManagerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Competition.Domain.Entities.Selection", "Selection")
+                        .WithMany("ManagerHistories")
+                        .HasForeignKey("SelectionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Manager");
+
+                    b.Navigation("Selection");
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.TransferValueHistory", b =>
@@ -1132,6 +1240,17 @@ namespace Competition.Infrastructure.Migrations
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchStatus", b =>
                 {
                     b.Navigation("Matches");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.Selection", b =>
+                {
+                    b.Navigation("AwayMatches");
+
+                    b.Navigation("HomeMatches");
+
+                    b.Navigation("ManagerHistories");
+
+                    b.Navigation("PlayerHistories");
                 });
 #pragma warning restore 612, 618
         }

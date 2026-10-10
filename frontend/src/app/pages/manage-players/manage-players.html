@@ -73,6 +73,16 @@
         <p class="history-section-title">Selekcija</p>
 
         <div class="form-group">
+          <label for="teamSelectionId">Reprezentacija</label>
+          <select id="teamSelectionId" name="teamSelectionId" [(ngModel)]="history.teamSelectionId">
+            <option value="">—</option>
+            <option *ngFor="let selection of selections" [value]="selection.id">
+              {{ selection.name }} ({{ selection.abbreviation }})
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
           <label for="goals">Golovi</label>
           <input type="number" id="goals" name="goals" [(ngModel)]="history.selection.goals" />
         </div>
@@ -102,6 +112,15 @@
         <div class="form-group">
           <label for="transferHistoryValue">Vrijednost transfera (€)</label>
           <input type="number" step="0.01" id="transferHistoryValue" name="transferHistoryValue" [(ngModel)]="history.transfer.value" />
+        </div>
+
+        <p class="history-section-title">Nastupi</p>
+        <p class="loading-text" *ngIf="!appearances.length">Nastupi se računaju kad mandat pokriva datum utakmice, a utakmica ima ovu selekciju kao domaćina ili gosta.</p>
+        <div class="appearance" *ngFor="let appearance of appearances">
+          <strong>{{ appearance.matchDate }}</strong>
+          {{ appearance.selectionName }} · {{ appearance.side === 'home' ? 'domaćin' : 'gost' }}
+          <span *ngIf="appearance.stadiumName"> · {{ appearance.stadiumName }}</span>
+          <span *ngIf="appearance.shirtNumber != null"> · #{{ appearance.shirtNumber }}</span>
         </div>
 
         <p class="history-section-title">Mandat</p>

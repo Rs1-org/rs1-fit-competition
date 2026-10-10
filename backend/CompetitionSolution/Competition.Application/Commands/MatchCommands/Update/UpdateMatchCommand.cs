@@ -17,4 +17,6 @@ public class UpdateMatchCommand : IRequest<MatchDetailsDto>
     public bool IsPostponed { get; set; }
     public Guid StatusId { get; set; }
     public Guid StadiumId { get; set; }
+    public Guid? HomeSelectionId { get; set; }
+    public Guid? AwaySelectionId { get; set; }
 }

@@ -8,4 +8,5 @@ public class SelectionManagerHistoryDto
     public int? Loses { get; set; }
     public int? Draw { get; set; }
     public Guid ManagerId { get; set; }
+    public Guid? SelectionId { get; set; }
 }

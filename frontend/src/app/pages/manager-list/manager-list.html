@@ -1,5 +1,10 @@
 <div class="container">
-  <h1>Lista menadžera</h1>
+  <div class="header-actions">
+    <h1>Lista menadžera</h1>
+    @if (canManagePersons()) {
+      <button class="btn-add" type="button" (click)="add()">+ Dodaj menadžera</button>
+    }
+  </div>
 
   <app-generic-search placeholder="Pretraži menadžere..." (onSearch)="search($event)"></app-generic-search>
 
