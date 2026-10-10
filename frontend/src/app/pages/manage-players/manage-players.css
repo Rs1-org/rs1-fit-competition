@@ -35,7 +35,7 @@
   border-radius: 6px;
   border: 1px solid var(--border-color, #ccc);
   font-size: 1rem;
-  background: var(--bg-primary);
+  background: var(--field-bg);
   color: var(--text-primary);
 }
 

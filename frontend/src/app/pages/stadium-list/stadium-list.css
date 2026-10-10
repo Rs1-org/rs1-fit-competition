@@ -27,11 +27,11 @@
 .stadium-placeholder {
     width: 100px;
     height: 100px;
-    background-color: #eee;
+    background-color: var(--field-bg);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #999;
+    color: var(--text-muted);
     border-radius: 8px;
     font-size: 0.8rem;
 }
@@ -45,14 +45,14 @@
 .item-title {
     font-size: 1.2rem;
     font-weight: bold;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .item-subtitle {
-    color: #666;
+    color: var(--text-secondary);
 }
 
 .item-meta {
     font-size: 0.9rem;
-    color: #888;
+    color: var(--text-muted);
 }

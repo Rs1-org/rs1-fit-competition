@@ -11,9 +11,9 @@
   align-items: center;
   gap: 10px;
   padding: 12px 20px;
-  background-color: #ffffff;
-  color: #1e3a8a; /* Tamno plava kao u headeru kartice */
-  border: 2px solid #eef2f7;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   font-size: 0.95rem;
   font-weight: 600;
@@ -25,9 +25,9 @@
 
 /* Efekt pri prelasku mišem */
 .btn-back:hover {
-  background-color: #f8fafc;
-  border-color: #3b82f6;
-  color: #3b82f6;
+  background-color: var(--field-bg);
+  border-color: var(--accent);
+  color: var(--accent);
   transform: translateX(-5px); /* Gumb se lagano pomakne ulijevo */
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
@@ -41,7 +41,7 @@
 .loading {
   text-align: center;
   padding: 40px;
-  color: #64748b;
+  color: var(--text-muted);
   font-style: italic;
   font-weight: 500;
 }
