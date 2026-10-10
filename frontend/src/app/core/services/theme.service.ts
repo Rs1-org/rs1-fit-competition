@@ -13,8 +13,12 @@ export class ThemeService {
   }
 
   toggle(): void {
-    this.isDark.update((value) => !value);
-    localStorage.setItem(THEME_KEY, this.isDark() ? 'dark' : 'light');
+    this.set(this.isDark() ? 'light' : 'dark');
+  }
+
+  set(theme: 'light' | 'dark'): void {
+    this.isDark.set(theme === 'dark');
+    localStorage.setItem(THEME_KEY, theme);
     this.apply();
   }
 

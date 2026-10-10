@@ -44,6 +44,7 @@ public class RefreshTokenHandler(IRefreshTokenService refreshTokenService, UserM
                 Email = user.Email!,
                 FirstName = user.FirstName!,
                 LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber
             },
             Roles = roles.ToList()
         };
