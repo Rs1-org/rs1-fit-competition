@@ -39,6 +39,13 @@
           <span class="label">{{ row.label }}:</span>
           <span class="value">{{ row.value }}</span>
         </div>
+        <div class="detail-row" *ngFor="let appearance of appearances">
+          <span class="label">{{ appearance.matchDate }}</span>
+          <span class="value">
+            {{ appearance.selectionName }} · {{ appearance.side === 'home' ? 'domaćin' : 'gost' }}
+            <ng-container *ngIf="appearance.stadiumName"> · {{ appearance.stadiumName }}</ng-container>
+          </span>
+        </div>
       </ng-container>
     </div>
   </div>

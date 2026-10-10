@@ -8,4 +8,5 @@ public class PlayerSelectionHistoryDto
     public int? Assists { get; set; }
     public int? ShirtNumber { get; set; }
     public Guid PlayerId { get; set; }
+    public Guid? SelectionId { get; set; }
 }

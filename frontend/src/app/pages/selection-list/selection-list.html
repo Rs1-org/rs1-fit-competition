@@ -1,0 +1,24 @@
+<div class="container">
+  <div class="header-actions">
+    <h1>Selections</h1>
+    @if (canManage()) {
+      <button class="btn-add" (click)="onAdd()">+ Add selection</button>
+    }
+  </div>
+  <app-generic-search placeholder="Search selections..." (onSearch)="search($event)"></app-generic-search>
+  <app-generic-list
+    [items]="result()?.items ?? []"
+    [pageSize]="pageSize"
+    [serverTotalItems]="result()?.totalCount"
+    [serverCurrentPage]="result()?.page ?? 1"
+    [showActions]="canManage()"
+    variant="card"
+    (update)="onEdit($event)"
+    (delete)="onDelete($event)"
+    (pageChange)="onPageChange($event)">
+    <ng-template #itemTemplate let-item>
+      <div class="item-title">{{ item.name }} · {{ item.abbreviation }}</div>
+      <div class="item-subtitle">{{ item.countryName || 'No country' }} · {{ item.followersCount }} followers</div>
+    </ng-template>
+  </app-generic-list>
+</div>

@@ -35,6 +35,8 @@
         <button (click)="openFormationMarks($event)">Formation marks</button>
         <button *ngIf="canManagePersons" (click)="openAddFormationMark($event)">Add formation mark</button>
         <button (click)="openFormations($event)">Formations</button>
+        <button (click)="openSelections($event)">Selections</button>
+        <button *ngIf="canManagePersons" (click)="openAddSelection($event)">Add selection</button>
         <button *ngIf="canManagePersons" (click)="openAddFormation($event)">Add formation</button>
       </div>
     </div>

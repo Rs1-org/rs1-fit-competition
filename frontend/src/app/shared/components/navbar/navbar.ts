@@ -92,6 +92,18 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
     this.openManageTab = false;
   }
 
+  openSelections(event: MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/selection-list']);
+    this.openManageTab = false;
+  }
+
+  openAddSelection(event: MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/manage-selections']);
+    this.openManageTab = false;
+  }
+
   openFormations(event: MouseEvent) {
     event.stopPropagation();
     this.router.navigate(['/formation-list']);

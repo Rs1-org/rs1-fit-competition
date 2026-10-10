@@ -82,17 +82,23 @@ public class MappingProfile:Profile
             .ForMember(d => d.Date, opt => opt.Ignore())         // set manually in handler
             .ForMember(d => d.Status, opt => opt.Ignore())
             .ForMember(d => d.Stadium, opt => opt.Ignore())
+            .ForMember(d => d.HomeSelection, opt => opt.Ignore())
+            .ForMember(d => d.AwaySelection, opt => opt.Ignore())
             .ForMember(d => d.Slug, opt => opt.MapFrom(src => SlugHelper.GenerateSlug(src.Slug)));
 
         CreateMap<Match, MatchDetailsDto>()
             .ForMember(d => d.Date, opt => opt.MapFrom(src => NodaTimeMappingHelper.FormatInstant(src.Date)))
             .ForMember(d => d.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.Name : null))
-            .ForMember(d => d.StadiumName, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Name : null));
+            .ForMember(d => d.StadiumName, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Name : null))
+            .ForMember(d => d.HomeSelectionName, opt => opt.MapFrom(src => src.HomeSelection != null ? src.HomeSelection.Name : null))
+            .ForMember(d => d.AwaySelectionName, opt => opt.MapFrom(src => src.AwaySelection != null ? src.AwaySelection.Name : null));
 
         CreateMap<Match, MatchListDto>()
             .ForMember(d => d.Date, opt => opt.MapFrom(src => NodaTimeMappingHelper.FormatInstant(src.Date)))
             .ForMember(d => d.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.Name : null))
-            .ForMember(d => d.StadiumName, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Name : null));
+            .ForMember(d => d.StadiumName, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Name : null))
+            .ForMember(d => d.HomeSelectionName, opt => opt.MapFrom(src => src.HomeSelection != null ? src.HomeSelection.Name : null))
+            .ForMember(d => d.AwaySelectionName, opt => opt.MapFrom(src => src.AwaySelection != null ? src.AwaySelection.Name : null));
 
         CreateMap<MatchStatus, MatchStatusListDto>();
     }
