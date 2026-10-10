@@ -13,6 +13,7 @@
             accept="image/*"
             (fileChange)="onFileChange($event)"
         ></app-input-box>
+        <app-upload-progress [percent]="uploadProgress"></app-upload-progress>
 
         <footer>
             <app-button

@@ -9,11 +9,12 @@ import { Dropdown } from '../../shared/components/dropdown/dropdown';
 import { Map } from '../../shared/components/map/map';
 import { ModalState } from '../../core/helpers/modal-state.helper';
 import { StadiumDetailsDto } from '../../core/models/stadium';
+import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
 
 @Component({
   selector: 'app-stadium-form',
   standalone: true,
-  imports: [InputBox, Modal, ReactiveFormsModule, Button, Dropdown, Map],
+  imports: [InputBox, Modal, ReactiveFormsModule, Button, Dropdown, Map, UploadProgress],
   templateUrl: './stadium-form.html',
   styleUrl: './stadium-form.css',
 })
@@ -26,6 +27,7 @@ export class StadiumForm implements OnInit {
   editingSlug: string | null = null;
   cities: any[] = [];
   private selectedPicture: File | null = null;
+  uploadProgress: number | null = null;
 
   @Input() showTrigger = true;
   @Output() saved = new EventEmitter<void>();
@@ -75,6 +77,7 @@ export class StadiumForm implements OnInit {
   closeModal(): void {
     this.editingSlug = null;
     this.selectedPicture = null;
+    this.uploadProgress = null;
     this.modalState.close(this.form);
   }
 
@@ -107,17 +110,25 @@ export class StadiumForm implements OnInit {
     }
 
     const fd = this.buildFormData();
+    const onProgress = this.selectedPicture
+      ? (percent: number) => { this.uploadProgress = percent; }
+      : undefined;
+    if (onProgress) this.uploadProgress = 0;
+
+    const done = () => {
+      this.uploadProgress = null;
+      this.closeModal();
+      this.saved.emit();
+    };
+    const fail = (err: unknown) => {
+      this.uploadProgress = null;
+      console.error(err);
+    };
 
     if (this.editingSlug) {
-      this.stadiumService.update(this.editingSlug, fd).subscribe({
-        next: () => { this.closeModal(); this.saved.emit(); },
-        error: (err) => console.error('Error updating stadium: ', err)
-      });
+      this.stadiumService.update(this.editingSlug, fd, onProgress).subscribe({ next: done, error: fail });
     } else {
-      this.stadiumService.create(fd).subscribe({
-        next: () => { this.closeModal(); this.saved.emit(); },
-        error: (err) => console.error('Error creating stadium: ', err)
-      });
+      this.stadiumService.create(fd, onProgress).subscribe({ next: done, error: fail });
     }
   }
 }

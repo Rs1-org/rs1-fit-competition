@@ -59,7 +59,8 @@ public class UpdateSelectionCommandHandler : IRequestHandler<UpdateSelectionComm
 
         entity.Name = request.Name.Trim();
         entity.Abbreviation = request.Abbreviation.Trim().ToUpperInvariant();
-        entity.PictureUrl = string.IsNullOrWhiteSpace(request.PictureUrl) ? null : request.PictureUrl.Trim();
+        if (!string.IsNullOrWhiteSpace(request.PictureUrl))
+            entity.PictureUrl = request.PictureUrl.Trim();
         entity.FollowersCount = request.FollowersCount;
         entity.CountryId = country.Id;
         entity.Slug = slug;

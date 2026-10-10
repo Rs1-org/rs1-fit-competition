@@ -38,6 +38,7 @@
         <button (click)="openSelections($event)">Selections</button>
         <button *ngIf="canManagePersons" (click)="openAddSelection($event)">Add selection</button>
         <button *ngIf="canManagePersons" (click)="openAddFormation($event)">Add formation</button>
+        <button *ngIf="canManagePersons" (click)="openGallery($event)">Galerija slika</button>
       </div>
     </div>
     <div class="account-icon" (click)="openProfile()">

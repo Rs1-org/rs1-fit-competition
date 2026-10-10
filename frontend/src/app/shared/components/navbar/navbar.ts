@@ -122,6 +122,12 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
     this.openManageTab = false;
   }
 
+  openGallery(event: MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/image-gallery']);
+    this.openManageTab = false;
+  }
+
   @ViewChild(AuthModalComponent)
   authModal!: AuthModalComponent;
 

@@ -6,10 +6,11 @@ import { fileToBase64 } from '../../core/helpers/file.helper';
 import { emptyPersonFields, pictureToDataUrl, Referee } from '../../core/models/person.models';
 import { RefereeService, RefereeWriteDto } from '../../core/services/referee.service';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
 
 @Component({
   selector: 'app-manage-referees',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, UploadProgress],
   templateUrl: './manage-referees.html',
   styleUrl: './manage-referees.css',
 })
@@ -28,6 +29,7 @@ export class ManageReferees implements OnInit {
   editingId: string | null = null;
   isEditMode = false;
   pictureChanged = false;
+  uploadProgress: number | null = null;
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -104,21 +106,31 @@ export class ManageReferees implements OnInit {
     }
 
     const payload = this.buildPayload();
+    const onProgress = this.pictureChanged ? (percent: number) => this.setUploadProgress(percent) : undefined;
+    if (onProgress) this.setUploadProgress(0);
     const request$ = this.isEditMode
-      ? this.refereeService.update(this.editingId!, payload)
-      : this.refereeService.create(payload);
+      ? this.refereeService.update(this.editingId!, payload, onProgress)
+      : this.refereeService.create(payload, onProgress);
 
     request$.subscribe({
       next: () => {
         this.refereeService.notifyListRefresh();
         this.router.navigate(['/referee-list']);
       },
-      error: (err) => console.error('Greška pri spremanju suca:', err),
+      error: (err) => {
+        this.setUploadProgress(null);
+        console.error('Greška pri spremanju suca:', err);
+      },
     });
   }
 
   cancel(): void {
     this.router.navigate(['/referee-list']);
+  }
+
+  private setUploadProgress(percent: number | null): void {
+    this.uploadProgress = percent;
+    this.cdr.detectChanges();
   }
 
   private buildPayload(): RefereeWriteDto {
