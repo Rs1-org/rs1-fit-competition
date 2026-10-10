@@ -83,6 +83,57 @@
   transform: scale(1.08);
 }
 
+.account-choices button.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.account-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.35rem 0.45rem 0.6rem;
+}
+
+.account-profile p {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 0;
+  max-width: none;
+  color: var(--text-primary);
+}
+
+.account-profile span,
+.account-label {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.account-label {
+  margin: 0.35rem 0.4rem 0;
+}
+
+.account-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+.account-choices button {
+  text-align: center;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--field-bg);
+  color: var(--text-primary);
+  padding: 0.65rem 0.4rem;
+  cursor: pointer;
+  font-weight: 650;
+}
+
 .live-dot {
   width: 8px;
   height: 8px;
