@@ -19,7 +19,7 @@
 }
 
 .line-row span {
-  background: var(--bg-secondary);
+  background: var(--field-bg);
   border: 1px solid var(--border-color);
   border-radius: 999px;
   padding: 0.4rem 0.9rem;
