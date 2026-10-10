@@ -1,0 +1,81 @@
+<div class="container">
+  <div class="header-actions">
+    <div>
+      <h1>Galerija slika</h1>
+      <p>Svaka vrsta je odvojena. Unutar nje, oni koji već imaju sliku stoje odvojeno od onih bez slike.</p>
+    </div>
+  </div>
+
+  @if (error()) {
+    <p class="gallery-error">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <p class="gallery-note">Učitavanje galerije...</p>
+  }
+
+  @for (section of sections(); track section.kind) {
+    <section class="gallery-section">
+      <h2>{{ section.title }}</h2>
+
+      <h3>Sa slikom <span>{{ section.withPicture.length }}</span></h3>
+      @if (section.withPicture.length === 0) {
+        <p class="gallery-note">Niko iz ove grupe još nema sliku.</p>
+      } @else {
+        <div class="gallery-grid">
+          @for (item of section.withPicture; track item.id) {
+            <article class="gallery-card">
+              <button class="thumb" type="button" (click)="open(item)" [disabled]="!preview(item)">
+                @if (preview(item)) {
+                  <img [src]="preview(item)" [alt]="item.name" />
+                } @else {
+                  <span>Učitavanje</span>
+                }
+              </button>
+              <strong>{{ item.name }}</strong>
+              <app-upload-progress [percent]="isUploading(item) ? progress() : null"></app-upload-progress>
+              <div class="card-actions">
+                <label class="btn-add">
+                  Zamijeni
+                  <input type="file" accept="image/jpeg,image/png,image/webp" (change)="upload(item, $event)" />
+                </label>
+                <button class="btn-quiet" type="button" (click)="remove(item)">Obriši</button>
+              </div>
+            </article>
+          }
+        </div>
+      }
+
+      <h3>Bez slike <span>{{ section.withoutPicture.length }}</span></h3>
+      @if (section.withoutPicture.length === 0) {
+        <p class="gallery-note">Svi iz ove grupe već imaju sliku.</p>
+      } @else {
+        <div class="gallery-grid">
+          @for (item of section.withoutPicture; track item.id) {
+            <article class="gallery-card empty">
+              <div class="thumb placeholder">Nema slike</div>
+              <strong>{{ item.name }}</strong>
+              <app-upload-progress [percent]="isUploading(item) ? progress() : null"></app-upload-progress>
+              <div class="card-actions">
+                <label class="btn-add">
+                  Dodaj sliku
+                  <input type="file" accept="image/jpeg,image/png,image/webp" (change)="upload(item, $event)" />
+                </label>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>
+
+@if (viewer(); as photo) {
+  <div class="viewer" (click)="closeViewer()">
+    <figure (click)="$event.stopPropagation()">
+      <img [src]="photo.src" [alt]="photo.name" />
+      <figcaption>{{ photo.name }}</figcaption>
+      <button type="button" (click)="closeViewer()">Zatvori</button>
+    </figure>
+  </div>
+}
