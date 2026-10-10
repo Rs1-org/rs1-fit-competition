@@ -14,7 +14,7 @@ import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
   selector: 'app-referee-list',
   imports: [GenericListComponent, CommonModule, GenericSearch],
   templateUrl: './referee-list.html',
-  styleUrl: './referee-list.css',
+  styleUrls: ['../catalog.css', './referee-list.css'],
 })
 export class RefereeList {
   private refereeService = inject(RefereeService);
@@ -38,6 +38,10 @@ export class RefereeList {
     this.userState.roles$.pipe(map(() => this.userState.canManagePersons())),
     { initialValue: this.userState.canManagePersons() },
   );
+
+  add(): void {
+    this.router.navigate(['/manage-referees']);
+  }
 
   view(referee: Referee): void {
     this.router.navigate(['/referee', referee.id]);

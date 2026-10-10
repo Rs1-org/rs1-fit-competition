@@ -6,6 +6,7 @@ import {
   hasPlayerHistoryData,
   ManagerHistoryForm,
   MandatDate,
+  PlayerAppearance,
   PlayerHistoryForm,
   PlayerSelectionHistory,
   SelectionManagerHistory,
@@ -30,6 +31,7 @@ export class HistoryService {
 
     if (selection) {
       form.selectionId = selection.id;
+      form.teamSelectionId = selection.selectionId ?? '';
       form.selection = {
         goals: selection.goals ?? null,
         matchPlayed: selection.matchPlayed ?? null,
@@ -70,6 +72,7 @@ export class HistoryService {
 
     if (selection) {
       form.selectionId = selection.id;
+      form.teamSelectionId = selection.selectionId ?? '';
       form.selection = {
         notes: selection.notes ?? null,
         wins: selection.wins ?? null,
@@ -100,6 +103,7 @@ export class HistoryService {
     let selectionHistoryId = form.selectionId;
 
     const hasSelectionInput =
+      !!form.teamSelectionId ||
       form.selection.goals != null ||
       form.selection.matchPlayed != null ||
       form.selection.assists != null ||
@@ -115,6 +119,7 @@ export class HistoryService {
         assists: form.selection.assists,
         shirtNumber: form.selection.shirtNumber,
         playerId,
+        selectionId: form.teamSelectionId || null,
       };
       selectionHistoryId = await this.upsert(
         '/api/player-selection-history',
@@ -153,6 +158,7 @@ export class HistoryService {
     let selectionHistoryId = form.selectionId;
 
     const hasSelectionInput =
+      !!form.teamSelectionId ||
       !!form.selection.notes?.trim() ||
       form.selection.wins != null ||
       form.selection.loses != null ||
@@ -171,6 +177,7 @@ export class HistoryService {
           loses: form.selection.loses,
           draw: form.selection.draw,
           managerId,
+          selectionId: form.teamSelectionId || null,
         },
       );
     }
@@ -183,6 +190,12 @@ export class HistoryService {
         selectionManagerHistoryId: selectionHistoryId,
       });
     }
+  }
+
+  async loadAppearances(playerId: string): Promise<PlayerAppearance[]> {
+    const response = await fetch(`${this.baseUrl}/api/player/${playerId}/appearances`);
+    if (!response.ok) return [];
+    return response.json();
   }
 
   private async fetchAll<T>(path: string): Promise<T[]> {

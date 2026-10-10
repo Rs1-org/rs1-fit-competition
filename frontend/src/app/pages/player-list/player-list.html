@@ -1,5 +1,10 @@
 <div class="container">
-  <h1>Lista igrača</h1>
+  <div class="header-actions">
+    <h1>Lista igrača</h1>
+    @if (canManagePersons()) {
+      <button class="btn-add" type="button" (click)="add()">+ Dodaj igrača</button>
+    }
+  </div>
 
   <app-generic-search placeholder="Pretraži igrače..." (onSearch)="search($event)"></app-generic-search>
 

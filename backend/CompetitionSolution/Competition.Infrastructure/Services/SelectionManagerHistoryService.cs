@@ -30,6 +30,7 @@ public class SelectionManagerHistoryService : ISelectionManagerHistoryService
     public async Task<SelectionManagerHistoryDto> CreateAsync(SelectionManagerHistoryDto dto)
     {
         await EnsureManagerExistsAsync(dto.ManagerId);
+        await EnsureSelectionExistsAsync(dto.SelectionId);
 
         var entity = MapToEntity(dto);
         await _context.SelectionManagerHistories.AddAsync(entity);
@@ -40,6 +41,7 @@ public class SelectionManagerHistoryService : ISelectionManagerHistoryService
     public async Task<SelectionManagerHistoryDto> UpdateAsync(Guid id, SelectionManagerHistoryDto dto)
     {
         await EnsureManagerExistsAsync(dto.ManagerId);
+        await EnsureSelectionExistsAsync(dto.SelectionId);
 
         var entity = await ActiveRecords().FirstOrDefaultAsync(h => h.Id == id)
             ?? throw new KeyNotFoundException($"SelectionManagerHistory with id {id} not found");
@@ -68,6 +70,14 @@ public class SelectionManagerHistoryService : ISelectionManagerHistoryService
             throw new KeyNotFoundException($"Manager with id {managerId} not found");
     }
 
+    private async Task EnsureSelectionExistsAsync(Guid? selectionId)
+    {
+        if (selectionId is null) return;
+        var exists = await _context.Selections.AnyAsync(s => s.Id == selectionId && s.DeletedAt == null);
+        if (!exists)
+            throw new KeyNotFoundException($"Selection with id {selectionId} not found");
+    }
+
     private static SelectionManagerHistoryDto MapToDto(SelectionManagerHistory entity) => new()
     {
         Id = entity.Id,
@@ -75,7 +85,8 @@ public class SelectionManagerHistoryService : ISelectionManagerHistoryService
         Wins = entity.Wins,
         Loses = entity.Loses,
         Draw = entity.Draw,
-        ManagerId = entity.ManagerId
+        ManagerId = entity.ManagerId,
+        SelectionId = entity.SelectionId
     };
 
     private static SelectionManagerHistory MapToEntity(SelectionManagerHistoryDto dto) => new()
@@ -84,7 +95,8 @@ public class SelectionManagerHistoryService : ISelectionManagerHistoryService
         Wins = dto.Wins,
         Loses = dto.Loses,
         Draw = dto.Draw,
-        ManagerId = dto.ManagerId
+        ManagerId = dto.ManagerId,
+        SelectionId = dto.SelectionId
     };
 
     private static void ApplyDto(SelectionManagerHistoryDto dto, SelectionManagerHistory entity)
@@ -94,5 +106,6 @@ public class SelectionManagerHistoryService : ISelectionManagerHistoryService
         entity.Loses = dto.Loses;
         entity.Draw = dto.Draw;
         entity.ManagerId = dto.ManagerId;
+        entity.SelectionId = dto.SelectionId;
     }
 }

@@ -14,7 +14,7 @@ import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
   selector: 'app-manager-list',
   imports: [GenericListComponent, CommonModule, GenericSearch],
   templateUrl: './manager-list.html',
-  styleUrl: './manager-list.css',
+  styleUrls: ['../catalog.css', './manager-list.css'],
 })
 export class ManagerList {
   private managerService = inject(ManagerService);
@@ -38,6 +38,10 @@ export class ManagerList {
     this.userState.roles$.pipe(map(() => this.userState.canManagePersons())),
     { initialValue: this.userState.canManagePersons() },
   );
+
+  add(): void {
+    this.router.navigate(['/manage-managers']);
+  }
 
   view(manager: Manager): void {
     this.router.navigate(['/manager', manager.id]);

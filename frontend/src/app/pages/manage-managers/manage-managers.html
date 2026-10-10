@@ -47,6 +47,16 @@
         <p class="history-section-title">Selekcija</p>
 
         <div class="form-group">
+          <label for="teamSelectionId">Reprezentacija</label>
+          <select id="teamSelectionId" name="teamSelectionId" [(ngModel)]="history.teamSelectionId">
+            <option value="">—</option>
+            <option *ngFor="let selection of selections" [value]="selection.id">
+              {{ selection.name }} ({{ selection.abbreviation }})
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
           <label for="notes">Bilješke</label>
           <input type="text" id="notes" name="notes" [(ngModel)]="history.selection.notes" />
         </div>

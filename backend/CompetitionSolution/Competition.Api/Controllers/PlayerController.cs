@@ -1,4 +1,5 @@
 ﻿using Competition.Application.DTOs.PersonDto;
+using Competition.Application.Queries.SelectionQueries.GetPlayerAppearances;
 using Competition.Application.Features.PlayerCommands.Create;
 using Competition.Application.Features.PlayerCommands.Delete;
 using Competition.Application.Features.PlayerCommands.Update;
@@ -15,6 +16,13 @@ namespace Competition.Api.Controllers;
 [ApiController]
 public class PlayerController(IMediator mediator) : ControllerBase
 {
+    [HttpGet("{id:guid}/appearances")]
+    public async Task<IActionResult> Appearances(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new GetPlayerAppearancesQuery { PlayerId = id }, cancellationToken);
+        return Ok(result);
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {

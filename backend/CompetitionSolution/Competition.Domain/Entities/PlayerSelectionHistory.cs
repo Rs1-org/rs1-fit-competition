@@ -15,5 +15,7 @@ namespace Competition.Domain.Entities
         public int? ShirtNumber {  get; set; }
         public Guid PlayerId {  get; set; }
         public Player Player { get; set; }
+        public Guid? SelectionId { get; set; }
+        public Selection? Selection { get; set; }
     }
 }

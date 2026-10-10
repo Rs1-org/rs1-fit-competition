@@ -26,6 +26,10 @@ public class CreateMatchCommandValidator : AbstractValidator<CreateMatchCommand>
 
         RuleFor(x => x.FollowersCount)
             .GreaterThanOrEqualTo(0);
+
+        RuleFor(x => x)
+            .Must(x => x.HomeSelectionId != x.AwaySelectionId || x.HomeSelectionId is null)
+            .WithMessage("Home and away selection must be different.");
     }
 }
 
@@ -74,6 +78,10 @@ public class UpdateMatchCommandValidator : AbstractValidator<UpdateMatchCommand>
         RuleFor(x => x)
             .Must(x => x.HalfHomeScore.HasValue == x.HalfAwayScore.HasValue)
             .WithMessage("HalfHomeScore and HalfAwayScore must both be set or both be null.");
+
+        RuleFor(x => x)
+            .Must(x => x.HomeSelectionId != x.AwaySelectionId || x.HomeSelectionId is null)
+            .WithMessage("Home and away selection must be different.");
     }
 }
 

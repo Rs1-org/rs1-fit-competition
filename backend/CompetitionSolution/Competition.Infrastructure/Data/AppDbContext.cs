@@ -104,7 +104,52 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 .WithMany()
                 .HasForeignKey(x => x.StadiumId)
                 .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.HomeSelection)
+                .WithMany(s => s.HomeMatches)
+                .HasForeignKey(x => x.HomeSelectionId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.AwaySelection)
+                .WithMany(s => s.AwayMatches)
+                .HasForeignKey(x => x.AwaySelectionId)
+                .OnDelete(DeleteBehavior.Restrict);
             e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<Selection>(e =>
+        {
+            e.ToTable("Selections");
+            e.Property(x => x.Name).IsRequired().HasMaxLength(120);
+            e.Property(x => x.Abbreviation).IsRequired().HasMaxLength(10);
+            e.HasIndex(x => x.Slug).IsUnique().HasFilter("\"Slug\" IS NOT NULL");
+            e.HasOne(x => x.Country)
+                .WithMany()
+                .HasForeignKey(x => x.CountryId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<PlayerSelectionHistory>(e =>
+        {
+            e.HasOne(x => x.Player)
+                .WithMany()
+                .HasForeignKey(x => x.PlayerId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Selection)
+                .WithMany(s => s.PlayerHistories)
+                .HasForeignKey(x => x.SelectionId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<SelectionManagerHistory>(e =>
+        {
+            e.HasOne(x => x.Manager)
+                .WithMany()
+                .HasForeignKey(x => x.ManagerId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Selection)
+                .WithMany(s => s.ManagerHistories)
+                .HasForeignKey(x => x.SelectionId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<FormationMark>(e =>
@@ -178,5 +223,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<SelectionManagerHistory> SelectionManagerHistories { get; set; } = null!;
     public DbSet<TransferValueHistory> TransferValueHistories { get; set; } = null!;
     public DbSet<MandatDate> MandatDates { get; set; } = null!;
+    public DbSet<Selection> Selections { get; set; } = null!;
 
 }

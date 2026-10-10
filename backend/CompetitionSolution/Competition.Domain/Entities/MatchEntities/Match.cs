@@ -1,4 +1,5 @@
 using NodaTime;
+using Competition.Domain.Entities;
 
 namespace Competition.Domain.Entities.MatchEntities;
 
@@ -18,4 +19,10 @@ public class Match : BaseEntity
 
     public Guid StadiumId { get; set; }
     public Stadium? Stadium { get; set; }
+
+    public Guid? HomeSelectionId { get; set; }
+    public Selection? HomeSelection { get; set; }
+
+    public Guid? AwaySelectionId { get; set; }
+    public Selection? AwaySelection { get; set; }
 }

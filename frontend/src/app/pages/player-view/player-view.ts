@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
   hasPlayerHistoryData,
   playerHistoryViewLabels,
+  PlayerAppearance,
   PlayerHistoryForm,
 } from '../../core/models/history.models';
 import { pictureToDataUrl } from '../../core/models/person.models';
@@ -27,6 +28,7 @@ export class PlayerView implements OnInit {
   pictureUrl: string | null = null;
   history: PlayerHistoryForm | null = null;
   historyRows: { label: string; value: unknown }[] = [];
+  appearances: PlayerAppearance[] = [];
   activeTab: 'info' | 'history' = 'info';
   showHistoryTab = false;
 
@@ -68,7 +70,8 @@ export class PlayerView implements OnInit {
         this.pictureUrl = pictureToDataUrl(data.picture);
 
         this.history = await this.historyService.loadPlayerHistory(id);
-        this.showHistoryTab = hasPlayerHistoryData(this.history);
+        this.appearances = await this.historyService.loadAppearances(id);
+        this.showHistoryTab = hasPlayerHistoryData(this.history) || this.appearances.length > 0;
         this.historyRows = this.buildHistoryRows(this.history);
         this.cdr.detectChanges();
       },

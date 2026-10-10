@@ -99,6 +99,23 @@ export const routes: Routes = [
       import('./pages/formation-list/formation-list').then((m) => m.FormationList),
   },
   {
+    path: 'selection-list',
+    loadComponent: () =>
+      import('./pages/selection-list/selection-list').then((m) => m.SelectionList),
+  },
+  {
+    path: 'manage-selections',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () =>
+      import('./pages/manage-selection/manage-selection').then((m) => m.ManageSelection),
+  },
+  {
+    path: 'manage-selections/:slug',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () =>
+      import('./pages/manage-selection/manage-selection').then((m) => m.ManageSelection),
+  },
+  {
     path: 'position-list',
     loadComponent: () =>
       import('./pages/position-list/position-list').then((m) => m.PositionList),
