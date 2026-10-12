@@ -20,6 +20,8 @@ export interface StadiumDetailsDto {
     latitude: number;
     longitude: number;
     geoDescription: string;
+    cityLatitude: number | null;
+    cityLongitude: number | null;
 }
 
 export interface StadiumListFilter {
