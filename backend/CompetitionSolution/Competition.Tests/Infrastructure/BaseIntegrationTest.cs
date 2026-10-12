@@ -1,6 +1,7 @@
 using Competition.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
@@ -18,8 +19,9 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
         {
             builder.ConfigureServices(services =>
             {
-                // Remove existing DbContext registration
+                // Remove existing DbContext registration (EF Core 9+ also keeps the provider setup in IDbContextOptionsConfiguration)
                 services.RemoveAll(typeof(DbContextOptions<AppDbContext>));
+                services.RemoveAll(typeof(IDbContextOptionsConfiguration<AppDbContext>));
 
                 // Add In-Memory for testing
                 services.AddDbContext<AppDbContext>(options =>
