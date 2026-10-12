@@ -4,6 +4,7 @@ using Competition.Domain.Entities;
 using Competition.Infrastructure.Data;
 using Competition.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,12 +26,42 @@ namespace Competition.Infrastructure.Repositories
             return await _context.Countries.FirstOrDefaultAsync(c => c.Slug == slug, cancellationToken);
         }
 
-        public async Task<PagedResult<Country>> GetPagedWithSearchAsync(int page, int pageSize, string? searchTerm, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<Country>> GetPagedFilteredAsync(CountryListFilter filter, int page, int pageSize, CancellationToken cancellationToken = default)
         {
             var query = _context.Countries.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-                query = query.Where(c => EF.Functions.ILike(c.Name!, $"%{searchTerm}%"));
-            return await query.ToPagedResultAsync(page, pageSize, cancellationToken);
+
+            if (!string.IsNullOrWhiteSpace(filter.Name))
+            {
+                var name = filter.Name.Trim().ToLower();
+                query = query.Where(c => c.Name!.ToLower().Contains(name));
+            }
+            if (!string.IsNullOrWhiteSpace(filter.Slug))
+            {
+                var slug = filter.Slug.Trim().ToLower();
+                query = query.Where(c => c.Slug!.ToLower().Contains(slug));
+            }
+            if (filter.HasPicture.HasValue)
+                query = filter.HasPicture.Value
+                    ? query.Where(c => c.PictureUrl != null && c.PictureUrl != "")
+                    : query.Where(c => c.PictureUrl == null || c.PictureUrl == "");
+            if (filter.CreatedFrom.HasValue)
+            {
+                var from = ToInstant(filter.CreatedFrom.Value.Date);
+                query = query.Where(c => c.CreatedAt >= from);
+            }
+            if (filter.CreatedTo.HasValue)
+            {
+                // Inclusive end date: everything before the start of the next day.
+                var to = ToInstant(filter.CreatedTo.Value.Date.AddDays(1));
+                query = query.Where(c => c.CreatedAt < to);
+            }
+
+            return await query
+                .OrderBy(c => c.Name)
+                .ToPagedResultAsync(page, pageSize, cancellationToken);
         }
+
+        private static Instant ToInstant(DateTime date) =>
+            Instant.FromDateTimeUtc(DateTime.SpecifyKind(date, DateTimeKind.Utc));
     }
 }

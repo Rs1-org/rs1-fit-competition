@@ -32,3 +32,11 @@ export interface CreateCityDto{
     longitude:number;
     description:string;
 }
+
+export interface CityListFilter{
+    name?:string;
+    countryId?:string;
+    isCapital?:boolean;
+    minPopulation?:number;
+    maxPopulation?:number;
+}

@@ -11,3 +11,10 @@ export interface CreateCountryDto{
     name:string;
     picture:File;
 }
+export interface CountryListFilter{
+    name?:string;
+    slug?:string;
+    hasPicture?:boolean;
+    createdFrom?:string;
+    createdTo?:string;
+}

@@ -65,8 +65,8 @@ export class CityForm implements OnInit, OnChanges {
   }
 
   loadCountries(): void {
-    this.countryService.getAll().subscribe({
-      next: (data) => { this.countries = data.items; },
+    this.countryService.getAllForDropdown().subscribe({
+      next: (countries) => { this.countries = countries; },
       error: (err) => console.error('Error loading countries:', err)
     });
   }

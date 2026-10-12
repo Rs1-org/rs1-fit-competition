@@ -11,6 +11,6 @@ namespace Competition.Application.Interfaces
     public interface ICountry : IRepository<Country>
     {
         Task<Country?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default);
-        Task<PagedResult<Country>> GetPagedWithSearchAsync(int page, int pageSize, string? searchTerm, CancellationToken cancellationToken = default);
+        Task<PagedResult<Country>> GetPagedFilteredAsync(CountryListFilter filter, int page, int pageSize, CancellationToken cancellationToken = default);
     }
 }

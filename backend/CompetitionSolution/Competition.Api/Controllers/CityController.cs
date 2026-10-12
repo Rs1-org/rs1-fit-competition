@@ -44,9 +44,26 @@ public class CityController : ControllerBase
     }
 
     [HttpGet("getCities")]
-    public async Task<IActionResult> GetCities([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetCities(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? name = null,
+        [FromQuery] Guid? countryId = null,
+        [FromQuery] bool? isCapital = null,
+        [FromQuery] int? minPopulation = null,
+        [FromQuery] int? maxPopulation = null,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _mediator.Send(new GetAllCitiesCommand { Page = page, PageSize = pageSize, SearchTerm = searchTerm }, cancellationToken);
+        var result = await _mediator.Send(new GetAllCitiesCommand
+        {
+            Page = page,
+            PageSize = pageSize,
+            Name = name,
+            CountryId = countryId,
+            IsCapital = isCapital,
+            MinPopulation = minPopulation,
+            MaxPopulation = maxPopulation
+        }, cancellationToken);
         return Ok(result);
     }
 

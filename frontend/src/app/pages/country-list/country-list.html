@@ -6,10 +6,40 @@
         }
     </div>
 
-    <app-generic-search 
-        placeholder="Search countries..." 
-        (onSearch)="search($event)">
-    </app-generic-search>
+    <form class="filter-bar" [formGroup]="filterForm">
+        <div class="filter-field">
+            <label for="filter-name">Name</label>
+            <input id="filter-name" type="text" formControlName="name" placeholder="e.g. Bosnia">
+        </div>
+        <div class="filter-field">
+            <label for="filter-slug">Slug</label>
+            <input id="filter-slug" type="text" formControlName="slug" placeholder="e.g. bosnia">
+        </div>
+        <div class="filter-field">
+            <label for="filter-picture">Picture</label>
+            <select id="filter-picture" formControlName="hasPicture">
+                <option value="">Any</option>
+                <option value="true">With picture</option>
+                <option value="false">Without picture</option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label for="filter-from">Created from</label>
+            <input id="filter-from" type="date" formControlName="createdFrom">
+        </div>
+        <div class="filter-field">
+            <label for="filter-to">Created to</label>
+            <input id="filter-to" type="date" formControlName="createdTo">
+        </div>
+        <button type="button" class="filter-reset" (click)="resetFilters()">Reset</button>
+
+        @if (filterForm.hasError('createdRange')) {
+            <p class="filter-error">"Created to" must be on or after "Created from".</p>
+        }
+        @if (filterForm.controls.name.hasError('maxlength') || filterForm.controls.slug.hasError('maxlength')) {
+            <p class="filter-error">Name and slug can have at most 100 characters.</p>
+        }
+    </form>
 
     <app-generic-list
         [items]="countriesResult()?.items ?? []"

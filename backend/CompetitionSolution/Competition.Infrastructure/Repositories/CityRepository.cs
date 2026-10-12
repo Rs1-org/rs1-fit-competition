@@ -37,11 +37,26 @@ public class CityRepository : Repository<City>, ICity
             .ToPagedResultAsync(page, pageSize, cancellationToken);
     }
 
-    public async Task<PagedResult<City>> GetPagedWithSearchAsync(int page, int pageSize, string? searchTerm, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<City>> GetPagedFilteredAsync(CityListFilter filter, int page, int pageSize, CancellationToken cancellationToken = default)
     {
         var query = _context.Cities.Include(c => c.Country).AsQueryable();
-        if (!string.IsNullOrWhiteSpace(searchTerm))
-            query = query.Where(c => EF.Functions.ILike(c.Name!, $"%{searchTerm}%"));
-        return await query.ToPagedResultAsync(page, pageSize, cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(filter.Name))
+        {
+            var name = filter.Name.Trim().ToLower();
+            query = query.Where(c => c.Name!.ToLower().Contains(name));
+        }
+        if (filter.CountryId.HasValue)
+            query = query.Where(c => c.CountryId == filter.CountryId.Value);
+        if (filter.IsCapital.HasValue)
+            query = query.Where(c => c.IsCapital == filter.IsCapital.Value);
+        if (filter.MinPopulation.HasValue)
+            query = query.Where(c => c.Population >= filter.MinPopulation.Value);
+        if (filter.MaxPopulation.HasValue)
+            query = query.Where(c => c.Population <= filter.MaxPopulation.Value);
+
+        return await query
+            .OrderBy(c => c.Name)
+            .ToPagedResultAsync(page, pageSize, cancellationToken);
     }
 }
