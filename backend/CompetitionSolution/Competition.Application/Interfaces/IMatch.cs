@@ -9,7 +9,7 @@ public interface IMatch : IRepository<Match>
     Task<Match?> GetByIdWithNavAsync(Guid id, CancellationToken cancellationToken = default);
     Task<PagedResult<Match>> GetPagedWithFiltersAsync(
         int page, int pageSize,
-        Guid? statusId, Guid? stadiumId,
+        Guid? statusId, Guid? stadiumId, Guid? roundId,
         bool? isPostponed,
         DateTime? dateFrom, DateTime? dateTo,
         CancellationToken cancellationToken = default);

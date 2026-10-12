@@ -21,7 +21,7 @@ public class GetAllMatchesQueryHandler : IRequestHandler<GetAllMatchesQuery, Pag
     {
         var paged = await _match.GetPagedWithFiltersAsync(
             request.Page, request.PageSize,
-            request.StatusId, request.StadiumId,
+            request.StatusId, request.StadiumId, request.RoundId,
             request.IsPostponed,
             request.DateFrom, request.DateTo,
             cancellationToken);

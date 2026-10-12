@@ -25,6 +25,8 @@ export class GenericListComponent<T> implements OnChanges {
 
   /** When false, hides the update and delete action buttons. */
   @Input() showActions = true;
+  /** When false, hides only the delete button (e.g. Moderators may edit but not delete). */
+  @Input() showDelete = true;
 
   @ContentChild('itemTemplate', { static: false })
   itemTemplate!: TemplateRef<any>;

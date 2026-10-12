@@ -1,5 +1,6 @@
 using NodaTime;
 using Competition.Domain.Entities;
+using Competition.Domain.Entities.CompetitionEntities;
 
 namespace Competition.Domain.Entities.MatchEntities;
 
@@ -25,4 +26,7 @@ public class Match : BaseEntity
 
     public Guid? AwaySelectionId { get; set; }
     public Selection? AwaySelection { get; set; }
+
+    public Guid? RoundId { get; set; }
+    public Round? Round { get; set; }
 }

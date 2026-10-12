@@ -10,6 +10,7 @@ public class GetAllMatchesQuery : IRequest<PagedResult<MatchListDto>>
     public int PageSize { get; init; } = 10;
     public Guid? StatusId { get; init; }
     public Guid? StadiumId { get; init; }
+    public Guid? RoundId { get; init; }
     public bool? IsPostponed { get; init; }
     public DateTime? DateFrom { get; init; }
     public DateTime? DateTo { get; init; }

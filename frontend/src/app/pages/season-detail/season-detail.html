@@ -1,0 +1,61 @@
+<div class="container">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/competitions">Competitions</a>
+    @if (season(); as s) {
+      <span>›</span><a [routerLink]="['/competitions', s.competitionSlug]">{{ s.competitionName }}</a>
+      <span>›</span><span>{{ s.name }}</span>
+    }
+  </nav>
+
+  @if (errorMessage()) {
+    <p class="page-error" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (season(); as s) {
+    <div class="header-actions">
+      <h1>
+        {{ s.competitionName }} {{ s.name }}
+        @if (s.isCurrent) {
+          <span class="badge-current">Current</span>
+        }
+      </h1>
+      @if (canManage()) {
+        <button class="btn-add" (click)="onAdd()">+ Add Round</button>
+      }
+    </div>
+    <p class="page-subtitle">{{ s.startDate }} – {{ s.endDate }}</p>
+
+    <h2 class="section-title">Rounds</h2>
+    <app-generic-list
+      [items]="rounds()?.items ?? []"
+      [pageSize]="pageSize"
+      [serverTotalItems]="rounds()?.totalCount"
+      [serverCurrentPage]="rounds()?.page ?? 1"
+      [showActions]="canManage()"
+      [showDelete]="canDelete()"
+      variant="compact"
+      (view)="open($event)"
+      (update)="onEdit($event)"
+      (delete)="onDelete($event)"
+      (pageChange)="onPageChange($event)">
+      <ng-template #itemTemplate let-round>
+        <div class="card-row">
+          <div class="card-badge">{{ round.number }}</div>
+          <div class="card-info">
+            <div class="card-title">{{ round.name }}</div>
+            <div class="card-meta">{{ round.matchCount }} {{ round.matchCount === 1 ? 'match' : 'matches' }}</div>
+          </div>
+        </div>
+      </ng-template>
+    </app-generic-list>
+
+    <app-round-form
+      [isOpen]="isFormOpen"
+      [seasonId]="s.id"
+      [nextNumber]="nextNumber()"
+      [editRound]="selected"
+      (saved)="onFormSaved()"
+      (closed)="onFormClosed()">
+    </app-round-form>
+  }
+</div>

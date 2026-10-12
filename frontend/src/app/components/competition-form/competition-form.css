@@ -1,0 +1,31 @@
+form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
+.form-error {
+  margin: 12px 0 0;
+  color: #e5484d;
+  font-size: 0.9rem;
+}
+
+footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+@media (max-width: 600px) {
+  form {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: span 1;
+  }
+}

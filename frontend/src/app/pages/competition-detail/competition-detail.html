@@ -1,0 +1,64 @@
+<div class="container">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/competitions">Competitions</a>
+    @if (competition(); as c) {
+      <span>›</span><span>{{ c.name }}</span>
+    }
+  </nav>
+
+  @if (errorMessage()) {
+    <p class="page-error" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (competition(); as c) {
+    <div class="header-actions">
+      <h1>{{ c.name }}</h1>
+      @if (canManage()) {
+        <button class="btn-add" (click)="onAdd()">+ Add Season</button>
+      }
+    </div>
+    <p class="page-subtitle">{{ c.countryName || 'International' }}{{ c.shortName ? ' · ' + c.shortName : '' }}</p>
+    @if (c.description) {
+      <p class="page-description">{{ c.description }}</p>
+    }
+
+    <h2 class="section-title">Seasons</h2>
+    <app-generic-list
+      [items]="seasons()?.items ?? []"
+      [pageSize]="pageSize"
+      [serverTotalItems]="seasons()?.totalCount"
+      [serverCurrentPage]="seasons()?.page ?? 1"
+      [showActions]="canManage()"
+      [showDelete]="canDelete()"
+      variant="card"
+      (view)="open($event)"
+      (update)="onEdit($event)"
+      (delete)="onDelete($event)"
+      (pageChange)="onPageChange($event)">
+      <ng-template #itemTemplate let-season>
+        <div class="card-row">
+          <div class="card-info">
+            <div class="card-title">
+              {{ season.name }}
+              @if (season.isCurrent) {
+                <span class="badge-current">Current</span>
+              }
+            </div>
+            <div class="card-meta">
+              {{ season.startDate }} – {{ season.endDate }} · {{ season.roundCount }}
+              {{ season.roundCount === 1 ? 'round' : 'rounds' }}
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </app-generic-list>
+
+    <app-season-form
+      [isOpen]="isFormOpen"
+      [competitionId]="c.id"
+      [editSeason]="selected"
+      (saved)="onFormSaved()"
+      (closed)="onFormClosed()">
+    </app-season-form>
+  }
+</div>

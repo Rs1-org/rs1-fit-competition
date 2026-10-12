@@ -12,4 +12,6 @@ public class MatchListDto
     public string? StadiumName { get; set; }
     public string? HomeSelectionName { get; set; }
     public string? AwaySelectionName { get; set; }
+    public Guid? RoundId { get; set; }
+    public string? RoundName { get; set; }
 }

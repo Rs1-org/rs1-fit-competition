@@ -1,0 +1,28 @@
+@if (isOpen) {
+<app-modal [title]="isEditMode ? 'Edit Competition' : 'Add Competition'" (close)="onClose()" width="640px">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" id="competition-form">
+    <app-input-box label="Name" placeholder="e.g. Premier League" [control]="form.controls.name"></app-input-box>
+    <app-input-box label="Short name" placeholder="e.g. EPL" [control]="form.controls.shortName"></app-input-box>
+    <app-dropdown
+      class="full-width"
+      label="Country"
+      placeholder="Select a country"
+      [options]="countries"
+      [control]="form.controls.countryId">
+    </app-dropdown>
+    <app-input-box
+      class="full-width"
+      label="Description"
+      type="textarea"
+      placeholder="Description..."
+      [control]="form.controls.description">
+    </app-input-box>
+  </form>
+  @if (errorMessage) {
+    <p class="form-error" role="alert">{{ errorMessage }}</p>
+  }
+  <footer>
+    <app-button type="submit" form="competition-form" [text]="saving ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Submit')"></app-button>
+  </footer>
+</app-modal>
+}

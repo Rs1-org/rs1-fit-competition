@@ -69,6 +69,10 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/manager-list']);
   }
 
+  openCompetitions() {
+    this.router.navigate(['/competitions']);
+  }
+
   openStadiums() {
     this.router.navigate(['/stadium-list']);
   }
