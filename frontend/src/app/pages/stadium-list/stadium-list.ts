@@ -11,7 +11,8 @@ import { StadiumForm } from '../../components/stadium-form/stadium-form';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, combineLatest, debounceTime, filter, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, filter, startWith, switchMap } from 'rxjs';
+import { fetchAllPages, MAX_PAGE_SIZE } from '../../core/helpers/paging.helper';
 
 /** Mirrors the backend rule: max capacity must be >= min capacity. */
 function capacityRangeValidator(group: AbstractControl): ValidationErrors | null {
@@ -52,7 +53,19 @@ export class StadiumList {
   }, { validators: capacityRangeValidator });
 
   countries = toSignal(this.countryService.getAllForDropdown(), { initialValue: [] });
-  cities = toSignal(this.cityService.getAllForDropdown(), { initialValue: [] });
+  private countryId$ = this.filterForm.controls.countryId.valueChanges.pipe(
+    startWith(this.filterForm.controls.countryId.value),
+    distinctUntilChanged(),
+  );
+
+  // City options follow the selected country (all cities when no country is picked).
+  cities = toSignal(
+    this.countryId$.pipe(
+      switchMap((countryId) => fetchAllPages((page) =>
+        this.cityService.getAll(page, MAX_PAGE_SIZE, { countryId: countryId || undefined })))
+    ),
+    { initialValue: [] }
+  );
 
   user = this.userStateService.getUser();
 
@@ -69,6 +82,10 @@ export class StadiumList {
       filter(() => this.filterForm.valid),
       takeUntilDestroyed(),
     ).subscribe(() => this.query$.next({ page: 1, filter: this.toFilter() }));
+
+    // A city picked for the previous country would no longer match, so clear it.
+    this.filterForm.controls.countryId.valueChanges.pipe(takeUntilDestroyed())
+      .subscribe(() => this.filterForm.controls.cityId.setValue(''));
   }
 
   private toFilter(): StadiumListFilter {
