@@ -161,3 +161,23 @@ app-map {
   overflow: hidden;
   border: 1.5px solid var(--border-color);
 }
+
+.distance {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.distance strong {
+  color: var(--accent);
+}
+
+.legend-line {
+  display: inline-block;
+  width: 24px;
+  border-top: 3px dashed #2563eb;
+}

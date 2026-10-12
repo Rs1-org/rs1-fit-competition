@@ -13,4 +13,6 @@ public class StadiumDetailsDto
     public decimal Latitude { get; set; }
     public decimal Longitude { get; set; }
     public string? GeoDescription { get; set; }
+    public decimal? CityLatitude { get; set; }
+    public decimal? CityLongitude { get; set; }
 }

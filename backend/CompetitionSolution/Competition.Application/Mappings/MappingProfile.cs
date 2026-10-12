@@ -71,7 +71,9 @@ public class MappingProfile:Profile
             .ForMember(m => m.CityName, opt => opt.MapFrom(src => src.City != null ? src.City.Name : null))
             .ForMember(m => m.Latitude, opt => opt.MapFrom(src => src.GeoData != null ? src.GeoData.Latitude : (decimal)0))
             .ForMember(m => m.Longitude, opt => opt.MapFrom(src => src.GeoData != null ? src.GeoData.Longitude : (decimal)0))
-            .ForMember(m => m.GeoDescription, opt => opt.MapFrom(src => src.GeoData != null ? src.GeoData.Description : null));
+            .ForMember(m => m.GeoDescription, opt => opt.MapFrom(src => src.GeoData != null ? src.GeoData.Description : null))
+            .ForMember(m => m.CityLatitude, opt => opt.MapFrom(src => src.City != null && src.City.GeoData != null ? src.City.GeoData.Latitude : (decimal?)null))
+            .ForMember(m => m.CityLongitude, opt => opt.MapFrom(src => src.City != null && src.City.GeoData != null ? src.City.GeoData.Longitude : (decimal?)null));
 
         ConfigureMatchMappings();
         ConfigureCompetitionMappings();

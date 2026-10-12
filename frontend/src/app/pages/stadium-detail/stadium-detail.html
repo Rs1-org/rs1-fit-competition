@@ -52,12 +52,22 @@
 
       <div class="map-section">
         <h3 class="section-title">Map</h3>
+        @if (distanceToCityKm() !== null) {
+          <p class="distance">
+            <span class="legend-line"></span>
+            Distance to {{ data.cityName }} centre: <strong>{{ distanceToCityKm() | number:'1.1-1' }} km</strong>
+          </p>
+        }
         <app-map
           [lat]="data.latitude"
           [lng]="data.longitude"
           [zoom]="14"
           [markerLat]="data.latitude"
-          [markerLng]="data.longitude">
+          [markerLng]="data.longitude"
+          [secondMarkerLat]="data.cityLatitude"
+          [secondMarkerLng]="data.cityLongitude"
+          [secondMarkerLabel]="data.cityName + ' centre'"
+          [readonly]="true">
         </app-map>
       </div>
 
