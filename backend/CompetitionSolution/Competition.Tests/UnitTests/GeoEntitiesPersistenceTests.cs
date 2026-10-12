@@ -9,6 +9,7 @@ using Competition.Infrastructure.Repositories;
 using Competition.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 using CityEntity = Competition.Domain.Entities.City;
@@ -79,7 +80,7 @@ public class GeoEntitiesPersistenceTests : BaseUnitTest
         countryRepository.Setup(r => r.GetBySlugAsync("bosnia", It.IsAny<CancellationToken>())).ReturnsAsync(country);
         MapperMock.Setup(m => m.Map<CountryNameDto>(It.IsAny<Country>())).Returns(new CountryNameDto());
         var unitOfWork = new Mock<IUnitOfWork>();
-        var handler = new UpdateCountryCommandHandler(Mapper, countryRepository.Object, unitOfWork.Object, Mock.Of<IImageService>());
+        var handler = new UpdateCountryCommandHandler(Mapper, countryRepository.Object, unitOfWork.Object, Mock.Of<IImageService>(), NullLogger<UpdateCountryCommandHandler>.Instance);
 
         // Act
         await handler.Handle(new UpdateCountryCommands { Slug = "bosnia", Name = "Bosnia and Herzegovina" }, CancellationToken.None);
