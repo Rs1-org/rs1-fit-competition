@@ -26,18 +26,18 @@ namespace Competition.Infrastructure.Services
                 return new BlobContainerClient(settings.ConnectionString, settings.ContainerName);
             });
         }
-        public async Task DeleteAsync(string fileUrl)
+        public async Task DeleteAsync(string fileUrl, CancellationToken cancellationToken = default)
         {
             var uri= new Uri(fileUrl);
             var blobName = Path.GetFileName(uri.LocalPath);
             var blobClient = _blobContainerClient.Value.GetBlobClient(blobName);
-            await blobClient.DeleteIfExistsAsync();
+            await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
         }
 
-        public async Task<string> UploadAsync(Stream file, string fileName, string contentType)
+        public async Task<string> UploadAsync(Stream file, string fileName, string contentType, CancellationToken cancellationToken = default)
         {
             var blobClient = _blobContainerClient.Value.GetBlobClient(fileName);
-            await blobClient.UploadAsync(file, new BlobHttpHeaders { ContentType = contentType });
+            await blobClient.UploadAsync(file, new BlobUploadOptions { HttpHeaders = new BlobHttpHeaders { ContentType = contentType } }, cancellationToken);
             return blobClient.Uri.ToString();
         }
 

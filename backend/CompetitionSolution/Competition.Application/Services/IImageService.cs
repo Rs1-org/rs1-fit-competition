@@ -9,7 +9,7 @@ namespace Competition.Application.Services
 {
     public interface IImageService
     {
-        Task<string> UploadImageAsync(IFormFile image);
-        Task DeleteImageAsync(string imageUrl);
+        Task<string> UploadImageAsync(IFormFile image, CancellationToken cancellationToken = default);
+        Task DeleteImageAsync(string imageUrl, CancellationToken cancellationToken = default);
     }
 }

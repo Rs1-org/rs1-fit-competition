@@ -11,18 +11,18 @@
       @if (showActions) {
         <div class="item-actions">
           <button class="btn-update" (click)="$event.stopPropagation(); onUpdate(item)">
-            <i class="fa-solid fa-pen"></i> Uredi
+            <i class="fa-solid fa-pen"></i> Edit
           </button>
           @if (showDelete) {
             <button class="btn-delete" (click)="$event.stopPropagation(); onDelete(item)">
-              <i class="fa-solid fa-trash"></i> Obriši
+              <i class="fa-solid fa-trash"></i> Delete
             </button>
           }
         </div>
       }
     </div>
   } @empty {
-    <div class="empty-state">Lista je trenutno prazna.</div>
+    <div class="empty-state">The list is empty.</div>
   }
 
   <app-pagination

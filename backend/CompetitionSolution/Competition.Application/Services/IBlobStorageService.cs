@@ -9,7 +9,7 @@ namespace Competition.Application.Services
 {
     public interface IBlobStorageService
     {
-        Task<string> UploadAsync(Stream file, string fileName, string contentType);
-        Task DeleteAsync(string fileUrl);
+        Task<string> UploadAsync(Stream file, string fileName, string contentType, CancellationToken cancellationToken = default);
+        Task DeleteAsync(string fileUrl, CancellationToken cancellationToken = default);
     }
 }

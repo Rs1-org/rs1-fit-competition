@@ -37,8 +37,8 @@ namespace Competition.Application.Commands.CountryCommands.Update
 
             if (request.Picture != null)
             {
-                await _imageService.DeleteImageAsync(country.PictureUrl);
-                var pictureUrl = await _imageService.UploadImageAsync(request.Picture);
+                await _imageService.DeleteImageAsync(country.PictureUrl, cancellationToken);
+                var pictureUrl = await _imageService.UploadImageAsync(request.Picture, cancellationToken);
                 country.PictureUrl = pictureUrl;
             }
 

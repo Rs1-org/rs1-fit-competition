@@ -16,12 +16,12 @@ namespace Competition.Infrastructure.Services
         {
             _blobStorageService = blobStorageService;
         }
-        public async Task DeleteImageAsync(string imageUrl)
+        public async Task DeleteImageAsync(string imageUrl, CancellationToken cancellationToken = default)
         {
-            await _blobStorageService.DeleteAsync(imageUrl);
+            await _blobStorageService.DeleteAsync(imageUrl, cancellationToken);
         }
 
-        public async Task<string> UploadImageAsync(IFormFile image)
+        public async Task<string> UploadImageAsync(IFormFile image, CancellationToken cancellationToken = default)
         {
             var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp" };
             if (!allowedTypes.Contains(image.ContentType))
@@ -29,7 +29,7 @@ namespace Competition.Infrastructure.Services
 
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
 
-            return await _blobStorageService.UploadAsync(image.OpenReadStream(), fileName, image.ContentType);
+            return await _blobStorageService.UploadAsync(image.OpenReadStream(), fileName, image.ContentType, cancellationToken);
         }
     }
 }
