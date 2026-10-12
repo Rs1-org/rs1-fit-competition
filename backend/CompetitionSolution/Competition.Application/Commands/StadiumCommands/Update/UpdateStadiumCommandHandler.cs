@@ -39,8 +39,12 @@ public class UpdateStadiumCommandHandler : IRequestHandler<UpdateStadiumCommand,
         stadium.CityId = request.CityId;
         stadium.Slug = SlugHelper.GenerateSlug(request.Name!);
 
+        string? replacedPictureUrl = null;
         if (request.Picture != null)
+        {
+            replacedPictureUrl = stadium.PictureUrl;
             stadium.PictureUrl = await _imageService.UploadImageAsync(request.Picture, cancellationToken);
+        }
 
         if (stadium.GeoData != null)
         {
@@ -51,6 +55,19 @@ public class UpdateStadiumCommandHandler : IRequestHandler<UpdateStadiumCommand,
 
         await _stadium.UpdateAsync(stadium, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // Remove the old picture only once the new one is saved, so a failed update never loses the current image.
+        if (!string.IsNullOrEmpty(replacedPictureUrl))
+        {
+            try
+            {
+                await _imageService.DeleteImageAsync(replacedPictureUrl, cancellationToken);
+            }
+            catch (Exception)
+            {
+                // The update is already saved; an orphaned blob is better than reporting a failed update.
+            }
+        }
 
         return _mapper.Map<StadiumDetailsDto>(stadium);
     }

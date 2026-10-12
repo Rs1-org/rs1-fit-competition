@@ -46,9 +46,26 @@ public class StadiumController : ControllerBase
     }
 
     [HttpGet("getStadiums")]
-    public async Task<IActionResult> GetStadiums([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetStadiums(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? name = null,
+        [FromQuery] Guid? countryId = null,
+        [FromQuery] Guid? cityId = null,
+        [FromQuery] int? minCapacity = null,
+        [FromQuery] int? maxCapacity = null,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _mediator.Send(new GetAllStadiumsQuery { Page = page, PageSize = pageSize }, cancellationToken);
+        var result = await _mediator.Send(new GetAllStadiumsQuery
+        {
+            Page = page,
+            PageSize = pageSize,
+            Name = name,
+            CountryId = countryId,
+            CityId = cityId,
+            MinCapacity = minCapacity,
+            MaxCapacity = maxCapacity
+        }, cancellationToken);
         return Ok(result);
     }
 

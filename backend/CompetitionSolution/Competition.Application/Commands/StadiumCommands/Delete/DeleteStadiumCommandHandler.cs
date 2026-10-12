@@ -6,11 +6,13 @@ namespace Competition.Application.Commands.StadiumCommands.Delete;
 public class DeleteStadiumCommandHandler : IRequestHandler<DeleteStadiumCommand, bool>
 {
     private readonly IStadium _stadium;
+    private readonly IGeoData _geoData;
     private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteStadiumCommandHandler(IStadium stadium, IUnitOfWork unitOfWork)
+    public DeleteStadiumCommandHandler(IStadium stadium, IGeoData geoData, IUnitOfWork unitOfWork)
     {
         _stadium = stadium;
+        _geoData = geoData;
         _unitOfWork = unitOfWork;
     }
 
@@ -23,6 +25,12 @@ public class DeleteStadiumCommandHandler : IRequestHandler<DeleteStadiumCommand,
         }
 
         await _stadium.DeleteAsync(stadium, cancellationToken);
+
+        // GeoData belongs to this stadium only, so it is soft-deleted together with it (after the stadium, its dependent).
+        var geoData = await _geoData.GetByIdAsync(stadium.GeoDataId, cancellationToken);
+        if (geoData != null)
+            await _geoData.DeleteAsync(geoData, cancellationToken);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return true;

@@ -1,20 +1,30 @@
 import { Component, inject, ViewChild } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
-import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { Router } from '@angular/router';
 import { StadiumService } from '../../core/services/stadium.service';
-import { StadiumListDto } from '../../core/models/stadium';
+import { CountryService } from '../../core/services/country-service';
+import { CityService } from '../../core/services/city-services';
+import { StadiumListDto, StadiumListFilter } from '../../core/models/stadium';
 import { StadiumForm } from '../../components/stadium-form/stadium-form';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { UserStateService } from '../../core/services/user-state.service';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, combineLatest, switchMap } from 'rxjs';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { BehaviorSubject, combineLatest, debounceTime, filter, switchMap } from 'rxjs';
+
+/** Mirrors the backend rule: max capacity must be >= min capacity. */
+function capacityRangeValidator(group: AbstractControl): ValidationErrors | null {
+  const { minCapacity, maxCapacity } = group.value;
+  return minCapacity != null && maxCapacity != null && maxCapacity < minCapacity
+    ? { capacityRange: true }
+    : null;
+}
 
 @Component({
   selector: 'app-stadium-list',
   standalone: true,
-  imports: [GenericListComponent, CommonModule, GenericSearch, StadiumForm, DecimalPipe],
+  imports: [GenericListComponent, CommonModule, StadiumForm, DecimalPipe, ReactiveFormsModule],
   templateUrl: './stadium-list.html',
   styleUrl: './stadium-list.css',
 })
@@ -22,24 +32,62 @@ export class StadiumList {
   @ViewChild(StadiumForm) stadiumFormRef!: StadiumForm;
 
   private stadiumService   = inject(StadiumService);
+  private countryService   = inject(CountryService);
+  private cityService      = inject(CityService);
   private confirmDialog    = inject(ConfirmDialogService);
   private router           = inject(Router);
   private userStateService = inject(UserStateService);
+  private fb               = inject(FormBuilder);
 
   private refresh$ = new BehaviorSubject<void>(undefined);
-  private page$ = new BehaviorSubject<number>(1);
+  private query$ = new BehaviorSubject<{ page: number; filter: StadiumListFilter }>({ page: 1, filter: {} });
   readonly pageSize = 10;
+
+  filterForm = this.fb.group({
+    name: this.fb.nonNullable.control('', Validators.maxLength(150)),
+    countryId: this.fb.nonNullable.control(''),
+    cityId: this.fb.nonNullable.control(''),
+    minCapacity: this.fb.control<number | null>(null, Validators.min(0)),
+    maxCapacity: this.fb.control<number | null>(null, Validators.min(0)),
+  }, { validators: capacityRangeValidator });
+
+  countries = toSignal(this.countryService.getAllForDropdown(), { initialValue: [] });
+  cities = toSignal(this.cityService.getAllForDropdown(), { initialValue: [] });
 
   user = this.userStateService.getUser();
 
   pagedResult = toSignal(
-    combineLatest([this.page$, this.refresh$]).pipe(
-      switchMap(([page]) => this.stadiumService.getAll(page, this.pageSize))
+    combineLatest([this.query$, this.refresh$]).pipe(
+      switchMap(([{ page, filter }]) => this.stadiumService.getAll(page, this.pageSize, filter))
     )
   );
 
+  constructor() {
+    // Any filter change goes back to page 1; invalid combinations are not sent.
+    this.filterForm.valueChanges.pipe(
+      debounceTime(300),
+      filter(() => this.filterForm.valid),
+      takeUntilDestroyed(),
+    ).subscribe(() => this.query$.next({ page: 1, filter: this.toFilter() }));
+  }
+
+  private toFilter(): StadiumListFilter {
+    const { name, countryId, cityId, minCapacity, maxCapacity } = this.filterForm.getRawValue();
+    return {
+      name: name.trim() || undefined,
+      countryId: countryId || undefined,
+      cityId: cityId || undefined,
+      minCapacity: minCapacity ?? undefined,
+      maxCapacity: maxCapacity ?? undefined,
+    };
+  }
+
+  resetFilters(): void {
+    this.filterForm.reset();
+  }
+
   onPageChange(page: number) {
-    this.page$.next(page);
+    this.query$.next({ ...this.query$.value, page });
   }
 
   onFormSaved(): void {
@@ -59,7 +107,7 @@ export class StadiumList {
 
   async delete(stadium: StadiumListDto) {
     const confirmed = await this.confirmDialog.confirm({
-      message: `Jeste li sigurni da želite obrisati ${stadium.name}?`
+      message: `Are you sure you want to delete ${stadium.name}?`
     });
     if (!confirmed) return;
 
@@ -67,11 +115,5 @@ export class StadiumList {
       next: () => this.refresh$.next(),
       error: (err) => console.error('Error deleting stadium: ', err)
     });
-  }
-
-  search(term: string) {
-    if (!term) {
-      this.page$.next(1);
-    }
   }
 }
