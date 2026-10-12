@@ -27,6 +27,7 @@ public class MatchController : ControllerBase
         [FromQuery] int pageSize = 10,
         [FromQuery] Guid? statusId = null,
         [FromQuery] Guid? stadiumId = null,
+        [FromQuery] Guid? roundId = null,
         [FromQuery] bool? isPostponed = null,
         [FromQuery] DateTime? dateFrom = null,
         [FromQuery] DateTime? dateTo = null,
@@ -38,6 +39,7 @@ public class MatchController : ControllerBase
             PageSize = pageSize,
             StatusId = statusId,
             StadiumId = stadiumId,
+            RoundId = roundId,
             IsPostponed = isPostponed,
             DateFrom = dateFrom,
             DateTo = dateTo

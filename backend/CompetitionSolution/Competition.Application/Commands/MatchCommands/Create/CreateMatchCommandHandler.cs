@@ -10,18 +10,23 @@ namespace Competition.Application.Commands.MatchCommands.Create;
 public class CreateMatchCommandHandler : IRequestHandler<CreateMatchCommand, MatchDetailsDto>
 {
     private readonly IMatch _match;
+    private readonly IRound _round;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    public CreateMatchCommandHandler(IMatch match, IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateMatchCommandHandler(IMatch match, IRound round, IUnitOfWork unitOfWork, IMapper mapper)
     {
         _match = match;
+        _round = round;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
 
     public async Task<MatchDetailsDto> Handle(CreateMatchCommand request, CancellationToken cancellationToken)
     {
+        if (request.RoundId.HasValue && await _round.GetByIdAsync(request.RoundId.Value, cancellationToken) is null)
+            throw new KeyNotFoundException($"Round with ID '{request.RoundId}' not found.");
+
         var match = _mapper.Map<Match>(request);
         match.Date = Instant.FromDateTimeUtc(DateTime.SpecifyKind(request.Date, DateTimeKind.Utc));
 

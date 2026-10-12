@@ -21,6 +21,7 @@ public class MatchRepository : Repository<Match>, IMatch
             .Include(m => m.Stadium)
             .Include(m => m.HomeSelection)
             .Include(m => m.AwaySelection)
+            .Include(m => m.Round)
             .FirstOrDefaultAsync(m => m.Slug == slug, cancellationToken);
 
     public async Task<Match?> GetByIdWithNavAsync(Guid id, CancellationToken cancellationToken = default) =>
@@ -29,11 +30,12 @@ public class MatchRepository : Repository<Match>, IMatch
             .Include(m => m.Stadium)
             .Include(m => m.HomeSelection)
             .Include(m => m.AwaySelection)
+            .Include(m => m.Round)
             .FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
 
     public async Task<PagedResult<Match>> GetPagedWithFiltersAsync(
         int page, int pageSize,
-        Guid? statusId, Guid? stadiumId,
+        Guid? statusId, Guid? stadiumId, Guid? roundId,
         bool? isPostponed,
         DateTime? dateFrom, DateTime? dateTo,
         CancellationToken cancellationToken = default)
@@ -43,6 +45,7 @@ public class MatchRepository : Repository<Match>, IMatch
             .Include(m => m.Stadium)
             .Include(m => m.HomeSelection)
             .Include(m => m.AwaySelection)
+            .Include(m => m.Round)
             .AsQueryable();
 
         if (statusId.HasValue)
@@ -50,6 +53,8 @@ public class MatchRepository : Repository<Match>, IMatch
 
         if (stadiumId.HasValue)
             query = query.Where(m => m.StadiumId == stadiumId.Value);
+        if (roundId.HasValue)
+            query = query.Where(m => m.RoundId == roundId.Value);
 
         if (isPostponed.HasValue)
             query = query.Where(m => m.IsPostponed == isPostponed.Value);

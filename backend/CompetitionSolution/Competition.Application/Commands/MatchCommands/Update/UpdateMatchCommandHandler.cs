@@ -9,12 +9,14 @@ namespace Competition.Application.Commands.MatchCommands.Update;
 public class UpdateMatchCommandHandler : IRequestHandler<UpdateMatchCommand, MatchDetailsDto>
 {
     private readonly IMatch _match;
+    private readonly IRound _round;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    public UpdateMatchCommandHandler(IMatch match, IUnitOfWork unitOfWork, IMapper mapper)
+    public UpdateMatchCommandHandler(IMatch match, IRound round, IUnitOfWork unitOfWork, IMapper mapper)
     {
         _match = match;
+        _round = round;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
@@ -23,6 +25,9 @@ public class UpdateMatchCommandHandler : IRequestHandler<UpdateMatchCommand, Mat
     {
         var match = await _match.GetBySlugAsync(request.Slug, cancellationToken)
             ?? throw new KeyNotFoundException($"Match with slug '{request.Slug}' not found.");
+
+        if (request.RoundId.HasValue && await _round.GetByIdAsync(request.RoundId.Value, cancellationToken) is null)
+            throw new KeyNotFoundException($"Round with ID '{request.RoundId}' not found.");
 
         match.Date = Instant.FromDateTimeUtc(DateTime.SpecifyKind(request.Date, DateTimeKind.Utc));
         match.FollowersCount = request.FollowersCount;
@@ -35,6 +40,7 @@ public class UpdateMatchCommandHandler : IRequestHandler<UpdateMatchCommand, Mat
         match.StadiumId = request.StadiumId;
         match.HomeSelectionId = request.HomeSelectionId;
         match.AwaySelectionId = request.AwaySelectionId;
+        match.RoundId = request.RoundId;
 
         await _match.UpdateAsync(match, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

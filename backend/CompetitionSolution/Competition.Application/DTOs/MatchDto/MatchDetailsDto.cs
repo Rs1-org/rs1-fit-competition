@@ -19,4 +19,6 @@ public class MatchDetailsDto
     public string? HomeSelectionName { get; set; }
     public Guid? AwaySelectionId { get; set; }
     public string? AwaySelectionName { get; set; }
+    public Guid? RoundId { get; set; }
+    public string? RoundName { get; set; }
 }
