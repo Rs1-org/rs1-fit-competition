@@ -1,0 +1,300 @@
+---
+title: CompetitionSolution - class diagram (up to Sprint 4)
+config:
+  layout: elk
+  class:
+    hideEmptyMembersBox: true
+---
+classDiagram
+    direction TB
+
+    %% ---------- Base ----------
+    class BaseEntity {
+        <<abstract>>
+        +Guid Id
+        +string PublicId
+        +Instant CreatedAt
+        +Instant ModifiedAt
+        +Instant? DeletedAt
+    }
+
+    %% ---------- Identity / auth ----------
+    class IdentityUser~Guid~ {
+        <<ASP.NET Identity>>
+    }
+    class IdentityRole~Guid~ {
+        <<ASP.NET Identity>>
+    }
+    class ApplicationUser {
+        +string FirstName
+        +string LastName
+        +bool IsActive
+    }
+    class ApplicationRole
+    class RefreshToken {
+        +Guid Id
+        +string Token
+        +DateTime Expires
+        +bool IsRevoked
+        +Guid UserId
+    }
+
+    %% ---------- Geo (Sprints 1-3) ----------
+    class Country {
+        +string? Name
+        +string? Slug
+        +string? PictureUrl
+    }
+    class City {
+        +string? Name
+        +int Population
+        +bool IsCapital
+        +string? Slug
+        +Guid CountryId
+        +Guid GeoDataId
+    }
+    class GeoData {
+        +decimal Latitude
+        +decimal Longitude
+        +string? Description
+    }
+    class Stadium {
+        +string? Name
+        +int Capacity
+        +DateTime DateOfConstruction
+        +string? Slug
+        +string? PictureUrl
+        +Guid CityId
+        +Guid GeoDataId
+    }
+
+    %% ---------- Match (Sprints 1-3) ----------
+    class Match {
+        +Instant Date
+        +int FollowersCount
+        +int? HomeScore
+        +int? AwayScore
+        +int? HalfHomeScore
+        +int? HalfAwayScore
+        +bool IsPostponed
+        +string? Slug
+        +Guid StatusId
+        +Guid StadiumId
+        +Guid? HomeSelectionId
+        +Guid? AwaySelectionId
+        +Guid? RoundId
+    }
+    class MatchStatus {
+        +string Name
+        +string? Slug
+    }
+
+    %% ---------- Selection and people (Sprints 1-3) ----------
+    class Selection {
+        +string Name
+        +string Abbreviation
+        +string? PictureUrl
+        +int FollowersCount
+        +string? Slug
+        +Guid CountryId
+    }
+    class Person {
+        +string FirstName
+        +string LastName
+        +LocalDate DateOfBirth
+        +byte[] Picture
+    }
+    class Player {
+        +decimal Height
+        +int ShirtNumber
+        +float TransferValue
+        +Guid? PositionId
+        +Guid? SubPositionId
+    }
+    class Manager {
+        +LocalDate? CareerStart
+    }
+    class Referee {
+        +LocalDate? CareerStart
+    }
+    class TransferValueHistory {
+        +LocalDate? Date
+        +decimal? Value
+        +Guid PlayerId
+    }
+    class PlayerSelectionHistory {
+        +int? Goals
+        +int? MatchPlayed
+        +int? Assists
+        +int? ShirtNumber
+        +Guid PlayerId
+        +Guid? SelectionId
+    }
+    class SelectionManagerHistory {
+        +string? Notes
+        +int? Wins
+        +int? Loses
+        +int? Draw
+        +Guid ManagerId
+        +Guid? SelectionId
+    }
+    class MandatDate {
+        +LocalDate? StartMandatDate
+        +LocalDate? EndMandatDate
+        +Guid? PlayerSelectionHistoryId
+        +Guid? SelectionManagerHistoryId
+    }
+
+    %% ---------- Formation (Sprints 1-3) ----------
+    class Formation {
+        +string Code
+        +string? Slug
+        +Guid FormationMarkId
+    }
+    class FormationMark {
+        +int Defenders
+        +int Midfielders
+        +int Attackers
+        +string? Slug
+    }
+    class Position {
+        +string Name
+        +string? Slug
+    }
+    class SubPosition {
+        +string Name
+        +string? Slug
+        +Guid PositionId
+    }
+
+    %% ---------- Competition (Sprint 4) ----------
+    class Competition {
+        +string Name
+        +string Slug
+        +string? ShortName
+        +string? Description
+        +Guid? CountryId
+    }
+    class Season {
+        +string Name
+        +string Slug
+        +LocalDate StartDate
+        +LocalDate EndDate
+        +bool IsCurrent
+        +Guid CompetitionId
+    }
+    class Round {
+        +string Name
+        +string Slug
+        +int Number
+        +Guid SeasonId
+    }
+
+    %% ---------- Inheritance ----------
+    IdentityUser~Guid~ <|-- ApplicationUser
+    IdentityRole~Guid~ <|-- ApplicationRole
+    BaseEntity <|-- Country
+    BaseEntity <|-- City
+    BaseEntity <|-- GeoData
+    BaseEntity <|-- Stadium
+    BaseEntity <|-- Match
+    BaseEntity <|-- MatchStatus
+    BaseEntity <|-- Selection
+    BaseEntity <|-- Person
+    BaseEntity <|-- TransferValueHistory
+    BaseEntity <|-- PlayerSelectionHistory
+    BaseEntity <|-- SelectionManagerHistory
+    BaseEntity <|-- MandatDate
+    BaseEntity <|-- Formation
+    BaseEntity <|-- FormationMark
+    BaseEntity <|-- Position
+    BaseEntity <|-- SubPosition
+    BaseEntity <|-- Competition
+    BaseEntity <|-- Season
+    BaseEntity <|-- Round
+    Person <|-- Player
+    Person <|-- Manager
+    Person <|-- Referee
+
+    %% ---------- Associations ----------
+    %% <--> = navigable from both classes (navigation property on each side), --> = only the FK side navigates.
+    ApplicationUser "1" <--> "0..*" RefreshToken : RefreshTokens / User
+
+    Country "1" <--> "0..*" City : Cities / Country
+    City "0..*" --> "1" GeoData : GeoData
+    Stadium "0..*" --> "1" City : City
+    Stadium "0..*" --> "1" GeoData : GeoData
+
+    Match "0..*" <--> "1" MatchStatus : Status / Matches
+    Match "0..*" --> "1" Stadium : Stadium
+    Match "0..*" <--> "0..1" Selection : HomeSelection / HomeMatches
+    Match "0..*" <--> "0..1" Selection : AwaySelection / AwayMatches
+
+    Selection "0..*" --> "1" Country : Country
+    Player "0..*" <--> "0..1" Position : Position / Players
+    Player "0..*" <--> "0..1" SubPosition : SubPosition / Players
+    Position "1" <--> "0..*" SubPosition : SubPositions / Position
+    Formation "1" <--> "1" FormationMark : FormationMark / Formation
+
+    TransferValueHistory "0..*" --> "1" Player : Player
+    PlayerSelectionHistory "0..*" --> "1" Player : Player
+    PlayerSelectionHistory "0..*" <--> "0..1" Selection : Selection / PlayerHistories
+    SelectionManagerHistory "0..*" --> "1" Manager : Manager
+    SelectionManagerHistory "0..*" <--> "0..1" Selection : Selection / ManagerHistories
+    MandatDate "0..*" --> "0..1" PlayerSelectionHistory : PlayerSelectionHistory
+    MandatDate "0..*" --> "0..1" SelectionManagerHistory : SelectionManagerHistory
+
+    Competition "0..*" --> "0..1" Country : Country
+    Competition "1" <--> "0..*" Season : Seasons / Competition
+    Season "1" <--> "0..*" Round : Rounds / Season
+    Match "0..*" <--> "0..1" Round : Round / Matches
+
+    %% ---------- Legend (colour swatches) ----------
+    class LegendSprint1to3["Legend: Sprints 1-3"] {
+        <<legend>>
+    }
+    class LegendSprint4["Legend: new in Sprint 4"] {
+        <<legend>>
+    }
+    class LegendIdentity["Legend: ASP.NET Identity"] {
+        <<legend>>
+    }
+    LegendSprint1to3 .. LegendSprint4
+    LegendSprint4 .. LegendIdentity
+
+    %% ---------- Notes ----------
+    note for BaseEntity "All domain classes inherit BaseEntity (soft delete via DeletedAt). ApplicationUser, ApplicationRole and RefreshToken do not."
+    note for LegendSprint4 "Sprint 4 also added Match.RoundId (Match -> Round).
+Planned for Sprint 4 but not implemented yet: Event, EventType, MatchPart (COMP-41), Club, Statistic / TeamStatistic (COMP-62), Selection.ClubId, Selection.HomeStadiumId."
+
+    %% ---------- Colours ----------
+
+    style BaseEntity fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style ApplicationUser fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style ApplicationRole fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style RefreshToken fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Country fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style City fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style GeoData fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Stadium fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Match fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style MatchStatus fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Selection fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Person fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Player fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Manager fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Referee fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style TransferValueHistory fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style PlayerSelectionHistory fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style SelectionManagerHistory fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style MandatDate fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Formation fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style FormationMark fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Position fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style SubPosition fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Competition fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
+    style Season fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
+    style Round fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
+    style LegendSprint1to3 fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style LegendSprint4 fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
+    style LegendIdentity fill:#ECECFF,stroke:#9370DB,color:#333
