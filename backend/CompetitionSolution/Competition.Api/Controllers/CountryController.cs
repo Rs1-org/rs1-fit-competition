@@ -26,7 +26,7 @@ namespace Competition.Api.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateCountry([FromForm] CreateCountryCommands request, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(request);
+            var result = await _mediator.Send(request, cancellationToken);
             return Ok(result);
         }
 
@@ -34,7 +34,7 @@ namespace Competition.Api.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteCountry(Guid id, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new DeleteCountryCommands { Id = id });
+            var result = await _mediator.Send(new DeleteCountryCommands { Id = id }, cancellationToken);
             return Ok(result);
         }
 
@@ -43,14 +43,14 @@ namespace Competition.Api.Controllers
         public async Task<IActionResult> UpdateCountry(string slug, [FromForm] UpdateCountryCommands request, CancellationToken cancellationToken)
         {
             request.Slug=slug;
-            var result = await _mediator.Send(request);
+            var result = await _mediator.Send(request, cancellationToken);
             return Ok(result);
         }
 
         [HttpGet("get/{slug}")]
         public async Task<IActionResult> GetCountry(string slug, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new GetCountryBySlugCommand { Slug=slug});
+            var result = await _mediator.Send(new GetCountryBySlugCommand { Slug=slug}, cancellationToken);
             return Ok(result);
         }
 

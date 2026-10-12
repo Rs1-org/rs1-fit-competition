@@ -22,7 +22,7 @@ public class CityController : ControllerBase
     [HttpPost("createCity")]
     public async Task<IActionResult>CreateCity([FromBody]CreateCityCommand request, CancellationToken cancellationToken)
     {
-        var result= await _mediator.Send(request);
+        var result= await _mediator.Send(request, cancellationToken);
         return Ok(result);
     }
 
@@ -30,7 +30,7 @@ public class CityController : ControllerBase
     [HttpDelete("deleteCity/{id}")]
     public async Task<IActionResult> DeleteCity(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new DeleteCityCommands { Id = id });
+        var result = await _mediator.Send(new DeleteCityCommands { Id = id }, cancellationToken);
         return Ok(result);
     }
 
@@ -39,7 +39,7 @@ public class CityController : ControllerBase
     public async Task<IActionResult> UpdateCity(string slug, [FromBody] UpdateCityCommands request, CancellationToken cancellationToken)
     {
         request.Slug = slug;
-        var result = await _mediator.Send(request);
+        var result = await _mediator.Send(request, cancellationToken);
         return Ok(result);
     }
 
@@ -53,7 +53,7 @@ public class CityController : ControllerBase
     [HttpGet("getCity/{slug}")]
     public async Task<IActionResult> GetCity(string slug, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetCityBySlugCommand { Slug = slug });
+        var result = await _mediator.Send(new GetCityBySlugCommand { Slug = slug }, cancellationToken);
         return Ok(result);
     }
 

@@ -42,7 +42,7 @@ public class CreateStadiumCommandHandler : IRequestHandler<CreateStadiumCommand,
         stadium.DateOfConstruction = DateTime.SpecifyKind(stadium.DateOfConstruction, DateTimeKind.Utc);
 
         if (request.Picture != null)
-            stadium.PictureUrl = await _imageService.UploadImageAsync(request.Picture);
+            stadium.PictureUrl = await _imageService.UploadImageAsync(request.Picture, cancellationToken);
 
         await _stadium.AddAsync(stadium, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

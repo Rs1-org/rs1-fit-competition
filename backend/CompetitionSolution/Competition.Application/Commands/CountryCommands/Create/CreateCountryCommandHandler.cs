@@ -29,7 +29,7 @@ namespace Competition.Application.Commands.CountryCommands.Create
 
         public async Task<CountryNameDto>Handle(CreateCountryCommands request,CancellationToken cancellationToken)
         {
-            var pictureUrl = await _imageService.UploadImageAsync(request.Picture);
+            var pictureUrl = await _imageService.UploadImageAsync(request.Picture, cancellationToken);
             
             var country = _mapper.Map<Country>(request);
 

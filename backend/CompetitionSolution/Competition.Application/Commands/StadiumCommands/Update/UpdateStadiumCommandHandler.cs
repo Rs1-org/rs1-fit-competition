@@ -40,7 +40,7 @@ public class UpdateStadiumCommandHandler : IRequestHandler<UpdateStadiumCommand,
         stadium.Slug = SlugHelper.GenerateSlug(request.Name!);
 
         if (request.Picture != null)
-            stadium.PictureUrl = await _imageService.UploadImageAsync(request.Picture);
+            stadium.PictureUrl = await _imageService.UploadImageAsync(request.Picture, cancellationToken);
 
         if (stadium.GeoData != null)
         {
