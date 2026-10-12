@@ -11,13 +11,11 @@ namespace Competition.Application.Commands.CityCommands.Create;
 public class CreateCityCommandHandler:IRequestHandler<CreateCityCommand,CityNameDto>
 {
     private readonly ICity _city;
-    private readonly IGeoData _geoData;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    public CreateCityCommandHandler(ICity city, IGeoData geoData, IMapper mapper, IUnitOfWork unitOfWork)
+    public CreateCityCommandHandler(ICity city, IMapper mapper, IUnitOfWork unitOfWork)
     {
         _city = city;
-        _geoData = geoData;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
     }
@@ -25,8 +23,6 @@ public class CreateCityCommandHandler:IRequestHandler<CreateCityCommand,CityName
     public async Task<CityNameDto> Handle(CreateCityCommand request, CancellationToken cancellationToken)
     {
         var geoData = _mapper.Map<GeoData>(request);
-        await _geoData.AddAsync(geoData, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var city = _mapper.Map<City>(request);
 
@@ -35,7 +31,8 @@ public class CreateCityCommandHandler:IRequestHandler<CreateCityCommand,CityName
             throw new ValidationException("Couldn't create city");
         }
 
-        city.GeoDataId = geoData.Id;
+        // Attached by navigation: GeoData and the city are inserted in the same SaveChanges.
+        city.GeoData = geoData;
 
         await _city.AddAsync(city, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

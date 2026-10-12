@@ -152,7 +152,9 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int>("Population")
                         .HasColumnType("integer");
@@ -163,7 +165,9 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("character varying(32)");
 
                     b.Property<string>("Slug")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
 
                     b.HasKey("Id");
 
@@ -174,7 +178,7 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("PublicId")
                         .IsUnique();
 
-                    b.ToTable("Cities");
+                    b.ToTable("Cities", (string)null);
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.CompetitionEntities.Competition", b =>
@@ -366,10 +370,13 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PictureUrl")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("PublicId")
                         .IsRequired()
@@ -377,14 +384,16 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("character varying(32)");
 
                     b.Property<string>("Slug")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PublicId")
                         .IsUnique();
 
-                    b.ToTable("Countries");
+                    b.ToTable("Countries", (string)null);
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.FormationEntities.Formation", b =>
@@ -580,13 +589,16 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<decimal>("Latitude")
-                        .HasColumnType("decimal(9,6)");
+                        .HasPrecision(9, 6)
+                        .HasColumnType("numeric(9,6)");
 
                     b.Property<decimal>("Longitude")
-                        .HasColumnType("decimal(9,6)");
+                        .HasPrecision(9, 6)
+                        .HasColumnType("numeric(9,6)");
 
                     b.Property<Instant>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -601,7 +613,7 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("PublicId")
                         .IsUnique();
 
-                    b.ToTable("GeoDatas");
+                    b.ToTable("GeoDatas", (string)null);
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.MandatDate", b =>
@@ -801,10 +813,13 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.Property<string>("PictureUrl")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("PublicId")
                         .IsRequired()
@@ -812,7 +827,9 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("character varying(32)");
 
                     b.Property<string>("Slug")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(170)
+                        .HasColumnType("character varying(170)");
 
                     b.HasKey("Id");
 
@@ -823,7 +840,7 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("PublicId")
                         .IsUnique();
 
-                    b.ToTable("Stadiums");
+                    b.ToTable("Stadiums", (string)null);
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.Person.Person", b =>
@@ -1251,13 +1268,13 @@ namespace Competition.Infrastructure.Migrations
                     b.HasOne("Competition.Domain.Entities.Country", "Country")
                         .WithMany("Cities")
                         .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Competition.Domain.Entities.GeoData", "GeoData")
                         .WithMany()
                         .HasForeignKey("GeoDataId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Country");
@@ -1379,13 +1396,13 @@ namespace Competition.Infrastructure.Migrations
                     b.HasOne("Competition.Domain.Entities.City", "City")
                         .WithMany()
                         .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Competition.Domain.Entities.GeoData", "GeoData")
                         .WithMany()
                         .HasForeignKey("GeoDataId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("City");
