@@ -157,6 +157,11 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<int>("Population")
                         .HasColumnType("integer");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("Slug")
                         .HasColumnType("text");
 
@@ -165,6 +170,9 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("CountryId");
 
                     b.HasIndex("GeoDataId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.ToTable("Cities");
                 });
@@ -197,6 +205,11 @@ namespace Competition.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("ShortName")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
@@ -213,6 +226,9 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("Name")
                         .IsUnique()
                         .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("Slug")
                         .IsUnique()
@@ -245,6 +261,11 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<int>("Number")
                         .HasColumnType("integer");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<Guid>("SeasonId")
                         .HasColumnType("uuid");
 
@@ -254,6 +275,9 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("character varying(250)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("Slug")
                         .IsUnique()
@@ -296,6 +320,11 @@ namespace Competition.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -305,6 +334,9 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("date");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("Slug")
                         .IsUnique()
@@ -339,10 +371,18 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<string>("PictureUrl")
                         .HasColumnType("text");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("Slug")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.ToTable("Countries");
                 });
@@ -371,12 +411,20 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<Instant>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("Slug")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FormationMarkId")
+                        .IsUnique();
+
+                    b.HasIndex("PublicId")
                         .IsUnique();
 
                     b.HasIndex("Slug")
@@ -411,10 +459,18 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<Instant>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("Slug")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("Slug")
                         .IsUnique()
@@ -444,10 +500,18 @@ namespace Competition.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("Slug")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("Slug")
                         .IsUnique()
@@ -480,12 +544,20 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<Guid>("PositionId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("Slug")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PositionId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("Slug")
                         .IsUnique()
@@ -519,7 +591,15 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<Instant>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.ToTable("GeoDatas");
                 });
@@ -546,6 +626,11 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<Guid?>("PlayerSelectionHistoryId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<Guid?>("SelectionManagerHistoryId")
                         .HasColumnType("uuid");
 
@@ -555,6 +640,9 @@ namespace Competition.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PlayerSelectionHistoryId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("SelectionManagerHistoryId");
 
@@ -604,6 +692,11 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<Instant>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<Guid?>("RoundId")
                         .HasColumnType("uuid");
 
@@ -621,6 +714,9 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("AwaySelectionId");
 
                     b.HasIndex("HomeSelectionId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("RoundId");
 
@@ -656,10 +752,18 @@ namespace Competition.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("Slug")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("Slug")
                         .IsUnique()
@@ -702,6 +806,11 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<string>("PictureUrl")
                         .HasColumnType("text");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("Slug")
                         .HasColumnType("text");
 
@@ -710,6 +819,9 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("CityId");
 
                     b.HasIndex("GeoDataId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.ToTable("Stadiums");
                 });
@@ -745,7 +857,15 @@ namespace Competition.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("bytea");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.ToTable("Persons", (string)null);
 
@@ -780,6 +900,11 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<Guid>("PlayerId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<Guid?>("SelectionId")
                         .HasColumnType("uuid");
 
@@ -789,6 +914,9 @@ namespace Competition.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PlayerId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("SelectionId");
 
@@ -856,12 +984,20 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<string>("PictureUrl")
                         .HasColumnType("text");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("Slug")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CountryId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("Slug")
                         .IsUnique()
@@ -898,6 +1034,11 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<Guid?>("SelectionId")
                         .HasColumnType("uuid");
 
@@ -907,6 +1048,9 @@ namespace Competition.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ManagerId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("SelectionId");
 
@@ -935,12 +1079,20 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<Guid>("PlayerId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<decimal?>("Value")
                         .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PlayerId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.ToTable("TransferValueHistories");
                 });

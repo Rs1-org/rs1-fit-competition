@@ -52,6 +52,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             {
                 entry.Entity.CreatedAt = now;
                 entry.Entity.ModifiedAt = now;
+                if (string.IsNullOrEmpty(entry.Entity.PublicId))
+                    entry.Entity.PublicId = BaseEntity.NewPublicId();
             }
             else if (entry.State == EntityState.Modified)
             {
@@ -83,6 +85,18 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 modelBuilder.Entity(entityType.ClrType)
                     .Property(nameof(BaseEntity.Id))
                     .HasDefaultValueSql("gen_random_uuid()");
+
+                // PublicId lives on the root table only (Player/Manager/Referee share Persons via TPT).
+                if (entityType.BaseType is null)
+                {
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property(nameof(BaseEntity.PublicId))
+                        .IsRequired()
+                        .HasMaxLength(BaseEntity.PublicIdLength);
+                    modelBuilder.Entity(entityType.ClrType)
+                        .HasIndex(nameof(BaseEntity.PublicId))
+                        .IsUnique();
+                }
             }
         }
 
