@@ -4,10 +4,49 @@
     <app-stadium-form [showTrigger]="!!user" (saved)="onFormSaved()"></app-stadium-form>
   </div>
 
-  <app-generic-search 
-    placeholder="Search stadiums..." 
-    (onSearch)="search($event)">
-  </app-generic-search>
+  <form class="filter-bar" [formGroup]="filterForm">
+    <div class="filter-field">
+      <label for="filter-name">Name</label>
+      <input id="filter-name" type="text" formControlName="name" placeholder="e.g. Grbavica">
+    </div>
+    <div class="filter-field">
+      <label for="filter-country">Country</label>
+      <select id="filter-country" formControlName="countryId">
+        <option value="">All countries</option>
+        @for (country of countries(); track country.id) {
+          <option [value]="country.id">{{ country.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="filter-field">
+      <label for="filter-city">City</label>
+      <select id="filter-city" formControlName="cityId">
+        <option value="">All cities</option>
+        @for (city of cities(); track city.id) {
+          <option [value]="city.id">{{ city.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="filter-field">
+      <label for="filter-min">Min capacity</label>
+      <input id="filter-min" type="number" min="0" formControlName="minCapacity">
+    </div>
+    <div class="filter-field">
+      <label for="filter-max">Max capacity</label>
+      <input id="filter-max" type="number" min="0" formControlName="maxCapacity">
+    </div>
+    <button type="button" class="filter-reset" (click)="resetFilters()">Reset</button>
+
+    @if (filterForm.hasError('capacityRange')) {
+      <p class="filter-error">Max capacity must be greater than or equal to min capacity.</p>
+    }
+    @if (filterForm.controls.minCapacity.hasError('min') || filterForm.controls.maxCapacity.hasError('min')) {
+      <p class="filter-error">Capacity cannot be negative.</p>
+    }
+    @if (filterForm.controls.name.hasError('maxlength')) {
+      <p class="filter-error">Name can have at most 150 characters.</p>
+    }
+  </form>
 
   <app-generic-list
     [items]="pagedResult()?.items ?? []"

@@ -22,3 +22,10 @@ export interface StadiumDetailsDto {
     geoDescription: string;
 }
 
+export interface StadiumListFilter {
+    name?: string;
+    countryId?: string;
+    cityId?: string;
+    minCapacity?: number;
+    maxCapacity?: number;
+}

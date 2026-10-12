@@ -19,7 +19,8 @@ public class GetAllStadiumsQueryHandler : IRequestHandler<GetAllStadiumsQuery, P
 
     public async Task<PagedResult<StadiumListDto>> Handle(GetAllStadiumsQuery request, CancellationToken cancellationToken)
     {
-        var paged = await _stadium.GetPagedAsync(request.Page, request.PageSize, cancellationToken);
+        var filter = new StadiumListFilter(request.Name, request.CountryId, request.CityId, request.MinCapacity, request.MaxCapacity);
+        var paged = await _stadium.GetPagedFilteredAsync(filter, request.Page, request.PageSize, cancellationToken);
         var items = _mapper.Map<IReadOnlyList<StadiumListDto>>(paged.Items);
         return new PagedResult<StadiumListDto>(items, paged.TotalCount, paged.Page, paged.PageSize);
     }

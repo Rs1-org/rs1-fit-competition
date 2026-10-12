@@ -40,4 +40,30 @@ public class StadiumRepository : Repository<Stadium>, IStadium
                 .ThenInclude(c => c!.Country)
             .ToPagedResultAsync(page, pageSize, cancellationToken);
     }
+
+    public async Task<PagedResult<Stadium>> GetPagedFilteredAsync(StadiumListFilter filter, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Stadiums
+            .Include(s => s.City)
+                .ThenInclude(c => c!.Country)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.Name))
+        {
+            var name = filter.Name.Trim().ToLower();
+            query = query.Where(s => s.Name!.ToLower().Contains(name));
+        }
+        if (filter.CountryId.HasValue)
+            query = query.Where(s => s.City!.CountryId == filter.CountryId.Value);
+        if (filter.CityId.HasValue)
+            query = query.Where(s => s.CityId == filter.CityId.Value);
+        if (filter.MinCapacity.HasValue)
+            query = query.Where(s => s.Capacity >= filter.MinCapacity.Value);
+        if (filter.MaxCapacity.HasValue)
+            query = query.Where(s => s.Capacity <= filter.MaxCapacity.Value);
+
+        return await query
+            .OrderBy(s => s.Name)
+            .ToPagedResultAsync(page, pageSize, cancellationToken);
+    }
 }

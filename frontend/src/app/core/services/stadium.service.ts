@@ -1,10 +1,11 @@
 import { inject, Injectable } from "@angular/core";
 import { environment } from '../../../environments/environment';
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { trackUpload } from "../helpers/upload-progress.helper";
-import { StadiumDetailsDto, StadiumListDto } from "../models/stadium";
+import { StadiumDetailsDto, StadiumListDto, StadiumListFilter } from "../models/stadium";
 import { PagedResult } from "../models/paged-result";
+import { toPagedParams } from "../helpers/paging.helper";
 
 @Injectable({
     providedIn: 'root'
@@ -13,10 +14,8 @@ export class StadiumService {
     private apiUrl = `${environment.apiUrl}/api/Stadium`;
     private http = inject(HttpClient);
 
-    getAll(page = 1, pageSize = 10): Observable<PagedResult<StadiumListDto>> {
-        const params = new HttpParams()
-            .set('page', page)
-            .set('pageSize', pageSize);
+    getAll(page = 1, pageSize = 10, filter: StadiumListFilter = {}): Observable<PagedResult<StadiumListDto>> {
+        const params = toPagedParams(page, pageSize, filter);
         return this.http.get<PagedResult<StadiumListDto>>(`${this.apiUrl}/getStadiums`, { params });
     }
 
