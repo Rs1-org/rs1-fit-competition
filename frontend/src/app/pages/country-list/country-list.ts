@@ -46,7 +46,9 @@ export class CountryList {
     )
   );
 
-  user = this.userStateService.getUser();
+  // Mirrors the backend: Admin/Moderator can add and edit, only Admin can delete.
+  canManage = this.userStateService.canManage;
+  canDelete = this.userStateService.isAdmin;
   isFormOpen = false;
   selectedCountry: CountryListDto | null = null;
 
@@ -79,16 +81,19 @@ export class CountryList {
   }
 
   onAdd(): void {
+    if (!this.canManage()) return;
     this.selectedCountry = null;
     this.isFormOpen = true;
   }
 
   onEdit(country: CountryListDto): void {
+    if (!this.canManage()) return;
     this.selectedCountry = country;
     this.isFormOpen = true;
   }
 
   async onDelete(country: CountryListDto): Promise<void> {
+    if (!this.canDelete()) return;
     const confirmed = await this.confirmDialog.confirm({
       message: `Are you sure you want to delete ${country.name}?`
     });

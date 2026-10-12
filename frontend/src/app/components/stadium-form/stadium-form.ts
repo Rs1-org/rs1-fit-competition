@@ -4,6 +4,7 @@ import { InputBox } from '../../shared/components/input-box/input-box';
 import { Modal } from '../../shared/components/modal/modal';
 import { CityService } from '../../core/services/city-services';
 import { StadiumService } from '../../core/services/stadium.service';
+import { UserStateService } from '../../core/services/user-state.service';
 import { Button } from '../../shared/components/button/button';
 import { Dropdown } from '../../shared/components/dropdown/dropdown';
 import { Map } from '../../shared/components/map/map';
@@ -22,6 +23,7 @@ export class StadiumForm implements OnInit {
   private fb = inject(NonNullableFormBuilder);
   private cityService = inject(CityService);
   private stadiumService = inject(StadiumService);
+  private userState = inject(UserStateService);
 
   modalState = new ModalState();
   editingSlug: string | null = null;
@@ -54,12 +56,14 @@ export class StadiumForm implements OnInit {
   }
 
   openModal(): void {
+    if (!this.userState.canManage()) return;
     this.editingSlug = null;
     this.selectedPicture = null;
     this.modalState.open();
   }
 
   openForEdit(stadium: StadiumDetailsDto): void {
+    if (!this.userState.canManage()) return;
     this.editingSlug = stadium.slug ?? null;
     this.selectedPicture = null;
     this.form.patchValue({

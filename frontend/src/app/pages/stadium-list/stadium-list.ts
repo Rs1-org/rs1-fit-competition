@@ -67,7 +67,9 @@ export class StadiumList {
     { initialValue: [] }
   );
 
-  user = this.userStateService.getUser();
+  // Mirrors the backend: Admin/Moderator can add and edit, only Admin can delete.
+  canManage = this.userStateService.canManage;
+  canDelete = this.userStateService.isAdmin;
 
   pagedResult = toSignal(
     combineLatest([this.query$, this.refresh$]).pipe(
@@ -116,6 +118,7 @@ export class StadiumList {
   }
 
   edit(stadium: StadiumListDto) {
+    if (!this.canManage()) return;
     this.stadiumService.getBySlug(stadium.slug).subscribe({
       next: (data) => this.stadiumFormRef.openForEdit(data),
       error: (err) => console.error('Error loading stadium details: ', err)
@@ -123,6 +126,7 @@ export class StadiumList {
   }
 
   async delete(stadium: StadiumListDto) {
+    if (!this.canDelete()) return;
     const confirmed = await this.confirmDialog.confirm({
       message: `Are you sure you want to delete ${stadium.name}?`
     });

@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, computed } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject } from 'rxjs';
 import { UserDto } from '../models/auth.models';
 
 const ROLES_KEY = 'user_roles';
-const MANAGE_PERSON_ROLES = ['Admin', 'Moderator'];
+const MANAGE_ROLES = ['Admin', 'Moderator'];
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,11 @@ export class UserStateService {
 
   user$ = this.userSubject.asObservable();
   roles$ = this.rolesSubject.asObservable();
+
+  // Reactive role checks, mirroring the backend [Authorize(Roles = ...)] on write endpoints.
+  private roles = toSignal(this.roles$, { requireSync: true });
+  readonly canManage = computed(() => this.roles().some((role) => MANAGE_ROLES.includes(role)));
+  readonly isAdmin = computed(() => this.roles().includes('Admin'));
 
   setUser(user: UserDto, roles: string[] = []) {
     localStorage.setItem('user', JSON.stringify(user));
@@ -43,7 +49,7 @@ export class UserStateService {
   }
 
   canManagePersons(): boolean {
-    return this.hasAnyRole(MANAGE_PERSON_ROLES);
+    return this.canManage();
   }
 
   private getStoredUser(): UserDto | null {

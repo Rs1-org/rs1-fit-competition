@@ -20,7 +20,7 @@ public class StadiumController : ControllerBase
         _mediator = mediator;
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPost("createStadium")]
     public async Task<IActionResult> CreateStadium([FromForm] CreateStadiumCommand request, CancellationToken cancellationToken)
     {
@@ -36,7 +36,7 @@ public class StadiumController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPut("updateStadium/{slug}")]
     public async Task<IActionResult> UpdateStadium(string slug, [FromForm] UpdateStadiumCommand request, CancellationToken cancellationToken)
     {
