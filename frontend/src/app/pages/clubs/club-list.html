@@ -1,0 +1,26 @@
+<section class="clubs">
+  <header><h1>Clubs</h1>@if (user.canManage()) { <a routerLink="/manage-clubs">Add club</a> }</header>
+  <form [formGroup]="filters" (ngSubmit)="apply()" class="filters">
+    <label>Name<input formControlName="name" maxlength="100" /></label>
+    <label>City<select formControlName="cityId"><option value="">All cities</option>@for (city of cities(); track city.id) { <option [value]="city.id">{{ city.name }}</option> }</select></label>
+    <label>Stadium<select formControlName="stadiumId"><option value="">All stadiums</option>@for (stadium of stadiums(); track stadium.id) { <option [value]="stadium.id">{{ stadium.name }}</option> }</select></label>
+    <label>Founding year<input type="number" formControlName="foundingYear" min="1" max="9999" /></label>
+    <label>Age group<select formControlName="clubAge"><option value="">All ages</option>@for (age of ages; track age; let i = $index) { <option [value]="i">{{ age }}</option> }</select></label>
+    <button type="submit" [disabled]="filters.invalid || loading()">Apply filters</button><button type="button" (click)="reset()">Reset</button>
+    @if (filters.invalid) { <p role="alert">Name must be at most 100 characters and founding year must be a whole number from 1 to 9999.</p> }
+  </form>
+  @if (error()) { <p role="alert">{{ error() }}</p><button type="button" (click)="load()">Retry</button> }
+  @if (loading()) { <p role="status">Loading clubs…</p> }
+  @if (result(); as data) {
+    <div class="table-wrap"><table><thead><tr><th>Name</th><th>City</th><th>Stadium</th><th>Founded</th><th>Age group</th><th>Actions</th></tr></thead>
+      <tbody>@for (club of data.items; track club.id) {
+        <tr><td><a [routerLink]="['/club', club.slug]">{{ club.name }}</a></td><td>{{ club.cityName }}</td><td>{{ club.stadiumName }}</td><td>{{ club.foundingDate | date:'mediumDate':'UTC' }}</td><td>{{ ages[club.clubAge] }}</td>
+        <td>@if (user.canManage()) { <a [routerLink]="['/manage-clubs', club.slug]">Edit</a> } @if (user.isAdmin()) { <button type="button" (click)="pendingDelete.set(club)" [disabled]="deleting()">Delete</button> }</td></tr>
+      } @empty { <tr><td colspan="6">No clubs match these filters.</td></tr> }</tbody>
+    </table></div>
+    <nav aria-label="Club pages"><button type="button" [disabled]="!data.hasPreviousPage || loading()" (click)="changePage(page - 1)">Previous</button><span>Page {{ data.page | number }} of {{ (data.totalPages || 1) | number }} · {{ data.totalCount | number }} clubs</span><button type="button" [disabled]="!data.hasNextPage || loading()" (click)="changePage(page + 1)">Next</button></nav>
+  }
+  @if (pendingDelete(); as club) {
+    <section class="confirmation" aria-labelledby="delete-title"><h2 id="delete-title">Delete {{ club.name }}?</h2><p>The club will be removed from public listings.</p><button type="button" (click)="confirmDelete()" [disabled]="deleting()">{{ deleting() ? 'Deleting…' : 'Confirm delete' }}</button><button type="button" (click)="pendingDelete.set(null)" [disabled]="deleting()">Cancel</button></section>
+  }
+</section>

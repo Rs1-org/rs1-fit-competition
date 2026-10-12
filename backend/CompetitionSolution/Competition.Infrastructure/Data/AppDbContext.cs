@@ -100,6 +100,18 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             }
         }
 
+        modelBuilder.Entity<Club>(e =>
+        {
+            e.ToTable("Clubs");
+            e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            e.Property(x => x.Slug).IsRequired().HasMaxLength(150);
+            e.Property(x => x.FoundingDate).IsRequired();
+            e.HasIndex(x => x.Slug).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasOne(x => x.City).WithMany().HasForeignKey(x => x.CityId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Stadium).WithMany().HasForeignKey(x => x.StadiumId).OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
         modelBuilder.Entity<GeoData>(e =>
         {
             e.ToTable("GeoDatas");
@@ -323,6 +335,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
         });
     }
 
+    public DbSet<Club> Clubs { get; set; } = null!;
     public DbSet<Country> Countries { get; set; }
     public DbSet<GeoData> GeoDatas { get; set; }
     public DbSet<City> Cities { get; set; }

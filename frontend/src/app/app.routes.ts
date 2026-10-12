@@ -8,6 +8,10 @@ import { AdminModeratorGuard } from './core/guards/admin-moderator.guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
+  { path: 'club-list', loadComponent: () => import('./pages/clubs/club-list').then(m => m.ClubList) },
+  { path: 'club/:slug', loadComponent: () => import('./pages/clubs/club-detail').then(m => m.ClubDetail) },
+  { path: 'manage-clubs', canActivate: [AdminModeratorGuard], loadComponent: () => import('./pages/clubs/manage-club').then(m => m.ManageClub) },
+  { path: 'manage-clubs/:slug', canActivate: [AdminModeratorGuard], loadComponent: () => import('./pages/clubs/manage-club').then(m => m.ManageClub) },
   {
     path: 'city-list',
     loadComponent: () =>

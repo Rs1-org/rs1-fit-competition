@@ -21,9 +21,11 @@
     <div class="navbar-text" (click)="openListManagers()">
       <i class="fa-solid fa-user-tie"></i> Managers
     </div>
+    <a class="navbar-text" routerLink="/club-list">Clubs</a>
     <div class="navbar-text manage-wrapper" *ngIf="user" (click)="openManage()">
       <i class="fa-solid fa-gear" ></i> Manage
        <div class="manage-dropdown" *ngIf="openManageTab" @popIn>
+        <a *ngIf="canManagePersons" routerLink="/manage-clubs" (click)="$event.stopPropagation(); openManageTab = false">Add club</a>
         <button *ngIf="canManagePersons" (click)="openManagePlayers($event)">Manage Players</button>
         <button *ngIf="canManagePersons" (click)="openManageReferees($event)">Manage Referees</button>
         <button *ngIf="canManagePersons" (click)="openManageManagers($event)">Manage Managers</button>

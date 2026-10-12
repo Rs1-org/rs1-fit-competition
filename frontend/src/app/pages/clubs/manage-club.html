@@ -1,0 +1,12 @@
+<section class="clubs"><a routerLink="/club-list">Back to clubs</a><h1>{{ slug ? 'Edit club' : 'Add club' }}</h1>
+  @if (loading()) { <p role="status">Loading club…</p> }
+  @if (error()) { <p role="alert">{{ error() }}</p> }
+  <form [formGroup]="form" (ngSubmit)="save()" class="club-form">
+    <label>Name<input formControlName="name" maxlength="100" required />@if (form.controls.name.touched && form.controls.name.invalid) { <span class="validation">Enter a name with letters or numbers (max 100 characters).</span> }</label>
+    <label>Founding date<input type="date" formControlName="foundingDate" [max]="today" required />@if (form.controls.foundingDate.touched && form.controls.foundingDate.invalid) { <span class="validation">Enter a valid date that is not in the future.</span> }</label>
+    <label>Age group<select formControlName="clubAge">@for (age of ages; track age; let i = $index) { <option [ngValue]="i">{{ age }}</option> }</select></label>
+    <label>City<select formControlName="cityId" required><option value="">Select city</option>@for (city of cities(); track city.id) { <option [value]="city.id">{{ city.name }}</option> }</select>@if (form.controls.cityId.touched && form.controls.cityId.invalid) { <span class="validation">Select a city.</span> }</label>
+    <label>Stadium<select formControlName="stadiumId" required><option value="">Select stadium in this city</option>@for (stadium of stadiums(); track stadium.id) { <option [value]="stadium.id">{{ stadium.name }}</option> }</select>@if (form.controls.stadiumId.touched && form.controls.stadiumId.invalid) { <span class="validation">Select a stadium belonging to this city.</span> }</label>
+    <div class="actions"><button type="submit" [disabled]="form.invalid || saving() || loading() || !optionsReady()">{{ saving() ? 'Saving…' : 'Save club' }}</button><a routerLink="/club-list">Cancel</a></div>
+  </form>
+</section>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="740" viewBox="0 0 1120 740" role="img" aria-labelledby="title desc">
+  <title id="title">COMP-13 Club list and form mockup</title>
+  <desc id="desc">Club list with five filters, pagination and role-based actions. Form with name, founding date, age group, city and stadium.</desc>
+  <rect width="1120" height="740" fill="#f4f7f8"/>
+  <g font-family="Arial, sans-serif" fill="#17202a">
+    <rect x="30" y="25" width="1060" height="390" rx="12" fill="white"/>
+    <text x="55" y="70" font-size="28" font-weight="bold">Clubs</text>
+    <rect x="930" y="43" width="125" height="38" rx="6" fill="#0b7d66"/><text x="960" y="68" fill="white">Add club</text>
+    <g font-size="14"><text x="55" y="110">Name</text><text x="260" y="110">City</text><text x="465" y="110">Stadium</text><text x="670" y="110">Founding year</text><text x="875" y="110">Age group</text></g>
+    <g fill="#f7faf9" stroke="#d8e0e6"><rect x="55" y="120" width="190" height="38" rx="5"/><rect x="260" y="120" width="190" height="38" rx="5"/><rect x="465" y="120" width="190" height="38" rx="5"/><rect x="670" y="120" width="190" height="38" rx="5"/><rect x="875" y="120" width="180" height="38" rx="5"/></g>
+    <text x="275" y="145">All cities</text><text x="480" y="145">All stadiums</text><text x="890" y="145">All ages</text>
+    <rect x="55" y="175" width="130" height="34" rx="5" fill="#0b7d66"/><text x="70" y="197" fill="white">Apply filters</text><text x="208" y="197">Reset</text>
+    <path d="M55 255H1055 M55 303H1055 M55 350H1055" stroke="#d8e0e6"/>
+    <g font-size="15" font-weight="bold"><text x="55" y="240">Name</text><text x="285" y="240">City</text><text x="465" y="240">Stadium</text><text x="675" y="240">Founded</text><text x="825" y="240">Age group</text><text x="950" y="240">Actions</text></g>
+    <g font-size="15"><text x="55" y="284">Example FC</text><text x="285" y="284">Sarajevo</text><text x="465" y="284">Example stadium</text><text x="675" y="284">Jan 1, 1950</text><text x="825" y="284">Senior</text><text x="950" y="284">Edit · Delete</text><text x="55" y="332">Youth Club</text><text x="285" y="332">Mostar</text><text x="465" y="332">City stadium</text><text x="675" y="332">Jan 1, 1980</text><text x="825" y="332">U19</text><text x="950" y="332">Edit · Delete</text></g>
+    <text x="55" y="385">Previous</text><text x="430" y="385">Page 1 of 2 · 12 clubs</text><text x="1015" y="385">Next</text>
+    <rect x="30" y="435" width="1060" height="280" rx="12" fill="white"/>
+    <text x="55" y="480" font-size="26" font-weight="bold">Add / edit club</text>
+    <g font-size="14"><text x="55" y="520">Name</text><text x="415" y="520">Founding date</text><text x="775" y="520">Age group</text><text x="55" y="600">City</text><text x="415" y="600">Stadium in selected city</text></g>
+    <g fill="#f7faf9" stroke="#d8e0e6"><rect x="55" y="530" width="335" height="38" rx="5"/><rect x="415" y="530" width="335" height="38" rx="5"/><rect x="775" y="530" width="280" height="38" rx="5"/><rect x="55" y="610" width="335" height="38" rx="5"/><rect x="415" y="610" width="335" height="38" rx="5"/></g>
+    <rect x="55" y="668" width="125" height="32" rx="5" fill="#0b7d66"/><text x="78" y="690" fill="white">Save club</text><text x="205" y="690">Cancel</text>
+  </g>
+</svg>
