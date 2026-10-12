@@ -3,20 +3,18 @@ using System.Security.Claims;
 using System.Text;
 using Competition.Application.Auth.Interfaces;
 using Competition.Domain.Entities;
-using Microsoft.Extensions.Configuration;
+using Competition.Infrastructure.Settings;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace Competition.Infrastructure.Identity;
 
-public class JwtTokenGenerator(IConfiguration configuration) : IJwtTokenGenerator
+public class JwtTokenGenerator(IOptions<JwtSettings> options) : IJwtTokenGenerator
 {
-    private readonly string jwtKey = configuration["Jwt:Key"] 
-    ?? throw new ArgumentNullException("Jwt:Key missing");
-    private readonly string jwtIssuer = configuration["Jwt:Issuer"] 
-    ?? throw new ArgumentNullException("Jwt:Issuer missing");
-    private readonly string jwtAudience = configuration["Jwt:Audience"] 
-    ?? throw new ArgumentNullException("Jwt:Audience missing");
+    private readonly string jwtKey = options.Value.Key;
+    private readonly string jwtIssuer = options.Value.Issuer;
+    private readonly string jwtAudience = options.Value.Audience;
 
     public string GenerateJwtToken(ApplicationUser user, IList<string> roles)
     {

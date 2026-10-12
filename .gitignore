@@ -22,7 +22,6 @@ packages/
 .nuget/
 
 # Config (keep base, ignore secrets)
-appsettings.Development.json
 appsettings.Local.json
 .env
 
