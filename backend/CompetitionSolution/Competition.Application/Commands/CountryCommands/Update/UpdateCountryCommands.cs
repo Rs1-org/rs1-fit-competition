@@ -13,7 +13,7 @@ namespace Competition.Application.Commands.CountryCommands.Update
     public class UpdateCountryCommands : IRequest<CountryNameDto>
     {
         [JsonIgnore]
-        public string Slug { get; set; }
+        public string Slug { get; set; } = string.Empty;
         public string? Name { get; set; }
         public IFormFile? Picture { get; set; }
     }

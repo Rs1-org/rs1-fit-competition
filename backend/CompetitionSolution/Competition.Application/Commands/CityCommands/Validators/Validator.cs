@@ -1,4 +1,5 @@
 ﻿using Competition.Application.Commands.CityCommands.Create;
+using Competition.Application.Commands.CityCommands.Delete;
 using Competition.Application.Commands.CityCommands.Update;
 using FluentValidation;
 using System;

@@ -100,6 +100,57 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             }
         }
 
+        modelBuilder.Entity<GeoData>(e =>
+        {
+            e.ToTable("GeoDatas");
+            e.Property(x => x.Latitude).HasPrecision(9, 6);
+            e.Property(x => x.Longitude).HasPrecision(9, 6);
+            e.Property(x => x.Description).HasMaxLength(1000);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<Country>(e =>
+        {
+            e.ToTable("Countries");
+            e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            e.Property(x => x.Slug).IsRequired().HasMaxLength(120);
+            e.Property(x => x.PictureUrl).HasMaxLength(500);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<City>(e =>
+        {
+            e.ToTable("Cities");
+            e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            e.Property(x => x.Slug).IsRequired().HasMaxLength(120);
+            e.HasOne(x => x.Country)
+                .WithMany(c => c.Cities)
+                .HasForeignKey(x => x.CountryId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.GeoData)
+                .WithMany()
+                .HasForeignKey(x => x.GeoDataId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<Stadium>(e =>
+        {
+            e.ToTable("Stadiums");
+            e.Property(x => x.Name).IsRequired().HasMaxLength(150);
+            e.Property(x => x.Slug).IsRequired().HasMaxLength(170);
+            e.Property(x => x.PictureUrl).HasMaxLength(500);
+            e.HasOne(x => x.City)
+                .WithMany()
+                .HasForeignKey(x => x.CityId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.GeoData)
+                .WithMany()
+                .HasForeignKey(x => x.GeoDataId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
         modelBuilder.Entity<MatchStatus>(e =>
         {
             e.ToTable("MatchStatuses");

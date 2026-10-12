@@ -12,15 +12,13 @@ namespace Competition.Application.Commands.StadiumCommands.Create;
 public class CreateStadiumCommandHandler : IRequestHandler<CreateStadiumCommand, StadiumDetailsDto>
 {
     private readonly IStadium _stadium;
-    private readonly IGeoData _geoData;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IImageService _imageService;
 
-    public CreateStadiumCommandHandler(IStadium stadium, IGeoData geoData, IMapper mapper, IUnitOfWork unitOfWork, IImageService imageService)
+    public CreateStadiumCommandHandler(IStadium stadium, IMapper mapper, IUnitOfWork unitOfWork, IImageService imageService)
     {
         _stadium = stadium;
-        _geoData = geoData;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _imageService = imageService;
@@ -29,8 +27,6 @@ public class CreateStadiumCommandHandler : IRequestHandler<CreateStadiumCommand,
     public async Task<StadiumDetailsDto> Handle(CreateStadiumCommand request, CancellationToken cancellationToken)
     {
         var geoData = _mapper.Map<GeoData>(request);
-        await _geoData.AddAsync(geoData, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var stadium = _mapper.Map<Stadium>(request);
         if (stadium == null)
@@ -38,7 +34,8 @@ public class CreateStadiumCommandHandler : IRequestHandler<CreateStadiumCommand,
             throw new ValidationException("Couldn't create stadium");
         }
 
-        stadium.GeoDataId = geoData.Id;
+        // Attached by navigation: GeoData and the stadium are inserted in the same SaveChanges.
+        stadium.GeoData = geoData;
         stadium.DateOfConstruction = DateTime.SpecifyKind(stadium.DateOfConstruction, DateTimeKind.Utc);
 
         if (request.Picture != null)

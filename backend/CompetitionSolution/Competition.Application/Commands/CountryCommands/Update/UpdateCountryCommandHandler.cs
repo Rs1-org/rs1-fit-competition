@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Competition.Application.DTOs.CountryDto;
+using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
 using Competition.Application.Services;
 using MediatR;
@@ -34,6 +35,8 @@ namespace Competition.Application.Commands.CountryCommands.Update
                 throw new KeyNotFoundException($"Couldn't find any country with {request.Slug}");
 
             country.Name = request.Name;
+
+            country.Slug = SlugHelper.GenerateSlug(request.Name!);
 
             if (request.Picture != null)
             {

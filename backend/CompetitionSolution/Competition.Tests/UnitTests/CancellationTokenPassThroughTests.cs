@@ -51,11 +51,10 @@ public class CancellationTokenPassThroughTests : BaseUnitTest
     {
         // Arrange
         var stadiumMock = new Mock<IStadium>();
-        var geoDataMock = new Mock<IGeoData>();
         MapperMock.Setup(m => m.Map<GeoData>(It.IsAny<CreateStadiumCommand>())).Returns(new GeoData());
         MapperMock.Setup(m => m.Map<Stadium>(It.IsAny<CreateStadiumCommand>())).Returns(new Stadium { Name = "Koševo", Slug = "kosevo" });
         MapperMock.Setup(m => m.Map<StadiumDetailsDto>(It.IsAny<Stadium?>())).Returns(new StadiumDetailsDto { Name = "Koševo" });
-        var handler = new CreateStadiumCommandHandler(stadiumMock.Object, geoDataMock.Object, Mapper, _unitOfWorkMock.Object, _imageServiceMock.Object);
+        var handler = new CreateStadiumCommandHandler(stadiumMock.Object, Mapper, _unitOfWorkMock.Object, _imageServiceMock.Object);
         var command = new CreateStadiumCommand { Name = "Koševo", Capacity = 34000, Picture = Mock.Of<IFormFile>() };
 
         // Act

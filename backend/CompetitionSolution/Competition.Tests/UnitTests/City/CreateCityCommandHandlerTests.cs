@@ -12,14 +12,12 @@ namespace Competition.Tests.UnitTests.City;
 public class CreateCityCommandHandlerTests : BaseUnitTest
 {
     private readonly Mock<ICity> _cityRepositoryMock;
-    private readonly Mock<IGeoData> _geoDataRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly CreateCityCommandHandler _handler;
 
     public CreateCityCommandHandlerTests()
     {
         _cityRepositoryMock = new Mock<ICity>();
-        _geoDataRepositoryMock = new Mock<IGeoData>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
 
         MapperMock.Setup(m => m.Map<GeoData>(It.IsAny<CreateCityCommand>())).Returns(new GeoData());
@@ -30,7 +28,6 @@ public class CreateCityCommandHandlerTests : BaseUnitTest
 
         _handler = new CreateCityCommandHandler(
             _cityRepositoryMock.Object,
-            _geoDataRepositoryMock.Object,
             Mapper,
             _unitOfWorkMock.Object);
     }
@@ -57,8 +54,8 @@ public class CreateCityCommandHandlerTests : BaseUnitTest
         result.Should().NotBeNull();
         result.Name.Should().Be("Sarajevo");
 
-        _geoDataRepositoryMock.Verify(x => x.AddAsync(It.IsAny<GeoData>(), It.IsAny<CancellationToken>()), Times.Once);
-        _cityRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Competition.Domain.Entities.City>(), It.IsAny<CancellationToken>()), Times.Once);
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+        // City and its GeoData are added together and saved once (atomic)
+        _cityRepositoryMock.Verify(x => x.AddAsync(It.Is<Competition.Domain.Entities.City>(c => c.GeoData != null), It.IsAny<CancellationToken>()), Times.Once);
+        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
