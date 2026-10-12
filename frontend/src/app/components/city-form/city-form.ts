@@ -73,6 +73,8 @@ export class CityForm implements OnInit, OnChanges {
 
   onLocationSelected(event: { lat: number, lng: number }) {
     this.form.patchValue({ latitude: event.lat, longitude: event.lng });
+    this.form.controls.latitude.markAsDirty();
+    this.form.controls.longitude.markAsDirty();
   }
 
   onClose(): void {

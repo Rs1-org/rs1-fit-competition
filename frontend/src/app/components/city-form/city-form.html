@@ -29,6 +29,11 @@
         @defer (on idle) {
             <app-map
                 style="grid-column: span 2"
+                [lat]="isEditMode ? form.controls.latitude.value : 43.8563"
+                [lng]="isEditMode ? form.controls.longitude.value : 18.4131"
+                [zoom]="isEditMode ? 10 : 6"
+                [markerLat]="isEditMode ? form.controls.latitude.value : null"
+                [markerLng]="isEditMode ? form.controls.longitude.value : null"
                 (locationSelected)="onLocationSelected($event)">
             </app-map>
         } @placeholder {
