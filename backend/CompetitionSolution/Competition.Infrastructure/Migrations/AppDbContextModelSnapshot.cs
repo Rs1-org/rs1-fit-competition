@@ -18,7 +18,7 @@ namespace Competition.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.24")
+                .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -167,6 +167,154 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("GeoDataId");
 
                     b.ToTable("Cities");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.CompetitionEntities.Competition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid?>("CountryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ShortName")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.ToTable("Competitions", (string)null);
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.CompetitionEntities.Round", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SeasonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.HasIndex("SeasonId", "Number")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.ToTable("Rounds", (string)null);
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.CompetitionEntities.Season", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid>("CompetitionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<LocalDate>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("boolean");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<LocalDate>("StartDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.HasIndex("CompetitionId", "Name")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.ToTable("Seasons", (string)null);
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.Country", b =>
@@ -456,6 +604,9 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<Instant>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("RoundId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Slug")
                         .HasColumnType("text");
 
@@ -470,6 +621,8 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("AwaySelectionId");
 
                     b.HasIndex("HomeSelectionId");
+
+                    b.HasIndex("RoundId");
 
                     b.HasIndex("Slug")
                         .IsUnique()
@@ -960,6 +1113,38 @@ namespace Competition.Infrastructure.Migrations
                     b.Navigation("GeoData");
                 });
 
+            modelBuilder.Entity("Competition.Domain.Entities.CompetitionEntities.Competition", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Country");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.CompetitionEntities.Round", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.CompetitionEntities.Season", "Season")
+                        .WithMany("Rounds")
+                        .HasForeignKey("SeasonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Season");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.CompetitionEntities.Season", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.CompetitionEntities.Competition", "Competition")
+                        .WithMany("Seasons")
+                        .HasForeignKey("CompetitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Competition");
+                });
+
             modelBuilder.Entity("Competition.Domain.Entities.FormationEntities.Formation", b =>
                 {
                     b.HasOne("Competition.Domain.Entities.FormationEntities.FormationMark", "FormationMark")
@@ -1009,6 +1194,11 @@ namespace Competition.Infrastructure.Migrations
                         .HasForeignKey("HomeSelectionId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("Competition.Domain.Entities.CompetitionEntities.Round", "Round")
+                        .WithMany("Matches")
+                        .HasForeignKey("RoundId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Competition.Domain.Entities.MatchEntities.Stadium", "Stadium")
                         .WithMany()
                         .HasForeignKey("StadiumId")
@@ -1024,6 +1214,8 @@ namespace Competition.Infrastructure.Migrations
                     b.Navigation("AwaySelection");
 
                     b.Navigation("HomeSelection");
+
+                    b.Navigation("Round");
 
                     b.Navigation("Stadium");
 
@@ -1213,6 +1405,21 @@ namespace Competition.Infrastructure.Migrations
             modelBuilder.Entity("Competition.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("RefreshTokens");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.CompetitionEntities.Competition", b =>
+                {
+                    b.Navigation("Seasons");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.CompetitionEntities.Round", b =>
+                {
+                    b.Navigation("Matches");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.CompetitionEntities.Season", b =>
+                {
+                    b.Navigation("Rounds");
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.Country", b =>

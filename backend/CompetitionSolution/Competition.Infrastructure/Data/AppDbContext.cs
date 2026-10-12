@@ -8,6 +8,8 @@ using System.Security.Cryptography.X509Certificates;
 
 using Competition.Domain.Entities.FormationEntities;
 using Competition.Domain.Entities.MatchEntities;
+using Competition.Domain.Entities.CompetitionEntities;
+using CompetitionEntity = Competition.Domain.Entities.CompetitionEntities.Competition;
 
 namespace Competition.Infrastructure.Data;
 
@@ -111,6 +113,54 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             e.HasOne(x => x.AwaySelection)
                 .WithMany(s => s.AwayMatches)
                 .HasForeignKey(x => x.AwaySelectionId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Round)
+                .WithMany(r => r.Matches)
+                .HasForeignKey(x => x.RoundId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<CompetitionEntity>(e =>
+        {
+            e.ToTable("Competitions");
+            e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            e.Property(x => x.Slug).IsRequired().HasMaxLength(120);
+            e.Property(x => x.ShortName).HasMaxLength(20);
+            e.Property(x => x.Description).HasMaxLength(1000);
+            e.HasIndex(x => x.Slug).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasIndex(x => x.Name).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasOne(x => x.Country)
+                .WithMany()
+                .HasForeignKey(x => x.CountryId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<Season>(e =>
+        {
+            e.ToTable("Seasons");
+            e.Property(x => x.Name).IsRequired().HasMaxLength(50);
+            e.Property(x => x.Slug).IsRequired().HasMaxLength(200);
+            e.HasIndex(x => x.Slug).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasIndex(x => new { x.CompetitionId, x.Name }).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasOne(x => x.Competition)
+                .WithMany(c => c.Seasons)
+                .HasForeignKey(x => x.CompetitionId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<Round>(e =>
+        {
+            e.ToTable("Rounds");
+            e.Property(x => x.Name).IsRequired().HasMaxLength(50);
+            e.Property(x => x.Slug).IsRequired().HasMaxLength(250);
+            e.HasIndex(x => x.Slug).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasIndex(x => new { x.SeasonId, x.Number }).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasOne(x => x.Season)
+                .WithMany(s => s.Rounds)
+                .HasForeignKey(x => x.SeasonId)
                 .OnDelete(DeleteBehavior.Restrict);
             e.HasQueryFilter(x => x.DeletedAt == null);
         });
@@ -224,5 +274,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<TransferValueHistory> TransferValueHistories { get; set; } = null!;
     public DbSet<MandatDate> MandatDates { get; set; } = null!;
     public DbSet<Selection> Selections { get; set; } = null!;
+    public DbSet<CompetitionEntity> Competitions { get; set; } = null!;
+    public DbSet<Season> Seasons { get; set; } = null!;
+    public DbSet<Round> Rounds { get; set; } = null!;
 
 }
