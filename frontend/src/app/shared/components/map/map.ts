@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef, output, input } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef, output, input, effect } from '@angular/core';
 import * as L from 'leaflet';
 
 const iconDefault = L.icon({
@@ -31,6 +31,26 @@ export class Map implements AfterViewInit, OnDestroy {
 
   private map!: L.Map;
   private marker: L.Marker | null = null;
+
+  constructor() {
+    // Keep the marker in sync when the bound coordinates change after the map is created.
+    effect(() => {
+      const mLat = this.markerLat();
+      const mLng = this.markerLng();
+      if (!this.map) return;
+
+      if (mLat === null || mLng === null) {
+        this.marker?.remove();
+        this.marker = null;
+        return;
+      }
+
+      const current = this.marker?.getLatLng();
+      if (!current || current.lat !== mLat || current.lng !== mLng) {
+        this.placeMarker(L.latLng(mLat, mLng));
+      }
+    });
+  }
 
   ngAfterViewInit() {
     requestAnimationFrame(() => setTimeout(() => this.initMap(), 0));
