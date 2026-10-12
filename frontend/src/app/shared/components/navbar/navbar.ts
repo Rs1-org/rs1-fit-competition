@@ -49,16 +49,6 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/manage-managers']);
     this.openManageTab = !this.openManageTab;
   }
-  openManageCountries(event:MouseEvent) {
-    event.stopPropagation();
-    this.router.navigate(['/countries']);
-    this.openManageTab = false;
-  }
-  openManageCities(event:MouseEvent) {
-    event.stopPropagation();
-    this.router.navigate(['/cities']);
-    this.openManageTab = false;
-  }
   openListPlayers() {
     this.router.navigate(['/player-list']);
   }

@@ -1,9 +1,10 @@
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { environment } from '../../../environments/environment';
 import { trackUpload } from "../helpers/upload-progress.helper";
-import { CountryListDto, CountryName } from "../models/country";
+import { fetchAllPages, MAX_PAGE_SIZE, toPagedParams } from "../helpers/paging.helper";
+import { CountryListDto, CountryListFilter, CountryName } from "../models/country";
 import { PagedResult } from "../models/paged-result";
 
 @Injectable({
@@ -33,11 +34,12 @@ export class CountryService{
         return this.http.delete<CountryName>(`${this.apiUrl}/delete/${id}`);
     }
 
-    getAll(page = 1, pageSize = 10, searchTerm?: string):Observable<PagedResult<CountryListDto>>{
-        let params = new HttpParams()
-            .set('page', page)
-            .set('pageSize', pageSize);
-        if (searchTerm) params = params.set('searchTerm', searchTerm);
+    getAll(page = 1, pageSize = 10, filter: CountryListFilter = {}):Observable<PagedResult<CountryListDto>>{
+        const params = toPagedParams(page, pageSize, filter);
         return this.http.get<PagedResult<CountryListDto>>(`${this.apiUrl}/getAll`, { params });
+    }
+
+    getAllForDropdown():Observable<CountryListDto[]>{
+        return fetchAllPages((page) => this.getAll(page, MAX_PAGE_SIZE));
     }
 }

@@ -47,8 +47,8 @@ export class StadiumForm implements OnInit {
   }
 
   loadCities(): void {
-    this.cityService.getAll().subscribe({
-      next: (data) => { this.cities = data.items; },
+    this.cityService.getAllForDropdown().subscribe({
+      next: (cities) => { this.cities = cities; },
       error: (err) => console.error('Error loading cities: ', err)
     });
   }

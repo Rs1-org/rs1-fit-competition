@@ -8,6 +8,10 @@ namespace Competition.Application.Queries.Country.GetAll
     {
         public int Page { get; init; } = 1;
         public int PageSize { get; init; } = 10;
-        public string? SearchTerm { get; init; }
+        public string? Name { get; init; }
+        public string? Slug { get; init; }
+        public bool? HasPicture { get; init; }
+        public DateTime? CreatedFrom { get; init; }
+        public DateTime? CreatedTo { get; init; }
     }
 }

@@ -6,10 +6,48 @@
         }
     </div>
 
-    <app-generic-search 
-        placeholder="Search cities..." 
-        (onSearch)="search($event)">
-    </app-generic-search>
+    <form class="filter-bar" [formGroup]="filterForm">
+        <div class="filter-field">
+            <label for="filter-name">Name</label>
+            <input id="filter-name" type="text" formControlName="name" placeholder="e.g. Sarajevo">
+        </div>
+        <div class="filter-field">
+            <label for="filter-country">Country</label>
+            <select id="filter-country" formControlName="countryId">
+                <option value="">All countries</option>
+                @for (country of countries(); track country.id) {
+                    <option [value]="country.id">{{ country.name }}</option>
+                }
+            </select>
+        </div>
+        <div class="filter-field">
+            <label for="filter-capital">Capital</label>
+            <select id="filter-capital" formControlName="isCapital">
+                <option value="">Any</option>
+                <option value="true">Capital only</option>
+                <option value="false">Not capital</option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label for="filter-min">Min population</label>
+            <input id="filter-min" type="number" min="0" formControlName="minPopulation">
+        </div>
+        <div class="filter-field">
+            <label for="filter-max">Max population</label>
+            <input id="filter-max" type="number" min="0" formControlName="maxPopulation">
+        </div>
+        <button type="button" class="filter-reset" (click)="resetFilters()">Reset</button>
+
+        @if (filterForm.hasError('populationRange')) {
+            <p class="filter-error">Max population must be greater than or equal to min population.</p>
+        }
+        @if (filterForm.controls.minPopulation.hasError('min') || filterForm.controls.maxPopulation.hasError('min')) {
+            <p class="filter-error">Population cannot be negative.</p>
+        }
+        @if (filterForm.controls.name.hasError('maxlength')) {
+            <p class="filter-error">Name can have at most 100 characters.</p>
+        }
+    </form>
 
     <app-generic-list
         [items]="citiesResult()?.items ?? []"

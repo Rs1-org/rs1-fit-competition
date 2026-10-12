@@ -1,8 +1,9 @@
 import { inject, Injectable } from "@angular/core";
 import { environment } from '../../../environments/environment';
 import { Observable } from "rxjs";
-import { CityDetailsDto, CityListDto, CityName } from "../models/city";
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { CityDetailsDto, CityListDto, CityListFilter, CityName } from "../models/city";
+import { HttpClient } from "@angular/common/http";
+import { fetchAllPages, MAX_PAGE_SIZE, toPagedParams } from "../helpers/paging.helper";
 import { PagedResult } from "../models/paged-result";
 
 @Injectable({
@@ -26,12 +27,13 @@ export class CityService{
         return this.http.delete<CityName>(`${this.apiUrl}deleteCity/${id}`);
     }
 
-    getAll(page = 1, pageSize = 10, searchTerm?: string): Observable<PagedResult<CityListDto>> {
-        let params = new HttpParams()
-            .set('page', page)
-            .set('pageSize', pageSize);
-        if (searchTerm) params = params.set('searchTerm', searchTerm);
+    getAll(page = 1, pageSize = 10, filter: CityListFilter = {}): Observable<PagedResult<CityListDto>> {
+        const params = toPagedParams(page, pageSize, filter);
         return this.http.get<PagedResult<CityListDto>>(`${this.apiUrl}getCities`, { params });
+    }
+
+    getAllForDropdown(): Observable<CityListDto[]> {
+        return fetchAllPages((page) => this.getAll(page, MAX_PAGE_SIZE));
     }
 
     getBySlug(slug: string): Observable<CityDetailsDto> {
