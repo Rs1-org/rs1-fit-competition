@@ -53,6 +53,7 @@ namespace Competition.Infrastructure
             services.AddScoped<IGallery, GalleryRepository>();
             services.AddScoped<IPlayerAppearances, PlayerAppearanceReader>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IPublicIdLookup, PublicIdLookup>();
             services.AddScoped<IBlobStorageService, BlobStorageService>();
             services.AddScoped<IImageService,ImageService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
