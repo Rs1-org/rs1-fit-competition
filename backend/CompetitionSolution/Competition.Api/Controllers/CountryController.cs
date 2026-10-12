@@ -22,7 +22,7 @@ namespace Competition.Api.Controllers
             _mediator = mediator;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateCountry([FromForm] CreateCountryCommands request, CancellationToken cancellationToken)
         {
@@ -38,7 +38,7 @@ namespace Competition.Api.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpPut("update/{slug}")]
         public async Task<IActionResult> UpdateCountry(string slug, [FromForm] UpdateCountryCommands request, CancellationToken cancellationToken)
         {

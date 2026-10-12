@@ -52,7 +52,9 @@ export class CityList {
     )
   );
 
-  user = this.userStateService.getUser();
+  // Mirrors the backend: Admin/Moderator can add and edit, only Admin can delete.
+  canManage = this.userStateService.canManage;
+  canDelete = this.userStateService.isAdmin;
   isFormOpen = false;
   selectedCity: CityDetailsDto | null = null;
 
@@ -85,11 +87,13 @@ export class CityList {
   }
 
   onAdd(): void {
+    if (!this.canManage()) return;
     this.selectedCity = null;
     this.isFormOpen = true;
   }
 
   onEdit(city: CityListDto): void {
+    if (!this.canManage()) return;
     this.cityService.getBySlug(city.slug).subscribe({
       next: (details) => {
         this.selectedCity = details;
@@ -100,6 +104,7 @@ export class CityList {
   }
 
   async onDelete(city: CityListDto): Promise<void> {
+    if (!this.canDelete()) return;
     const confirmed = await this.confirmDialog.confirm({
       message: `Are you sure you want to delete ${city.name}?`
     });

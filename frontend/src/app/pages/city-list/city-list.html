@@ -1,7 +1,7 @@
 <div class="container">
     <div class="header-actions">
         <h1>Cities</h1>
-        @if(user) {
+        @if (canManage()) {
             <button class="btn-add" (click)="onAdd()">+ Add City</button>
         }
     </div>
@@ -54,7 +54,8 @@
         [pageSize]="pageSize"
         [serverTotalItems]="citiesResult()?.totalCount"
         [serverCurrentPage]="citiesResult()?.page ?? 1"
-        [showActions]="!!user"
+        [showActions]="canManage()"
+        [showDelete]="canDelete()"
         variant="card"
         (update)="onEdit($event)"
         (delete)="onDelete($event)"

@@ -18,7 +18,7 @@ public class CityController : ControllerBase
         _mediator=mediator;
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPost("createCity")]
     public async Task<IActionResult>CreateCity([FromBody]CreateCityCommand request, CancellationToken cancellationToken)
     {
@@ -34,7 +34,7 @@ public class CityController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPut("updateCity/{slug}")]
     public async Task<IActionResult> UpdateCity(string slug, [FromBody] UpdateCityCommands request, CancellationToken cancellationToken)
     {

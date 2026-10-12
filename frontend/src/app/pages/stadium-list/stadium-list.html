@@ -1,7 +1,7 @@
 <div class="container">
   <div class="header-actions">
     <h1>Stadiums</h1>
-    <app-stadium-form [showTrigger]="!!user" (saved)="onFormSaved()"></app-stadium-form>
+    <app-stadium-form [showTrigger]="canManage()" (saved)="onFormSaved()"></app-stadium-form>
   </div>
 
   <form class="filter-bar" [formGroup]="filterForm">
@@ -53,7 +53,8 @@
     [pageSize]="pageSize"
     [serverTotalItems]="pagedResult()?.totalCount"
     [serverCurrentPage]="pagedResult()?.page ?? 1"
-    [showActions]="!!user"
+    [showActions]="canManage()"
+    [showDelete]="canDelete()"
     variant="card"
     (pageChange)="onPageChange($event)"
     (view)="view($event)"
