@@ -6,12 +6,13 @@ using Competition.Domain.Entities;
 using Competition.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
 namespace Competition.Tests.UnitTests.Geo;
 
-/// <summary>COMP-77: UpdateCountryCommandHandler slug regeneration, picture replacement and single save.</summary>
+/// <summary>COMP-77/COMP-121: UpdateCountryCommandHandler slug regeneration, safe picture replacement and single save.</summary>
 public class UpdateCountryCommandHandlerTests : BaseUnitTest
 {
     private readonly Mock<ICountry> _countries = new();
@@ -24,7 +25,7 @@ public class UpdateCountryCommandHandlerTests : BaseUnitTest
         MapperMock.Setup(m => m.Map<CountryNameDto>(It.IsAny<Country>()))
             .Returns((object source) => new CountryNameDto { Name = ((Country)source).Name });
         _images.Setup(i => i.UploadImageAsync(It.IsAny<IFormFile>(), It.IsAny<CancellationToken>())).ReturnsAsync("https://blob/new.png");
-        return new UpdateCountryCommandHandler(Mapper, _countries.Object, _unitOfWork.Object, _images.Object);
+        return new UpdateCountryCommandHandler(Mapper, _countries.Object, _unitOfWork.Object, _images.Object, NullLogger<UpdateCountryCommandHandler>.Instance);
     }
 
     private static Country Bosnia() => new()
@@ -72,6 +73,68 @@ public class UpdateCountryCommandHandlerTests : BaseUnitTest
 
         country.PictureUrl.Should().Be("https://blob/new.png");
         _images.Verify(i => i.DeleteImageAsync("https://blob/old.png", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task NewPicture_OldPictureDeleteFails_ShouldStillSucceed()
+    {
+        var country = Bosnia();
+        var handler = NewHandler(country);
+        _images.Setup(i => i.DeleteImageAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ThrowsAsync(new IOException("blob down"));
+
+        var act = () => handler.Handle(
+            new UpdateCountryCommands { Slug = country.Slug!, Name = country.Name, Picture = Mock.Of<IFormFile>() },
+            CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+        country.PictureUrl.Should().Be("https://blob/new.png");
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task NewPicture_SaveFails_ShouldKeepOldPictureAndRemoveUploadedOne()
+    {
+        var country = Bosnia();
+        var handler = NewHandler(country);
+        _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("db down"));
+
+        var act = () => handler.Handle(
+            new UpdateCountryCommands { Slug = country.Slug!, Name = country.Name, Picture = Mock.Of<IFormFile>() },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        _images.Verify(i => i.DeleteImageAsync("https://blob/old.png", It.IsAny<CancellationToken>()), Times.Never);
+        _images.Verify(i => i.DeleteImageAsync("https://blob/new.png", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task NewPicture_SaveFailsAndCleanupFails_ShouldStillReportSaveError()
+    {
+        var country = Bosnia();
+        var handler = NewHandler(country);
+        _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("db down"));
+        _images.Setup(i => i.DeleteImageAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ThrowsAsync(new IOException("blob down"));
+
+        var act = () => handler.Handle(
+            new UpdateCountryCommands { Slug = country.Slug!, Name = country.Name, Picture = Mock.Of<IFormFile>() },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("db down");
+    }
+
+    [Fact]
+    public async Task NewPicture_CountryWithoutPicture_ShouldNotDeleteAnything()
+    {
+        var country = Bosnia();
+        country.PictureUrl = null;
+        var handler = NewHandler(country);
+
+        await handler.Handle(
+            new UpdateCountryCommands { Slug = country.Slug!, Name = country.Name, Picture = Mock.Of<IFormFile>() },
+            CancellationToken.None);
+
+        country.PictureUrl.Should().Be("https://blob/new.png");
+        _images.Verify(i => i.DeleteImageAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
