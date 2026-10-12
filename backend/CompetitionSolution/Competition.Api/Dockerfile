@@ -1,7 +1,7 @@
 ﻿# ═══════════════════════════════════════════════════════════════
 #  Stage 1 – Restore
 # ═══════════════════════════════════════════════════════════════
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS restore
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS restore
 WORKDIR /src
 
 RUN mkdir -p /root/.nuget/NuGet && \
@@ -22,7 +22,7 @@ COPY Competition.Application/Competition.Application.csproj         Competition.
 COPY Competition.Domain/Competition.Domain.csproj                   Competition.Domain/
 COPY Competition.Infrastructure/Competition.Infrastructure.csproj   Competition.Infrastructure/
 
-RUN dotnet restore
+RUN dotnet restore Competition.Api/Competition.Api.csproj
 
 # ═══════════════════════════════════════════════════════════════
 #  Stage 2 – Publish API
@@ -37,10 +37,10 @@ RUN dotnet publish Competition.Api/Competition.Api.csproj \
 # ═══════════════════════════════════════════════════════════════
 #  Stage 3 – EF Migrator
 # ═══════════════════════════════════════════════════════════════
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS migrator
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS migrator
 WORKDIR /src
 
-RUN dotnet tool install --global dotnet-ef
+RUN dotnet tool install --global dotnet-ef --version 10.0.12
 ENV PATH="$PATH:/root/.dotnet/tools"
 
 # Copy NuGet packages and full built source from publish stage
@@ -58,7 +58,7 @@ CMD ["dotnet-ef", "--version"]
 # ═══════════════════════════════════════════════════════════════
 #  Stage 4 – Runtime
 # ═══════════════════════════════════════════════════════════════
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
 COPY --from=publish /app/publish .
