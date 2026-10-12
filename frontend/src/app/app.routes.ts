@@ -28,6 +28,26 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/stadium-detail/stadium-detail').then((m) => m.StadiumDetail),
   },
+  {
+    path: 'competitions',
+    loadComponent: () =>
+      import('./pages/competition-list/competition-list').then((m) => m.CompetitionList),
+  },
+  {
+    path: 'competitions/:slug',
+    loadComponent: () =>
+      import('./pages/competition-detail/competition-detail').then((m) => m.CompetitionDetail),
+  },
+  {
+    path: 'seasons/:slug',
+    loadComponent: () =>
+      import('./pages/season-detail/season-detail').then((m) => m.SeasonDetail),
+  },
+  {
+    path: 'rounds/:slug',
+    loadComponent: () =>
+      import('./pages/round-detail/round-detail').then((m) => m.RoundDetail),
+  },
   { path: 'manage-players', component: ManagePlayers, canActivate: [AdminModeratorGuard] },
   { path: 'manage-players/:id', component: ManagePlayers, canActivate: [AdminModeratorGuard] },
   { path: 'manage-referees', component: ManageReferees, canActivate: [AdminModeratorGuard] },

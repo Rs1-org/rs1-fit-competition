@@ -1,0 +1,48 @@
+<div class="container">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/competitions">Competitions</a>
+    @if (round(); as r) {
+      <span>›</span><a [routerLink]="['/competitions', r.competitionSlug]">{{ r.competitionName }}</a>
+      <span>›</span><a [routerLink]="['/seasons', r.seasonSlug]">{{ r.seasonName }}</a>
+      <span>›</span><span>{{ r.name }}</span>
+    }
+  </nav>
+
+  @if (errorMessage()) {
+    <p class="page-error" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (round(); as r) {
+    <div class="header-actions">
+      <h1>{{ r.name }}</h1>
+    </div>
+    <p class="page-subtitle">{{ r.competitionName }} {{ r.seasonName }}</p>
+
+    <h2 class="section-title">Matches</h2>
+    <app-generic-list
+      [items]="matches()?.items ?? []"
+      [pageSize]="pageSize"
+      [serverTotalItems]="matches()?.totalCount"
+      [serverCurrentPage]="matches()?.page ?? 1"
+      [showActions]="false"
+      variant="compact"
+      (pageChange)="onPageChange($event)">
+      <ng-template #itemTemplate let-match>
+        <div class="match-row">
+          <span class="match-team-home">{{ match.homeSelectionName || 'TBD' }}</span>
+          <span class="match-score">
+            @if (match.homeScore !== null && match.awayScore !== null) {
+              {{ match.homeScore }} : {{ match.awayScore }}
+            } @else {
+              {{ match.date | date: 'dd.MM. HH:mm' }}
+            }
+          </span>
+          <span>{{ match.awaySelectionName || 'TBD' }}</span>
+        </div>
+        <div class="card-meta">
+          {{ match.stadiumName }}{{ match.statusName ? ' · ' + match.statusName : '' }}{{ match.isPostponed ? ' · Postponed' : '' }}
+        </div>
+      </ng-template>
+    </app-generic-list>
+  }
+</div>

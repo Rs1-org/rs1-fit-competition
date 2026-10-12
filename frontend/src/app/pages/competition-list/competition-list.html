@@ -1,0 +1,47 @@
+<div class="container">
+  <div class="header-actions">
+    <h1>Competitions</h1>
+    @if (canManage()) {
+      <button class="btn-add" (click)="onAdd()">+ Add Competition</button>
+    }
+  </div>
+
+  @if (errorMessage()) {
+    <p class="page-error" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <app-generic-search placeholder="Search competitions..." (onSearch)="search($event)"></app-generic-search>
+
+  <app-generic-list
+    [items]="competitions()?.items ?? []"
+    [pageSize]="pageSize"
+    [serverTotalItems]="competitions()?.totalCount"
+    [serverCurrentPage]="competitions()?.page ?? 1"
+    [showActions]="canManage()"
+    [showDelete]="canDelete()"
+    variant="card"
+    (view)="open($event)"
+    (update)="onEdit($event)"
+    (delete)="onDelete($event)"
+    (pageChange)="onPageChange($event)">
+    <ng-template #itemTemplate let-competition>
+      <div class="card-row">
+        <div class="card-badge">{{ competition.shortName || competition.name.slice(0, 3).toUpperCase() }}</div>
+        <div class="card-info">
+          <div class="card-title">{{ competition.name }}</div>
+          <div class="card-meta">
+            {{ competition.countryName || 'International' }} · {{ competition.seasonCount }}
+            {{ competition.seasonCount === 1 ? 'season' : 'seasons' }}
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </app-generic-list>
+</div>
+
+<app-competition-form
+  [isOpen]="isFormOpen"
+  [editCompetition]="selected"
+  (saved)="onFormSaved()"
+  (closed)="onFormClosed()">
+</app-competition-form>

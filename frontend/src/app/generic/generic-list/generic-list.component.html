@@ -13,9 +13,11 @@
           <button class="btn-update" (click)="$event.stopPropagation(); onUpdate(item)">
             <i class="fa-solid fa-pen"></i> Uredi
           </button>
-          <button class="btn-delete" (click)="$event.stopPropagation(); onDelete(item)">
-            <i class="fa-solid fa-trash"></i> Obriši
-          </button>
+          @if (showDelete) {
+            <button class="btn-delete" (click)="$event.stopPropagation(); onDelete(item)">
+              <i class="fa-solid fa-trash"></i> Obriši
+            </button>
+          }
         </div>
       }
     </div>

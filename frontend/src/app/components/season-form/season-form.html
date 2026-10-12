@@ -1,0 +1,19 @@
+@if (isOpen) {
+<app-modal [title]="isEditMode ? 'Edit Season' : 'Add Season'" (close)="onClose()" width="560px">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" id="season-form">
+    <app-input-box class="full-width" label="Name" placeholder="e.g. 2025/26" [control]="form.controls.name"></app-input-box>
+    <app-input-box label="Start date" type="date" [control]="form.controls.startDate"></app-input-box>
+    <app-input-box label="End date" type="date" [control]="form.controls.endDate"></app-input-box>
+    <app-input-box class="full-width" label="Current season" type="checkbox" [control]="form.controls.isCurrent"></app-input-box>
+  </form>
+  @if (form.hasError('endBeforeStart') && form.controls.endDate.touched) {
+    <p class="form-error" role="alert">End date must be after the start date.</p>
+  }
+  @if (errorMessage) {
+    <p class="form-error" role="alert">{{ errorMessage }}</p>
+  }
+  <footer>
+    <app-button type="submit" form="season-form" [text]="saving ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Submit')"></app-button>
+  </footer>
+</app-modal>
+}
