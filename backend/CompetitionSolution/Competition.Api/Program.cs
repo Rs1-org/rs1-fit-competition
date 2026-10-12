@@ -6,6 +6,7 @@ using Competition.Application;
 using Competition.Domain.Entities;
 using Competition.Infrastructure;
 using Competition.Infrastructure.Data;
+using Competition.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,9 +18,13 @@ CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var jwtKey = builder.Configuration["Jwt:Key"];
-var jwtIssuer = builder.Configuration["Jwt:Issuer"];
-var jwtAudience = builder.Configuration["Jwt:Audience"];
+// Values come from appsettings.{Environment}.json, user-secrets or environment variables (e.g. Jwt__Key).
+var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>() ?? new JwtSettings();
+var corsSettings = builder.Configuration.GetSection(CorsSettings.SectionName).Get<CorsSettings>() ?? new CorsSettings();
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+    throw new InvalidOperationException(
+        "ConnectionStrings:DefaultConnection is not configured. Set it via user-secrets or the ConnectionStrings__DefaultConnection environment variable.");
 
 builder.Services.AddSingleton<IClock>(SystemClock.Instance);
 
@@ -29,7 +34,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
+        connectionString,
         o=>o.UseNodaTime()));
 
 builder.Services.AddApplicationServices();
@@ -38,9 +43,9 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", b =>
+    options.AddPolicy(CorsSettings.PolicyName, b =>
         b
-            .AllowAnyOrigin()
+            .WithOrigins(corsSettings.AllowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod()
     );
@@ -64,10 +69,10 @@ builder.Services.AddAuthentication(options =>
             ValidateIssuerSigningKey = true,
             ValidateLifetime = true,
 
-            ValidIssuer = jwtIssuer,
-            ValidAudience = jwtAudience,
+            ValidIssuer = jwtSettings.Issuer,
+            ValidAudience = jwtSettings.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey!)
+                Encoding.UTF8.GetBytes(jwtSettings.Key)
             ),
 
             RoleClaimType = ClaimTypes.Role
@@ -107,7 +112,7 @@ if (db.Database.IsRelational())
 else
     db.Database.EnsureCreated();
 
-app.UseCors("AllowAll");
+app.UseCors(CorsSettings.PolicyName);
 
 app.UseAuthentication();
 app.UseAuthorization();
