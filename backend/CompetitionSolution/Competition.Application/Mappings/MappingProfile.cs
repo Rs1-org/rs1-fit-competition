@@ -7,6 +7,7 @@ using Competition.Application.Commands.StadiumCommands.Create;
 using Competition.Application.DTOs.CityDto;
 using Competition.Application.DTOs.CountryDto;
 using Competition.Application.DTOs.MatchDto;
+using Competition.Application.DTOs.CompetitionDto;
 using Competition.Application.DTOs.PersonDto;
 using Competition.Application.DTOs.StadiumDto;
 using Competition.Application.Features.ManagerCommands.Create;
@@ -18,6 +19,7 @@ using Competition.Application.Features.RefereeCommands.Update;
 using Competition.Application.Helpers;
 using Competition.Domain.Entities;
 using Competition.Domain.Entities.MatchEntities;
+using CompetitionEntity = Competition.Domain.Entities.CompetitionEntities.Competition;
 using Competition.Domain.Entities.Person;
 using NodaTime;
 
@@ -69,6 +71,7 @@ public class MappingProfile:Profile
             .ForMember(m => m.GeoDescription, opt => opt.MapFrom(src => src.GeoData != null ? src.GeoData.Description : null));
 
         ConfigureMatchMappings();
+        ConfigureCompetitionMappings();
         ConfigurePersonMappings();
     }
 
@@ -101,6 +104,16 @@ public class MappingProfile:Profile
             .ForMember(d => d.AwaySelectionName, opt => opt.MapFrom(src => src.AwaySelection != null ? src.AwaySelection.Name : null));
 
         CreateMap<MatchStatus, MatchStatusListDto>();
+    }
+
+    private void ConfigureCompetitionMappings()
+    {
+        CreateMap<CompetitionEntity, CompetitionListDto>()
+            .ForMember(d => d.CountryName, opt => opt.MapFrom(src => src.Country != null ? src.Country.Name : null))
+            .ForMember(d => d.SeasonCount, opt => opt.MapFrom(src => src.Seasons.Count));
+
+        CreateMap<CompetitionEntity, CompetitionDetailsDto>()
+            .ForMember(d => d.CountryName, opt => opt.MapFrom(src => src.Country != null ? src.Country.Name : null));
     }
 
     private void ConfigurePersonMappings()
