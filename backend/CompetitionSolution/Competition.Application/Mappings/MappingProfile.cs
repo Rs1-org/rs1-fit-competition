@@ -8,6 +8,8 @@ using Competition.Application.DTOs.CityDto;
 using Competition.Application.DTOs.CountryDto;
 using Competition.Application.DTOs.MatchDto;
 using Competition.Application.DTOs.CompetitionDto;
+using Competition.Application.DTOs.SeasonDto;
+using Competition.Application.DTOs.RoundDto;
 using Competition.Application.DTOs.PersonDto;
 using Competition.Application.DTOs.StadiumDto;
 using Competition.Application.Features.ManagerCommands.Create;
@@ -19,6 +21,7 @@ using Competition.Application.Features.RefereeCommands.Update;
 using Competition.Application.Helpers;
 using Competition.Domain.Entities;
 using Competition.Domain.Entities.MatchEntities;
+using Competition.Domain.Entities.CompetitionEntities;
 using CompetitionEntity = Competition.Domain.Entities.CompetitionEntities.Competition;
 using Competition.Domain.Entities.Person;
 using NodaTime;
@@ -114,6 +117,27 @@ public class MappingProfile:Profile
 
         CreateMap<CompetitionEntity, CompetitionDetailsDto>()
             .ForMember(d => d.CountryName, opt => opt.MapFrom(src => src.Country != null ? src.Country.Name : null));
+
+        CreateMap<Season, SeasonListDto>()
+            .ForMember(d => d.StartDate, opt => opt.MapFrom(src => NodaTimeMappingHelper.FormatLocalDate(src.StartDate)))
+            .ForMember(d => d.EndDate, opt => opt.MapFrom(src => NodaTimeMappingHelper.FormatLocalDate(src.EndDate)))
+            .ForMember(d => d.CompetitionName, opt => opt.MapFrom(src => src.Competition != null ? src.Competition.Name : string.Empty))
+            .ForMember(d => d.RoundCount, opt => opt.MapFrom(src => src.Rounds.Count));
+
+        CreateMap<Season, SeasonDetailsDto>()
+            .ForMember(d => d.StartDate, opt => opt.MapFrom(src => NodaTimeMappingHelper.FormatLocalDate(src.StartDate)))
+            .ForMember(d => d.EndDate, opt => opt.MapFrom(src => NodaTimeMappingHelper.FormatLocalDate(src.EndDate)))
+            .ForMember(d => d.CompetitionName, opt => opt.MapFrom(src => src.Competition != null ? src.Competition.Name : string.Empty))
+            .ForMember(d => d.CompetitionSlug, opt => opt.MapFrom(src => src.Competition != null ? src.Competition.Slug : string.Empty));
+
+        CreateMap<Round, RoundListDto>()
+            .ForMember(d => d.MatchCount, opt => opt.MapFrom(src => src.Matches.Count));
+
+        CreateMap<Round, RoundDetailsDto>()
+            .ForMember(d => d.SeasonName, opt => opt.MapFrom(src => src.Season != null ? src.Season.Name : string.Empty))
+            .ForMember(d => d.SeasonSlug, opt => opt.MapFrom(src => src.Season != null ? src.Season.Slug : string.Empty))
+            .ForMember(d => d.CompetitionName, opt => opt.MapFrom(src => src.Season != null && src.Season.Competition != null ? src.Season.Competition.Name : string.Empty))
+            .ForMember(d => d.CompetitionSlug, opt => opt.MapFrom(src => src.Season != null && src.Season.Competition != null ? src.Season.Competition.Slug : string.Empty));
     }
 
     private void ConfigurePersonMappings()
