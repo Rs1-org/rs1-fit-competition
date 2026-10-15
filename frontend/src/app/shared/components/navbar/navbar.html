@@ -24,21 +24,21 @@
     <div class="navbar-text manage-wrapper" *ngIf="user" (click)="openManage()">
       <i class="fa-solid fa-gear" ></i> Manage
        <div class="manage-dropdown" *ngIf="openManageTab" @popIn>
-        <button *ngIf="canManagePersons" (click)="openManagePlayers($event)">Manage Players</button>
-        <button *ngIf="canManagePersons" (click)="openManageReferees($event)">Manage Referees</button>
-        <button *ngIf="canManagePersons" (click)="openManageManagers($event)">Manage Managers</button>
+        <button *appHasRole="'Admin,Moderator'" (click)="openManagePlayers($event)">Manage Players</button>
+        <button *appHasRole="'Admin,Moderator'" (click)="openManageReferees($event)">Manage Referees</button>
+        <button *appHasRole="'Admin,Moderator'" (click)="openManageManagers($event)">Manage Managers</button>
         <button (click)="openCities()">Manage Cities</button>
         <button (click)="openCountries()">Manage Countries</button>
         <button (click)="openStadiums()">Manage Stadiums</button>
         <button (click)="openPositions($event)">Positions</button>
         <button (click)="openSubPositions($event)">Subpositions</button>
         <button (click)="openFormationMarks($event)">Formation marks</button>
-        <button *ngIf="canManagePersons" (click)="openAddFormationMark($event)">Add formation mark</button>
+        <button *appHasRole="'Admin,Moderator'" (click)="openAddFormationMark($event)">Add formation mark</button>
         <button (click)="openFormations($event)">Formations</button>
         <button (click)="openSelections($event)">Selections</button>
-        <button *ngIf="canManagePersons" (click)="openAddSelection($event)">Add selection</button>
-        <button *ngIf="canManagePersons" (click)="openAddFormation($event)">Add formation</button>
-        <button *ngIf="canManagePersons" (click)="openGallery($event)">Image gallery</button>
+        <button *appHasRole="'Admin,Moderator'" (click)="openAddSelection($event)">Add selection</button>
+        <button *appHasRole="'Admin,Moderator'" (click)="openAddFormation($event)">Add formation</button>
+        <button *appHasRole="'Admin,Moderator'" (click)="openGallery($event)">Image gallery</button>
       </div>
     </div>
     <div class="navbar-text manage-wrapper" (click)="toggleAccount($event)">

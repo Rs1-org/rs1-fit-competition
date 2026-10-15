@@ -10,12 +10,13 @@ import { UserStateService } from 'src/app/core/services/user-state.service';
 import { UserDto } from 'src/app/core/models/auth.models';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { HasRoleDirective } from '../../directives/has-role.directive';
 import { popIn } from '../../../core/animations/motion';
 import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, RouterModule, AuthModalComponent, Modal],
+  imports: [CommonModule, RouterModule, AuthModalComponent, Modal, HasRoleDirective],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
   animations: [popIn],

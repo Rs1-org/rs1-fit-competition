@@ -12,6 +12,8 @@ import { PlayerListFilter, PlayerService } from '../../core/services/player.serv
 import { PositionService } from '../../core/services/position.service';
 import { SubPositionService } from '../../core/services/subposition.service';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { PersonAutocomplete } from '../../shared/components/person-autocomplete/person-autocomplete';
+import { HasRoleDirective } from '../../shared/directives/has-role.directive';
 import { BehaviorSubject, combineLatest, debounceTime, filter, map, switchMap } from 'rxjs';
 
 function ageRangeValidator(group: AbstractControl): ValidationErrors | null {
@@ -21,12 +23,20 @@ function ageRangeValidator(group: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-player-list',
-  imports: [GenericListComponent, CommonModule, ReactiveFormsModule, AppDatePipe, AppCurrencyPipe],
+  imports: [GenericListComponent, CommonModule, ReactiveFormsModule, AppDatePipe, AppCurrencyPipe, PersonAutocomplete, HasRoleDirective],
   templateUrl: './player-list.html',
   styleUrls: ['../catalog.css', './player-list.css'],
 })
 export class PlayerList {
   private playerService = inject(PlayerService);
+
+  searchPlayers = (term: string) =>
+    this.playerService.getAll(1, 8, { name: term }).pipe(
+      map((page) => page.items.map((player) => ({
+        id: player.id ?? '',
+        label: `${player.firstName} ${player.lastName}`.trim(),
+      }))),
+    );
   private positionService = inject(PositionService);
   private subPositionService = inject(SubPositionService);
   private confirmDialog = inject(ConfirmDialogService);
