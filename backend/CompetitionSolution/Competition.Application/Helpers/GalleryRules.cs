@@ -23,32 +23,32 @@ public static class GalleryRules
 
     public static string Title(string kind) => kind switch
     {
-        Player => "Igrači",
-        Referee => "Sudije",
-        Manager => "Menadžeri",
-        Country => "Države",
-        Stadium => "Stadioni",
-        Selection => "Reprezentacije",
-        _ => throw Invalid("kind", "Nepoznata vrsta slike.")
+        Player => "Players",
+        Referee => "Referees",
+        Manager => "Managers",
+        Country => "Countries",
+        Stadium => "Stadiums",
+        Selection => "Selections",
+        _ => throw Invalid("kind", "Unknown image type.")
     };
 
     public static void EnsureKind(string kind)
     {
         if (!IsKnown(kind))
-            throw Invalid("kind", "Nepoznata vrsta slike.");
+            throw Invalid("kind", "Unknown image type.");
     }
 
     public static void EnsurePicture(IFormFile? file)
     {
         if (file is null || file.Length == 0)
-            throw Invalid("picture", "Odaberite sliku.");
+            throw Invalid("picture", "Choose an image.");
 
         if (file.Length > MaxBytes)
-            throw Invalid("picture", "Slika može imati najviše 8 MB.");
+            throw Invalid("picture", "File is too large.");
 
         var type = (file.ContentType ?? string.Empty).ToLowerInvariant();
         if (type is not ("image/jpeg" or "image/jpg" or "image/png" or "image/webp"))
-            throw Invalid("picture", "Dozvoljeni formati su JPG, PNG i WEBP.");
+            throw Invalid("picture", "Allowed formats are JPG, PNG and WEBP.");
     }
 
     public static string ContentTypeOf(byte[] bytes)

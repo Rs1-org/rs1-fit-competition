@@ -62,7 +62,7 @@ public class GalleryRepository : IGallery
             .Select(x => new GalleryItemDto
             {
                 Id = x.Id,
-                Name = x.Name ?? "Bez naziva",
+                Name = x.Name ?? "Untitled",
                 Kind = GalleryRules.Country,
                 PictureUrl = x.PictureUrl,
                 HasPicture = x.PictureUrl != null && x.PictureUrl != ""
@@ -74,7 +74,7 @@ public class GalleryRepository : IGallery
             .Select(x => new GalleryItemDto
             {
                 Id = x.Id,
-                Name = x.Name ?? "Bez naziva",
+                Name = x.Name ?? "Untitled",
                 Kind = GalleryRules.Stadium,
                 PictureUrl = x.PictureUrl,
                 HasPicture = x.PictureUrl != null && x.PictureUrl != ""
@@ -136,7 +136,7 @@ public class GalleryRepository : IGallery
             GalleryRules.Country => await SaveCountry(id, picture, cancellationToken),
             GalleryRules.Stadium => await SaveStadium(id, picture, cancellationToken),
             GalleryRules.Selection => await SaveSelection(id, picture, cancellationToken),
-            _ => throw new KeyNotFoundException("Nepoznata vrsta slike.")
+            _ => throw new KeyNotFoundException("Unknown image type.")
         };
     }
 
@@ -154,16 +154,16 @@ public class GalleryRepository : IGallery
                 await ClearPerson(_db.Managers, id, cancellationToken);
                 break;
             case GalleryRules.Country:
-                await ClearUrl(await Find(_db.Countries, id, "Država", cancellationToken), x => x.PictureUrl, (x, value) => x.PictureUrl = value, cancellationToken);
+                await ClearUrl(await Find(_db.Countries, id, "Country", cancellationToken), x => x.PictureUrl, (x, value) => x.PictureUrl = value, cancellationToken);
                 break;
             case GalleryRules.Stadium:
-                await ClearUrl(await Find(_db.Stadiums, id, "Stadion", cancellationToken), x => x.PictureUrl, (x, value) => x.PictureUrl = value, cancellationToken);
+                await ClearUrl(await Find(_db.Stadiums, id, "Stadium", cancellationToken), x => x.PictureUrl, (x, value) => x.PictureUrl = value, cancellationToken);
                 break;
             case GalleryRules.Selection:
-                await ClearUrl(await Find(_db.Selections, id, "Reprezentacija", cancellationToken), x => x.PictureUrl, (x, value) => x.PictureUrl = value, cancellationToken);
+                await ClearUrl(await Find(_db.Selections, id, "Selection", cancellationToken), x => x.PictureUrl, (x, value) => x.PictureUrl = value, cancellationToken);
                 break;
             default:
-                throw new KeyNotFoundException("Nepoznata vrsta slike.");
+                throw new KeyNotFoundException("Unknown image type.");
         }
     }
 
@@ -190,7 +190,7 @@ public class GalleryRepository : IGallery
     private async Task<GalleryItemDto> SavePerson<T>(DbSet<T> set, string kind, Guid id, IFormFile picture, CancellationToken cancellationToken) where T : Person
     {
         var entity = await set.FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null, cancellationToken)
-            ?? throw new KeyNotFoundException("Zapis nije pronađen.");
+            ?? throw new KeyNotFoundException("Record was not found.");
 
         await using var stream = picture.OpenReadStream();
         using var memory = new MemoryStream();
@@ -210,30 +210,30 @@ public class GalleryRepository : IGallery
     private async Task ClearPerson<T>(DbSet<T> set, Guid id, CancellationToken cancellationToken) where T : Person
     {
         var entity = await set.FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null, cancellationToken)
-            ?? throw new KeyNotFoundException("Zapis nije pronađen.");
+            ?? throw new KeyNotFoundException("Record was not found.");
         entity.Picture = [];
         await _db.SaveChangesAsync(cancellationToken);
     }
 
     private async Task<GalleryItemDto> SaveCountry(Guid id, IFormFile picture, CancellationToken cancellationToken)
     {
-        var entity = await Find(_db.Countries, id, "Država", cancellationToken);
+        var entity = await Find(_db.Countries, id, "Country", cancellationToken);
         entity.PictureUrl = await ReplaceUrl(entity.PictureUrl, picture);
         await _db.SaveChangesAsync(cancellationToken);
-        return Item(entity.Id, entity.Name ?? "Bez naziva", GalleryRules.Country, entity.PictureUrl);
+        return Item(entity.Id, entity.Name ?? "Untitled", GalleryRules.Country, entity.PictureUrl);
     }
 
     private async Task<GalleryItemDto> SaveStadium(Guid id, IFormFile picture, CancellationToken cancellationToken)
     {
-        var entity = await Find(_db.Stadiums, id, "Stadion", cancellationToken);
+        var entity = await Find(_db.Stadiums, id, "Stadium", cancellationToken);
         entity.PictureUrl = await ReplaceUrl(entity.PictureUrl, picture);
         await _db.SaveChangesAsync(cancellationToken);
-        return Item(entity.Id, entity.Name ?? "Bez naziva", GalleryRules.Stadium, entity.PictureUrl);
+        return Item(entity.Id, entity.Name ?? "Untitled", GalleryRules.Stadium, entity.PictureUrl);
     }
 
     private async Task<GalleryItemDto> SaveSelection(Guid id, IFormFile picture, CancellationToken cancellationToken)
     {
-        var entity = await Find(_db.Selections, id, "Reprezentacija", cancellationToken);
+        var entity = await Find(_db.Selections, id, "Selection", cancellationToken);
         entity.PictureUrl = await ReplaceUrl(entity.PictureUrl, picture);
         await _db.SaveChangesAsync(cancellationToken);
         return Item(entity.Id, entity.Name, GalleryRules.Selection, entity.PictureUrl);
@@ -272,7 +272,7 @@ public class GalleryRepository : IGallery
     private static async Task<T> Find<T>(DbSet<T> set, Guid id, string label, CancellationToken cancellationToken) where T : BaseEntity
     {
         return await set.FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null, cancellationToken)
-            ?? throw new KeyNotFoundException($"{label} nije pronađen.");
+            ?? throw new KeyNotFoundException($"{label} was not found.");
     }
 
     private static GalleryItemDto Item(Guid id, string name, string kind, string? pictureUrl) => new()

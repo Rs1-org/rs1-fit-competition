@@ -1,5 +1,6 @@
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
+using FluentValidation;
 using MediatR;
 
 namespace Competition.Application.Commands.GalleryCommands.Delete;
@@ -21,5 +22,16 @@ public class DeleteGalleryImageCommandHandler : IRequestHandler<DeleteGalleryIma
         GalleryRules.EnsureKind(request.Kind);
         await _gallery.DeleteAsync(request.Kind, request.Id, cancellationToken);
         return Unit.Value;
+    }
+}
+
+public class DeleteGalleryImageCommandValidator : AbstractValidator<DeleteGalleryImageCommand>
+{
+    public DeleteGalleryImageCommandValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Kind)
+            .Must(GalleryRules.IsKnown)
+            .WithMessage("Unknown image type.");
     }
 }
