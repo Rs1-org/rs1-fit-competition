@@ -45,7 +45,7 @@
               }
             </div>
             <div class="card-meta">
-              {{ season.startDate }} – {{ season.endDate }} · {{ season.roundCount }}
+              {{ season.startDate | appDate }} – {{ season.endDate | appDate }} · {{ season.roundCount | appNumber:'1.0-0' }}
               {{ season.roundCount === 1 ? 'round' : 'rounds' }}
             </div>
           </div>

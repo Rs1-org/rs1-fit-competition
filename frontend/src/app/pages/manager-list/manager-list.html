@@ -21,11 +21,11 @@
     </div>
     <div class="filter-field">
       <label for="filter-career-from">Career start from</label>
-      <input id="filter-career-from" type="date" formControlName="careerStartFrom" />
+      <input id="filter-career-from" type="date" lang="bs-Latn" formControlName="careerStartFrom" />
     </div>
     <div class="filter-field">
       <label for="filter-career-to">Career start to</label>
-      <input id="filter-career-to" type="date" formControlName="careerStartTo" />
+      <input id="filter-career-to" type="date" lang="bs-Latn" formControlName="careerStartTo" />
     </div>
     <button type="button" class="filter-reset" (click)="resetFilters()">Reset</button>
     @if (filterForm.hasError('ageRange')) {
@@ -47,8 +47,8 @@
   >
     <ng-template #itemTemplate let-manager>
       <div class="item-title">{{ manager.firstName }} {{ manager.lastName }}</div>
-      <div class="item-subtitle">Date of birth: {{ manager.dateOfBirth || '—' }}</div>
-      <div class="item-meta">Career start: {{ manager.careerStart || '—' }}</div>
+      <div class="item-subtitle">Date of birth: {{ (manager.dateOfBirth | appDate) || '—' }}</div>
+      <div class="item-meta">Career start: {{ (manager.careerStart | appDate) || '—' }}</div>
     </ng-template>
   </app-generic-list>
 </div>

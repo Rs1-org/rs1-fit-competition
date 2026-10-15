@@ -3,6 +3,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
+import { AppCurrencyPipe, AppDatePipe } from '../../shared/pipes/regional-format.pipes';
 import { Router } from '@angular/router';
 import { emptyPage } from '../../core/models/paged-result';
 import { Player } from '../../core/models/person.models';
@@ -20,7 +21,7 @@ function ageRangeValidator(group: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-player-list',
-  imports: [GenericListComponent, CommonModule, ReactiveFormsModule],
+  imports: [GenericListComponent, CommonModule, ReactiveFormsModule, AppDatePipe, AppCurrencyPipe],
   templateUrl: './player-list.html',
   styleUrls: ['../catalog.css', './player-list.css'],
 })

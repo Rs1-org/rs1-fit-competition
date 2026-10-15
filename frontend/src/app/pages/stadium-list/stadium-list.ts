@@ -1,5 +1,6 @@
 import { Component, inject, ViewChild } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { Router } from '@angular/router';
@@ -25,7 +26,7 @@ function capacityRangeValidator(group: AbstractControl): ValidationErrors | null
 @Component({
   selector: 'app-stadium-list',
   standalone: true,
-  imports: [GenericListComponent, CommonModule, StadiumForm, DecimalPipe, ReactiveFormsModule],
+  imports: [GenericListComponent, CommonModule, StadiumForm, AppNumberPipe, ReactiveFormsModule],
   templateUrl: './stadium-list.html',
   styleUrl: './stadium-list.css',
 })

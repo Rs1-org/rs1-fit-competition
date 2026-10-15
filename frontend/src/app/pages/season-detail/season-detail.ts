@@ -11,11 +11,12 @@ import { ConfirmDialogService } from '../../shared/components/confirm-dialog/con
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { RoundForm } from '../../components/round-form/round-form';
 import { apiErrorMessage } from '../../core/utils/api-error';
+import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
 
 @Component({
   selector: 'app-season-detail',
   standalone: true,
-  imports: [RouterLink, GenericListComponent, RoundForm],
+  imports: [RouterLink, GenericListComponent, RoundForm, AppDatePipe],
   templateUrl: './season-detail.html',
   styleUrls: ['../catalog.css', '../competition-list/competition-pages.css'],
 })

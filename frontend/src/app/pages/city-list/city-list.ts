@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { DecimalPipe, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { CityForm } from '../../components/city-form/city-form';
 import { CityService } from '../../core/services/city-services';
@@ -22,7 +23,7 @@ function populationRangeValidator(group: AbstractControl): ValidationErrors | nu
 @Component({
   selector: 'app-city-list',
   standalone: true,
-  imports: [CityForm, DecimalPipe, GenericListComponent, CommonModule, ReactiveFormsModule],
+  imports: [CityForm, AppNumberPipe, GenericListComponent, CommonModule, ReactiveFormsModule],
   templateUrl: './city-list.html',
   styleUrl: './city-list.css',
 })

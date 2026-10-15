@@ -2,8 +2,8 @@
 <app-modal [title]="isEditMode ? 'Edit Season' : 'Add Season'" (close)="onClose()" width="560px">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" id="season-form">
     <app-input-box class="full-width" label="Name" placeholder="e.g. 2025/26" [control]="form.controls.name"></app-input-box>
-    <app-input-box label="Start date" type="date" [control]="form.controls.startDate"></app-input-box>
-    <app-input-box label="End date" type="date" [control]="form.controls.endDate"></app-input-box>
+    <app-input-box label="Start date" type="date" lang="bs-Latn" [control]="form.controls.startDate"></app-input-box>
+    <app-input-box label="End date" type="date" lang="bs-Latn" [control]="form.controls.endDate"></app-input-box>
     <app-input-box class="full-width" label="Current season" type="checkbox" [control]="form.controls.isCurrent"></app-input-box>
   </form>
   @if (form.hasError('endBeforeStart') && form.controls.endDate.touched) {

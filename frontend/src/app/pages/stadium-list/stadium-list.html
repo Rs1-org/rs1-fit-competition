@@ -71,7 +71,7 @@
         <div class="stadium-info">
           <div class="item-title">{{ stadium.name }}</div>
           <div class="item-subtitle">{{ stadium.cityName }}, {{ stadium.countryName }}</div>
-          <div class="item-meta">Capacity: {{ stadium.capacity | number }}</div>
+          <div class="item-meta">Capacity: {{ stadium.capacity | appNumber:'1.0-0' }}</div>
         </div>
       </div>
     </ng-template>
