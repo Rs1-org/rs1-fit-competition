@@ -11,7 +11,7 @@ export interface SelectionOption {
   pictureUrl: string | null;
   followersCount: number;
   slug: string;
-  countryId: string;
+  countryPublicId: string | null;
   countryName: string | null;
 }
 
@@ -30,11 +30,11 @@ export class SelectionService {
     return this.http.get<SelectionOption>(`${this.apiUrl}/${slug}`);
   }
 
-  create(body: { name: string; abbreviation: string; followersCount: number; countryId: string; pictureUrl?: string | null }): Observable<SelectionOption> {
+  create(body: { name: string; abbreviation: string; followersCount: number; countryPublicId: string; pictureUrl?: string | null }): Observable<SelectionOption> {
     return this.http.post<SelectionOption>(this.apiUrl, body);
   }
 
-  update(slug: string, body: { name: string; abbreviation: string; followersCount: number; countryId: string; pictureUrl?: string | null }): Observable<SelectionOption> {
+  update(slug: string, body: { name: string; abbreviation: string; followersCount: number; countryPublicId: string; pictureUrl?: string | null }): Observable<SelectionOption> {
     return this.http.put<SelectionOption>(`${this.apiUrl}/${slug}`, body);
   }
 

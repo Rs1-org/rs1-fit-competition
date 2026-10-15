@@ -1,3 +1,4 @@
+using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.SelectionDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
@@ -13,16 +14,16 @@ public class CreateSelectionCommand : IRequest<SelectionDto>
     public string Abbreviation { get; set; } = string.Empty;
     public string? PictureUrl { get; set; }
     public int FollowersCount { get; set; }
-    public Guid CountryId { get; set; }
+    public string CountryPublicId { get; set; } = string.Empty;
 }
 
 public class CreateSelectionCommandValidator : AbstractValidator<CreateSelectionCommand>
 {
-    public CreateSelectionCommandValidator()
+    public CreateSelectionCommandValidator(IPublicIdLookup lookup)
     {
         RuleFor(x => x.Name).NotEmpty().MaximumLength(120);
         RuleFor(x => x.Abbreviation).NotEmpty().MaximumLength(10);
-        RuleFor(x => x.CountryId).NotEmpty();
+        RuleFor(x => x.CountryPublicId).MustReferenceExisting<CreateSelectionCommand, Country>(lookup);
         RuleFor(x => x.FollowersCount).GreaterThanOrEqualTo(0);
     }
 }
@@ -30,20 +31,19 @@ public class CreateSelectionCommandValidator : AbstractValidator<CreateSelection
 public class CreateSelectionCommandHandler : IRequestHandler<CreateSelectionCommand, SelectionDto>
 {
     private readonly ISelection _selections;
-    private readonly ICountry _countries;
+    private readonly IPublicIdLookup _publicIds;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CreateSelectionCommandHandler(ISelection selections, ICountry countries, IUnitOfWork unitOfWork)
+    public CreateSelectionCommandHandler(ISelection selections, IPublicIdLookup publicIds, IUnitOfWork unitOfWork)
     {
         _selections = selections;
-        _countries = countries;
+        _publicIds = publicIds;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<SelectionDto> Handle(CreateSelectionCommand request, CancellationToken cancellationToken)
     {
-        var country = await _countries.GetByIdAsync(request.CountryId, cancellationToken)
-            ?? throw new KeyNotFoundException($"Country '{request.CountryId}' was not found.");
+        var countryId = await _publicIds.GetRequiredIdAsync<Country>(request.CountryPublicId, cancellationToken);
 
         var slug = SlugHelper.GenerateSlug(request.Name);
         if (await _selections.GetBySlugAsync(slug, cancellationToken) != null)
@@ -56,7 +56,7 @@ public class CreateSelectionCommandHandler : IRequestHandler<CreateSelectionComm
             Abbreviation = request.Abbreviation.Trim().ToUpperInvariant(),
             PictureUrl = string.IsNullOrWhiteSpace(request.PictureUrl) ? null : request.PictureUrl.Trim(),
             FollowersCount = request.FollowersCount,
-            CountryId = country.Id,
+            CountryId = countryId,
             Slug = slug
         };
 
@@ -75,7 +75,7 @@ public class CreateSelectionCommandHandler : IRequestHandler<CreateSelectionComm
         PictureUrl = entity.PictureUrl,
         FollowersCount = entity.FollowersCount,
         Slug = entity.Slug,
-        CountryId = entity.CountryId,
+        CountryPublicId = entity.Country?.PublicId,
         CountryName = entity.Country?.Name
     };
 }
