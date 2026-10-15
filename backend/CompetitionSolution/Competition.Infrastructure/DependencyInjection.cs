@@ -63,10 +63,7 @@ namespace Competition.Infrastructure
             services.AddScoped<IPlayer, PlayerRepository>();
             services.AddScoped<IReferee, RefereeRepository>();
             services.AddScoped<IManager, ManagerRepository>();
-            services.AddScoped<IPlayerSelectionHistoryService, PlayerSelectionHistoryService>();
-            services.AddScoped<ISelectionManagerHistoryService, SelectionManagerHistoryService>();
-            services.AddScoped<ITransferValueHistoryService, TransferValueHistoryService>();
-            services.AddScoped<IMandatDateService, MandatDateService>();
+            services.AddScoped<IHistoryStore, HistoryStore>();
 
             return services;
         }

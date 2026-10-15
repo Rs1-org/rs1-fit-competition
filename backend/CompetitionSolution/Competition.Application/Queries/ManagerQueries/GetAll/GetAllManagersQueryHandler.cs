@@ -5,7 +5,7 @@ using Competition.Application.Interfaces;
 using MediatR;
 using NodaTime;
 
-namespace Competition.Application.Features.ManagerQueries.GetAll;
+namespace Competition.Application.Queries.ManagerQueries.GetAll;
 
 public class GetAllManagersQueryHandler(IManager managerRepository, IMapper mapper)
     : IRequestHandler<GetAllManagersQuery, PagedResult<ManagerDto>>

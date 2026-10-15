@@ -1,7 +1,7 @@
 using Competition.Application.DTOs.PersonDto;
 using MediatR;
 
-namespace Competition.Application.Features.ManagerQueries.GetById;
+namespace Competition.Application.Queries.ManagerQueries.GetById;
 
 public class GetManagerByIdQuery(Guid id) : IRequest<ManagerDto?>
 {

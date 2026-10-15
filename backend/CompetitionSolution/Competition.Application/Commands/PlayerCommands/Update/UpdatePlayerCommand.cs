@@ -1,7 +1,7 @@
 using Competition.Application.DTOs.PersonDto;
 using MediatR;
 
-namespace Competition.Application.Features.PlayerCommands.Update;
+namespace Competition.Application.Commands.PlayerCommands.Update;
 
 public class UpdatePlayerCommand : IRequest<PlayerDto>
 {

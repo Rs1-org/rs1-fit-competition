@@ -1,9 +1,9 @@
-﻿using Competition.Application.DTOs.PersonDto;
-using Competition.Application.Features.ManagerCommands.Create;
-using Competition.Application.Features.ManagerCommands.Delete;
-using Competition.Application.Features.ManagerCommands.Update;
-using Competition.Application.Features.ManagerQueries.GetAll;
-using Competition.Application.Features.ManagerQueries.GetById;
+using Competition.Application.DTOs.PersonDto;
+using Competition.Application.Commands.ManagerCommands.Create;
+using Competition.Application.Commands.ManagerCommands.Delete;
+using Competition.Application.Commands.ManagerCommands.Update;
+using Competition.Application.Queries.ManagerQueries.GetAll;
+using Competition.Application.Queries.ManagerQueries.GetById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

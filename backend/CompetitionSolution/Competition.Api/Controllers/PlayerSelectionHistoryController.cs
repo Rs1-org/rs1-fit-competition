@@ -1,54 +1,56 @@
-using Competition.Application.DTOs.HistoryDto;
-using Competition.Application.Services;
+using Competition.Application.Commands.PlayerSelectionHistoryCommands;
+using Competition.Application.Queries.PlayerSelectionHistoryQueries;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Competition.Api.Controllers;
 
 [Route("api/player-selection-history")]
 [ApiController]
-public class PlayerSelectionHistoryController : ControllerBase
+public class PlayerSelectionHistoryController(IMediator mediator) : ControllerBase
 {
-    private readonly IPlayerSelectionHistoryService _service;
-
-    public PlayerSelectionHistoryController(IPlayerSelectionHistoryService service)
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
-        _service = service;
-    }
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id)
-    {
-        var record = await _service.GetByIdAsync(id);
-        if (record == null)
-            throw new KeyNotFoundException($"PlayerSelectionHistory with id {id} not found");
-
-        return Ok(record);
+        return Ok(await mediator.Send(new GetPlayerSelectionHistoryByIdQuery(id), cancellationToken));
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] Guid? playerId = null,
+        [FromQuery] Guid? selectionId = null,
+        CancellationToken cancellationToken = default)
     {
-        return Ok(await _service.GetAllAsync());
+        return Ok(await mediator.Send(new GetPlayerSelectionHistoriesQuery
+        {
+            Page = page,
+            PageSize = pageSize,
+            PlayerId = playerId,
+            SelectionId = selectionId
+        }, cancellationToken));
     }
 
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] PlayerSelectionHistoryDto dto)
+    public async Task<IActionResult> Add([FromBody] CreatePlayerSelectionHistoryCommand command, CancellationToken cancellationToken)
     {
-        var created = await _service.CreateAsync(dto);
-        return Ok(created);
+        return Ok(await mediator.Send(command, cancellationToken));
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] PlayerSelectionHistoryDto dto)
+    [Authorize(Roles = "Admin,Moderator")]
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePlayerSelectionHistoryCommand command, CancellationToken cancellationToken)
     {
-        var updated = await _service.UpdateAsync(id, dto);
-        return Ok(updated);
+        return Ok(await mediator.Send(command with { Id = id }, cancellationToken));
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    [Authorize(Roles = "Admin,Moderator")]
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
-        await _service.DeleteAsync(id);
-        return Ok(id);
+        return Ok(await mediator.Send(new DeletePlayerSelectionHistoryCommand(id), cancellationToken));
     }
 }

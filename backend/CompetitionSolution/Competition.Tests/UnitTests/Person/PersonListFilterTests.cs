@@ -1,5 +1,5 @@
 using Competition.Application.Common.Models;
-using Competition.Application.Features.PlayerQueries.GetAll;
+using Competition.Application.Queries.PlayerQueries.GetAll;
 using Competition.Domain.Entities.FormationEntities;
 using Competition.Domain.Entities.Person;
 using Competition.Infrastructure.Data;

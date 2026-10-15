@@ -3,7 +3,7 @@ using Competition.Application.DTOs.PersonDto;
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Features.PlayerQueries.GetById;
+namespace Competition.Application.Queries.PlayerQueries.GetById;
 
 public class GetPlayerByIdQueryHandler(IPlayer playerRepository, IMapper mapper)
     : IRequestHandler<GetPlayerByIdQuery, PlayerDto?>

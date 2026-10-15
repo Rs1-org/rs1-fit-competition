@@ -3,7 +3,7 @@ using Competition.Application.DTOs.PersonDto;
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Features.RefereeQueries.GetById;
+namespace Competition.Application.Queries.RefereeQueries.GetById;
 
 public class GetRefereeByIdQueryHandler(IReferee refereeRepository, IMapper mapper)
     : IRequestHandler<GetRefereeByIdQuery, RefereeDto?>

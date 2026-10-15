@@ -4,7 +4,7 @@ using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Features.PlayerCommands.Update;
+namespace Competition.Application.Commands.PlayerCommands.Update;
 
 public class UpdatePlayerCommandHandler(IPlayer playerRepository, IPosition positions, ISubPosition subPositions, IUnitOfWork unitOfWork, IMapper mapper)
     : IRequestHandler<UpdatePlayerCommand, PlayerDto>

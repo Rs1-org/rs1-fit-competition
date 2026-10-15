@@ -1,7 +1,7 @@
 using Competition.Application.DTOs.PersonDto;
 using MediatR;
 
-namespace Competition.Application.Features.ManagerCommands.Update;
+namespace Competition.Application.Commands.ManagerCommands.Update;
 
 public class UpdateManagerCommand : IRequest<ManagerDto>
 {

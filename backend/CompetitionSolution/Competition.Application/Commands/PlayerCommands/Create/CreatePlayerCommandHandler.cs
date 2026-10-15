@@ -5,7 +5,7 @@ using Competition.Application.Interfaces;
 using Competition.Domain.Entities.Person;
 using MediatR;
 
-namespace Competition.Application.Features.PlayerCommands.Create;
+namespace Competition.Application.Commands.PlayerCommands.Create;
 
 public class CreatePlayerCommandHandler(IPlayer playerRepository, IPosition positions, ISubPosition subPositions, IUnitOfWork unitOfWork, IMapper mapper)
     : IRequestHandler<CreatePlayerCommand, PlayerDto>

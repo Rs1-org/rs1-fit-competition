@@ -1,7 +1,7 @@
 using Competition.Application.DTOs.PersonDto;
 using MediatR;
 
-namespace Competition.Application.Features.RefereeCommands.Create;
+namespace Competition.Application.Commands.RefereeCommands.Create;
 
 public class CreateRefereeCommand : IRequest<RefereeDto>
 {

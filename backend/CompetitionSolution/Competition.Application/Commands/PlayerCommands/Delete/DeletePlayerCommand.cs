@@ -1,7 +1,7 @@
 using FluentValidation;
 using MediatR;
 
-namespace Competition.Application.Features.PlayerCommands.Delete;
+namespace Competition.Application.Commands.PlayerCommands.Delete;
 
 public class DeletePlayerCommand(Guid id) : IRequest<Guid>
 {

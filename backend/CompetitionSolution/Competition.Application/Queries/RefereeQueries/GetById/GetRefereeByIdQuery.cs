@@ -1,7 +1,7 @@
 using Competition.Application.DTOs.PersonDto;
 using MediatR;
 
-namespace Competition.Application.Features.RefereeQueries.GetById;
+namespace Competition.Application.Queries.RefereeQueries.GetById;
 
 public class GetRefereeByIdQuery(Guid id) : IRequest<RefereeDto?>
 {

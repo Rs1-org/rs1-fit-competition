@@ -1,7 +1,7 @@
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Features.ManagerCommands.Delete;
+namespace Competition.Application.Commands.ManagerCommands.Delete;
 
 public class DeleteManagerCommandHandler(IManager managerRepository, IUnitOfWork unitOfWork)
     : IRequestHandler<DeleteManagerCommand, Guid>

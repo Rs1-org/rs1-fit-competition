@@ -4,7 +4,7 @@ using Competition.Application.Interfaces;
 using Competition.Domain.Entities.Person;
 using MediatR;
 
-namespace Competition.Application.Features.ManagerCommands.Create;
+namespace Competition.Application.Commands.ManagerCommands.Create;
 
 public class CreateManagerCommandHandler(IManager managerRepository, IUnitOfWork unitOfWork, IMapper mapper)
     : IRequestHandler<CreateManagerCommand, ManagerDto>

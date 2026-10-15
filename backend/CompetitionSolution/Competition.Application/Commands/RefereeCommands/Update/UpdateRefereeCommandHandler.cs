@@ -3,7 +3,7 @@ using Competition.Application.DTOs.PersonDto;
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Features.RefereeCommands.Update;
+namespace Competition.Application.Commands.RefereeCommands.Update;
 
 public class UpdateRefereeCommandHandler(IReferee refereeRepository, IUnitOfWork unitOfWork, IMapper mapper)
     : IRequestHandler<UpdateRefereeCommand, RefereeDto>

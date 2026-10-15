@@ -1,4 +1,4 @@
-using Competition.Application.Features.RefereeCommands.Update;
+using Competition.Application.Commands.RefereeCommands.Update;
 using Competition.Application.Helpers;
 using FluentValidation;
 

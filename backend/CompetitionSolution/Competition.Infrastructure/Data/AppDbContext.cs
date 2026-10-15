@@ -245,6 +245,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
 
         modelBuilder.Entity<PlayerSelectionHistory>(e =>
         {
+            e.ToTable("PlayerSelectionHistories");
             e.HasOne(x => x.Player)
                 .WithMany()
                 .HasForeignKey(x => x.PlayerId)
@@ -253,10 +254,13 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 .WithMany(s => s.PlayerHistories)
                 .HasForeignKey(x => x.SelectionId)
                 .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
         });
 
         modelBuilder.Entity<SelectionManagerHistory>(e =>
         {
+            e.ToTable("SelectionManagerHistories");
+            e.Property(x => x.Notes).HasMaxLength(2000);
             e.HasOne(x => x.Manager)
                 .WithMany()
                 .HasForeignKey(x => x.ManagerId)
@@ -265,6 +269,32 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 .WithMany(s => s.ManagerHistories)
                 .HasForeignKey(x => x.SelectionId)
                 .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<TransferValueHistory>(e =>
+        {
+            e.ToTable("TransferValueHistories");
+            e.Property(x => x.Value).HasPrecision(18, 2);
+            e.HasOne(x => x.Player)
+                .WithMany()
+                .HasForeignKey(x => x.PlayerId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<MandateDate>(e =>
+        {
+            e.ToTable("MandateDates");
+            e.HasOne(x => x.PlayerSelectionHistory)
+                .WithMany()
+                .HasForeignKey(x => x.PlayerSelectionHistoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.SelectionManagerHistory)
+                .WithMany()
+                .HasForeignKey(x => x.SelectionManagerHistoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
         });
 
         modelBuilder.Entity<FormationMark>(e =>
@@ -350,7 +380,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<PlayerSelectionHistory> PlayerSelectionHistories { get; set; } = null!;
     public DbSet<SelectionManagerHistory> SelectionManagerHistories { get; set; } = null!;
     public DbSet<TransferValueHistory> TransferValueHistories { get; set; } = null!;
-    public DbSet<MandatDate> MandatDates { get; set; } = null!;
+    public DbSet<MandateDate> MandateDates { get; set; } = null!;
     public DbSet<Selection> Selections { get; set; } = null!;
     public DbSet<CompetitionEntity> Competitions { get; set; } = null!;
     public DbSet<Season> Seasons { get; set; } = null!;

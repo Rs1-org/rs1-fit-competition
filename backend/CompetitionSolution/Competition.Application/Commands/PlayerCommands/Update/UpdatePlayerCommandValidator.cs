@@ -1,4 +1,4 @@
-using Competition.Application.Features.PlayerCommands.Update;
+using Competition.Application.Commands.PlayerCommands.Update;
 using Competition.Application.Helpers;
 using FluentValidation;
 

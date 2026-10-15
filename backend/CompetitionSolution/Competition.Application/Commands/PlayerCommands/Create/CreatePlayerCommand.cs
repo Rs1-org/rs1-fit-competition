@@ -1,7 +1,7 @@
 using Competition.Application.DTOs.PersonDto;
 using MediatR;
 
-namespace Competition.Application.Features.PlayerCommands.Create;
+namespace Competition.Application.Commands.PlayerCommands.Create;
 
 public class CreatePlayerCommand : IRequest<PlayerDto>
 {
