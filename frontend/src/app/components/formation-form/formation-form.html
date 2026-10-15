@@ -1,5 +1,8 @@
 @if (isOpen) {
   <app-modal [title]="isEditMode ? 'Edit formation' : 'Add formation'" (close)="onClose()">
+    @if (error) {
+      <p class="field-error">{{ error }}</p>
+    }
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <app-input-box label="Code" placeholder="4-3-3" [control]="form.controls.code"></app-input-box>
       <app-dropdown

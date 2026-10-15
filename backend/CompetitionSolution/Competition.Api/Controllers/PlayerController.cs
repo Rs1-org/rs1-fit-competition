@@ -23,9 +23,9 @@ public class PlayerController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        var player = await mediator.Send(new GetPlayerByIdQuery(id));
+        var player = await mediator.Send(new GetPlayerByIdQuery(id), ct);
         if (player == null)
             throw new KeyNotFoundException($"Player with id {id} not found");
 
@@ -57,25 +57,25 @@ public class PlayerController(IMediator mediator) : ControllerBase
 
     [Authorize(Roles = "Admin,Moderator")]
     [HttpPost]
-    public async Task<IActionResult> AddPlayer([FromBody] PlayerDto dto)
+    public async Task<IActionResult> AddPlayer([FromBody] PlayerDto dto, CancellationToken ct)
     {
-        var created = await mediator.Send(new CreatePlayerCommand(dto));
+        var created = await mediator.Send(new CreatePlayerCommand(dto), ct);
         return Ok(created);
     }
 
     [Authorize(Roles = "Admin,Moderator")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePlayer(Guid id, [FromBody] PlayerDto dto)
+    public async Task<IActionResult> UpdatePlayer(Guid id, [FromBody] PlayerDto dto, CancellationToken ct)
     {
-        var updated = await mediator.Send(new UpdatePlayerCommand(id, dto));
+        var updated = await mediator.Send(new UpdatePlayerCommand(id, dto), ct);
         return Ok(updated);
     }
 
     [Authorize(Roles = "Admin,Moderator")]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeletePlayer(Guid id)
+    public async Task<IActionResult> DeletePlayer(Guid id, CancellationToken ct)
     {
-        var deletedId = await mediator.Send(new DeletePlayerCommand(id));
+        var deletedId = await mediator.Send(new DeletePlayerCommand(id), ct);
         return Ok(deletedId);
     }
 

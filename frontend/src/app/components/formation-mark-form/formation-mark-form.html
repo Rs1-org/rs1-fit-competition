@@ -1,5 +1,8 @@
 @if (isOpen) {
   <app-modal [title]="isEditMode ? 'Edit formation mark' : 'Add formation mark'" (close)="onClose()">
+    @if (error) {
+      <p class="field-error">{{ error }}</p>
+    }
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <app-input-box label="Defenders" type="number" [control]="form.controls.defenders"></app-input-box>
       <app-input-box label="Midfielders" type="number" [control]="form.controls.midfielders"></app-input-box>
