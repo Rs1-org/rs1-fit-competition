@@ -4,7 +4,7 @@ using Competition.Application.DTOs.PersonDto;
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Features.PlayerQueries.GetAll;
+namespace Competition.Application.Queries.PlayerQueries.GetAll;
 
 public class GetAllPlayersQueryHandler(IPlayer playerRepository, IMapper mapper)
     : IRequestHandler<GetAllPlayersQuery, PagedResult<PlayerDto>>

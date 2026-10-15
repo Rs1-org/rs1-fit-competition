@@ -1,9 +1,9 @@
-﻿using Competition.Application.DTOs.PersonDto;
-using Competition.Application.Features.RefereeCommands.Create;
-using Competition.Application.Features.RefereeCommands.Delete;
-using Competition.Application.Features.RefereeCommands.Update;
-using Competition.Application.Features.RefereeQueries.GetAll;
-using Competition.Application.Features.RefereeQueries.GetById;
+using Competition.Application.DTOs.PersonDto;
+using Competition.Application.Commands.RefereeCommands.Create;
+using Competition.Application.Commands.RefereeCommands.Delete;
+using Competition.Application.Commands.RefereeCommands.Update;
+using Competition.Application.Queries.RefereeQueries.GetAll;
+using Competition.Application.Queries.RefereeQueries.GetById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,7 +1,7 @@
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Features.PlayerCommands.Delete;
+namespace Competition.Application.Commands.PlayerCommands.Delete;
 
 public class DeletePlayerCommandHandler(IPlayer playerRepository, IUnitOfWork unitOfWork)
     : IRequestHandler<DeletePlayerCommand, Guid>

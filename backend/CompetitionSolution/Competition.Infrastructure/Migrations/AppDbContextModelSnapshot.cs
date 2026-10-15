@@ -616,7 +616,7 @@ namespace Competition.Infrastructure.Migrations
                     b.ToTable("GeoDatas", (string)null);
                 });
 
-            modelBuilder.Entity("Competition.Domain.Entities.MandatDate", b =>
+            modelBuilder.Entity("Competition.Domain.Entities.MandateDate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -629,7 +629,7 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<Instant?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<LocalDate?>("EndMandatDate")
+                    b.Property<LocalDate?>("EndDate")
                         .HasColumnType("date");
 
                     b.Property<Instant>("ModifiedAt")
@@ -646,7 +646,7 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<Guid?>("SelectionManagerHistoryId")
                         .HasColumnType("uuid");
 
-                    b.Property<LocalDate?>("StartMandatDate")
+                    b.Property<LocalDate?>("StartDate")
                         .HasColumnType("date");
 
                     b.HasKey("Id");
@@ -658,7 +658,7 @@ namespace Competition.Infrastructure.Migrations
 
                     b.HasIndex("SelectionManagerHistoryId");
 
-                    b.ToTable("MandatDates");
+                    b.ToTable("MandateDates", (string)null);
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Match", b =>
@@ -937,7 +937,7 @@ namespace Competition.Infrastructure.Migrations
 
                     b.HasIndex("SelectionId");
 
-                    b.ToTable("PlayerSelectionHistories");
+                    b.ToTable("PlayerSelectionHistories", (string)null);
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.RefreshToken", b =>
@@ -1049,7 +1049,8 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<string>("PublicId")
                         .IsRequired()
@@ -1071,7 +1072,7 @@ namespace Competition.Infrastructure.Migrations
 
                     b.HasIndex("SelectionId");
 
-                    b.ToTable("SelectionManagerHistories");
+                    b.ToTable("SelectionManagerHistories", (string)null);
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.TransferValueHistory", b =>
@@ -1102,7 +1103,8 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("character varying(32)");
 
                     b.Property<decimal?>("Value")
-                        .HasColumnType("numeric");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.HasKey("Id");
 
@@ -1111,7 +1113,7 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("PublicId")
                         .IsUnique();
 
-                    b.ToTable("TransferValueHistories");
+                    b.ToTable("TransferValueHistories", (string)null);
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.UserPreference", b =>
@@ -1361,15 +1363,17 @@ namespace Competition.Infrastructure.Migrations
                     b.Navigation("Position");
                 });
 
-            modelBuilder.Entity("Competition.Domain.Entities.MandatDate", b =>
+            modelBuilder.Entity("Competition.Domain.Entities.MandateDate", b =>
                 {
                     b.HasOne("Competition.Domain.Entities.PlayerSelectionHistory", "PlayerSelectionHistory")
                         .WithMany()
-                        .HasForeignKey("PlayerSelectionHistoryId");
+                        .HasForeignKey("PlayerSelectionHistoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Competition.Domain.Entities.SelectionManagerHistory", "SelectionManagerHistory")
                         .WithMany()
-                        .HasForeignKey("SelectionManagerHistoryId");
+                        .HasForeignKey("SelectionManagerHistoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("PlayerSelectionHistory");
 
@@ -1498,7 +1502,7 @@ namespace Competition.Infrastructure.Migrations
                     b.HasOne("Competition.Domain.Entities.Person.Player", "Player")
                         .WithMany()
                         .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Player");

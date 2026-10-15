@@ -3,7 +3,7 @@ using Competition.Application.DTOs.PersonDto;
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Features.ManagerCommands.Update;
+namespace Competition.Application.Commands.ManagerCommands.Update;
 
 public class UpdateManagerCommandHandler(IManager managerRepository, IUnitOfWork unitOfWork, IMapper mapper)
     : IRequestHandler<UpdateManagerCommand, ManagerDto>

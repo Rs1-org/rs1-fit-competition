@@ -69,7 +69,7 @@ public class PlayerAppearanceReader : IPlayerAppearances
         var historyIds = histories.Select(h => h.Id).ToList();
         var selectionIds = histories.Select(h => h.SelectionId!.Value).Distinct().ToList();
 
-        var mandats = await _context.MandatDates
+        var mandats = await _context.MandateDates
             .Where(m => m.DeletedAt == null && m.PlayerSelectionHistoryId != null && historyIds.Contains(m.PlayerSelectionHistoryId.Value))
             .ToListAsync(cancellationToken);
 
@@ -93,7 +93,7 @@ public class PlayerAppearanceReader : IPlayerAppearances
                     continue;
 
                 var matchDate = match.Date.InUtc().Date;
-                if (!SelectionAppearanceRules.CoversDate(matchDate, mandat?.StartMandatDate, mandat?.EndMandatDate))
+                if (!SelectionAppearanceRules.CoversDate(matchDate, mandat?.StartDate, mandat?.EndDate))
                     continue;
 
                 if (!seen.Add((match.Id, history.SelectionId.Value)))

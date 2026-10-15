@@ -1,4 +1,4 @@
-using Competition.Application.Features.RefereeCommands.Create;
+using Competition.Application.Commands.RefereeCommands.Create;
 using Competition.Application.Helpers;
 using FluentValidation;
 

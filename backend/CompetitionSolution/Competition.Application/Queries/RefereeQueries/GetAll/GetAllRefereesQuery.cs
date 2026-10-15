@@ -3,7 +3,7 @@ using Competition.Application.DTOs.PersonDto;
 using FluentValidation;
 using MediatR;
 
-namespace Competition.Application.Features.RefereeQueries.GetAll;
+namespace Competition.Application.Queries.RefereeQueries.GetAll;
 
 public class GetAllRefereesQuery : IRequest<PagedResult<RefereeDto>>
 {

@@ -4,7 +4,7 @@ using Competition.Application.Interfaces;
 using Competition.Domain.Entities.Person;
 using MediatR;
 
-namespace Competition.Application.Features.RefereeCommands.Create;
+namespace Competition.Application.Commands.RefereeCommands.Create;
 
 public class CreateRefereeCommandHandler(IReferee refereeRepository, IUnitOfWork unitOfWork, IMapper mapper)
     : IRequestHandler<CreateRefereeCommand, RefereeDto>

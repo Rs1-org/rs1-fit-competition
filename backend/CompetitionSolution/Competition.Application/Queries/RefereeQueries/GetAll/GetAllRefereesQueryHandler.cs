@@ -5,7 +5,7 @@ using Competition.Application.Interfaces;
 using MediatR;
 using NodaTime;
 
-namespace Competition.Application.Features.RefereeQueries.GetAll;
+namespace Competition.Application.Queries.RefereeQueries.GetAll;
 
 public class GetAllRefereesQueryHandler(IReferee refereeRepository, IMapper mapper)
     : IRequestHandler<GetAllRefereesQuery, PagedResult<RefereeDto>>

@@ -1,10 +1,10 @@
-﻿using Competition.Application.DTOs.PersonDto;
+using Competition.Application.DTOs.PersonDto;
 using Competition.Application.Queries.SelectionQueries.GetPlayerAppearances;
-using Competition.Application.Features.PlayerCommands.Create;
-using Competition.Application.Features.PlayerCommands.Delete;
-using Competition.Application.Features.PlayerCommands.Update;
-using Competition.Application.Features.PlayerQueries.GetAll;
-using Competition.Application.Features.PlayerQueries.GetById;
+using Competition.Application.Commands.PlayerCommands.Create;
+using Competition.Application.Commands.PlayerCommands.Delete;
+using Competition.Application.Commands.PlayerCommands.Update;
+using Competition.Application.Queries.PlayerQueries.GetAll;
+using Competition.Application.Queries.PlayerQueries.GetById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,6 +1,6 @@
-using Competition.Application.Features.ManagerCommands.Delete;
-using Competition.Application.Features.PlayerCommands.Delete;
-using Competition.Application.Features.RefereeCommands.Delete;
+using Competition.Application.Commands.ManagerCommands.Delete;
+using Competition.Application.Commands.PlayerCommands.Delete;
+using Competition.Application.Commands.RefereeCommands.Delete;
 using FluentAssertions;
 using Xunit;
 

@@ -3,7 +3,7 @@ using Competition.Application.DTOs.PersonDto;
 using Competition.Application.Interfaces;
 using MediatR;
 
-namespace Competition.Application.Features.ManagerQueries.GetById;
+namespace Competition.Application.Queries.ManagerQueries.GetById;
 
 public class GetManagerByIdQueryHandler(IManager managerRepository, IMapper mapper)
     : IRequestHandler<GetManagerByIdQuery, ManagerDto?>

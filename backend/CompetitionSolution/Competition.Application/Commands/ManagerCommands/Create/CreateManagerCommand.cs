@@ -1,7 +1,7 @@
 using Competition.Application.DTOs.PersonDto;
 using MediatR;
 
-namespace Competition.Application.Features.ManagerCommands.Create;
+namespace Competition.Application.Commands.ManagerCommands.Create;
 
 public class CreateManagerCommand : IRequest<ManagerDto>
 {
