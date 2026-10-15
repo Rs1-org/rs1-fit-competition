@@ -81,25 +81,25 @@ export const routes: Routes = [
     path: 'manage-formation-marks',
     canActivate: [AdminModeratorGuard],
     loadComponent: () =>
-      import('./pages/manage-formation-mark/manage-formation-mark').then((m) => m.ManageFormationMark),
+      import('./components/formation-mark-form/formation-mark-form').then((m) => m.FormationMarkForm),
   },
   {
     path: 'manage-formation-marks/:slug',
     canActivate: [AdminModeratorGuard],
     loadComponent: () =>
-      import('./pages/manage-formation-mark/manage-formation-mark').then((m) => m.ManageFormationMark),
+      import('./components/formation-mark-form/formation-mark-form').then((m) => m.FormationMarkForm),
   },
   {
     path: 'manage-formations',
     canActivate: [AdminModeratorGuard],
     loadComponent: () =>
-      import('./pages/manage-formation/manage-formation').then((m) => m.ManageFormation),
+      import('./components/formation-form/formation-form').then((m) => m.FormationForm),
   },
   {
     path: 'manage-formations/:slug',
     canActivate: [AdminModeratorGuard],
     loadComponent: () =>
-      import('./pages/manage-formation/manage-formation').then((m) => m.ManageFormation),
+      import('./components/formation-form/formation-form').then((m) => m.FormationForm),
   },
   {
     path: 'player-list',

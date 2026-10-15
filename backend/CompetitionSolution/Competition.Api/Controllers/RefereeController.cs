@@ -15,9 +15,9 @@ namespace Competition.Api.Controllers;
 public class RefereeController(IMediator mediator) : ControllerBase
 {
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        var referee = await mediator.Send(new GetRefereeByIdQuery(id));
+        var referee = await mediator.Send(new GetRefereeByIdQuery(id), ct);
         if (referee == null)
             throw new KeyNotFoundException($"Referee with id {id} not found");
 
@@ -49,25 +49,25 @@ public class RefereeController(IMediator mediator) : ControllerBase
 
     [Authorize(Roles = "Admin,Moderator")]
     [HttpPost]
-    public async Task<IActionResult> AddReferee([FromBody] RefereeDto dto)
+    public async Task<IActionResult> AddReferee([FromBody] RefereeDto dto, CancellationToken ct)
     {
-        var created = await mediator.Send(new CreateRefereeCommand(dto));
+        var created = await mediator.Send(new CreateRefereeCommand(dto), ct);
         return Ok(created);
     }
 
     [Authorize(Roles = "Admin,Moderator")]
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateReferee(Guid id, [FromBody] RefereeDto dto)
+    public async Task<IActionResult> UpdateReferee(Guid id, [FromBody] RefereeDto dto, CancellationToken ct)
     {
-        var updated = await mediator.Send(new UpdateRefereeCommand(id, dto));
+        var updated = await mediator.Send(new UpdateRefereeCommand(id, dto), ct);
         return Ok(updated);
     }
 
     [Authorize(Roles = "Admin,Moderator")]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteReferee(Guid id)
+    public async Task<IActionResult> DeleteReferee(Guid id, CancellationToken ct)
     {
-        var deletedId = await mediator.Send(new DeleteRefereeCommand(id));
+        var deletedId = await mediator.Send(new DeleteRefereeCommand(id), ct);
         return Ok(deletedId);
     }
 

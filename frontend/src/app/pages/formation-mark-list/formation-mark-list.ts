@@ -36,6 +36,11 @@ export class FormationMarkList {
     { initialValue: this.userState.canManagePersons() },
   );
 
+  isAdmin = toSignal(
+    this.userState.roles$.pipe(map(() => this.userState.isAdmin())),
+    { initialValue: this.userState.isAdmin() },
+  );
+
   onPageChange(page: number): void {
     this.page$.next(page);
   }

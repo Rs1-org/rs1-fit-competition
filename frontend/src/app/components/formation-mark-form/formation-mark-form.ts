@@ -1,5 +1,6 @@
-import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Modal } from '../../shared/components/modal/modal';
 import { InputBox } from '../../shared/components/input-box/input-box';
 import { Button } from '../../shared/components/button/button';
@@ -11,7 +12,7 @@ import { FormationMark } from '../../core/models/formation.models';
   imports: [Modal, InputBox, ReactiveFormsModule, Button],
   templateUrl: './formation-mark-form.html',
 })
-export class FormationMarkForm implements OnChanges {
+export class FormationMarkForm implements OnChanges, OnInit {
   @Input() isOpen = false;
   @Input() editItem: FormationMark | null = null;
   @Output() saved = new EventEmitter<void>();
@@ -19,6 +20,9 @@ export class FormationMarkForm implements OnChanges {
 
   private service = inject(FormationMarkService);
   private fb = inject(NonNullableFormBuilder);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  error = '';
 
   form = this.fb.group({
     defenders: this.fb.control(4, { validators: [Validators.required, Validators.min(0), Validators.max(10)] }),
@@ -28,6 +32,25 @@ export class FormationMarkForm implements OnChanges {
 
   get isEditMode(): boolean {
     return this.editItem !== null;
+  }
+
+  ngOnInit(): void {
+    this.isOpen = true;
+    const slug = this.route.snapshot.paramMap.get('slug');
+    if (!slug) return;
+    this.service.getBySlug(slug).subscribe({
+      next: (mark) => {
+        this.editItem = mark;
+        this.form.patchValue({
+          defenders: mark.defenders,
+          midfielders: mark.midfielders,
+          attackers: mark.attackers,
+        });
+      },
+      error: () => {
+        this.error = 'Formation mark was not found.';
+      },
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -45,6 +68,7 @@ export class FormationMarkForm implements OnChanges {
 
   onClose(): void {
     this.closed.emit();
+    this.router.navigate(['/formation-mark-list']);
   }
 
   onSubmit(): void {
@@ -57,8 +81,13 @@ export class FormationMarkForm implements OnChanges {
       ? this.service.update(this.editItem!.slug, body)
       : this.service.create(body);
     request$.subscribe({
-      next: () => this.saved.emit(),
-      error: (err) => console.error(err),
+      next: () => {
+        this.saved.emit();
+        this.router.navigate(['/formation-mark-list']);
+      },
+      error: (err) => {
+        this.error = err?.error?.message || err?.error?.title || 'Could not save the formation mark.';
+      },
     });
   }
 }

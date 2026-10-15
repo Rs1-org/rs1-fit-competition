@@ -14,6 +14,7 @@
     [serverTotalItems]="result()?.totalCount"
     [serverCurrentPage]="result()?.page ?? 1"
     [showActions]="canManage()"
+    [showDelete]="isAdmin()"
     variant="card"
     (update)="onEdit($event)"
     (delete)="onDelete($event)"

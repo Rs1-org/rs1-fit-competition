@@ -37,6 +37,11 @@ export class FormationList {
     { initialValue: this.userState.canManagePersons() },
   );
 
+  isAdmin = toSignal(
+    this.userState.roles$.pipe(map(() => this.userState.isAdmin())),
+    { initialValue: this.userState.isAdmin() },
+  );
+
   onPageChange(page: number): void { this.page$.next(page); }
   search(term: string): void { this.search$.next(term); this.page$.next(1); }
   onAdd(): void { this.router.navigate(['/manage-formations']); }
