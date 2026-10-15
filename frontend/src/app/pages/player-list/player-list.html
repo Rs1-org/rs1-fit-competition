@@ -6,7 +6,42 @@
     }
   </div>
 
-  <app-generic-search placeholder="Search players..." (onSearch)="search($event)"></app-generic-search>
+  <form class="filter-bar" [formGroup]="filterForm">
+    <div class="filter-field">
+      <label for="filter-name">Name</label>
+      <input id="filter-name" type="text" formControlName="name" />
+    </div>
+    <div class="filter-field">
+      <label for="filter-position">Position</label>
+      <select id="filter-position" formControlName="positionId">
+        <option value="">All positions</option>
+        @for (position of positions(); track position.id) {
+          <option [value]="position.id">{{ position.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="filter-field">
+      <label for="filter-subposition">Subposition</label>
+      <select id="filter-subposition" formControlName="subPositionId">
+        <option value="">All subpositions</option>
+        @for (sub of filteredSubPositions; track sub.id) {
+          <option [value]="sub.id">{{ sub.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="filter-field">
+      <label for="filter-age-min">Age from</label>
+      <input id="filter-age-min" type="number" min="0" formControlName="ageMin" />
+    </div>
+    <div class="filter-field">
+      <label for="filter-age-max">Age to</label>
+      <input id="filter-age-max" type="number" min="0" formControlName="ageMax" />
+    </div>
+    <button type="button" class="filter-reset" (click)="resetFilters()">Reset</button>
+    @if (filterForm.hasError('ageRange')) {
+      <p class="filter-error">Age to must be greater than or equal to age from.</p>
+    }
+  </form>
 
   <app-generic-list
     [items]="result().items"

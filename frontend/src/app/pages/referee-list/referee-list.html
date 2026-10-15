@@ -6,7 +6,32 @@
     }
   </div>
 
-  <app-generic-search placeholder="Search referees..." (onSearch)="search($event)"></app-generic-search>
+  <form class="filter-bar" [formGroup]="filterForm">
+    <div class="filter-field">
+      <label for="filter-name">Name</label>
+      <input id="filter-name" type="text" formControlName="name" />
+    </div>
+    <div class="filter-field">
+      <label for="filter-age-min">Age from</label>
+      <input id="filter-age-min" type="number" min="0" formControlName="ageMin" />
+    </div>
+    <div class="filter-field">
+      <label for="filter-age-max">Age to</label>
+      <input id="filter-age-max" type="number" min="0" formControlName="ageMax" />
+    </div>
+    <div class="filter-field">
+      <label for="filter-career-from">Career start from</label>
+      <input id="filter-career-from" type="date" formControlName="careerStartFrom" />
+    </div>
+    <div class="filter-field">
+      <label for="filter-career-to">Career start to</label>
+      <input id="filter-career-to" type="date" formControlName="careerStartTo" />
+    </div>
+    <button type="button" class="filter-reset" (click)="resetFilters()">Reset</button>
+    @if (filterForm.hasError('ageRange')) {
+      <p class="filter-error">Age to must be greater than or equal to age from.</p>
+    }
+  </form>
 
   <app-generic-list
     [items]="result().items"

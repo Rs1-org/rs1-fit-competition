@@ -1,19 +1,24 @@
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
-import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { Router } from '@angular/router';
 import { emptyPage } from '../../core/models/paged-result';
 import { Referee } from '../../core/models/person.models';
 import { UserStateService } from '../../core/services/user-state.service';
-import { RefereeService } from '../../core/services/referee.service';
+import { RefereeListFilter, RefereeService } from '../../core/services/referee.service';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
-import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounceTime, filter, map, switchMap } from 'rxjs';
+
+function ageRangeValidator(group: AbstractControl): ValidationErrors | null {
+  const { ageMin, ageMax } = group.value;
+  return ageMin != null && ageMax != null && ageMax < ageMin ? { ageRange: true } : null;
+}
 
 @Component({
   selector: 'app-referee-list',
-  imports: [GenericListComponent, CommonModule, GenericSearch],
+  imports: [GenericListComponent, CommonModule, ReactiveFormsModule],
   templateUrl: './referee-list.html',
   styleUrls: ['../catalog.css', './referee-list.css'],
 })
@@ -22,17 +27,23 @@ export class RefereeList {
   private confirmDialog = inject(ConfirmDialogService);
   private router = inject(Router);
   private userState = inject(UserStateService);
+  private fb = inject(FormBuilder);
 
-  private searchTerm$ = new BehaviorSubject<string>('');
-  private page$ = new BehaviorSubject<number>(1);
   private refresh$ = new BehaviorSubject<void>(undefined);
+  private query$ = new BehaviorSubject<{ page: number; filter: RefereeListFilter }>({ page: 1, filter: {} });
   readonly pageSize = 10;
 
+  filterForm = this.fb.group({
+    name: this.fb.nonNullable.control('', Validators.maxLength(100)),
+    ageMin: this.fb.control<number | null>(null, Validators.min(0)),
+    ageMax: this.fb.control<number | null>(null, Validators.min(0)),
+    careerStartFrom: this.fb.nonNullable.control(''),
+    careerStartTo: this.fb.nonNullable.control(''),
+  }, { validators: ageRangeValidator });
+
   result = toSignal(
-    combineLatest([this.page$, this.searchTerm$, this.refresh$, this.refereeService.listRefreshChanges$]).pipe(
-      switchMap(([page, term]) =>
-        this.refereeService.getAll(page, this.pageSize, { name: term.trim() || undefined }),
-      ),
+    combineLatest([this.query$, this.refresh$, this.refereeService.listRefreshChanges$]).pipe(
+      switchMap(([{ page, filter }]) => this.refereeService.getAll(page, this.pageSize, filter)),
     ),
     { initialValue: emptyPage<Referee>() },
   );
@@ -41,6 +52,14 @@ export class RefereeList {
     this.userState.roles$.pipe(map(() => this.userState.canManagePersons())),
     { initialValue: this.userState.canManagePersons() },
   );
+
+  constructor() {
+    this.filterForm.valueChanges.pipe(
+      debounceTime(300),
+      filter(() => this.filterForm.valid),
+      takeUntilDestroyed(),
+    ).subscribe(() => this.query$.next({ page: 1, filter: this.toFilter() }));
+  }
 
   add(): void {
     this.router.navigate(['/manage-referees']);
@@ -64,16 +83,26 @@ export class RefereeList {
 
     this.refereeService.delete(referee.id).subscribe({
       next: () => this.refresh$.next(),
-      error: (err) => console.error('Greška pri brisanju suca:', err),
+      error: (err) => console.error('Could not delete the referee:', err),
     });
   }
 
-  search(term: string): void {
-    this.searchTerm$.next(term);
-    this.page$.next(1);
+  resetFilters(): void {
+    this.filterForm.reset({ name: '', careerStartFrom: '', careerStartTo: '' });
   }
 
   onPageChange(page: number): void {
-    this.page$.next(page);
+    this.query$.next({ ...this.query$.value, page });
+  }
+
+  private toFilter(): RefereeListFilter {
+    const { name, ageMin, ageMax, careerStartFrom, careerStartTo } = this.filterForm.getRawValue();
+    return {
+      name: name.trim() || undefined,
+      ageMin: ageMin ?? undefined,
+      ageMax: ageMax ?? undefined,
+      careerStartFrom: careerStartFrom || undefined,
+      careerStartTo: careerStartTo || undefined,
+    };
   }
 }

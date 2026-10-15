@@ -2,36 +2,47 @@
   <div class="referee-card">
     <h2>{{ isEditMode ? 'Edit Referee' : 'Add Referee' }}</h2>
 
-    <form (ngSubmit)="saveReferee()" #refereeForm="ngForm">
+    <form [formGroup]="form" (ngSubmit)="saveReferee()">
       <div class="form-group">
         <label for="firstName">First Name</label>
-        <input type="text" id="firstName" name="firstName" [(ngModel)]="referee.firstName" required />
+        <input type="text" id="firstName" formControlName="firstName" />
+        @if (fieldError('firstName'); as error) {
+          <p class="field-error">{{ error }}</p>
+        }
       </div>
 
       <div class="form-group">
         <label for="lastName">Last Name</label>
-        <input type="text" id="lastName" name="lastName" [(ngModel)]="referee.lastName" required />
+        <input type="text" id="lastName" formControlName="lastName" />
+        @if (fieldError('lastName'); as error) {
+          <p class="field-error">{{ error }}</p>
+        }
       </div>
 
       <div class="form-group">
         <label for="dateOfBirth">Date of Birth</label>
-        <input type="date" id="dateOfBirth" name="dateOfBirth" [(ngModel)]="referee.dateOfBirth" required />
+        <input type="date" id="dateOfBirth" formControlName="dateOfBirth" />
+        @if (fieldError('dateOfBirth'); as error) {
+          <p class="field-error">{{ error }}</p>
+        }
       </div>
 
       <div class="form-group">
         <label for="picture">Picture</label>
-        <input type="file" id="picture" name="picture" accept="image/*" (change)="onPictureSelected($event)" />
+        <input type="file" id="picture" accept="image/*" (change)="onPictureSelected($event)" />
         <app-upload-progress [percent]="uploadProgress"></app-upload-progress>
-        <img *ngIf="picturePreview" [src]="picturePreview" alt="Preview slike" class="person-picture-preview" />
+        @if (picturePreview) {
+          <img [src]="picturePreview" alt="Picture preview" class="person-picture-preview" />
+        }
       </div>
 
       <div class="form-group">
         <label for="careerStart">Career Start</label>
-        <input type="date" id="careerStart" name="careerStart" [(ngModel)]="referee.careerStart" />
+        <input type="date" id="careerStart" formControlName="careerStart" />
       </div>
 
       <div class="button-group">
-        <button type="submit" [disabled]="isRefereeInvalid">
+        <button type="submit" [disabled]="form.invalid">
           {{ isEditMode ? 'Update Referee' : 'Save Referee' }}
         </button>
         <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
