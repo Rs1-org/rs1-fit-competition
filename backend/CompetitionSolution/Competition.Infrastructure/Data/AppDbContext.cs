@@ -321,6 +321,19 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 .HasForeignKey(x => x.SubPositionId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+
+        modelBuilder.Entity<UserPreference>(e =>
+        {
+            e.ToTable("UserPreferences");
+            e.HasKey(x => x.UserId);
+            e.Property(x => x.Theme).IsRequired().HasMaxLength(10);
+            e.Property(x => x.Language).IsRequired().HasMaxLength(5);
+            e.Property(x => x.DateFormat).IsRequired().HasMaxLength(20);
+            e.HasOne(x => x.User)
+                .WithOne()
+                .HasForeignKey<UserPreference>(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 
     public DbSet<Country> Countries { get; set; }
@@ -342,5 +355,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<CompetitionEntity> Competitions { get; set; } = null!;
     public DbSet<Season> Seasons { get; set; } = null!;
     public DbSet<Round> Rounds { get; set; } = null!;
+    public DbSet<UserPreference> UserPreferences { get; set; } = null!;
 
 }

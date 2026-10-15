@@ -3,6 +3,7 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import { Navbar } from './shared/components/navbar/navbar';
+import { SettingsService } from './core/services/settings.service';
 import { ConfirmDialog } from './shared/components/confirm-dialog/confirm-dialog';
 import { routeAnimations } from './core/animations/motion';
 
@@ -15,6 +16,7 @@ import { routeAnimations } from './core/animations/motion';
 })
 export class App {
   private router = inject(Router);
+  private settings = inject(SettingsService);
 
   readonly routeKey = toSignal(
     this.router.events.pipe(

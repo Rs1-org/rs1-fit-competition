@@ -1,7 +1,9 @@
 import { formatDate, formatNumber } from '@angular/common';
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, signal } from '@angular/core';
 
 export const REGIONAL_LOCALE = 'bs-Latn';
+export const REGIONAL_DATE_FORMAT = 'dd.MM.yyyy';
+export const activeDateFormat = signal(REGIONAL_DATE_FORMAT);
 
 function asDate(value: unknown): Date | null {
   if (value == null || value === '') return null;
@@ -25,7 +27,7 @@ function asNumber(value: unknown): number | null {
 export class AppDatePipe implements PipeTransform {
   transform(value: unknown): string {
     const date = asDate(value);
-    return date ? formatDate(date, 'dd.MM.yyyy', REGIONAL_LOCALE) : '';
+    return date ? formatDate(date, activeDateFormat(), REGIONAL_LOCALE) : '';
   }
 }
 
@@ -33,7 +35,7 @@ export class AppDatePipe implements PipeTransform {
 export class AppDateTimePipe implements PipeTransform {
   transform(value: unknown): string {
     const date = asDate(value);
-    return date ? formatDate(date, 'dd.MM.yyyy HH:mm', REGIONAL_LOCALE) : '';
+    return date ? formatDate(date, `${activeDateFormat()} HH:mm`, REGIONAL_LOCALE) : '';
   }
 }
 

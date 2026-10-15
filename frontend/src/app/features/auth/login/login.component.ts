@@ -6,6 +6,7 @@ import { AuthRedirectService } from 'src/app/core/services/auth-redirect.service
 import { UserStateService } from 'src/app/core/services/user-state.service';
 import { popIn } from 'src/app/core/animations/motion';
 import { AutofocusDirective } from 'src/app/shared/directives/autofocus.directive';
+import { SettingsService } from 'src/app/core/services/settings.service';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +24,7 @@ export class LoginComponent {
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private settings = inject(SettingsService);
 
   errors: string[] = [];
   isSubmitting = false;
@@ -55,6 +57,7 @@ export class LoginComponent {
 
     this.authService.login(loginData).subscribe({
       next: () => {
+        this.settings.load().subscribe({ error: () => undefined });
         this.isSubmitting = false;
         this.closeModal.emit();
         this.redirectService.redirect();

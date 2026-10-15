@@ -66,19 +66,5 @@
         </div>
       </app-modal>
     }
-    @if (settingsOpen) {
-      <app-modal title="Settings" width="420px" (close)="settingsOpen = false">
-        <p class="account-label">{{ language.language() === 'en' ? 'Language' : 'Jezik' }}</p>
-        <div class="account-choices">
-          <button type="button" [class.active]="language.language() === 'bs'" (click)="setLanguage('bs', $event)">Bosanski</button>
-          <button type="button" [class.active]="language.language() === 'en'" (click)="setLanguage('en', $event)">English</button>
-        </div>
-        <p class="account-label">{{ language.language() === 'en' ? 'Theme' : 'Tema' }}</p>
-        <div class="account-choices">
-          <button type="button" [class.active]="!themeService.isDark()" (click)="setTheme('light', $event)">{{ language.language() === 'en' ? 'Light' : 'Svijetla' }}</button>
-          <button type="button" [class.active]="themeService.isDark()" (click)="setTheme('dark', $event)">{{ language.language() === 'en' ? 'Dark' : 'Tamna' }}</button>
-        </div>
-      </app-modal>
-    }
   </div>
 </div>
