@@ -4,6 +4,15 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { trackUpload } from '../helpers/upload-progress.helper';
 import { Referee } from '../models/person.models';
+import { PagedResult } from '../models/paged-result';
+
+export interface RefereeListFilter {
+  name?: string;
+  ageMin?: number | null;
+  ageMax?: number | null;
+  careerStartFrom?: string;
+  careerStartTo?: string;
+}
 
 export type RefereeWriteDto = Omit<Referee, 'id' | 'picture'> & { picture?: string | null };
 
@@ -19,17 +28,18 @@ export class RefereeService {
     this.listRefresh$.next();
   }
 
-  getAll(): Observable<Referee[]> {
-    return this.http.get<Referee[]>(this.apiUrl);
+  getAll(page = 1, pageSize = 10, filter: RefereeListFilter = {}): Observable<PagedResult<Referee>> {
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    if (filter.name) params = params.set('name', filter.name);
+    if (filter.ageMin != null) params = params.set('ageMin', filter.ageMin);
+    if (filter.ageMax != null) params = params.set('ageMax', filter.ageMax);
+    if (filter.careerStartFrom) params = params.set('careerStartFrom', filter.careerStartFrom);
+    if (filter.careerStartTo) params = params.set('careerStartTo', filter.careerStartTo);
+    return this.http.get<PagedResult<Referee>>(this.apiUrl, { params });
   }
 
   getById(id: string): Observable<Referee> {
     return this.http.get<Referee>(`${this.apiUrl}/${id}`);
-  }
-
-  search(term: string): Observable<Referee[]> {
-    const params = new HttpParams().set('term', term);
-    return this.http.get<Referee[]>(`${this.apiUrl}/search`, { params });
   }
 
   create(data: RefereeWriteDto, onProgress?: (percent: number) => void): Observable<Referee> {

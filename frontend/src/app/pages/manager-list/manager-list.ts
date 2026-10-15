@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { Router } from '@angular/router';
+import { emptyPage } from '../../core/models/paged-result';
 import { Manager } from '../../core/models/person.models';
 import { UserStateService } from '../../core/services/user-state.service';
 import { ManagerService } from '../../core/services/manager.service';
@@ -23,15 +24,17 @@ export class ManagerList {
   private userState = inject(UserStateService);
 
   private searchTerm$ = new BehaviorSubject<string>('');
+  private page$ = new BehaviorSubject<number>(1);
   private refresh$ = new BehaviorSubject<void>(undefined);
+  readonly pageSize = 10;
 
-  managers = toSignal(
-    combineLatest([this.searchTerm$, this.refresh$, this.managerService.listRefreshChanges$]).pipe(
-      switchMap(([term]) =>
-        term.trim() ? this.managerService.search(term) : this.managerService.getAll(),
+  result = toSignal(
+    combineLatest([this.page$, this.searchTerm$, this.refresh$, this.managerService.listRefreshChanges$]).pipe(
+      switchMap(([page, term]) =>
+        this.managerService.getAll(page, this.pageSize, { name: term.trim() || undefined }),
       ),
     ),
-    { initialValue: [] as Manager[] },
+    { initialValue: emptyPage<Manager>() },
   );
 
   canManagePersons = toSignal(
@@ -55,7 +58,7 @@ export class ManagerList {
     if (!manager.id) return;
 
     const confirmed = await this.confirmDialog.confirm({
-      message: `Jeste li sigurni da želite obrisati menadžera ${manager.firstName} ${manager.lastName}?`,
+      message: `Delete manager ${manager.firstName} ${manager.lastName}?`,
     });
     if (!confirmed) return;
 
@@ -67,5 +70,10 @@ export class ManagerList {
 
   search(term: string): void {
     this.searchTerm$.next(term);
+    this.page$.next(1);
+  }
+
+  onPageChange(page: number): void {
+    this.page$.next(page);
   }
 }

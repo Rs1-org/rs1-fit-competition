@@ -1,25 +1,29 @@
 <div class="container">
   <div class="header-actions">
-    <h1>Lista sudija</h1>
+    <h1>Referees</h1>
     @if (canManagePersons()) {
-      <button class="btn-add" type="button" (click)="add()">+ Dodaj sudiju</button>
+      <button class="btn-add" type="button" (click)="add()">+ Add referee</button>
     }
   </div>
 
-  <app-generic-search placeholder="Pretraži sudije..." (onSearch)="search($event)"></app-generic-search>
+  <app-generic-search placeholder="Search referees..." (onSearch)="search($event)"></app-generic-search>
 
   <app-generic-list
-    [items]="referees()"
+    [items]="result().items"
+    [pageSize]="pageSize"
+    [serverTotalItems]="result().totalCount"
+    [serverCurrentPage]="result().page"
     [showActions]="canManagePersons()"
     variant="card"
     (view)="view($event)"
     (update)="edit($event)"
     (delete)="delete($event)"
+    (pageChange)="onPageChange($event)"
   >
     <ng-template #itemTemplate let-referee>
       <div class="item-title">{{ referee.firstName }} {{ referee.lastName }}</div>
-      <div class="item-subtitle">Datum rođenja: {{ referee.dateOfBirth || '—' }}</div>
-      <div class="item-meta">Početak karijere: {{ referee.careerStart || '—' }}</div>
+      <div class="item-subtitle">Date of birth: {{ referee.dateOfBirth || '—' }}</div>
+      <div class="item-meta">Career start: {{ referee.careerStart || '—' }}</div>
     </ng-template>
   </app-generic-list>
 </div>

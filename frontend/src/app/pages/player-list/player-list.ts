@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { Router } from '@angular/router';
+import { emptyPage } from '../../core/models/paged-result';
 import { Player } from '../../core/models/person.models';
 import { UserStateService } from '../../core/services/user-state.service';
 import { PlayerService } from '../../core/services/player.service';
@@ -23,15 +24,17 @@ export class PlayerList {
   private userState = inject(UserStateService);
 
   private searchTerm$ = new BehaviorSubject<string>('');
+  private page$ = new BehaviorSubject<number>(1);
   private refresh$ = new BehaviorSubject<void>(undefined);
+  readonly pageSize = 10;
 
-  players = toSignal(
-    combineLatest([this.searchTerm$, this.refresh$, this.playerService.listRefreshChanges$]).pipe(
-      switchMap(([term]) =>
-        term.trim() ? this.playerService.search(term) : this.playerService.getAll(),
+  result = toSignal(
+    combineLatest([this.page$, this.searchTerm$, this.refresh$, this.playerService.listRefreshChanges$]).pipe(
+      switchMap(([page, term]) =>
+        this.playerService.getAll(page, this.pageSize, { name: term.trim() || undefined }),
       ),
     ),
-    { initialValue: [] as Player[] },
+    { initialValue: emptyPage<Player>() },
   );
 
   canManagePersons = toSignal(
@@ -55,7 +58,7 @@ export class PlayerList {
     if (!player.id) return;
 
     const confirmed = await this.confirmDialog.confirm({
-      message: `Jeste li sigurni da želite obrisati igrača ${player.firstName} ${player.lastName}?`,
+      message: `Delete player ${player.firstName} ${player.lastName}?`,
     });
     if (!confirmed) return;
 
@@ -67,5 +70,10 @@ export class PlayerList {
 
   search(term: string): void {
     this.searchTerm$.next(term);
+    this.page$.next(1);
+  }
+
+  onPageChange(page: number): void {
+    this.page$.next(page);
   }
 }

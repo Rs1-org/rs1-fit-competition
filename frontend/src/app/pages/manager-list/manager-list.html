@@ -1,25 +1,29 @@
 <div class="container">
   <div class="header-actions">
-    <h1>Lista menadžera</h1>
+    <h1>Managers</h1>
     @if (canManagePersons()) {
-      <button class="btn-add" type="button" (click)="add()">+ Dodaj menadžera</button>
+      <button class="btn-add" type="button" (click)="add()">+ Add manager</button>
     }
   </div>
 
-  <app-generic-search placeholder="Pretraži menadžere..." (onSearch)="search($event)"></app-generic-search>
+  <app-generic-search placeholder="Search managers..." (onSearch)="search($event)"></app-generic-search>
 
   <app-generic-list
-    [items]="managers()"
+    [items]="result().items"
+    [pageSize]="pageSize"
+    [serverTotalItems]="result().totalCount"
+    [serverCurrentPage]="result().page"
     [showActions]="canManagePersons()"
     variant="card"
     (view)="view($event)"
     (update)="edit($event)"
     (delete)="delete($event)"
+    (pageChange)="onPageChange($event)"
   >
     <ng-template #itemTemplate let-manager>
       <div class="item-title">{{ manager.firstName }} {{ manager.lastName }}</div>
-      <div class="item-subtitle">Datum rođenja: {{ manager.dateOfBirth || '—' }}</div>
-      <div class="item-meta">Početak karijere: {{ manager.careerStart || '—' }}</div>
+      <div class="item-subtitle">Date of birth: {{ manager.dateOfBirth || '—' }}</div>
+      <div class="item-meta">Career start: {{ manager.careerStart || '—' }}</div>
     </ng-template>
   </app-generic-list>
 </div>

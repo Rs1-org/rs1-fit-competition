@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { Router } from '@angular/router';
+import { emptyPage } from '../../core/models/paged-result';
 import { Referee } from '../../core/models/person.models';
 import { UserStateService } from '../../core/services/user-state.service';
 import { RefereeService } from '../../core/services/referee.service';
@@ -23,15 +24,17 @@ export class RefereeList {
   private userState = inject(UserStateService);
 
   private searchTerm$ = new BehaviorSubject<string>('');
+  private page$ = new BehaviorSubject<number>(1);
   private refresh$ = new BehaviorSubject<void>(undefined);
+  readonly pageSize = 10;
 
-  referees = toSignal(
-    combineLatest([this.searchTerm$, this.refresh$, this.refereeService.listRefreshChanges$]).pipe(
-      switchMap(([term]) =>
-        term.trim() ? this.refereeService.search(term) : this.refereeService.getAll(),
+  result = toSignal(
+    combineLatest([this.page$, this.searchTerm$, this.refresh$, this.refereeService.listRefreshChanges$]).pipe(
+      switchMap(([page, term]) =>
+        this.refereeService.getAll(page, this.pageSize, { name: term.trim() || undefined }),
       ),
     ),
-    { initialValue: [] as Referee[] },
+    { initialValue: emptyPage<Referee>() },
   );
 
   canManagePersons = toSignal(
@@ -55,7 +58,7 @@ export class RefereeList {
     if (!referee.id) return;
 
     const confirmed = await this.confirmDialog.confirm({
-      message: `Jeste li sigurni da želite obrisati suca ${referee.firstName} ${referee.lastName}?`,
+      message: `Delete referee ${referee.firstName} ${referee.lastName}?`,
     });
     if (!confirmed) return;
 
@@ -67,5 +70,10 @@ export class RefereeList {
 
   search(term: string): void {
     this.searchTerm$.next(term);
+    this.page$.next(1);
+  }
+
+  onPageChange(page: number): void {
+    this.page$.next(page);
   }
 }

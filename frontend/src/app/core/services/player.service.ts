@@ -4,6 +4,15 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { trackUpload } from '../helpers/upload-progress.helper';
 import { Player } from '../models/person.models';
+import { PagedResult } from '../models/paged-result';
+
+export interface PlayerListFilter {
+  name?: string;
+  positionId?: string;
+  subPositionId?: string;
+  ageMin?: number | null;
+  ageMax?: number | null;
+}
 
 export type PlayerWriteDto = Omit<Player, 'id' | 'picture'> & { picture?: string | null };
 
@@ -19,17 +28,18 @@ export class PlayerService {
     this.listRefresh$.next();
   }
 
-  getAll(): Observable<Player[]> {
-    return this.http.get<Player[]>(this.apiUrl);
+  getAll(page = 1, pageSize = 10, filter: PlayerListFilter = {}): Observable<PagedResult<Player>> {
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    if (filter.name) params = params.set('name', filter.name);
+    if (filter.positionId) params = params.set('positionId', filter.positionId);
+    if (filter.subPositionId) params = params.set('subPositionId', filter.subPositionId);
+    if (filter.ageMin != null) params = params.set('ageMin', filter.ageMin);
+    if (filter.ageMax != null) params = params.set('ageMax', filter.ageMax);
+    return this.http.get<PagedResult<Player>>(this.apiUrl, { params });
   }
 
   getById(id: string): Observable<Player> {
     return this.http.get<Player>(`${this.apiUrl}/${id}`);
-  }
-
-  search(term: string): Observable<Player[]> {
-    const params = new HttpParams().set('term', term);
-    return this.http.get<Player[]>(`${this.apiUrl}/search`, { params });
   }
 
   create(data: PlayerWriteDto, onProgress?: (percent: number) => void): Observable<Player> {
