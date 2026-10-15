@@ -1,0 +1,19 @@
+<div class="person-autocomplete">
+  <label [attr.for]="inputId()">{{ label() }}</label>
+  <input
+    [id]="inputId()"
+    type="text"
+    appAutofocus
+    [formControl]="control()"
+    (blur)="close()"
+    autocomplete="off" />
+  @if (open()) {
+    <ul>
+      @for (item of suggestions(); track item.id) {
+        <li>
+          <button type="button" (mousedown)="pick(item)">{{ item.label }}</button>
+        </li>
+      }
+    </ul>
+  }
+</div>

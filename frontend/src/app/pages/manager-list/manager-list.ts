@@ -10,6 +10,8 @@ import { Manager } from '../../core/models/person.models';
 import { UserStateService } from '../../core/services/user-state.service';
 import { ManagerService, StaffListFilter } from '../../core/services/manager.service';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { PersonAutocomplete } from '../../shared/components/person-autocomplete/person-autocomplete';
+import { HasRoleDirective } from '../../shared/directives/has-role.directive';
 import { BehaviorSubject, combineLatest, debounceTime, filter, map, switchMap } from 'rxjs';
 
 function ageRangeValidator(group: AbstractControl): ValidationErrors | null {
@@ -19,12 +21,20 @@ function ageRangeValidator(group: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-manager-list',
-  imports: [GenericListComponent, CommonModule, ReactiveFormsModule, AppDatePipe],
+  imports: [GenericListComponent, CommonModule, ReactiveFormsModule, AppDatePipe, PersonAutocomplete, HasRoleDirective],
   templateUrl: './manager-list.html',
   styleUrls: ['../catalog.css', './manager-list.css'],
 })
 export class ManagerList {
   private managerService = inject(ManagerService);
+
+  searchManagers = (term: string) =>
+    this.managerService.getAll(1, 8, { name: term }).pipe(
+      map((page) => page.items.map((manager) => ({
+        id: manager.id ?? '',
+        label: `${manager.firstName} ${manager.lastName}`.trim(),
+      }))),
+    );
   private confirmDialog = inject(ConfirmDialogService);
   private router = inject(Router);
   private userState = inject(UserStateService);

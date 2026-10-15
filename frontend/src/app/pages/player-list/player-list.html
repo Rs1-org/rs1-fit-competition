@@ -1,16 +1,17 @@
 <div class="container">
   <div class="header-actions">
     <h1>Players</h1>
-    @if (canManagePersons()) {
-      <button class="btn-add" type="button" (click)="add()">+ Add player</button>
-    }
+    <button class="btn-add" type="button" *appHasRole="'Admin,Moderator'" (click)="add()">+ Add player</button>
   </div>
 
   <form class="filter-bar" [formGroup]="filterForm">
-    <div class="filter-field">
-      <label for="filter-name">Name</label>
-      <input id="filter-name" type="text" formControlName="name" />
-    </div>
+    <app-person-autocomplete
+      class="filter-field"
+      label="Name"
+      inputId="filter-name"
+      [control]="filterForm.controls.name"
+      [search]="searchPlayers">
+    </app-person-autocomplete>
     <div class="filter-field">
       <label for="filter-position">Position</label>
       <select id="filter-position" formControlName="positionId">

@@ -1,0 +1,28 @@
+.person-autocomplete {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.person-autocomplete ul {
+  position: absolute;
+  z-index: 5;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0.2rem 0 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #ccc);
+}
+
+.person-autocomplete button {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+}

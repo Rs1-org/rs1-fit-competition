@@ -5,10 +5,11 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { AuthRedirectService } from 'src/app/core/services/auth-redirect.service';
 import { UserStateService } from 'src/app/core/services/user-state.service';
 import { popIn } from 'src/app/core/animations/motion';
+import { AutofocusDirective } from 'src/app/shared/directives/autofocus.directive';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, AutofocusDirective],
   templateUrl: './login.component.html',
   styleUrls: ['../auth-modal.component.css'],
   animations: [popIn],

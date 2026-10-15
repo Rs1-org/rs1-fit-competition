@@ -10,6 +10,8 @@ import { Referee } from '../../core/models/person.models';
 import { UserStateService } from '../../core/services/user-state.service';
 import { RefereeListFilter, RefereeService } from '../../core/services/referee.service';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { PersonAutocomplete } from '../../shared/components/person-autocomplete/person-autocomplete';
+import { HasRoleDirective } from '../../shared/directives/has-role.directive';
 import { BehaviorSubject, combineLatest, debounceTime, filter, map, switchMap } from 'rxjs';
 
 function ageRangeValidator(group: AbstractControl): ValidationErrors | null {
@@ -19,12 +21,20 @@ function ageRangeValidator(group: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-referee-list',
-  imports: [GenericListComponent, CommonModule, ReactiveFormsModule, AppDatePipe],
+  imports: [GenericListComponent, CommonModule, ReactiveFormsModule, AppDatePipe, PersonAutocomplete, HasRoleDirective],
   templateUrl: './referee-list.html',
   styleUrls: ['../catalog.css', './referee-list.css'],
 })
 export class RefereeList {
   private refereeService = inject(RefereeService);
+
+  searchReferees = (term: string) =>
+    this.refereeService.getAll(1, 8, { name: term }).pipe(
+      map((page) => page.items.map((referee) => ({
+        id: referee.id ?? '',
+        label: `${referee.firstName} ${referee.lastName}`.trim(),
+      }))),
+    );
   private confirmDialog = inject(ConfirmDialogService);
   private router = inject(Router);
   private userState = inject(UserStateService);

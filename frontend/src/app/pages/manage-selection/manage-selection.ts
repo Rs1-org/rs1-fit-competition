@@ -4,10 +4,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CountryListDto } from '../../core/models/country';
 import { CountryService } from '../../core/services/country-service';
 import { SelectionService } from '../../core/services/selection.service';
+import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
 
 @Component({
   selector: 'app-manage-selection',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, AutofocusDirective],
   templateUrl: './manage-selection.html',
   styleUrls: ['../manage-players/manage-players.css', '../manage-formation/manage-formation.css'],
 })
