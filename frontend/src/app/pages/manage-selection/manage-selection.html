@@ -13,10 +13,10 @@
         <input type="text" id="abbreviation" name="abbreviation" maxlength="10" [(ngModel)]="abbreviation" required />
       </div>
       <div class="form-group">
-        <label for="countryId">Country</label>
-        <select id="countryId" name="countryId" [(ngModel)]="countryId" required>
+        <label for="countryPublicId">Country</label>
+        <select id="countryPublicId" name="countryPublicId" [(ngModel)]="countryPublicId" required>
           <option value="">Select a country</option>
-          <option *ngFor="let country of countryOptions" [value]="country.id">{{ country.name }}</option>
+          <option *ngFor="let country of countryOptions" [value]="country.publicId">{{ country.name }}</option>
         </select>
       </div>
       <div class="form-group">

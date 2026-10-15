@@ -8,6 +8,6 @@ public class SelectionDto
     public string? PictureUrl { get; set; }
     public int FollowersCount { get; set; }
     public string? Slug { get; set; }
-    public Guid CountryId { get; set; }
+    public string? CountryPublicId { get; set; }
     public string? CountryName { get; set; }
 }

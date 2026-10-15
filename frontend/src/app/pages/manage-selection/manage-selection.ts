@@ -21,7 +21,7 @@ export class ManageSelection implements OnInit {
   name = '';
   abbreviation = '';
   followersCount = 0;
-  countryId = '';
+  countryPublicId = '';
   countryOptions: CountryListDto[] = [];
   slug: string | null = null;
   isEditMode = false;
@@ -44,7 +44,7 @@ export class ManageSelection implements OnInit {
           this.name = selection.name;
           this.abbreviation = selection.abbreviation;
           this.followersCount = selection.followersCount;
-          this.countryId = selection.countryId;
+          this.countryPublicId = selection.countryPublicId ?? '';
         },
         error: () => {
           this.error = 'Selection was not found.';
@@ -54,7 +54,7 @@ export class ManageSelection implements OnInit {
   }
 
   get isInvalid(): boolean {
-    return !this.name.trim() || !this.abbreviation.trim() || !this.countryId || this.followersCount < 0;
+    return !this.name.trim() || !this.abbreviation.trim() || !this.countryPublicId || this.followersCount < 0;
   }
 
   save(): void {
@@ -67,7 +67,7 @@ export class ManageSelection implements OnInit {
       name: this.name.trim(),
       abbreviation: this.abbreviation.trim(),
       followersCount: Number(this.followersCount) || 0,
-      countryId: this.countryId,
+      countryPublicId: this.countryPublicId,
     };
     const request$ = this.isEditMode
       ? this.selections.update(this.slug!, body)

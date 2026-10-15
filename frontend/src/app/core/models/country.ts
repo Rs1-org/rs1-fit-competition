@@ -3,6 +3,7 @@ export interface CountryName{
 }
 export interface CountryListDto{
     id:string;
+    publicId:string;
     name:string;
     slug:string;
     pictureUrl:string;
