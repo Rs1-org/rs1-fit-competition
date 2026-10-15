@@ -1,13 +1,12 @@
 import { Routes } from '@angular/router';
-import { Home } from './pages/home/home';
-import { ManagePlayers } from './pages/manage-players/manage-players';
-import { ManageReferees } from './pages/manage-referees/manage-referees';
-import { ManageManagers } from './pages/manage-managers/manage-managers';
 import { AuthGuard } from './core/guards/auth.guard';
 import { AdminModeratorGuard } from './core/guards/admin-moderator.guard';
 
 export const routes: Routes = [
-  { path: '', component: Home },
+  {
+    path: '',
+    loadComponent: () => import('./pages/home/home').then((m) => m.Home),
+  },
   {
     path: 'city-list',
     loadComponent: () =>
@@ -48,12 +47,36 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/round-detail/round-detail').then((m) => m.RoundDetail),
   },
-  { path: 'manage-players', component: ManagePlayers, canActivate: [AdminModeratorGuard] },
-  { path: 'manage-players/:id', component: ManagePlayers, canActivate: [AdminModeratorGuard] },
-  { path: 'manage-referees', component: ManageReferees, canActivate: [AdminModeratorGuard] },
-  { path: 'manage-referees/:id', component: ManageReferees, canActivate: [AdminModeratorGuard] },
-  { path: 'manage-managers', component: ManageManagers, canActivate: [AdminModeratorGuard] },
-  { path: 'manage-managers/:id', component: ManageManagers, canActivate: [AdminModeratorGuard] },
+  {
+    path: 'manage-players',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () => import('./pages/manage-players/manage-players').then((m) => m.ManagePlayers),
+  },
+  {
+    path: 'manage-players/:id',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () => import('./pages/manage-players/manage-players').then((m) => m.ManagePlayers),
+  },
+  {
+    path: 'manage-referees',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () => import('./pages/manage-referees/manage-referees').then((m) => m.ManageReferees),
+  },
+  {
+    path: 'manage-referees/:id',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () => import('./pages/manage-referees/manage-referees').then((m) => m.ManageReferees),
+  },
+  {
+    path: 'manage-managers',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () => import('./pages/manage-managers/manage-managers').then((m) => m.ManageManagers),
+  },
+  {
+    path: 'manage-managers/:id',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () => import('./pages/manage-managers/manage-managers').then((m) => m.ManageManagers),
+  },
   {
     path: 'manage-formation-marks',
     canActivate: [AdminModeratorGuard],
