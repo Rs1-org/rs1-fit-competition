@@ -175,6 +175,11 @@ export const routes: Routes = [
       import('./pages/subposition-list/subposition-list').then((m) => m.SubPositionList),
   },
   {
+    path: 'settings',
+    loadComponent: () => import('./pages/settings/settings').then((m) => m.Settings),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'profile',
     loadComponent: () =>
       import('./features/profile/profile.component').then(

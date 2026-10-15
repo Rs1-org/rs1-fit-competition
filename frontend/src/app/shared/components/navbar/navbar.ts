@@ -191,7 +191,8 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
     event.stopPropagation();
     this.accountOpen = false;
     this.profileOpen = false;
-    this.settingsOpen = true;
+    this.settingsOpen = false;
+    this.router.navigate(['/settings']);
   }
 
   setLanguage(language: AppLanguage, event: MouseEvent): void {

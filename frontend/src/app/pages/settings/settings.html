@@ -1,0 +1,93 @@
+<div class="settings-page">
+  <h1>Settings</h1>
+
+  <section>
+    <h2>Profile</h2>
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      <div class="form-group">
+        <label for="firstName">First name</label>
+        <input id="firstName" type="text" formControlName="firstName" />
+        @if (fieldError('profile', 'firstName'); as message) { <p class="field-error">{{ message }}</p> }
+      </div>
+      <div class="form-group">
+        <label for="lastName">Last name</label>
+        <input id="lastName" type="text" formControlName="lastName" />
+        @if (fieldError('profile', 'lastName'); as message) { <p class="field-error">{{ message }}</p> }
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" />
+        @if (fieldError('profile', 'email'); as message) { <p class="field-error">{{ message }}</p> }
+      </div>
+      @if (profileMessage) { <p class="settings-ok">{{ profileMessage }}</p> }
+      @if (profileError) { <p class="field-error">{{ profileError }}</p> }
+      <div class="button-group">
+        <button type="submit" [disabled]="profileForm.invalid">Save</button>
+        <button type="button" class="btn-cancel" (click)="cancelProfile()">Cancel</button>
+      </div>
+    </form>
+  </section>
+
+  <section>
+    <h2>Password</h2>
+    <form [formGroup]="passwordForm" (ngSubmit)="savePassword()">
+      <div class="form-group">
+        <label for="currentPassword">Current password</label>
+        <input id="currentPassword" type="password" formControlName="currentPassword" />
+        @if (fieldError('password', 'currentPassword'); as message) { <p class="field-error">{{ message }}</p> }
+      </div>
+      <div class="form-group">
+        <label for="newPassword">New password</label>
+        <input id="newPassword" type="password" formControlName="newPassword" />
+        @if (fieldError('password', 'newPassword'); as message) { <p class="field-error">{{ message }}</p> }
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">Confirm password</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword" />
+        @if (fieldError('password', 'confirmPassword'); as message) { <p class="field-error">{{ message }}</p> }
+        @if (passwordForm.hasError('mismatch') && passwordForm.controls.confirmPassword.touched) {
+          <p class="field-error">Passwords do not match.</p>
+        }
+      </div>
+      @if (passwordMessage) { <p class="settings-ok">{{ passwordMessage }}</p> }
+      @if (passwordError) { <p class="field-error">{{ passwordError }}</p> }
+      <div class="button-group">
+        <button type="submit" [disabled]="passwordForm.invalid">Save</button>
+        <button type="button" class="btn-cancel" (click)="cancelPassword()">Cancel</button>
+      </div>
+    </form>
+  </section>
+
+  <section>
+    <h2>Preferences</h2>
+    <form [formGroup]="preferenceForm" (ngSubmit)="savePreferences()">
+      <div class="form-group">
+        <label for="theme">Theme</label>
+        <select id="theme" formControlName="theme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="language">Language</label>
+        <select id="language" formControlName="language">
+          <option value="bs">Bosnian</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="dateFormat">Date format</label>
+        <select id="dateFormat" formControlName="dateFormat">
+          <option value="dd.MM.yyyy">11.10.2026</option>
+          <option value="yyyy-MM-dd">2026-10-11</option>
+        </select>
+      </div>
+      @if (preferenceMessage) { <p class="settings-ok">{{ preferenceMessage }}</p> }
+      @if (preferenceError) { <p class="field-error">{{ preferenceError }}</p> }
+      <div class="button-group">
+        <button type="submit" [disabled]="preferenceForm.invalid">Save</button>
+        <button type="button" class="btn-cancel" (click)="cancelPreferences()">Cancel</button>
+      </div>
+    </form>
+  </section>
+</div>

@@ -35,6 +35,9 @@ namespace Competition.Infrastructure
             services.AddOptions<SeedSettings>()
                 .Bind(configuration.GetSection(SeedSettings.SectionName));
 
+            services.AddHttpContextAccessor();
+            services.AddScoped<ICurrentUser, CurrentUser>();
+            services.AddScoped<IUserPreferenceStore, UserPreferenceStore>();
             services.AddScoped<IRefreshTokenService,RefreshTokenService>();
             services.AddScoped<IJwtTokenGenerator,JwtTokenGenerator>();
             services.AddScoped<ICity,CityRepository>();
