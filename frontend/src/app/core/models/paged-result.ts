@@ -7,3 +7,15 @@ export interface PagedResult<T> {
   hasPreviousPage: boolean;
   hasNextPage: boolean;
 }
+
+export function emptyPage<T>(): PagedResult<T> {
+  return {
+    items: [],
+    totalCount: 0,
+    page: 1,
+    pageSize: 10,
+    totalPages: 0,
+    hasPreviousPage: false,
+    hasNextPage: false,
+  };
+}

@@ -5,7 +5,6 @@ using Competition.Application.Features.PlayerCommands.Delete;
 using Competition.Application.Features.PlayerCommands.Update;
 using Competition.Application.Features.PlayerQueries.GetAll;
 using Competition.Application.Features.PlayerQueries.GetById;
-using Competition.Application.Features.PlayerQueries.Search;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,9 +33,26 @@ public class PlayerController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? name = null,
+        [FromQuery] Guid? positionId = null,
+        [FromQuery] Guid? subPositionId = null,
+        [FromQuery] int? ageMin = null,
+        [FromQuery] int? ageMax = null,
+        CancellationToken cancellationToken = default)
     {
-        return Ok(await mediator.Send(new GetAllPlayersQuery()));
+        return Ok(await mediator.Send(new GetAllPlayersQuery
+        {
+            Page = page,
+            PageSize = pageSize,
+            Name = name,
+            PositionId = positionId,
+            SubPositionId = subPositionId,
+            AgeMin = ageMin,
+            AgeMax = ageMax
+        }, cancellationToken));
     }
 
     [Authorize(Roles = "Admin,Moderator")]
@@ -63,12 +79,4 @@ public class PlayerController(IMediator mediator) : ControllerBase
         return Ok(deletedId);
     }
 
-    [HttpGet("search")]
-    public async Task<IActionResult> Search([FromQuery] string? term)
-    {
-        if (string.IsNullOrWhiteSpace(term))
-            return Ok(await mediator.Send(new GetAllPlayersQuery()));
-
-        return Ok(await mediator.Send(new SearchPlayersQuery(term)));
-    }
 }

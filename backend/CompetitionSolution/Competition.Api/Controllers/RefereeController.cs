@@ -4,7 +4,6 @@ using Competition.Application.Features.RefereeCommands.Delete;
 using Competition.Application.Features.RefereeCommands.Update;
 using Competition.Application.Features.RefereeQueries.GetAll;
 using Competition.Application.Features.RefereeQueries.GetById;
-using Competition.Application.Features.RefereeQueries.Search;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,9 +25,26 @@ public class RefereeController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? name = null,
+        [FromQuery] int? ageMin = null,
+        [FromQuery] int? ageMax = null,
+        [FromQuery] DateOnly? careerStartFrom = null,
+        [FromQuery] DateOnly? careerStartTo = null,
+        CancellationToken cancellationToken = default)
     {
-        return Ok(await mediator.Send(new GetAllRefereesQuery()));
+        return Ok(await mediator.Send(new GetAllRefereesQuery
+        {
+            Page = page,
+            PageSize = pageSize,
+            Name = name,
+            AgeMin = ageMin,
+            AgeMax = ageMax,
+            CareerStartFrom = careerStartFrom,
+            CareerStartTo = careerStartTo
+        }, cancellationToken));
     }
 
     [Authorize(Roles = "Admin,Moderator")]
@@ -55,12 +71,4 @@ public class RefereeController(IMediator mediator) : ControllerBase
         return Ok(deletedId);
     }
 
-    [HttpGet("search")]
-    public async Task<IActionResult> Search([FromQuery] string? term)
-    {
-        if (string.IsNullOrWhiteSpace(term))
-            return Ok(await mediator.Send(new GetAllRefereesQuery()));
-
-        return Ok(await mediator.Send(new SearchRefereesQuery(term)));
-    }
 }

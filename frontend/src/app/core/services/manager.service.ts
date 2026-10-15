@@ -4,6 +4,15 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { trackUpload } from '../helpers/upload-progress.helper';
 import { Manager } from '../models/person.models';
+import { PagedResult } from '../models/paged-result';
+
+export interface StaffListFilter {
+  name?: string;
+  ageMin?: number | null;
+  ageMax?: number | null;
+  careerStartFrom?: string;
+  careerStartTo?: string;
+}
 
 export type ManagerWriteDto = Omit<Manager, 'id' | 'picture'> & { picture?: string | null };
 
@@ -19,17 +28,18 @@ export class ManagerService {
     this.listRefresh$.next();
   }
 
-  getAll(): Observable<Manager[]> {
-    return this.http.get<Manager[]>(this.apiUrl);
+  getAll(page = 1, pageSize = 10, filter: StaffListFilter = {}): Observable<PagedResult<Manager>> {
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    if (filter.name) params = params.set('name', filter.name);
+    if (filter.ageMin != null) params = params.set('ageMin', filter.ageMin);
+    if (filter.ageMax != null) params = params.set('ageMax', filter.ageMax);
+    if (filter.careerStartFrom) params = params.set('careerStartFrom', filter.careerStartFrom);
+    if (filter.careerStartTo) params = params.set('careerStartTo', filter.careerStartTo);
+    return this.http.get<PagedResult<Manager>>(this.apiUrl, { params });
   }
 
   getById(id: string): Observable<Manager> {
     return this.http.get<Manager>(`${this.apiUrl}/${id}`);
-  }
-
-  search(term: string): Observable<Manager[]> {
-    const params = new HttpParams().set('term', term);
-    return this.http.get<Manager[]>(`${this.apiUrl}/search`, { params });
   }
 
   create(data: ManagerWriteDto, onProgress?: (percent: number) => void): Observable<Manager> {
