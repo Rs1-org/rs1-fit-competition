@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DecimalPipe, DatePipe } from '@angular/common';
+import { AppDatePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { StadiumService } from '../../core/services/stadium.service';
 import { Map } from '../../shared/components/map/map';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -9,7 +9,7 @@ import * as L from 'leaflet';
 
 @Component({
   selector: 'app-stadium-detail',
-  imports: [DecimalPipe, DatePipe, Map],
+  imports: [AppDatePipe, AppNumberPipe, Map],
   templateUrl: './stadium-detail.html',
   styleUrl: './stadium-detail.css',
 })

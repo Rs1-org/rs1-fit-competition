@@ -31,7 +31,7 @@
             </div>
             <div class="form-group">
               <label for="dateOfBirth">Date of Birth</label>
-              <input type="date" id="dateOfBirth" formControlName="dateOfBirth" />
+              <input type="date" lang="bs-Latn" id="dateOfBirth" formControlName="dateOfBirth" />
               @if (fieldError('dateOfBirth'); as error) { <p class="field-error">{{ error }}</p> }
             </div>
             <div class="form-group">
@@ -109,7 +109,7 @@
               <p class="history-section-title">Transfer</p>
               <div class="form-group">
                 <label for="transferDate">Transfer date</label>
-                <input type="date" id="transferDate" formControlName="transferDate" />
+                <input type="date" lang="bs-Latn" id="transferDate" formControlName="transferDate" />
               </div>
               <div class="form-group">
                 <label for="transferHistoryValue">Transfer value (€)</label>
@@ -121,7 +121,7 @@
               }
               @for (appearance of appearances; track appearance.matchId) {
                 <div class="appearance">
-                  <strong>{{ appearance.matchDate }}</strong>
+                  <strong>{{ appearance.matchDate | appDate }}</strong>
                   {{ appearance.selectionName }} · {{ appearance.side === 'home' ? 'home' : 'away' }}
                   @if (appearance.stadiumName) { <span> · {{ appearance.stadiumName }}</span> }
                   @if (appearance.shirtNumber != null) { <span> · #{{ appearance.shirtNumber }}</span> }
@@ -130,11 +130,11 @@
               <p class="history-section-title">Mandate</p>
               <div class="form-group">
                 <label for="startMandatDate">Mandate start</label>
-                <input type="date" id="startMandatDate" formControlName="startMandatDate" />
+                <input type="date" lang="bs-Latn" id="startMandatDate" formControlName="startMandatDate" />
               </div>
               <div class="form-group">
                 <label for="endMandatDate">Mandate end</label>
-                <input type="date" id="endMandatDate" formControlName="endMandatDate" />
+                <input type="date" lang="bs-Latn" id="endMandatDate" formControlName="endMandatDate" />
               </div>
             </div>
           }

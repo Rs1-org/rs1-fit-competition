@@ -50,7 +50,7 @@
     (pageChange)="onPageChange($event)">
     <ng-template #itemTemplate let-item>
       <div class="item-title">{{ item.name }} · {{ item.abbreviation }}</div>
-      <div class="item-subtitle">{{ item.countryName || 'No country' }} · {{ item.followersCount }} followers</div>
+      <div class="item-subtitle">{{ item.countryName || 'No country' }} · {{ item.followersCount | appNumber:'1.0-0' }} followers</div>
     </ng-template>
   </app-generic-list>
 </div>

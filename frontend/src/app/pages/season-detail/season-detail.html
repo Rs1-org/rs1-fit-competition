@@ -23,7 +23,7 @@
         <button class="btn-add" (click)="onAdd()">+ Add Round</button>
       }
     </div>
-    <p class="page-subtitle">{{ s.startDate }} – {{ s.endDate }}</p>
+    <p class="page-subtitle">{{ s.startDate | appDate }} – {{ s.endDate | appDate }}</p>
 
     <h2 class="section-title">Rounds</h2>
     <app-generic-list

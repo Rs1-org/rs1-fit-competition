@@ -11,10 +11,11 @@ import { pictureToDataUrl } from '../../core/models/person.models';
 import { HistoryService } from '../../core/services/history.service';
 import { PlayerService } from '../../core/services/player.service';
 import { fadeSwap } from '../../core/animations/motion';
+import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
 
 @Component({
   selector: 'app-player-view',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, AppDatePipe],
   templateUrl: './player-view.html',
   styleUrl: './player-view.css',
   animations: [fadeSwap],

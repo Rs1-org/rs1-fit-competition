@@ -31,11 +31,11 @@
         </div>
         <div class="info-item">
           <span class="info-label">Capacity</span>
-          <span class="info-value">{{ data.capacity | number }}</span>
+          <span class="info-value">{{ data.capacity | appNumber:'1.0-0' }}</span>
         </div>
         <div class="info-item">
           <span class="info-label">Opened</span>
-          <span class="info-value">{{ data.dateOfConstruction | date:'mediumDate' }}</span>
+          <span class="info-value">{{ data.dateOfConstruction | appDate }}</span>
         </div>
         <div class="info-item">
           <span class="info-label">Coordinates</span>
@@ -55,7 +55,7 @@
         @if (distanceToCityKm() !== null) {
           <p class="distance">
             <span class="legend-line"></span>
-            Distance to {{ data.cityName }} centre: <strong>{{ distanceToCityKm() | number:'1.1-1' }} km</strong>
+            Distance to {{ data.cityName }} centre: <strong>{{ distanceToCityKm() | appNumber:'1.1-1' }} km</strong>
           </p>
         }
         <app-map

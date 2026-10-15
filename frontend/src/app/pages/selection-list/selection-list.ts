@@ -11,6 +11,7 @@ import { SelectionListFilter, SelectionOption, SelectionService } from '../../co
 import { CountryService } from '../../core/services/country-service';
 import { CountryListDto } from '../../core/models/country';
 import { emptyPage } from '../../core/models/paged-result';
+import { AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 
 function followersRangeValidator(group: AbstractControl): ValidationErrors | null {
   const { followersMin, followersMax } = group.value;
@@ -21,7 +22,7 @@ function followersRangeValidator(group: AbstractControl): ValidationErrors | nul
 
 @Component({
   selector: 'app-selection-list',
-  imports: [CommonModule, GenericListComponent, ReactiveFormsModule],
+  imports: [CommonModule, GenericListComponent, ReactiveFormsModule, AppNumberPipe],
   templateUrl: './selection-list.html',
   styleUrl: '../catalog.css',
 })

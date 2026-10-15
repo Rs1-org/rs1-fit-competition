@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { AppDateTimePipe } from '../../shared/pipes/regional-format.pipes';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, catchError, combineLatest, filter, map, of, shareReplay, switchMap } from 'rxjs';
 import { RoundService } from '../../core/services/round.service';
@@ -11,7 +11,7 @@ import { apiErrorMessage } from '../../core/utils/api-error';
 @Component({
   selector: 'app-round-detail',
   standalone: true,
-  imports: [RouterLink, DatePipe, GenericListComponent],
+  imports: [RouterLink, AppDateTimePipe, GenericListComponent],
   templateUrl: './round-detail.html',
   styleUrls: ['../catalog.css', '../competition-list/competition-pages.css'],
 })

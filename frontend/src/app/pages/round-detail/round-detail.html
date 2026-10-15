@@ -34,7 +34,7 @@
             @if (match.homeScore !== null && match.awayScore !== null) {
               {{ match.homeScore }} : {{ match.awayScore }}
             } @else {
-              {{ match.date | date: 'dd.MM. HH:mm' }}
+              {{ match.date | appDateTime }}
             }
           </span>
           <span>{{ match.awaySelectionName || 'TBD' }}</span>

@@ -68,7 +68,7 @@
                     <div class="item-title">{{ city.name }}</div>
                     <div class="item-subtitle">{{ city.countryName }}</div>
                     <div class="item-meta">
-                        Population: {{ city.population | number }}
+                        Population: {{ city.population | appNumber:'1.0-0' }}
                         @if(city.isCapital){
                             <span class="badge-capital">Capital</span>
                         }
