@@ -4,10 +4,17 @@ using Competition.Domain.Entities;
 
 namespace Competition.Application.Interfaces;
 
+public record SelectionListFilter(
+    string? Name,
+    string? CountryPublicId,
+    string? Abbreviation,
+    int? FollowersMin,
+    int? FollowersMax);
+
 public interface ISelection : IRepository<Selection>
 {
     Task<Selection?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default);
-    Task<PagedResult<Selection>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken cancellationToken = default);
+    Task<PagedResult<Selection>> GetPagedAsync(SelectionListFilter filter, int page, int pageSize, CancellationToken cancellationToken = default);
 }
 
 public interface IPlayerAppearances

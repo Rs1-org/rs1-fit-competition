@@ -14,9 +14,26 @@ namespace Competition.Api.Controllers;
 public class SelectionController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? name = null,
+        [FromQuery] string? countryPublicId = null,
+        [FromQuery] string? abbreviation = null,
+        [FromQuery] int? followersMin = null,
+        [FromQuery] int? followersMax = null,
+        CancellationToken cancellationToken = default)
     {
-        var result = await mediator.Send(new GetAllSelectionsQuery { Page = page, PageSize = pageSize, Search = search }, cancellationToken);
+        var result = await mediator.Send(new GetAllSelectionsQuery
+        {
+            Page = page,
+            PageSize = pageSize,
+            Name = name,
+            CountryPublicId = countryPublicId,
+            Abbreviation = abbreviation,
+            FollowersMin = followersMin,
+            FollowersMax = followersMax
+        }, cancellationToken);
         return Ok(result);
     }
 

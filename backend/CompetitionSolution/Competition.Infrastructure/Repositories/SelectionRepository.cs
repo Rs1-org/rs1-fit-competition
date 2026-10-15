@@ -18,17 +18,33 @@ public class SelectionRepository : Repository<Selection>, ISelection
     public Task<Selection?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default) =>
         _context.Selections.Include(x => x.Country).FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
 
-    public Task<PagedResult<Selection>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken cancellationToken = default)
+    public Task<PagedResult<Selection>> GetPagedAsync(SelectionListFilter filter, int page, int pageSize, CancellationToken cancellationToken = default)
     {
         var query = _context.Selections.Include(x => x.Country).AsQueryable();
-        if (!string.IsNullOrWhiteSpace(search))
+
+        if (!string.IsNullOrWhiteSpace(filter.Name))
         {
-            var term = search.Trim().ToLower();
-            query = query.Where(x =>
-                x.Name.ToLower().Contains(term)
-                || x.Abbreviation.ToLower().Contains(term)
-                || (x.Country != null && x.Country.Name != null && x.Country.Name.ToLower().Contains(term)));
+            var name = filter.Name.Trim().ToLower();
+            query = query.Where(x => x.Name.ToLower().Contains(name));
         }
+
+        if (!string.IsNullOrWhiteSpace(filter.Abbreviation))
+        {
+            var abbreviation = filter.Abbreviation.Trim().ToLower();
+            query = query.Where(x => x.Abbreviation.ToLower().Contains(abbreviation));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.CountryPublicId))
+        {
+            var countryPublicId = filter.CountryPublicId.Trim();
+            query = query.Where(x => x.Country != null && x.Country.PublicId == countryPublicId);
+        }
+
+        if (filter.FollowersMin.HasValue)
+            query = query.Where(x => x.FollowersCount >= filter.FollowersMin.Value);
+
+        if (filter.FollowersMax.HasValue)
+            query = query.Where(x => x.FollowersCount <= filter.FollowersMax.Value);
 
         return query.OrderBy(x => x.Name).ToPagedResultAsync(page, pageSize, cancellationToken);
     }
