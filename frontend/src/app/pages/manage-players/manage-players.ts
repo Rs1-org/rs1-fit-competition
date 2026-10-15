@@ -1,15 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fileToBase64 } from '../../core/helpers/file.helper';
-import {
-  emptyPlayerHistoryForm,
-  PlayerAppearance,
-  PlayerHistoryForm,
-} from '../../core/models/history.models';
+import { PlayerAppearance, PlayerHistoryForm } from '../../core/models/history.models';
 import { SelectionOption, SelectionService } from '../../core/services/selection.service';
-import { emptyPersonFields, pictureToDataUrl, Player } from '../../core/models/person.models';
+import { pictureToDataUrl } from '../../core/models/person.models';
 import { HistoryService } from '../../core/services/history.service';
 import { PlayerService, PlayerWriteDto } from '../../core/services/player.service';
 import { PositionService } from '../../core/services/position.service';
@@ -19,9 +16,22 @@ import { ConfirmDialogService } from '../../shared/components/confirm-dialog/con
 import { fadeSwap } from '../../core/animations/motion';
 import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
 
+function pastDate(control: AbstractControl): ValidationErrors | null {
+  if (!control.value) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return new Date(control.value) < today ? null : { pastDate: true };
+}
+
+function positionWhenSubPosition(group: AbstractControl): ValidationErrors | null {
+  const positionId = group.get('positionId')?.value;
+  const subPositionId = group.get('subPositionId')?.value;
+  return subPositionId && !positionId ? { positionRequired: true } : null;
+}
+
 @Component({
   selector: 'app-manage-players',
-  imports: [CommonModule, FormsModule, UploadProgress],
+  imports: [CommonModule, ReactiveFormsModule, UploadProgress],
   templateUrl: './manage-players.html',
   styleUrl: './manage-players.css',
   animations: [fadeSwap],
@@ -36,25 +46,51 @@ export class ManagePlayers implements OnInit {
   private selectionService = inject(SelectionService);
   private confirmDialog = inject(ConfirmDialogService);
   private cdr = inject(ChangeDetectorRef);
+  private fb = inject(FormBuilder);
 
-  player: Player = {
-    ...emptyPersonFields(),
-    height: 0,
-    shirtNumber: 0,
-    transferValue: 0,
-  };
+  form = this.fb.group({
+    firstName: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(100)]),
+    lastName: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(100)]),
+    dateOfBirth: this.fb.nonNullable.control('', [Validators.required, pastDate]),
+    height: this.fb.control<number | null>(null, [Validators.required, Validators.min(0.01), Validators.max(300)]),
+    shirtNumber: this.fb.control<number | null>(null, [Validators.required, Validators.min(1), Validators.max(99)]),
+    transferValue: this.fb.control<number | null>(0, [Validators.required, Validators.min(0)]),
+    positionId: this.fb.nonNullable.control(''),
+    subPositionId: this.fb.nonNullable.control(''),
+    history: this.fb.group({
+      teamSelectionId: this.fb.nonNullable.control(''),
+      goals: this.fb.control<number | null>(null),
+      matchPlayed: this.fb.control<number | null>(null),
+      assists: this.fb.control<number | null>(null),
+      shirtNumber: this.fb.control<number | null>(null),
+      transferDate: this.fb.control<string | null>(null),
+      transferValue: this.fb.control<number | null>(null),
+      startMandatDate: this.fb.control<string | null>(null),
+      endMandatDate: this.fb.control<string | null>(null),
+    }),
+  }, { validators: positionWhenSubPosition });
 
-  history: PlayerHistoryForm = emptyPlayerHistoryForm();
   activeTab: 'info' | 'history' = 'info';
   editingId: string | null = null;
   isEditMode = false;
   isLoading = false;
+  picture: string | null = null;
   pictureChanged = false;
   uploadProgress: number | null = null;
   positions: Position[] = [];
   subPositions: SubPosition[] = [];
   selections: SelectionOption[] = [];
   appearances: PlayerAppearance[] = [];
+  private historyIds: Pick<PlayerHistoryForm, 'selectionId' | 'transferId' | 'mandatId'> = {};
+
+  constructor() {
+    this.form.controls.positionId.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      const current = this.form.controls.subPositionId.value;
+      if (current && !this.filteredSubPositions.some((item) => item.id === current)) {
+        this.form.controls.subPositionId.setValue('');
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.positionService.getAll(1, 100).subscribe((page) => {
@@ -85,52 +121,44 @@ export class ManagePlayers implements OnInit {
     });
   }
 
-  private resetForm(): void {
-    this.player = {
-      ...emptyPersonFields(),
-      height: 0,
-      shirtNumber: 0,
-      transferValue: 0,
-    };
-    this.history = emptyPlayerHistoryForm();
-    this.activeTab = 'info';
-    this.pictureChanged = false;
-  }
-
-  get isPlayerInvalid(): boolean {
-    return (
-      !this.player.firstName.trim() ||
-      !this.player.lastName.trim() ||
-      !this.player.dateOfBirth ||
-      !this.player.height ||
-      this.player.height <= 0 ||
-      !this.player.shirtNumber ||
-      this.player.shirtNumber <= 0 ||
-      !this.player.transferValue ||
-      this.player.transferValue <= 0
-    );
-  }
-
   get picturePreview(): string | null {
-    return pictureToDataUrl(this.player.picture);
+    return pictureToDataUrl(this.picture);
+  }
+
+  get filteredSubPositions(): SubPosition[] {
+    const positionId = this.form.controls.positionId.value;
+    if (!positionId) return [];
+    return this.subPositions.filter((item) => item.positionId === positionId);
+  }
+
+  fieldError(name: 'firstName' | 'lastName' | 'dateOfBirth' | 'height' | 'shirtNumber' | 'transferValue' | 'subPositionId'): string | null {
+    if (name === 'subPositionId' && this.form.hasError('positionRequired') && this.form.controls.subPositionId.touched) {
+      return 'Position is required when a subposition is set.';
+    }
+    const control = this.form.controls[name];
+    if (!control.touched || control.valid) return null;
+    if (control.hasError('required')) return 'This field is required.';
+    if (control.hasError('maxlength')) return 'Maximum length is 100 characters.';
+    if (control.hasError('pastDate')) return 'Date of birth must be in the past.';
+    if (control.hasError('min') || control.hasError('max')) return 'Value is out of range.';
+    return 'Invalid value.';
   }
 
   loadPlayer(id: string): void {
     this.isLoading = true;
     this.playerService.getById(id).subscribe({
       next: (data) => {
-        this.player = {
-          id: data.id,
+        this.form.patchValue({
           firstName: data.firstName ?? '',
           lastName: data.lastName ?? '',
           dateOfBirth: data.dateOfBirth ?? '',
-          picture: data.picture ?? null,
           height: data.height,
           shirtNumber: data.shirtNumber,
           transferValue: data.transferValue,
-          positionId: data.positionId ?? null,
-          subPositionId: data.subPositionId ?? null,
-        };
+          positionId: data.positionId ?? '',
+          subPositionId: data.subPositionId ?? '',
+        });
+        this.picture = data.picture ?? null;
         this.pictureChanged = false;
         void this.loadHistory(id);
       },
@@ -142,7 +170,23 @@ export class ManagePlayers implements OnInit {
   }
 
   private async loadHistory(id: string): Promise<void> {
-    this.history = await this.historyService.loadPlayerHistory(id);
+    const history = await this.historyService.loadPlayerHistory(id);
+    this.historyIds = {
+      selectionId: history.selectionId,
+      transferId: history.transferId,
+      mandatId: history.mandatId,
+    };
+    this.form.controls.history.patchValue({
+      teamSelectionId: history.teamSelectionId ?? '',
+      goals: history.selection.goals,
+      matchPlayed: history.selection.matchPlayed,
+      assists: history.selection.assists,
+      shirtNumber: history.selection.shirtNumber,
+      transferDate: history.transfer.date,
+      transferValue: history.transfer.value,
+      startMandatDate: history.mandat.startMandatDate,
+      endMandatDate: history.mandat.endMandatDate,
+    });
     this.appearances = await this.historyService.loadAppearances(id);
     this.isLoading = false;
     this.cdr.detectChanges();
@@ -153,16 +197,20 @@ export class ManagePlayers implements OnInit {
     const file = input.files?.[0];
     if (!file) return;
 
-    this.player.picture = await fileToBase64(file);
+    this.picture = await fileToBase64(file);
     this.pictureChanged = true;
   }
 
   async savePlayer(): Promise<void> {
-    if (this.isPlayerInvalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
+    const { firstName, lastName } = this.form.getRawValue();
     if (this.isEditMode) {
       const confirmed = await this.confirmDialog.confirm({
-        message: `Jeste li sigurni da želite spremiti promjene za igrača ${this.player.firstName} ${this.player.lastName}?`,
+        message: `Save changes for player ${firstName} ${lastName}?`,
       });
       if (!confirmed) return;
     }
@@ -181,32 +229,31 @@ export class ManagePlayers implements OnInit {
       next: async (saved) => {
         const playerId = this.isEditMode ? this.editingId! : saved.id!;
         try {
-          await this.historyService.savePlayerHistory(playerId, this.history);
+          await this.historyService.savePlayerHistory(playerId, this.historyPayload());
         } catch (err) {
-          console.error('Greška pri spremanju historije igrača:', err);
+          console.error('Could not save player history:', err);
         }
         this.playerService.notifyListRefresh();
         this.router.navigate(['/player-list']);
       },
       error: (err) => {
         this.setUploadProgress(null);
-        console.error('Greška pri spremanju igrača:', err);
+        console.error('Could not save the player:', err);
       },
     });
   }
 
-  get filteredSubPositions(): SubPosition[] {
-    if (!this.player.positionId) return [];
-    return this.subPositions.filter((item) => item.positionId === this.player.positionId);
-  }
-
-  onPositionChange(): void {
-    const stillValid = this.filteredSubPositions.some((item) => item.id === this.player.subPositionId);
-    if (!stillValid) this.player.subPositionId = null;
-  }
-
   cancel(): void {
     this.router.navigate(['/player-list']);
+  }
+
+  private resetForm(): void {
+    this.form.reset({ transferValue: 0, positionId: '', subPositionId: '' });
+    this.historyIds = {};
+    this.appearances = [];
+    this.activeTab = 'info';
+    this.picture = null;
+    this.pictureChanged = false;
   }
 
   private setUploadProgress(percent: number | null): void {
@@ -215,16 +262,17 @@ export class ManagePlayers implements OnInit {
   }
 
   private buildPayload(): PlayerWriteDto {
+    const value = this.form.getRawValue();
     const payload: PlayerWriteDto = {
-      firstName: this.player.firstName.trim(),
-      lastName: this.player.lastName.trim(),
-      dateOfBirth: this.player.dateOfBirth,
-      picture: this.player.picture,
-      height: this.player.height,
-      shirtNumber: this.player.shirtNumber,
-      transferValue: this.player.transferValue,
-      positionId: this.player.positionId || null,
-      subPositionId: this.player.subPositionId || null,
+      firstName: value.firstName.trim(),
+      lastName: value.lastName.trim(),
+      dateOfBirth: value.dateOfBirth,
+      picture: this.picture,
+      height: Number(value.height),
+      shirtNumber: Number(value.shirtNumber),
+      transferValue: Number(value.transferValue),
+      positionId: value.positionId || null,
+      subPositionId: value.subPositionId || null,
     };
 
     if (this.isEditMode && !this.pictureChanged) {
@@ -233,5 +281,29 @@ export class ManagePlayers implements OnInit {
     }
 
     return payload;
+  }
+
+  private historyPayload(): PlayerHistoryForm {
+    const history = this.form.controls.history.getRawValue();
+    return {
+      selectionId: this.historyIds.selectionId,
+      transferId: this.historyIds.transferId,
+      mandatId: this.historyIds.mandatId,
+      teamSelectionId: history.teamSelectionId,
+      selection: {
+        goals: history.goals,
+        matchPlayed: history.matchPlayed,
+        assists: history.assists,
+        shirtNumber: history.shirtNumber,
+      },
+      transfer: {
+        date: history.transferDate,
+        value: history.transferValue,
+      },
+      mandat: {
+        startMandatDate: history.startMandatDate,
+        endMandatDate: history.endMandatDate,
+      },
+    };
   }
 }

@@ -245,3 +245,9 @@ select option {
   color: var(--danger);
   font-size: 0.85rem;
 }
+
+.field-error {
+  margin: 0.25rem 0 0;
+  color: var(--danger);
+  font-size: 0.85rem;
+}
