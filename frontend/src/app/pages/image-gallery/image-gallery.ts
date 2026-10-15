@@ -73,7 +73,7 @@ export class ImageGallery implements OnDestroy {
 
   async remove(item: GalleryItem): Promise<void> {
     const confirmed = await this.confirmDialog.confirm({
-      message: `Obrisati sliku za ${item.name}?`,
+      message: `Delete the image for ${item.name}?`,
     });
     if (!confirmed) return;
 
@@ -164,6 +164,6 @@ export class ImageGallery implements OnDestroy {
   private readError(err: HttpErrorResponse): string {
     const body = err.error;
     const validation = body?.errors?.[0]?.errorMessage;
-    return validation || body?.message || 'Radnja nad slikom nije uspjela.';
+    return validation || body?.message || 'The image action failed.';
   }
 }

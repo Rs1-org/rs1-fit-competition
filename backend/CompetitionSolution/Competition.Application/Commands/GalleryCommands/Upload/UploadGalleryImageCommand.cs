@@ -1,6 +1,7 @@
 using Competition.Application.DTOs.GalleryDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
@@ -24,5 +25,30 @@ public class UploadGalleryImageCommandHandler : IRequestHandler<UploadGalleryIma
         GalleryRules.EnsureKind(request.Kind);
         GalleryRules.EnsurePicture(request.Picture);
         return _gallery.UploadAsync(request.Kind, request.Id, request.Picture!, cancellationToken);
+    }
+}
+
+public class UploadGalleryImageCommandValidator : AbstractValidator<UploadGalleryImageCommand>
+{
+    public UploadGalleryImageCommandValidator()
+    {
+        RuleFor(x => x.Kind)
+            .Must(GalleryRules.IsKnown)
+            .WithMessage("Unknown image type.");
+
+        RuleFor(x => x.Id).NotEmpty();
+
+        RuleFor(x => x.Picture).Custom((file, context) =>
+        {
+            try
+            {
+                GalleryRules.EnsurePicture(file);
+            }
+            catch (ValidationException exception)
+            {
+                foreach (var failure in exception.Errors)
+                    context.AddFailure(failure);
+            }
+        });
     }
 }

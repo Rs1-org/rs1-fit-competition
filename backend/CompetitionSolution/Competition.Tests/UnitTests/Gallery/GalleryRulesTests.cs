@@ -9,12 +9,12 @@ public class GalleryRulesTests
     [Fact]
     public void Title_NamesEveryPictureOwner()
     {
-        GalleryRules.Title(GalleryRules.Player).Should().Be("Igrači");
-        GalleryRules.Title(GalleryRules.Referee).Should().Be("Sudije");
-        GalleryRules.Title(GalleryRules.Manager).Should().Be("Menadžeri");
-        GalleryRules.Title(GalleryRules.Country).Should().Be("Države");
-        GalleryRules.Title(GalleryRules.Stadium).Should().Be("Stadioni");
-        GalleryRules.Title(GalleryRules.Selection).Should().Be("Reprezentacije");
+        GalleryRules.Title(GalleryRules.Player).Should().Be("Players");
+        GalleryRules.Title(GalleryRules.Referee).Should().Be("Referees");
+        GalleryRules.Title(GalleryRules.Manager).Should().Be("Managers");
+        GalleryRules.Title(GalleryRules.Country).Should().Be("Countries");
+        GalleryRules.Title(GalleryRules.Stadium).Should().Be("Stadiums");
+        GalleryRules.Title(GalleryRules.Selection).Should().Be("Selections");
     }
 
     [Fact]

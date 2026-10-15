@@ -1,8 +1,8 @@
 <div class="container">
   <div class="header-actions">
     <div>
-      <h1>Galerija slika</h1>
-      <p>Svaka vrsta je odvojena. Unutar nje, oni koji već imaju sliku stoje odvojeno od onih bez slike.</p>
+      <h1>Image gallery</h1>
+      <p>Each type is separate. Inside it, records that already have an image are kept apart from those without one.</p>
     </div>
   </div>
 
@@ -11,16 +11,16 @@
   }
 
   @if (loading()) {
-    <p class="gallery-note">Učitavanje galerije...</p>
+    <p class="gallery-note">Loading gallery...</p>
   }
 
   @for (section of sections(); track section.kind) {
     <section class="gallery-section" @popIn>
       <h2>{{ section.title }}</h2>
 
-      <h3>Sa slikom <span>{{ section.withPicture.length }}</span></h3>
+      <h3>With an image <span>{{ section.withPicture.length }}</span></h3>
       @if (section.withPicture.length === 0) {
-        <p class="gallery-note">Niko iz ove grupe još nema sliku.</p>
+        <p class="gallery-note">Nobody in this group has an image yet.</p>
       } @else {
         <div class="gallery-grid" [@listStagger]="section.withPicture.length">
           @for (item of section.withPicture; track item.id) {
@@ -29,36 +29,36 @@
                 @if (preview(item)) {
                   <img [src]="preview(item)" [alt]="item.name" />
                 } @else {
-                  <span>Učitavanje</span>
+                  <span>Loading</span>
                 }
               </button>
               <strong>{{ item.name }}</strong>
               <app-upload-progress [percent]="isUploading(item) ? progress() : null"></app-upload-progress>
               <div class="card-actions">
                 <label class="btn-add">
-                  Zamijeni
+                  Replace
                   <input type="file" accept="image/jpeg,image/png,image/webp" (change)="upload(item, $event)" />
                 </label>
-                <button class="btn-quiet" type="button" (click)="remove(item)">Obriši</button>
+                <button class="btn-quiet" type="button" (click)="remove(item)">Delete</button>
               </div>
             </article>
           }
         </div>
       }
 
-      <h3>Bez slike <span>{{ section.withoutPicture.length }}</span></h3>
+      <h3>Without an image <span>{{ section.withoutPicture.length }}</span></h3>
       @if (section.withoutPicture.length === 0) {
-        <p class="gallery-note">Svi iz ove grupe već imaju sliku.</p>
+        <p class="gallery-note">Everyone in this group already has an image.</p>
       } @else {
         <div class="gallery-grid" [@listStagger]="section.withoutPicture.length">
           @for (item of section.withoutPicture; track item.id) {
             <article class="gallery-card empty">
-              <div class="thumb placeholder">Nema slike</div>
+              <div class="thumb placeholder">No image</div>
               <strong>{{ item.name }}</strong>
               <app-upload-progress [percent]="isUploading(item) ? progress() : null"></app-upload-progress>
               <div class="card-actions">
                 <label class="btn-add">
-                  Dodaj sliku
+                  Add image
                   <input type="file" accept="image/jpeg,image/png,image/webp" (change)="upload(item, $event)" />
                 </label>
               </div>
@@ -75,7 +75,7 @@
     <figure (click)="$event.stopPropagation()">
       <img [src]="photo.src" [alt]="photo.name" />
       <figcaption>{{ photo.name }}</figcaption>
-      <button type="button" (click)="closeViewer()">Zatvori</button>
+      <button type="button" (click)="closeViewer()">Close</button>
     </figure>
   </div>
 }

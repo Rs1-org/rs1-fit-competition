@@ -25,7 +25,7 @@ public class GalleryController(IMediator mediator) : ControllerBase
     {
         var image = await mediator.Send(new GetGalleryImageQuery { Kind = kind, Id = id }, cancellationToken);
         if (image == null)
-            throw new KeyNotFoundException("Slika nije pronađena.");
+            throw new KeyNotFoundException("Image was not found.");
 
         return File(image.Bytes, image.ContentType);
     }
