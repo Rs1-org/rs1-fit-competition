@@ -1,30 +1,46 @@
 <div class="player-card-wrapper">
   <div class="player-card">
     <h2>{{ isEditMode ? 'Edit selection' : 'Add selection' }}</h2>
-    <p class="loading-text" *ngIf="error">{{ error }}</p>
+    @if (error) {
+      <p class="field-error">{{ error }}</p>
+    }
 
-    <form class="formation-form" (ngSubmit)="save()">
+    <form class="formation-form" [formGroup]="form" (ngSubmit)="save()">
       <div class="form-group">
         <label for="name">Name</label>
-        <input type="text" id="name" name="name" [(ngModel)]="name" required />
+        <input type="text" id="name" formControlName="name" />
+        @if (fieldError('name'); as message) {
+          <p class="field-error">{{ message }}</p>
+        }
       </div>
       <div class="form-group">
         <label for="abbreviation">Abbreviation</label>
-        <input type="text" id="abbreviation" name="abbreviation" maxlength="10" [(ngModel)]="abbreviation" required />
+        <input type="text" id="abbreviation" formControlName="abbreviation" maxlength="10" />
+        @if (fieldError('abbreviation'); as message) {
+          <p class="field-error">{{ message }}</p>
+        }
       </div>
       <div class="form-group">
         <label for="countryPublicId">Country</label>
-        <select id="countryPublicId" name="countryPublicId" [(ngModel)]="countryPublicId" required>
+        <select id="countryPublicId" formControlName="countryPublicId">
           <option value="">Select a country</option>
-          <option *ngFor="let country of countryOptions" [value]="country.publicId">{{ country.name }}</option>
+          @for (country of countryOptions; track country.publicId) {
+            <option [value]="country.publicId">{{ country.name }}</option>
+          }
         </select>
+        @if (fieldError('countryPublicId'); as message) {
+          <p class="field-error">{{ message }}</p>
+        }
       </div>
       <div class="form-group">
         <label for="followersCount">Followers</label>
-        <input type="number" id="followersCount" name="followersCount" min="0" [(ngModel)]="followersCount" />
+        <input type="number" id="followersCount" formControlName="followersCount" min="0" />
+        @if (fieldError('followersCount'); as message) {
+          <p class="field-error">{{ message }}</p>
+        }
       </div>
       <div class="button-group">
-        <button type="submit" [disabled]="isInvalid">Save</button>
+        <button type="submit" [disabled]="form.invalid">Save</button>
         <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
       </div>
     </form>

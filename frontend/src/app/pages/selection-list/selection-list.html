@@ -2,15 +2,47 @@
   <div class="header-actions">
     <h1>Selections</h1>
     @if (canManage()) {
-      <button class="btn-add" (click)="onAdd()">+ Add selection</button>
+      <button class="btn-add" type="button" (click)="onAdd()">+ Add selection</button>
     }
   </div>
-  <app-generic-search placeholder="Search selections..." (onSearch)="search($event)"></app-generic-search>
+
+  <form class="filter-bar" [formGroup]="filterForm">
+    <div class="filter-field">
+      <label for="filter-name">Name</label>
+      <input id="filter-name" type="text" formControlName="name" />
+    </div>
+    <div class="filter-field">
+      <label for="filter-country">Country</label>
+      <select id="filter-country" formControlName="countryPublicId">
+        <option value="">Any country</option>
+        @for (country of countryOptions().items; track country.publicId) {
+          <option [value]="country.publicId">{{ country.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="filter-field">
+      <label for="filter-abbreviation">Abbreviation</label>
+      <input id="filter-abbreviation" type="text" formControlName="abbreviation" maxlength="10" />
+    </div>
+    <div class="filter-field">
+      <label for="filter-followers-min">Followers from</label>
+      <input id="filter-followers-min" type="number" min="0" formControlName="followersMin" />
+    </div>
+    <div class="filter-field">
+      <label for="filter-followers-max">Followers to</label>
+      <input id="filter-followers-max" type="number" min="0" formControlName="followersMax" />
+    </div>
+    <button type="button" class="filter-reset" (click)="resetFilters()">Reset</button>
+    @if (filterForm.hasError('followersRange')) {
+      <p class="filter-error">Followers to must be greater than or equal to followers from.</p>
+    }
+  </form>
+
   <app-generic-list
-    [items]="result()?.items ?? []"
+    [items]="result().items"
     [pageSize]="pageSize"
-    [serverTotalItems]="result()?.totalCount"
-    [serverCurrentPage]="result()?.page ?? 1"
+    [serverTotalItems]="result().totalCount"
+    [serverCurrentPage]="result().page"
     [showActions]="canManage()"
     variant="card"
     (update)="onEdit($event)"

@@ -4,6 +4,14 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PagedResult } from '../models/paged-result';
 
+export interface SelectionListFilter {
+  name?: string;
+  countryPublicId?: string;
+  abbreviation?: string;
+  followersMin?: number;
+  followersMax?: number;
+}
+
 export interface SelectionOption {
   id: string;
   name: string;
@@ -20,9 +28,13 @@ export class SelectionService {
   private readonly apiUrl = `${environment.apiUrl}/api/selection`;
   private http = inject(HttpClient);
 
-  getAll(page = 1, pageSize = 10, search?: string): Observable<PagedResult<SelectionOption>> {
+  getAll(page = 1, pageSize = 10, filter: SelectionListFilter = {}): Observable<PagedResult<SelectionOption>> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize);
-    if (search) params = params.set('search', search);
+    if (filter.name) params = params.set('name', filter.name);
+    if (filter.countryPublicId) params = params.set('countryPublicId', filter.countryPublicId);
+    if (filter.abbreviation) params = params.set('abbreviation', filter.abbreviation);
+    if (filter.followersMin != null) params = params.set('followersMin', filter.followersMin);
+    if (filter.followersMax != null) params = params.set('followersMax', filter.followersMax);
     return this.http.get<PagedResult<SelectionOption>>(this.apiUrl, { params });
   }
 
