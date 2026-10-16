@@ -59,6 +59,7 @@ namespace Competition.Infrastructure
             services.AddScoped<IPublicIdLookup, PublicIdLookup>();
             services.AddScoped<IBlobStorageService, BlobStorageService>();
             services.AddScoped<IImageService,ImageService>();
+            services.AddScoped<ITabularFileService, TabularFileService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IPlayer, PlayerRepository>();
             services.AddScoped<IReferee, RefereeRepository>();

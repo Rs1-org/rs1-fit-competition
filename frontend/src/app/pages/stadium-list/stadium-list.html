@@ -48,33 +48,79 @@
     }
   </form>
 
-  <app-generic-list
-    [items]="pagedResult()?.items ?? []"
-    [pageSize]="pageSize"
-    [serverTotalItems]="pagedResult()?.totalCount"
-    [serverCurrentPage]="pagedResult()?.page ?? 1"
-    [showActions]="canManage()"
-    [showDelete]="canDelete()"
-    variant="card"
-    (pageChange)="onPageChange($event)"
-    (view)="view($event)"
-    (update)="edit($event)"
-    (delete)="delete($event)">
-    
-    <ng-template #itemTemplate let-stadium>
-      <div class="stadium-card-content">
-        @if (stadium.pictureUrl) {
-          <img [src]="stadium.pictureUrl" alt="{{stadium.name}}" class="stadium-img">
-        } @else {
-          <div class="stadium-placeholder">No Image</div>
-        }
-        <div class="stadium-info">
-          <div class="item-title">{{ stadium.name }}</div>
-          <div class="item-subtitle">{{ stadium.cityName }}, {{ stadium.countryName }}</div>
-          <div class="item-meta">Capacity: {{ stadium.capacity | appNumber:'1.0-0' }}</div>
-        </div>
-      </div>
-    </ng-template>
+  <app-import-export-bar
+    fileBaseName="stadiums"
+    [exportFn]="exportFn"
+    [importFn]="importFn"
+    [canImport]="canDelete()"
+    importColumns="Name, City, Country, Capacity, DateOfConstruction, Latitude, Longitude, GeoDescription"
+    (imported)="onImported()">
+  </app-import-export-bar>
 
-  </app-generic-list>
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col" class="hide-sm"><span class="visually-hidden">Picture</span></th>
+          <th scope="col" [attr.aria-sort]="ariaSort(sort, 'name')">
+            <button type="button" class="sort-btn" (click)="sortBy('name')">
+              Name <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort, 'name') }}</span>
+            </button>
+          </th>
+          <th scope="col" [attr.aria-sort]="ariaSort(sort, 'city')">
+            <button type="button" class="sort-btn" (click)="sortBy('city')">
+              City <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort, 'city') }}</span>
+            </button>
+          </th>
+          <th scope="col" class="hide-sm">Country</th>
+          <th scope="col" class="num" [attr.aria-sort]="ariaSort(sort, 'capacity')">
+            <button type="button" class="sort-btn" (click)="sortBy('capacity')">
+              Capacity <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort, 'capacity') }}</span>
+            </button>
+          </th>
+          <th scope="col" class="hide-sm" [attr.aria-sort]="ariaSort(sort, 'dateOfConstruction')">
+            <button type="button" class="sort-btn" (click)="sortBy('dateOfConstruction')">
+              Built <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort, 'dateOfConstruction') }}</span>
+            </button>
+          </th>
+          @if (canManage()) {
+            <th scope="col" class="actions"><span class="visually-hidden">Actions</span></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (stadium of pagedResult()?.items ?? []; track stadium.publicId) {
+          <tr class="row-link" tabindex="0" (click)="view(stadium)" (keydown.enter)="view(stadium)">
+            <td class="hide-sm">
+              @if (stadium.pictureUrl) {
+                <img [src]="stadium.pictureUrl" [alt]="stadium.name" class="table-thumb">
+              }
+            </td>
+            <td>{{ stadium.name }}</td>
+            <td>{{ stadium.cityName }}</td>
+            <td class="hide-sm">{{ stadium.countryName }}</td>
+            <td class="num">{{ stadium.capacity | appNumber:'1.0-0' }}</td>
+            <td class="hide-sm">{{ stadium.dateOfConstruction | appDate }}</td>
+            @if (canManage()) {
+              <td class="actions">
+                <button type="button" class="row-btn" (click)="$event.stopPropagation(); edit(stadium)">Edit</button>
+                @if (canDelete()) {
+                  <button type="button" class="row-btn row-btn-danger" (click)="$event.stopPropagation(); delete(stadium)">Delete</button>
+                }
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr><td class="table-empty" [attr.colspan]="canManage() ? 7 : 6">No stadiums match the filters.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <app-pagination
+    [totalItems]="pagedResult()?.totalCount ?? 0"
+    [pageSize]="pageSize"
+    [currentPage]="pagedResult()?.page ?? 1"
+    (pageChange)="onPageChange($event)">
+  </app-pagination>
 </div>

@@ -14,6 +14,15 @@ export function toPagedParams(page: number, pageSize: number, filter: object = {
   return params;
 }
 
+/** Filter (+ sort) query params without paging, skipping values that are not set (exports). */
+export function toFilterParams(filter: object = {}): HttpParams {
+  let params = new HttpParams();
+  for (const [key, value] of Object.entries(filter)) {
+    if (value !== null && value !== undefined && value !== '') params = params.set(key, value);
+  }
+  return params;
+}
+
 /** Loads every page of a paged endpoint and returns all items (for dropdowns). */
 export function fetchAllPages<T>(getPage: (page: number) => Observable<PagedResult<T>>): Observable<T[]> {
   return getPage(1).pipe(

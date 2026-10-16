@@ -1,8 +1,11 @@
 import { Component, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
+import { AppDatePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
+import { Pagination } from '../../shared/components/pagination/pagination';
+import { ImportExportBar } from '../../shared/components/import-export-bar/import-export-bar';
+import { ExportFormat, SortParams } from '../../core/models/import-export';
+import { ariaSort, nextSort, sortIndicator } from '../../core/helpers/sort-state.helper';
 import { Router } from '@angular/router';
 import { StadiumService } from '../../core/services/stadium.service';
 import { CountryService } from '../../core/services/country-service';
@@ -26,7 +29,7 @@ function capacityRangeValidator(group: AbstractControl): ValidationErrors | null
 @Component({
   selector: 'app-stadium-list',
   standalone: true,
-  imports: [GenericListComponent, CommonModule, StadiumForm, AppNumberPipe, ReactiveFormsModule],
+  imports: [CommonModule, StadiumForm, AppNumberPipe, AppDatePipe, ReactiveFormsModule, Pagination, ImportExportBar],
   templateUrl: './stadium-list.html',
   styleUrl: './stadium-list.css',
 })
@@ -68,9 +71,18 @@ export class StadiumList {
     { initialValue: [] }
   );
 
-  // Mirrors the backend: Admin/Moderator can add and edit, only Admin can delete.
+  // Mirrors the backend: Admin/Moderator can add and edit, only Admin can delete and import.
   canManage = this.userStateService.canManage;
   canDelete = this.userStateService.isAdmin;
+
+  // Backend column sorting (RS1 item 13).
+  sort: SortParams = {};
+  readonly ariaSort = ariaSort;
+  readonly sortIndicator = sortIndicator;
+
+  // Export uses the filters + sort currently applied to the table (RS1 item 86).
+  exportFn = (format: ExportFormat) => this.stadiumService.export(this.query$.value.filter, format);
+  importFn = (file: File) => this.stadiumService.import(file);
 
   pagedResult = toSignal(
     combineLatest([this.query$, this.refresh$]).pipe(
@@ -99,7 +111,17 @@ export class StadiumList {
       cityPublicId: cityPublicId || undefined,
       minCapacity: minCapacity ?? undefined,
       maxCapacity: maxCapacity ?? undefined,
+      ...this.sort,
     };
+  }
+
+  sortBy(key: string): void {
+    this.sort = nextSort(this.sort, key);
+    this.query$.next({ page: 1, filter: { ...this.query$.value.filter, ...this.sort } });
+  }
+
+  onImported(): void {
+    this.refresh$.next();
   }
 
   resetFilters(): void {

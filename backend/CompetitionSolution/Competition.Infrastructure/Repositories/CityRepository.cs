@@ -39,6 +39,35 @@ public class CityRepository : Repository<City>, ICity
 
     public async Task<PagedResult<City>> GetPagedFilteredAsync(CityListFilter filter, int page, int pageSize, CancellationToken cancellationToken = default)
     {
+        return await Sorted(Filtered(filter), filter.Sort)
+            .ToPagedResultAsync(page, pageSize, cancellationToken);
+    }
+
+    public async Task<List<City>> GetFilteredListAsync(CityListFilter filter, int maxRows, CancellationToken cancellationToken = default)
+    {
+        return await Sorted(Filtered(filter).Include(c => c.GeoData), filter.Sort)
+            .Take(maxRows)
+            .ToListAsync(cancellationToken);
+    }
+
+    // Whitelisted keys only (validated in the query validators); ThenBy(Id) keeps paging stable.
+    private static IQueryable<City> Sorted(IQueryable<City> query, SortSpec? sort)
+    {
+        var desc = sort?.Descending ?? false;
+        IOrderedQueryable<City> ordered = sort switch
+        {
+            _ when sort is not null && sort.Is("population") =>
+                desc ? query.OrderByDescending(c => c.Population) : query.OrderBy(c => c.Population),
+            _ when sort is not null && sort.Is("country") =>
+                desc ? query.OrderByDescending(c => c.Country!.Name).ThenBy(c => c.Name)
+                     : query.OrderBy(c => c.Country!.Name).ThenBy(c => c.Name),
+            _ => desc ? query.OrderByDescending(c => c.Name) : query.OrderBy(c => c.Name),
+        };
+        return ordered.ThenBy(c => c.Id);
+    }
+
+    private IQueryable<City> Filtered(CityListFilter filter)
+    {
         var query = _context.Cities.Include(c => c.Country).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filter.Name))
@@ -55,8 +84,6 @@ public class CityRepository : Repository<City>, ICity
         if (filter.MaxPopulation.HasValue)
             query = query.Where(c => c.Population <= filter.MaxPopulation.Value);
 
-        return await query
-            .OrderBy(c => c.Name)
-            .ToPagedResultAsync(page, pageSize, cancellationToken);
+        return query;
     }
 }

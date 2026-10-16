@@ -1,4 +1,6 @@
 using Competition.Application.Commands.CityCommands.Create;
+using Competition.Application.Commands.CityCommands.Import;
+using Competition.Application.Queries.City.Export;
 using Competition.Application.Commands.CityCommands.Delete;
 using Competition.Application.Commands.CityCommands.Update;
 using Competition.Application.Queries.City.GetAll;
@@ -52,6 +54,8 @@ public class CityController : ControllerBase
         [FromQuery] bool? isCapital = null,
         [FromQuery] int? minPopulation = null,
         [FromQuery] int? maxPopulation = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortDir = null,
         CancellationToken cancellationToken = default)
     {
         var result = await _mediator.Send(new GetAllCitiesCommand
@@ -62,7 +66,9 @@ public class CityController : ControllerBase
             CountryPublicId = countryPublicId,
             IsCapital = isCapital,
             MinPopulation = minPopulation,
-            MaxPopulation = maxPopulation
+            MaxPopulation = maxPopulation,
+            SortBy = sortBy,
+            SortDir = sortDir
         }, cancellationToken);
         return Ok(result);
     }
@@ -78,6 +84,22 @@ public class CityController : ControllerBase
     public async Task<IActionResult> GetCitiesByCountry(string countryPublicId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
         var result = await _mediator.Send(new GetAllCitiesByCountryCommand { CountryPublicId = countryPublicId, Page = page, PageSize = pageSize }, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("export")]
+    public async Task<IActionResult> Export([FromQuery] ExportCitiesQuery query, CancellationToken cancellationToken)
+    {
+        var file = await _mediator.Send(query, cancellationToken);
+        return File(file.Content, file.ContentType, file.FileName);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("import")]
+    [RequestSizeLimit(2 * 1024 * 1024 + 64 * 1024)]
+    public async Task<IActionResult> Import([FromForm] ImportCitiesCommand request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(request, cancellationToken);
         return Ok(result);
     }
 }

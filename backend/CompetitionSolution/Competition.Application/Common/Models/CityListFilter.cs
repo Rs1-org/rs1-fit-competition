@@ -5,4 +5,5 @@ public record CityListFilter(
     Guid? CountryId,
     bool? IsCapital,
     int? MinPopulation,
-    int? MaxPopulation);
+    int? MaxPopulation,
+    SortSpec? Sort = null);

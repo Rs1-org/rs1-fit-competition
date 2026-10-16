@@ -4,11 +4,15 @@ import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Va
 import { CountryForm } from '../../components/country-form/country-form';
 import { CountryService } from '../../core/services/country-service';
 import { CountryListDto, CountryListFilter } from '../../core/models/country';
+import { ExportFormat, SortParams } from '../../core/models/import-export';
 import { UserStateService } from '../../core/services/user-state.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, combineLatest, debounceTime, filter, switchMap } from 'rxjs';
-import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { Pagination } from '../../shared/components/pagination/pagination';
+import { ImportExportBar } from '../../shared/components/import-export-bar/import-export-bar';
+import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
+import { ariaSort, nextSort, sortIndicator } from '../../core/helpers/sort-state.helper';
 
 /** Mirrors the backend rule: "Created to" must be on or after "Created from". */
 function createdRangeValidator(group: AbstractControl): ValidationErrors | null {
@@ -19,7 +23,7 @@ function createdRangeValidator(group: AbstractControl): ValidationErrors | null 
 @Component({
   selector: 'app-country-list',
   standalone: true,
-  imports: [CountryForm, GenericListComponent, CommonModule, ReactiveFormsModule],
+  imports: [CountryForm, CommonModule, ReactiveFormsModule, Pagination, ImportExportBar, AppDatePipe],
   templateUrl: './country-list.html',
   styleUrl: './country-list.css',
 })
@@ -46,11 +50,20 @@ export class CountryList {
     )
   );
 
-  // Mirrors the backend: Admin/Moderator can add and edit, only Admin can delete.
+  // Mirrors the backend: Admin/Moderator can add and edit, only Admin can delete and import.
   canManage = this.userStateService.canManage;
   canDelete = this.userStateService.isAdmin;
   isFormOpen = false;
   selectedCountry: CountryListDto | null = null;
+
+  // Backend column sorting (RS1 item 13).
+  sort: SortParams = {};
+  readonly ariaSort = ariaSort;
+  readonly sortIndicator = sortIndicator;
+
+  // Export uses the filters + sort currently applied to the table (RS1 item 86).
+  exportFn = (format: ExportFormat) => this.countryService.export(this.query$.value.filter, format);
+  importFn = (file: File) => this.countryService.import(file);
 
   constructor() {
     // Any filter change goes back to page 1; invalid combinations are not sent.
@@ -69,7 +82,13 @@ export class CountryList {
       hasPicture: hasPicture === '' ? undefined : hasPicture === 'true',
       createdFrom: createdFrom || undefined,
       createdTo: createdTo || undefined,
+      ...this.sort,
     };
+  }
+
+  sortBy(key: string): void {
+    this.sort = nextSort(this.sort, key);
+    this.query$.next({ page: 1, filter: { ...this.query$.value.filter, ...this.sort } });
   }
 
   resetFilters(): void {
@@ -78,6 +97,10 @@ export class CountryList {
 
   onPageChange(page: number) {
     this.query$.next({ ...this.query$.value, page });
+  }
+
+  onImported(): void {
+    this.refresh$.next();
   }
 
   onAdd(): void {

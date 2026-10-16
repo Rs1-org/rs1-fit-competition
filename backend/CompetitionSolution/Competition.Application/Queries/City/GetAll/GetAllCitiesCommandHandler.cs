@@ -25,7 +25,8 @@ namespace Competition.Application.Queries.City.GetAll
             if (request.CountryPublicId is not null && countryId is null)
                 return new PagedResult<CityListDto>(Array.Empty<CityListDto>(), 0, request.Page, request.PageSize);
 
-            var filter = new CityListFilter(request.Name, countryId, request.IsCapital, request.MinPopulation, request.MaxPopulation);
+            var filter = new CityListFilter(request.Name, countryId, request.IsCapital, request.MinPopulation, request.MaxPopulation,
+                new SortSpec(request.SortBy, request.SortDir));
             var paged = await _city.GetPagedFilteredAsync(filter, request.Page, request.PageSize, cancellationToken);
             var items = _mapper.Map<IReadOnlyList<CityListDto>>(paged.Items);
             return new PagedResult<CityListDto>(items, paged.TotalCount, paged.Page, paged.PageSize);

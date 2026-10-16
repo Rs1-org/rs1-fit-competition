@@ -1,4 +1,6 @@
 ﻿using Competition.Application.Commands.CityCommands.Create;
+using Competition.Application.Commands.CountryCommands.Import;
+using Competition.Application.Queries.Country.Export;
 using Competition.Application.Commands.CityCommands.Update;
 using Competition.Application.Commands.CountryCommands.Create;
 using Competition.Application.Commands.CountryCommands.Delete;
@@ -64,6 +66,8 @@ namespace Competition.Api.Controllers
             [FromQuery] bool? hasPicture = null,
             [FromQuery] DateTime? createdFrom = null,
             [FromQuery] DateTime? createdTo = null,
+            [FromQuery] string? sortBy = null,
+            [FromQuery] string? sortDir = null,
             CancellationToken cancellationToken = default)
         {
             var result = await _mediator.Send(new GetAllCountriesCommand
@@ -74,8 +78,26 @@ namespace Competition.Api.Controllers
                 Slug = slug,
                 HasPicture = hasPicture,
                 CreatedFrom = createdFrom,
-                CreatedTo = createdTo
+                CreatedTo = createdTo,
+                SortBy = sortBy,
+                SortDir = sortDir
             }, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("export")]
+        public async Task<IActionResult> Export([FromQuery] ExportCountriesQuery query, CancellationToken cancellationToken)
+        {
+            var file = await _mediator.Send(query, cancellationToken);
+            return File(file.Content, file.ContentType, file.FileName);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("import")]
+        [RequestSizeLimit(2 * 1024 * 1024 + 64 * 1024)]
+        public async Task<IActionResult> Import([FromForm] ImportCountriesCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
             return Ok(result);
         }
     }

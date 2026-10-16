@@ -13,6 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="ClosedXML" Version="0.105.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
       <PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.12">

@@ -13,5 +13,7 @@ namespace Competition.Application.Queries.Country.GetAll
         public bool? HasPicture { get; init; }
         public DateTime? CreatedFrom { get; init; }
         public DateTime? CreatedTo { get; init; }
+        public string? SortBy { get; init; }
+        public string? SortDir { get; init; }
     }
 }

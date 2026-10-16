@@ -13,4 +13,6 @@ public class GetAllStadiumsQuery : IRequest<PagedResult<StadiumListDto>>
     public string? CityPublicId { get; init; }
     public int? MinCapacity { get; init; }
     public int? MaxCapacity { get; init; }
+    public string? SortBy { get; init; }
+    public string? SortDir { get; init; }
 }

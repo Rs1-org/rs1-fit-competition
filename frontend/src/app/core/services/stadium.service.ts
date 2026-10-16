@@ -5,7 +5,8 @@ import { Observable } from "rxjs";
 import { trackUpload } from "../helpers/upload-progress.helper";
 import { StadiumDetailsDto, StadiumListDto, StadiumListFilter } from "../models/stadium";
 import { PagedResult } from "../models/paged-result";
-import { toPagedParams } from "../helpers/paging.helper";
+import { toFilterParams, toPagedParams } from "../helpers/paging.helper";
+import { ExportFormat, ImportResult } from "../models/import-export";
 
 @Injectable({
     providedIn: 'root'
@@ -41,5 +42,18 @@ export class StadiumService {
 
     delete(publicId: string): Observable<any> {
         return this.http.delete(`${this.apiUrl}/deleteStadium/${publicId}`);
+    }
+
+    /** Current filters + sort, without paging (RS1 item 86). */
+    export(filter: StadiumListFilter, format: ExportFormat): Observable<Blob> {
+        const params = toFilterParams({ ...filter, format });
+        return this.http.get(`${this.apiUrl}/export`, { params, responseType: 'blob' });
+    }
+
+    /** All-or-nothing import; the result lists row errors when nothing was saved. */
+    import(file: File): Observable<ImportResult> {
+        const form = new FormData();
+        form.append('file', file);
+        return this.http.post<ImportResult>(`${this.apiUrl}/import`, form);
     }
 }

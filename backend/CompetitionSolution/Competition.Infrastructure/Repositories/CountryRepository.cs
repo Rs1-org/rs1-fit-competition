@@ -28,6 +28,29 @@ namespace Competition.Infrastructure.Repositories
 
         public async Task<PagedResult<Country>> GetPagedFilteredAsync(CountryListFilter filter, int page, int pageSize, CancellationToken cancellationToken = default)
         {
+            return await Sorted(Filtered(filter), filter.Sort)
+                .ToPagedResultAsync(page, pageSize, cancellationToken);
+        }
+
+        public async Task<List<Country>> GetFilteredListAsync(CountryListFilter filter, int maxRows, CancellationToken cancellationToken = default)
+        {
+            return await Sorted(Filtered(filter), filter.Sort)
+                .Take(maxRows)
+                .ToListAsync(cancellationToken);
+        }
+
+        // Whitelisted keys only (validated in the query validators); ThenBy(Id) keeps paging stable.
+        private static IQueryable<Country> Sorted(IQueryable<Country> query, SortSpec? sort)
+        {
+            var desc = sort?.Descending ?? false;
+            IOrderedQueryable<Country> ordered = sort is not null && sort.Is("createdAt")
+                ? (desc ? query.OrderByDescending(c => c.CreatedAt) : query.OrderBy(c => c.CreatedAt))
+                : (desc ? query.OrderByDescending(c => c.Name) : query.OrderBy(c => c.Name));
+            return ordered.ThenBy(c => c.Id);
+        }
+
+        private IQueryable<Country> Filtered(CountryListFilter filter)
+        {
             var query = _context.Countries.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter.Name))
@@ -56,9 +79,7 @@ namespace Competition.Infrastructure.Repositories
                 query = query.Where(c => c.CreatedAt < to);
             }
 
-            return await query
-                .OrderBy(c => c.Name)
-                .ToPagedResultAsync(page, pageSize, cancellationToken);
+            return query;
         }
 
         private static Instant ToInstant(DateTime date) =>
