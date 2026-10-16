@@ -1,6 +1,7 @@
 using Competition.Application.Commands.MatchCommands.Create;
 using Competition.Application.Commands.MatchCommands.Delete;
 using Competition.Application.Commands.MatchCommands.Update;
+using Competition.Application.Common.Validation;
 using FluentValidation;
 
 namespace Competition.Application.Commands.MatchCommands.Validators;
@@ -18,17 +19,26 @@ public class CreateMatchCommandValidator : AbstractValidator<CreateMatchCommand>
             .Must(d => d > DateTime.UtcNow)
             .WithMessage("Match date must be in the future for a new match.");
 
-        RuleFor(x => x.StatusId)
-            .NotEmpty();
+        RuleFor(x => x.StatusPublicId)
+            .MustBeValidPublicId();
 
-        RuleFor(x => x.StadiumId)
-            .NotEmpty();
+        RuleFor(x => x.StadiumPublicId)
+            .MustBeValidPublicId();
+        RuleFor(x => x.HomeSelectionPublicId)
+            .MustBeValidPublicId()
+            .When(x => x.HomeSelectionPublicId is not null);
+        RuleFor(x => x.AwaySelectionPublicId)
+            .MustBeValidPublicId()
+            .When(x => x.AwaySelectionPublicId is not null);
+        RuleFor(x => x.RoundPublicId)
+            .MustBeValidPublicId()
+            .When(x => x.RoundPublicId is not null);
 
         RuleFor(x => x.FollowersCount)
             .GreaterThanOrEqualTo(0);
 
         RuleFor(x => x)
-            .Must(x => x.HomeSelectionId != x.AwaySelectionId || x.HomeSelectionId is null)
+            .Must(x => x.HomeSelectionPublicId != x.AwaySelectionPublicId || x.HomeSelectionPublicId is null)
             .WithMessage("Home and away selection must be different.");
     }
 }
@@ -40,11 +50,20 @@ public class UpdateMatchCommandValidator : AbstractValidator<UpdateMatchCommand>
         RuleFor(x => x.Slug)
             .NotEmpty();
 
-        RuleFor(x => x.StatusId)
-            .NotEmpty();
+        RuleFor(x => x.StatusPublicId)
+            .MustBeValidPublicId();
 
-        RuleFor(x => x.StadiumId)
-            .NotEmpty();
+        RuleFor(x => x.StadiumPublicId)
+            .MustBeValidPublicId();
+        RuleFor(x => x.HomeSelectionPublicId)
+            .MustBeValidPublicId()
+            .When(x => x.HomeSelectionPublicId is not null);
+        RuleFor(x => x.AwaySelectionPublicId)
+            .MustBeValidPublicId()
+            .When(x => x.AwaySelectionPublicId is not null);
+        RuleFor(x => x.RoundPublicId)
+            .MustBeValidPublicId()
+            .When(x => x.RoundPublicId is not null);
 
         RuleFor(x => x.FollowersCount)
             .GreaterThanOrEqualTo(0);
@@ -80,7 +99,7 @@ public class UpdateMatchCommandValidator : AbstractValidator<UpdateMatchCommand>
             .WithMessage("HalfHomeScore and HalfAwayScore must both be set or both be null.");
 
         RuleFor(x => x)
-            .Must(x => x.HomeSelectionId != x.AwaySelectionId || x.HomeSelectionId is null)
+            .Must(x => x.HomeSelectionPublicId != x.AwaySelectionPublicId || x.HomeSelectionPublicId is null)
             .WithMessage("Home and away selection must be different.");
     }
 }
@@ -89,7 +108,7 @@ public class DeleteMatchCommandValidator : AbstractValidator<DeleteMatchCommand>
 {
     public DeleteMatchCommandValidator()
     {
-        RuleFor(x => x.Id)
-            .NotEmpty();
+        RuleFor(x => x.PublicId)
+            .MustBeValidPublicId();
     }
 }

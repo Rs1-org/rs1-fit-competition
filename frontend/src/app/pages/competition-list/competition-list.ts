@@ -77,7 +77,7 @@ export class CompetitionList {
     });
     if (!confirmed) return;
     this.errorMessage.set('');
-    this.competitionService.delete(competition.id).subscribe({
+    this.competitionService.delete(competition.publicId).subscribe({
       next: () => this.refresh$.next(),
       error: (err) => this.errorMessage.set(apiErrorMessage(err)),
     });

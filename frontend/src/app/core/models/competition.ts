@@ -1,5 +1,5 @@
 export interface CompetitionListDto {
-  id: string;
+  publicId: string;
   name: string;
   slug: string;
   shortName: string | null;
@@ -8,12 +8,12 @@ export interface CompetitionListDto {
 }
 
 export interface CompetitionDetailsDto {
-  id: string;
+  publicId: string;
   name: string;
   slug: string;
   shortName: string | null;
   description: string | null;
-  countryId: string | null;
+  countryPublicId: string | null;
   countryName: string | null;
 }
 
@@ -21,5 +21,5 @@ export interface SaveCompetitionDto {
   name: string;
   shortName: string | null;
   description: string | null;
-  countryId: string | null;
+  countryPublicId: string | null;
 }

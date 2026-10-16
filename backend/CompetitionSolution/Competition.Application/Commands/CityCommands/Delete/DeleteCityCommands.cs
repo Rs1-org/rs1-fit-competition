@@ -5,5 +5,5 @@ namespace Competition.Application.Commands.CityCommands.Delete;
 
 public class DeleteCityCommands : IRequest<CityNameDto>
 {
-    public Guid Id { get; set; }
+    public string PublicId { get; set; } = string.Empty;
 }

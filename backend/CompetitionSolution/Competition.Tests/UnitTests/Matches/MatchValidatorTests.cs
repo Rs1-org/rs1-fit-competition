@@ -9,14 +9,16 @@ namespace Competition.Tests.UnitTests.Matches;
 /// <summary>COMP-77: business rules in the Match create/update validators.</summary>
 public class MatchValidatorTests
 {
+    private static string NewPublicId() => Guid.NewGuid().ToString("N");
+
     private static CreateMatchCommand ValidCreate() => new()
     {
         Slug = "zeljeznicar-sarajevo",
         Date = DateTime.UtcNow.AddDays(7),
-        StatusId = Guid.NewGuid(),
-        StadiumId = Guid.NewGuid(),
-        HomeSelectionId = Guid.NewGuid(),
-        AwaySelectionId = Guid.NewGuid(),
+        StatusPublicId = NewPublicId(),
+        StadiumPublicId = NewPublicId(),
+        HomeSelectionPublicId = NewPublicId(),
+        AwaySelectionPublicId = NewPublicId(),
         FollowersCount = 0
     };
 
@@ -24,8 +26,8 @@ public class MatchValidatorTests
     {
         Slug = "zeljeznicar-sarajevo",
         Date = DateTime.UtcNow.AddDays(-1),
-        StatusId = Guid.NewGuid(),
-        StadiumId = Guid.NewGuid(),
+        StatusPublicId = NewPublicId(),
+        StadiumPublicId = NewPublicId(),
         HomeScore = 2,
         AwayScore = 1,
         HalfHomeScore = 1,
@@ -44,7 +46,7 @@ public class MatchValidatorTests
     public void Create_SameHomeAndAwaySelection_ShouldFail()
     {
         var command = ValidCreate();
-        command.AwaySelectionId = command.HomeSelectionId;
+        command.AwaySelectionPublicId = command.HomeSelectionPublicId;
 
         var result = new CreateMatchCommandValidator().Validate(command);
 
@@ -56,8 +58,8 @@ public class MatchValidatorTests
     public void Create_NoSelectionsYet_ShouldPass()
     {
         var command = ValidCreate();
-        command.HomeSelectionId = null;
-        command.AwaySelectionId = null;
+        command.HomeSelectionPublicId = null;
+        command.AwaySelectionPublicId = null;
 
         new CreateMatchCommandValidator().Validate(command).IsValid.Should().BeTrue();
     }
@@ -66,22 +68,22 @@ public class MatchValidatorTests
     public void Create_MissingStatus_ShouldFail()
     {
         var command = ValidCreate();
-        command.StatusId = Guid.Empty;
+        command.StatusPublicId = "";
 
         var result = new CreateMatchCommandValidator().Validate(command);
 
-        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(CreateMatchCommand.StatusId));
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(CreateMatchCommand.StatusPublicId));
     }
 
     [Fact]
     public void Create_MissingStadium_ShouldFail()
     {
         var command = ValidCreate();
-        command.StadiumId = Guid.Empty;
+        command.StadiumPublicId = "";
 
         var result = new CreateMatchCommandValidator().Validate(command);
 
-        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(CreateMatchCommand.StadiumId));
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(CreateMatchCommand.StadiumPublicId));
     }
 
     [Fact]
@@ -140,7 +142,7 @@ public class MatchValidatorTests
     public void Update_SameHomeAndAwaySelection_ShouldFail()
     {
         var command = ValidUpdate();
-        command.HomeSelectionId = command.AwaySelectionId = Guid.NewGuid();
+        command.HomeSelectionPublicId = command.AwaySelectionPublicId = NewPublicId();
 
         new UpdateMatchCommandValidator().Validate(command).IsValid.Should().BeFalse();
     }

@@ -19,7 +19,7 @@ describe('CityForm', () => {
     longitude: 17.8078,
     description: 'Old Bridge',
     countryName: 'Bosnia and Herzegovina',
-    countryId: 'c1'
+    countryPublicId: 'c1'
   };
 
   beforeEach(async () => {

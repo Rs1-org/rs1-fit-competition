@@ -3,7 +3,7 @@ export interface CityName{
 }
 
 export interface CityListDto{
-    id:string;
+    publicId: string;
     name:string;
     slug:string;
     population:number;
@@ -20,14 +20,14 @@ export interface CityDetailsDto{
     longitude:number;
     description:string;
     countryName:string;
-    countryId:string;
+    countryPublicId:string;
 }
 
 export interface CreateCityDto{
     name:string;
     population:number;
     isCapital:boolean;
-    countryId:string;
+    countryPublicId:string;
     latitude:number;
     longitude:number;
     description:string;
@@ -35,7 +35,7 @@ export interface CreateCityDto{
 
 export interface CityListFilter{
     name?:string;
-    countryId?:string;
+    countryPublicId?:string;
     isCapital?:boolean;
     minPopulation?:number;
     maxPopulation?:number;

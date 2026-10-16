@@ -3,6 +3,7 @@ using Competition.Application.DTOs.SeasonDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
 using Competition.Domain.Entities.CompetitionEntities;
+using CompetitionEntity = Competition.Domain.Entities.CompetitionEntities.Competition;
 using MediatR;
 using NodaTime;
 
@@ -11,22 +12,21 @@ namespace Competition.Application.Commands.SeasonCommands.Create;
 public class CreateSeasonCommandHandler : IRequestHandler<CreateSeasonCommand, SeasonDetailsDto>
 {
     private readonly ISeason _season;
-    private readonly ICompetition _competition;
+    private readonly IPublicIdLookup _lookup;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    public CreateSeasonCommandHandler(ISeason season, ICompetition competition, IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateSeasonCommandHandler(ISeason season, IPublicIdLookup lookup, IUnitOfWork unitOfWork, IMapper mapper)
     {
         _season = season;
-        _competition = competition;
+        _lookup = lookup;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
 
     public async Task<SeasonDetailsDto> Handle(CreateSeasonCommand request, CancellationToken cancellationToken)
     {
-        var competition = await _competition.GetByIdAsync(request.CompetitionId, cancellationToken)
-            ?? throw new KeyNotFoundException($"Competition with ID '{request.CompetitionId}' not found.");
+        var competition = await _lookup.GetRequiredEntityAsync<CompetitionEntity>(request.CompetitionPublicId, cancellationToken);
 
         var name = request.Name.Trim();
         var slug = SlugHelper.GenerateSlug($"{competition.Slug} {name.Replace('/', ' ')}");

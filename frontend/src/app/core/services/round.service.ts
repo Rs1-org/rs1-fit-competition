@@ -11,9 +11,9 @@ export class RoundService {
   private readonly matchApiUrl = `${environment.apiUrl}/api/match`;
   private http = inject(HttpClient);
 
-  getAll(page = 1, pageSize = 10, seasonId?: string, search?: string): Observable<PagedResult<RoundListDto>> {
+  getAll(page = 1, pageSize = 10, seasonPublicId?: string, search?: string): Observable<PagedResult<RoundListDto>> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize);
-    if (seasonId) params = params.set('seasonId', seasonId);
+    if (seasonPublicId) params = params.set('seasonPublicId', seasonPublicId);
     if (search) params = params.set('search', search);
     return this.http.get<PagedResult<RoundListDto>>(`${this.apiUrl}/getAll`, { params });
   }
@@ -22,8 +22,8 @@ export class RoundService {
     return this.http.get<RoundDetailsDto>(`${this.apiUrl}/get/${slug}`);
   }
 
-  getMatches(roundId: string, page = 1, pageSize = 10): Observable<PagedResult<RoundMatchDto>> {
-    const params = new HttpParams().set('roundId', roundId).set('page', page).set('pageSize', pageSize);
+  getMatches(roundPublicId: string, page = 1, pageSize = 10): Observable<PagedResult<RoundMatchDto>> {
+    const params = new HttpParams().set('roundPublicId', roundPublicId).set('page', page).set('pageSize', pageSize);
     return this.http.get<PagedResult<RoundMatchDto>>(`${this.matchApiUrl}/getAll`, { params });
   }
 
@@ -35,7 +35,7 @@ export class RoundService {
     return this.http.put<RoundDetailsDto>(`${this.apiUrl}/update/${slug}`, body);
   }
 
-  delete(id: string): Observable<string> {
-    return this.http.delete<string>(`${this.apiUrl}/delete/${id}`);
+  delete(publicId: string): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/delete/${publicId}`);
   }
 }

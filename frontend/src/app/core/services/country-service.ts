@@ -30,8 +30,8 @@ export class CountryService{
         );
     }
 
-    delete(id:string):Observable<CountryName>{
-        return this.http.delete<CountryName>(`${this.apiUrl}/delete/${id}`);
+    delete(publicId: string):Observable<CountryName>{
+        return this.http.delete<CountryName>(`${this.apiUrl}/delete/${publicId}`);
     }
 
     getAll(page = 1, pageSize = 10, filter: CountryListFilter = {}):Observable<PagedResult<CountryListDto>>{

@@ -13,10 +13,10 @@
         </div>
         <div class="filter-field">
             <label for="filter-country">Country</label>
-            <select id="filter-country" formControlName="countryId">
+            <select id="filter-country" formControlName="countryPublicId">
                 <option value="">All countries</option>
-                @for (country of countries(); track country.id) {
-                    <option [value]="country.id">{{ country.name }}</option>
+                @for (country of countries(); track country.publicId) {
+                    <option [value]="country.publicId">{{ country.name }}</option>
                 }
             </select>
         </div>

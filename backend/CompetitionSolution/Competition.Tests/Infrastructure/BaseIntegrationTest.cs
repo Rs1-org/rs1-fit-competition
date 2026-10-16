@@ -15,6 +15,9 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
     protected BaseIntegrationTest(WebApplicationFactory<Program> factory)
     {
+        // One name per test class: generated inside the options lambda, every scope would get a new empty database.
+        var databaseName = "TestDb_" + Guid.NewGuid();
+
         var testFactory = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureServices(services =>
@@ -26,7 +29,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
                 // Add In-Memory for testing
                 services.AddDbContext<AppDbContext>(options =>
                 {
-                    options.UseInMemoryDatabase("TestDb_" + Guid.NewGuid().ToString());
+                    options.UseInMemoryDatabase(databaseName);
                 });
             });
         });

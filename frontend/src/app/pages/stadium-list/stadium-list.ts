@@ -47,23 +47,23 @@ export class StadiumList {
 
   filterForm = this.fb.group({
     name: this.fb.nonNullable.control('', Validators.maxLength(150)),
-    countryId: this.fb.nonNullable.control(''),
-    cityId: this.fb.nonNullable.control(''),
+    countryPublicId: this.fb.nonNullable.control(''),
+    cityPublicId: this.fb.nonNullable.control(''),
     minCapacity: this.fb.control<number | null>(null, Validators.min(0)),
     maxCapacity: this.fb.control<number | null>(null, Validators.min(0)),
   }, { validators: capacityRangeValidator });
 
   countries = toSignal(this.countryService.getAllForDropdown(), { initialValue: [] });
-  private countryId$ = this.filterForm.controls.countryId.valueChanges.pipe(
-    startWith(this.filterForm.controls.countryId.value),
+  private countryPublicId$ = this.filterForm.controls.countryPublicId.valueChanges.pipe(
+    startWith(this.filterForm.controls.countryPublicId.value),
     distinctUntilChanged(),
   );
 
   // City options follow the selected country (all cities when no country is picked).
   cities = toSignal(
-    this.countryId$.pipe(
-      switchMap((countryId) => fetchAllPages((page) =>
-        this.cityService.getAll(page, MAX_PAGE_SIZE, { countryId: countryId || undefined })))
+    this.countryPublicId$.pipe(
+      switchMap((countryPublicId) => fetchAllPages((page) =>
+        this.cityService.getAll(page, MAX_PAGE_SIZE, { countryPublicId: countryPublicId || undefined })))
     ),
     { initialValue: [] }
   );
@@ -87,16 +87,16 @@ export class StadiumList {
     ).subscribe(() => this.query$.next({ page: 1, filter: this.toFilter() }));
 
     // A city picked for the previous country would no longer match, so clear it.
-    this.filterForm.controls.countryId.valueChanges.pipe(takeUntilDestroyed())
-      .subscribe(() => this.filterForm.controls.cityId.setValue(''));
+    this.filterForm.controls.countryPublicId.valueChanges.pipe(takeUntilDestroyed())
+      .subscribe(() => this.filterForm.controls.cityPublicId.setValue(''));
   }
 
   private toFilter(): StadiumListFilter {
-    const { name, countryId, cityId, minCapacity, maxCapacity } = this.filterForm.getRawValue();
+    const { name, countryPublicId, cityPublicId, minCapacity, maxCapacity } = this.filterForm.getRawValue();
     return {
       name: name.trim() || undefined,
-      countryId: countryId || undefined,
-      cityId: cityId || undefined,
+      countryPublicId: countryPublicId || undefined,
+      cityPublicId: cityPublicId || undefined,
       minCapacity: minCapacity ?? undefined,
       maxCapacity: maxCapacity ?? undefined,
     };
@@ -133,7 +133,7 @@ export class StadiumList {
     });
     if (!confirmed) return;
 
-    this.stadiumService.delete(stadium.id).subscribe({
+    this.stadiumService.delete(stadium.publicId).subscribe({
       next: () => this.refresh$.next(),
       error: (err) => console.error('Error deleting stadium: ', err)
     });

@@ -17,7 +17,8 @@
             label="Country"
             placeholder="Select a country"
             [options]="countries"
-            [control]="form.controls.countryId">
+            optionValue="publicId"
+            [control]="form.controls.countryPublicId">
         </app-dropdown>
 
         <app-input-box

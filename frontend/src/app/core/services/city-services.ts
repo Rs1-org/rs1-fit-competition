@@ -23,8 +23,8 @@ export class CityService{
         return this.http.put<CityName>(`${this.apiUrl}updateCity/${slug}`, city);
     }
 
-    delete(id:string):Observable<CityName>{
-        return this.http.delete<CityName>(`${this.apiUrl}deleteCity/${id}`);
+    delete(publicId: string):Observable<CityName>{
+        return this.http.delete<CityName>(`${this.apiUrl}deleteCity/${publicId}`);
     }
 
     getAll(page = 1, pageSize = 10, filter: CityListFilter = {}): Observable<PagedResult<CityListDto>> {

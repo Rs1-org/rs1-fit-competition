@@ -10,9 +10,9 @@ export class SeasonService {
   private readonly apiUrl = `${environment.apiUrl}/api/season`;
   private http = inject(HttpClient);
 
-  getAll(page = 1, pageSize = 10, competitionId?: string, search?: string, isCurrent?: boolean): Observable<PagedResult<SeasonListDto>> {
+  getAll(page = 1, pageSize = 10, competitionPublicId?: string, search?: string, isCurrent?: boolean): Observable<PagedResult<SeasonListDto>> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize);
-    if (competitionId) params = params.set('competitionId', competitionId);
+    if (competitionPublicId) params = params.set('competitionPublicId', competitionPublicId);
     if (search) params = params.set('search', search);
     if (isCurrent !== undefined) params = params.set('isCurrent', isCurrent);
     return this.http.get<PagedResult<SeasonListDto>>(`${this.apiUrl}/getAll`, { params });
@@ -30,7 +30,7 @@ export class SeasonService {
     return this.http.put<SeasonDetailsDto>(`${this.apiUrl}/update/${slug}`, body);
   }
 
-  delete(id: string): Observable<string> {
-    return this.http.delete<string>(`${this.apiUrl}/delete/${id}`);
+  delete(publicId: string): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/delete/${publicId}`);
   }
 }

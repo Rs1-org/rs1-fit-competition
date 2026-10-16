@@ -29,4 +29,18 @@ public class PublicIdLookup : IPublicIdLookup
         where TEntity : BaseEntity
         => await GetIdByPublicIdAsync<TEntity>(publicId, cancellationToken)
            ?? throw new KeyNotFoundException($"{typeof(TEntity).Name} with public id '{publicId}' not found.");
+
+    public async Task<Guid?> GetOptionalIdAsync<TEntity>(string? publicId, CancellationToken cancellationToken = default)
+        where TEntity : BaseEntity
+        => string.IsNullOrWhiteSpace(publicId)
+            ? null
+            : await GetRequiredIdAsync<TEntity>(publicId, cancellationToken);
+
+    public async Task<TEntity> GetRequiredEntityAsync<TEntity>(string? publicId, CancellationToken cancellationToken = default)
+        where TEntity : BaseEntity
+        => (string.IsNullOrWhiteSpace(publicId)
+               ? null
+               : await _context.Set<TEntity>()
+                   .FirstOrDefaultAsync(e => e.PublicId == publicId && e.DeletedAt == null, cancellationToken))
+           ?? throw new KeyNotFoundException($"{typeof(TEntity).Name} with public id '{publicId}' not found.");
 }

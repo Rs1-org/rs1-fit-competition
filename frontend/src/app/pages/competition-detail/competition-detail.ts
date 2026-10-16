@@ -51,7 +51,7 @@ export class CompetitionDetail {
 
   seasons = toSignal(
     combineLatest([this.competition$.pipe(filter((c): c is CompetitionDetailsDto => !!c)), this.page$, this.refresh$]).pipe(
-      switchMap(([competition, page]) => this.seasonService.getAll(page, this.pageSize, competition.id))
+      switchMap(([competition, page]) => this.seasonService.getAll(page, this.pageSize, competition.publicId))
     )
   );
 
@@ -91,7 +91,7 @@ export class CompetitionDetail {
     });
     if (!confirmed) return;
     this.errorMessage.set('');
-    this.seasonService.delete(season.id).subscribe({
+    this.seasonService.delete(season.publicId).subscribe({
       next: () => this.refresh$.next(),
       error: (err) => this.errorMessage.set(apiErrorMessage(err)),
     });

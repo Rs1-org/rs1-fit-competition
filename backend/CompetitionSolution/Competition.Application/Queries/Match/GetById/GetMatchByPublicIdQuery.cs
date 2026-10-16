@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Competition.Application.Queries.Match.GetById;
 
-public class GetMatchByIdQuery : IRequest<MatchDetailsDto>
+public class GetMatchByPublicIdQuery : IRequest<MatchDetailsDto>
 {
-    public Guid Id { get; set; }
+    public string PublicId { get; set; } = string.Empty;
 }

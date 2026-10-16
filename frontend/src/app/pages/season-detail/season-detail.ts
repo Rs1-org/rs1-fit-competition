@@ -51,7 +51,7 @@ export class SeasonDetail {
 
   rounds = toSignal(
     combineLatest([this.season$.pipe(filter((s): s is SeasonDetailsDto => !!s)), this.page$, this.refresh$]).pipe(
-      switchMap(([season, page]) => this.roundService.getAll(page, this.pageSize, season.id))
+      switchMap(([season, page]) => this.roundService.getAll(page, this.pageSize, season.publicId))
     )
   );
 
@@ -93,7 +93,7 @@ export class SeasonDetail {
     });
     if (!confirmed) return;
     this.errorMessage.set('');
-    this.roundService.delete(round.id).subscribe({
+    this.roundService.delete(round.publicId).subscribe({
       next: () => this.refresh$.next(),
       error: (err) => this.errorMessage.set(apiErrorMessage(err)),
     });

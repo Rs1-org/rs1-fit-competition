@@ -22,7 +22,7 @@ function endAfterStart(group: AbstractControl): ValidationErrors | null {
 })
 export class SeasonForm implements OnChanges {
   @Input() isOpen = false;
-  @Input({ required: true }) competitionId = '';
+  @Input({ required: true }) competitionPublicId = '';
   @Input() editSeason: SeasonDetailsDto | null = null;
   @Output() saved = new EventEmitter<void>();
   @Output() closed = new EventEmitter<void>();
@@ -82,7 +82,7 @@ export class SeasonForm implements OnChanges {
     };
     const request$ = this.isEditMode
       ? this.seasonService.update(this.editSeason!.slug, payload)
-      : this.seasonService.create({ ...payload, competitionId: this.competitionId });
+      : this.seasonService.create({ ...payload, competitionPublicId: this.competitionPublicId });
 
     this.saving = true;
     this.errorMessage = '';

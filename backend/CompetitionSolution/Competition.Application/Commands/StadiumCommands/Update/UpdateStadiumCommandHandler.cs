@@ -3,6 +3,7 @@ using Competition.Application.DTOs.StadiumDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
 using Competition.Application.Services;
+using Competition.Domain.Entities;
 using Competition.Domain.Entities.MatchEntities;
 using MediatR;
 
@@ -16,8 +17,11 @@ public class UpdateStadiumCommandHandler : IRequestHandler<UpdateStadiumCommand,
     private readonly IUnitOfWork _unitOfWork;
     private readonly IImageService _imageService;
 
-    public UpdateStadiumCommandHandler(IMapper mapper, IStadium stadium, IGeoData geoData, IUnitOfWork unitOfWork, IImageService imageService)
+    private readonly IPublicIdLookup _lookup;
+
+    public UpdateStadiumCommandHandler(IMapper mapper, IStadium stadium, IGeoData geoData, IUnitOfWork unitOfWork, IImageService imageService, IPublicIdLookup lookup)
     {
+        _lookup = lookup;
         _mapper = mapper;
         _stadium = stadium;
         _geoData = geoData;
@@ -36,7 +40,8 @@ public class UpdateStadiumCommandHandler : IRequestHandler<UpdateStadiumCommand,
         stadium.Name = request.Name;
         stadium.Capacity = request.Capacity;
         stadium.DateOfConstruction = DateTime.SpecifyKind(request.DateOfConstruction, DateTimeKind.Utc);
-        stadium.CityId = request.CityId;
+        stadium.CityId = await _lookup.GetRequiredIdAsync<City>(request.CityPublicId, cancellationToken);
+        stadium.City = null;
         stadium.Slug = SlugHelper.GenerateSlug(request.Name!);
 
         string? replacedPictureUrl = null;
@@ -69,6 +74,9 @@ public class UpdateStadiumCommandHandler : IRequestHandler<UpdateStadiumCommand,
             }
         }
 
-        return _mapper.Map<StadiumDetailsDto>(stadium);
+        // Reload so the response carries the new city's name and PublicId.
+        var updated = await _stadium.GetBySlugAsync(stadium.Slug!, cancellationToken);
+
+        return _mapper.Map<StadiumDetailsDto>(updated);
     }
 }

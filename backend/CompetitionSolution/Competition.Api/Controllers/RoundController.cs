@@ -24,7 +24,7 @@ public class RoundController : ControllerBase
     public async Task<IActionResult> GetAll(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] Guid? seasonId = null,
+        [FromQuery] string? seasonPublicId = null,
         [FromQuery] string? search = null,
         CancellationToken cancellationToken = default)
     {
@@ -32,7 +32,7 @@ public class RoundController : ControllerBase
         {
             Page = page,
             PageSize = pageSize,
-            SeasonId = seasonId,
+            SeasonPublicId = seasonPublicId,
             Search = search
         }, cancellationToken);
         return Ok(result);
@@ -63,10 +63,10 @@ public class RoundController : ControllerBase
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    [HttpDelete("delete/{publicId}")]
+    public async Task<IActionResult> Delete(string publicId, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new DeleteRoundCommand { Id = id }, cancellationToken);
+        var result = await _mediator.Send(new DeleteRoundCommand { PublicId = publicId }, cancellationToken);
         return Ok(result);
     }
 }

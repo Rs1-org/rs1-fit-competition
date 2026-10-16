@@ -10,10 +10,10 @@ export class CompetitionService {
   private readonly apiUrl = `${environment.apiUrl}/api/competition`;
   private http = inject(HttpClient);
 
-  getAll(page = 1, pageSize = 10, search?: string, countryId?: string): Observable<PagedResult<CompetitionListDto>> {
+  getAll(page = 1, pageSize = 10, search?: string, countryPublicId?: string): Observable<PagedResult<CompetitionListDto>> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize);
     if (search) params = params.set('search', search);
-    if (countryId) params = params.set('countryId', countryId);
+    if (countryPublicId) params = params.set('countryPublicId', countryPublicId);
     return this.http.get<PagedResult<CompetitionListDto>>(`${this.apiUrl}/getAll`, { params });
   }
 
@@ -29,7 +29,7 @@ export class CompetitionService {
     return this.http.put<CompetitionDetailsDto>(`${this.apiUrl}/update/${slug}`, body);
   }
 
-  delete(id: string): Observable<string> {
-    return this.http.delete<string>(`${this.apiUrl}/delete/${id}`);
+  delete(publicId: string): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/delete/${publicId}`);
   }
 }

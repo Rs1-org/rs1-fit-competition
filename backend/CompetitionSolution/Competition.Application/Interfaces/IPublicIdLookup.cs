@@ -14,4 +14,12 @@ public interface IPublicIdLookup
     /// <summary>Returns the internal Id or throws <see cref="KeyNotFoundException"/> (mapped to 404).</summary>
     Task<Guid> GetRequiredIdAsync<TEntity>(string? publicId, CancellationToken cancellationToken = default)
         where TEntity : BaseEntity;
+
+    /// <summary>Optional reference: null stays null, a given PublicId must exist (404 otherwise).</summary>
+    Task<Guid?> GetOptionalIdAsync<TEntity>(string? publicId, CancellationToken cancellationToken = default)
+        where TEntity : BaseEntity;
+
+    /// <summary>Returns the tracked entity (ready to update/delete) or throws <see cref="KeyNotFoundException"/>.</summary>
+    Task<TEntity> GetRequiredEntityAsync<TEntity>(string? publicId, CancellationToken cancellationToken = default)
+        where TEntity : BaseEntity;
 }

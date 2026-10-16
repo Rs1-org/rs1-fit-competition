@@ -27,10 +27,10 @@ public class CityController : ControllerBase
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpDelete("deleteCity/{id}")]
-    public async Task<IActionResult> DeleteCity(Guid id, CancellationToken cancellationToken)
+    [HttpDelete("deleteCity/{publicId}")]
+    public async Task<IActionResult> DeleteCity(string publicId, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new DeleteCityCommands { Id = id }, cancellationToken);
+        var result = await _mediator.Send(new DeleteCityCommands { PublicId = publicId }, cancellationToken);
         return Ok(result);
     }
 
@@ -48,7 +48,7 @@ public class CityController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? name = null,
-        [FromQuery] Guid? countryId = null,
+        [FromQuery] string? countryPublicId = null,
         [FromQuery] bool? isCapital = null,
         [FromQuery] int? minPopulation = null,
         [FromQuery] int? maxPopulation = null,
@@ -59,7 +59,7 @@ public class CityController : ControllerBase
             Page = page,
             PageSize = pageSize,
             Name = name,
-            CountryId = countryId,
+            CountryPublicId = countryPublicId,
             IsCapital = isCapital,
             MinPopulation = minPopulation,
             MaxPopulation = maxPopulation
@@ -74,10 +74,10 @@ public class CityController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("getCitiesByCountry/{countryId}")]
-    public async Task<IActionResult> GetCitiesByCountry(Guid countryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+    [HttpGet("getCitiesByCountry/{countryPublicId}")]
+    public async Task<IActionResult> GetCitiesByCountry(string countryPublicId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
-        var result = await _mediator.Send(new GetAllCitiesByCountryCommand { CountryId = countryId, Page = page, PageSize = pageSize }, cancellationToken);
+        var result = await _mediator.Send(new GetAllCitiesByCountryCommand { CountryPublicId = countryPublicId, Page = page, PageSize = pageSize }, cancellationToken);
         return Ok(result);
     }
 }

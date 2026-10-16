@@ -1,27 +1,28 @@
 using Competition.Application.Interfaces;
+using Competition.Domain.Entities.MatchEntities;
 using MediatR;
 
 namespace Competition.Application.Commands.MatchCommands.Delete;
 
-public class DeleteMatchCommandHandler : IRequestHandler<DeleteMatchCommand, Guid>
+public class DeleteMatchCommandHandler : IRequestHandler<DeleteMatchCommand, string>
 {
     private readonly IMatch _match;
+    private readonly IPublicIdLookup _lookup;
     private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteMatchCommandHandler(IMatch match, IUnitOfWork unitOfWork)
+    public DeleteMatchCommandHandler(IMatch match, IPublicIdLookup lookup, IUnitOfWork unitOfWork)
     {
         _match = match;
+        _lookup = lookup;
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Guid> Handle(DeleteMatchCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(DeleteMatchCommand request, CancellationToken cancellationToken)
     {
-        var match = await _match.GetByIdAsync(request.Id, cancellationToken)
-            ?? throw new KeyNotFoundException($"Match with ID '{request.Id}' not found.");
+        var match = await _lookup.GetRequiredEntityAsync<Match>(request.PublicId, cancellationToken);
 
         await _match.DeleteAsync(match, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return request.Id;
+        return request.PublicId;
     }
 }

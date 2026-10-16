@@ -1,6 +1,7 @@
 using Competition.Application.Commands.CompetitionCommands.Create;
 using Competition.Application.Commands.CompetitionCommands.Delete;
 using Competition.Application.Commands.CompetitionCommands.Update;
+using Competition.Application.Common.Validation;
 using FluentValidation;
 
 namespace Competition.Application.Commands.CompetitionCommands.Validators;
@@ -17,9 +18,9 @@ public class CreateCompetitionCommandValidator : AbstractValidator<CreateCompeti
             .MaximumLength(20);
         RuleFor(x => x.Description)
             .MaximumLength(1000);
-        RuleFor(x => x.CountryId)
-            .NotEqual(Guid.Empty)
-            .When(x => x.CountryId.HasValue);
+        RuleFor(x => x.CountryPublicId)
+            .MustBeValidPublicId()
+            .When(x => x.CountryPublicId is not null);
     }
 }
 
@@ -37,9 +38,9 @@ public class UpdateCompetitionCommandValidator : AbstractValidator<UpdateCompeti
             .MaximumLength(20);
         RuleFor(x => x.Description)
             .MaximumLength(1000);
-        RuleFor(x => x.CountryId)
-            .NotEqual(Guid.Empty)
-            .When(x => x.CountryId.HasValue);
+        RuleFor(x => x.CountryPublicId)
+            .MustBeValidPublicId()
+            .When(x => x.CountryPublicId is not null);
     }
 }
 
@@ -47,7 +48,7 @@ public class DeleteCompetitionCommandValidator : AbstractValidator<DeleteCompeti
 {
     public DeleteCompetitionCommandValidator()
     {
-        RuleFor(x => x.Id)
-            .NotEmpty();
+        RuleFor(x => x.PublicId)
+            .MustBeValidPublicId();
     }
 }

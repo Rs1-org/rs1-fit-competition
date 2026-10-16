@@ -2,6 +2,7 @@ using AutoMapper;
 using Competition.Application.DTOs.CompetitionDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
+using Competition.Domain.Entities;
 using MediatR;
 
 namespace Competition.Application.Commands.CompetitionCommands.Update;
@@ -9,14 +10,14 @@ namespace Competition.Application.Commands.CompetitionCommands.Update;
 public class UpdateCompetitionCommandHandler : IRequestHandler<UpdateCompetitionCommand, CompetitionDetailsDto>
 {
     private readonly ICompetition _competition;
-    private readonly ICountry _country;
+    private readonly IPublicIdLookup _lookup;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    public UpdateCompetitionCommandHandler(ICompetition competition, ICountry country, IUnitOfWork unitOfWork, IMapper mapper)
+    public UpdateCompetitionCommandHandler(ICompetition competition, IPublicIdLookup lookup, IUnitOfWork unitOfWork, IMapper mapper)
     {
         _competition = competition;
-        _country = country;
+        _lookup = lookup;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
@@ -30,15 +31,13 @@ public class UpdateCompetitionCommandHandler : IRequestHandler<UpdateCompetition
         var slug = SlugHelper.GenerateSlug(name);
         if (await _competition.SlugExistsAsync(slug, competition.Id, cancellationToken))
             throw BusinessRule.Violation(nameof(request.Name), $"A competition named '{name}' (or a very similar name) already exists.");
-
-        if (request.CountryId.HasValue && await _country.GetByIdAsync(request.CountryId.Value, cancellationToken) is null)
-            throw new KeyNotFoundException($"Country with ID '{request.CountryId}' not found.");
+        var countryId = await _lookup.GetOptionalIdAsync<Country>(request.CountryPublicId, cancellationToken);
 
         competition.Name = name;
         competition.Slug = slug;
         competition.ShortName = request.ShortName?.Trim();
         competition.Description = request.Description?.Trim();
-        competition.CountryId = request.CountryId;
+        competition.CountryId = countryId;
         competition.Country = null;
 
         await _competition.UpdateAsync(competition, cancellationToken);

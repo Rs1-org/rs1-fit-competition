@@ -9,7 +9,6 @@ namespace Competition.Application.DTOs.CountryDto
 {
     public class CountryListDto
     {
-        public Guid Id { get; set; }
         public string PublicId { get; set; } = string.Empty;
         public string? Name { get; set; }
         public string? Slug { get; set; }

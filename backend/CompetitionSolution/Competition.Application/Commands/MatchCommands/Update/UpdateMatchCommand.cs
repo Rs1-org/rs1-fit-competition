@@ -15,9 +15,9 @@ public class UpdateMatchCommand : IRequest<MatchDetailsDto>
     public int? HalfHomeScore { get; set; }
     public int? HalfAwayScore { get; set; }
     public bool IsPostponed { get; set; }
-    public Guid StatusId { get; set; }
-    public Guid StadiumId { get; set; }
-    public Guid? HomeSelectionId { get; set; }
-    public Guid? AwaySelectionId { get; set; }
-    public Guid? RoundId { get; set; }
+    public string StatusPublicId { get; set; } = string.Empty;
+    public string StadiumPublicId { get; set; } = string.Empty;
+    public string? HomeSelectionPublicId { get; set; }
+    public string? AwaySelectionPublicId { get; set; }
+    public string? RoundPublicId { get; set; }
 }

@@ -9,7 +9,7 @@ public class CreateCityCommand : IRequest<CityNameDto>
     public string? Name { get; set; }
     public int Population {  get; set; }
     public bool IsCapital {  get; set; }
-    public Guid CountryId {  get; set; }
+    public string CountryPublicId { get; set; } = string.Empty;
     
     public decimal Latitude { get; set; }
     public decimal Longitude { get; set; }

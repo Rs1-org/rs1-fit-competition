@@ -1,6 +1,7 @@
 ﻿using Competition.Application.Commands.CountryCommands.Create;
 using Competition.Application.Commands.CountryCommands.Delete;
 using Competition.Application.Commands.CountryCommands.Update;
+using Competition.Application.Common.Validation;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ namespace Competition.Application.Commands.CountryCommands.Validators
     {
         public DeleteCountryCommandValidator()
         {
-            RuleFor(x => x.Id).NotEmpty();
+            RuleFor(x => x.PublicId).MustBeValidPublicId();
         }
     }
 }

@@ -51,11 +51,13 @@ public class CancellationTokenPassThroughTests : BaseUnitTest
     {
         // Arrange
         var stadiumMock = new Mock<IStadium>();
+        var lookupMock = new Mock<IPublicIdLookup>();
+        lookupMock.Setup(l => l.GetRequiredIdAsync<Competition.Domain.Entities.City>("0f1e2d3c4b5a69788796a5b4c3d2e1f0", _cts.Token)).ReturnsAsync(Guid.NewGuid());
         MapperMock.Setup(m => m.Map<GeoData>(It.IsAny<CreateStadiumCommand>())).Returns(new GeoData());
         MapperMock.Setup(m => m.Map<Stadium>(It.IsAny<CreateStadiumCommand>())).Returns(new Stadium { Name = "Koševo", Slug = "kosevo" });
         MapperMock.Setup(m => m.Map<StadiumDetailsDto>(It.IsAny<Stadium?>())).Returns(new StadiumDetailsDto { Name = "Koševo" });
-        var handler = new CreateStadiumCommandHandler(stadiumMock.Object, Mapper, _unitOfWorkMock.Object, _imageServiceMock.Object);
-        var command = new CreateStadiumCommand { Name = "Koševo", Capacity = 34000, Picture = Mock.Of<IFormFile>() };
+        var handler = new CreateStadiumCommandHandler(stadiumMock.Object, Mapper, _unitOfWorkMock.Object, _imageServiceMock.Object, lookupMock.Object);
+        var command = new CreateStadiumCommand { Name = "Koševo", Capacity = 34000, CityPublicId = "0f1e2d3c4b5a69788796a5b4c3d2e1f0", Picture = Mock.Of<IFormFile>() };
 
         // Act
         var result = await handler.Handle(command, _cts.Token);
@@ -64,5 +66,6 @@ public class CancellationTokenPassThroughTests : BaseUnitTest
         result.Name.Should().Be("Koševo");
         _imageServiceMock.Verify(s => s.UploadImageAsync(command.Picture!, _cts.Token), Times.Once);
         stadiumMock.Verify(r => r.AddAsync(It.IsAny<Stadium>(), _cts.Token), Times.Once);
+        lookupMock.Verify(l => l.GetRequiredIdAsync<Competition.Domain.Entities.City>("0f1e2d3c4b5a69788796a5b4c3d2e1f0", _cts.Token), Times.Once);
     }
 }

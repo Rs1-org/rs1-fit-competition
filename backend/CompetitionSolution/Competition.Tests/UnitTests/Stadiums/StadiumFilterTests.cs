@@ -133,15 +133,53 @@ public class StadiumFilterTests : BaseUnitTest
         result.Items.Should().ContainSingle(s => s.Name == "Grbavica");
     }
 
+    // ---------- Query handler (PublicId filters, COMP-57) ----------
+
+    private GetAllStadiumsQueryHandler NewQueryHandler(AppDbContext context)
+    {
+        MapperMock
+            .Setup(m => m.Map<IReadOnlyList<StadiumListDto>>(It.IsAny<object>()))
+            .Returns((object source) => ((IEnumerable<StadiumEntity>)source)
+                .Select(s => new StadiumListDto { PublicId = s.PublicId, Name = s.Name })
+                .ToList());
+        return new GetAllStadiumsQueryHandler(new StadiumRepository(context), Mapper, new PublicIdLookup(context));
+    }
+
+    [Fact]
+    public async Task QueryHandler_CityPublicId_ShouldReturnOnlyThatCity()
+    {
+        var seed = await SeedAsync();
+        await using var _ = seed.Context;
+
+        var result = await NewQueryHandler(seed.Context)
+            .Handle(new GetAllStadiumsQuery { CityPublicId = seed.Sarajevo.PublicId }, CancellationToken.None);
+
+        result.Items.Select(s => s.Name).Should().BeEquivalentTo("Asim Ferhatović Hase", "Grbavica");
+        result.Items.Should().OnlyContain(s => !string.IsNullOrEmpty(s.PublicId));
+    }
+
+    [Fact]
+    public async Task QueryHandler_UnknownCountryPublicId_ShouldReturnEmptyPage()
+    {
+        var seed = await SeedAsync();
+        await using var _ = seed.Context;
+
+        var result = await NewQueryHandler(seed.Context)
+            .Handle(new GetAllStadiumsQuery { CountryPublicId = Guid.NewGuid().ToString("N") }, CancellationToken.None);
+
+        result.TotalCount.Should().Be(0);
+        result.Items.Should().BeEmpty();
+    }
+
     [Fact]
     public async Task DeleteHandler_ShouldHideStadiumFromListAndSlugAndSoftDeleteGeoData()
     {
         var seed = await SeedAsync();
         await using var _ = seed.Context;
         var repository = new StadiumRepository(seed.Context);
-        var handler = new DeleteStadiumCommandHandler(repository, new GeoDataRepository(seed.Context), new UnitOfWork(seed.Context));
+        var handler = new DeleteStadiumCommandHandler(repository, new GeoDataRepository(seed.Context), new UnitOfWork(seed.Context), new PublicIdLookup(seed.Context));
 
-        await handler.Handle(new DeleteStadiumCommand { Id = seed.Kosevo.Id }, CancellationToken.None);
+        await handler.Handle(new DeleteStadiumCommand { PublicId = seed.Kosevo.PublicId }, CancellationToken.None);
 
         (await repository.GetPagedFilteredAsync(NoFilter, 1, 10)).Items.Should().NotContain(s => s.Id == seed.Kosevo.Id);
         (await repository.GetBySlugAsync(seed.Kosevo.Slug!)).Should().BeNull();
@@ -168,7 +206,7 @@ public class StadiumFilterTests : BaseUnitTest
     {
         var result = new GetAllStadiumsQueryValidator().Validate(new GetAllStadiumsQuery
         {
-            Name = "Koševo", CountryId = Guid.NewGuid(), CityId = Guid.NewGuid(), MinCapacity = 0, MaxCapacity = 50_000
+            Name = "Koševo", CountryPublicId = Guid.NewGuid().ToString("N"), CityPublicId = Guid.NewGuid().ToString("N"), MinCapacity = 0, MaxCapacity = 50_000
         });
 
         result.IsValid.Should().BeTrue();
@@ -181,8 +219,8 @@ public class StadiumFilterTests : BaseUnitTest
 
         validator.Validate(new GetAllStadiumsQuery { MinCapacity = 20_000, MaxCapacity = 10_000 }).IsValid.Should().BeFalse();
         validator.Validate(new GetAllStadiumsQuery { MinCapacity = -1 }).IsValid.Should().BeFalse();
-        validator.Validate(new GetAllStadiumsQuery { CityId = Guid.Empty }).IsValid.Should().BeFalse();
-        validator.Validate(new GetAllStadiumsQuery { CountryId = Guid.Empty }).IsValid.Should().BeFalse();
+        validator.Validate(new GetAllStadiumsQuery { CityPublicId = "not-a-public-id" }).IsValid.Should().BeFalse();
+        validator.Validate(new GetAllStadiumsQuery { CountryPublicId = "" }).IsValid.Should().BeFalse();
         validator.Validate(new GetAllStadiumsQuery { Name = new string('a', 151) }).IsValid.Should().BeFalse();
     }
 
@@ -193,15 +231,17 @@ public class StadiumFilterTests : BaseUnitTest
         var stadiums = new Mock<IStadium>();
         stadiums.Setup(s => s.GetBySlugAsync(stadium.Slug!, It.IsAny<CancellationToken>())).ReturnsAsync(stadium);
         MapperMock.Setup(m => m.Map<StadiumDetailsDto>(It.IsAny<StadiumEntity>())).Returns(new StadiumDetailsDto());
+        var lookup = new Mock<IPublicIdLookup>();
+        lookup.Setup(l => l.GetRequiredIdAsync<CityEntity>(It.IsAny<string?>(), It.IsAny<CancellationToken>())).ReturnsAsync(Guid.NewGuid());
         var images = new Mock<IImageService>();
         images.Setup(i => i.UploadImageAsync(It.IsAny<IFormFile>(), It.IsAny<CancellationToken>())).ReturnsAsync("https://blob/new.png");
-        var handler = new UpdateStadiumCommandHandler(Mapper, stadiums.Object, Mock.Of<IGeoData>(), Mock.Of<IUnitOfWork>(), images.Object);
+        var handler = new UpdateStadiumCommandHandler(Mapper, stadiums.Object, Mock.Of<IGeoData>(), Mock.Of<IUnitOfWork>(), images.Object, lookup.Object);
         return (handler, images);
     }
 
     private static UpdateStadiumCommand UpdateCommand(IFormFile? picture) => new()
     {
-        Slug = "grbavica", Name = "Grbavica", Capacity = 13_000, CityId = Guid.NewGuid(), Picture = picture
+        Slug = "grbavica", Name = "Grbavica", Capacity = 13_000, CityPublicId = Guid.NewGuid().ToString("N"), Picture = picture
     };
 
     [Fact]

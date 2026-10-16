@@ -1,6 +1,7 @@
 ﻿using Competition.Application.Commands.CityCommands.Create;
 using Competition.Application.Commands.CityCommands.Delete;
 using Competition.Application.Commands.CityCommands.Update;
+using Competition.Application.Common.Validation;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace Competition.Application.Commands.CityCommands.Validators
         {
             RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
             RuleFor(x => x.Population).GreaterThan(0);
-            RuleFor(x => x.CountryId).NotEmpty();
+            RuleFor(x => x.CountryPublicId).MustBeValidPublicId();
             RuleFor(x => x.Latitude).InclusiveBetween(-90, 90);
             RuleFor(x => x.Longitude).InclusiveBetween(-180, 180);
         }
@@ -39,7 +40,7 @@ namespace Competition.Application.Commands.CityCommands.Validators
     {
         public DeleteCityCommandValidator()
         {
-            RuleFor(x => x.Id).NotEmpty();
+            RuleFor(x => x.PublicId).MustBeValidPublicId();
         }
     }
 }

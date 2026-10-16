@@ -17,5 +17,5 @@ public class UpdateStadiumCommand : IRequest<StadiumDetailsDto>
     public decimal Latitude { get; set; }
     public decimal Longitude { get; set; }
     public string? GeoDescription { get; set; }
-    public Guid CityId { get; set; }
+    public string CityPublicId { get; set; } = string.Empty;
 }

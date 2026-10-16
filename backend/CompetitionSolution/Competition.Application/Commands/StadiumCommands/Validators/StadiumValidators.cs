@@ -1,6 +1,7 @@
 using Competition.Application.Commands.StadiumCommands.Create;
 using Competition.Application.Commands.StadiumCommands.Delete;
 using Competition.Application.Commands.StadiumCommands.Update;
+using Competition.Application.Common.Validation;
 using FluentValidation;
 
 namespace Competition.Application.Commands.StadiumCommands.Validators;
@@ -11,7 +12,7 @@ public class CreateStadiumCommandValidator : AbstractValidator<CreateStadiumComm
     {
         RuleFor(x => x.Name).NotEmpty().MaximumLength(150);
         RuleFor(x => x.Capacity).GreaterThan(0);
-        RuleFor(x => x.CityId).NotEmpty();
+        RuleFor(x => x.CityPublicId).MustBeValidPublicId();
         RuleFor(x => x.DateOfConstruction).NotEmpty();
         RuleFor(x => x.GeoDescription).NotEmpty().MaximumLength(500);
         RuleFor(x => x.Latitude).InclusiveBetween(-90, 90);
@@ -26,7 +27,7 @@ public class UpdateStadiumCommandValidator : AbstractValidator<UpdateStadiumComm
         RuleFor(x => x.Slug).NotEmpty();
         RuleFor(x => x.Name).NotEmpty().MaximumLength(150);
         RuleFor(x => x.Capacity).GreaterThan(0);
-        RuleFor(x => x.CityId).NotEmpty();
+        RuleFor(x => x.CityPublicId).MustBeValidPublicId();
         RuleFor(x => x.DateOfConstruction).NotEmpty();
         RuleFor(x => x.GeoDescription).NotEmpty().MaximumLength(500);
         RuleFor(x => x.Latitude).InclusiveBetween(-90, 90);
@@ -38,6 +39,6 @@ public class DeleteStadiumCommandValidator : AbstractValidator<DeleteStadiumComm
 {
     public DeleteStadiumCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.PublicId).MustBeValidPublicId();
     }
 }
