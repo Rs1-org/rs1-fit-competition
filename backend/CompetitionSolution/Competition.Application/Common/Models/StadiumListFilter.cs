@@ -5,4 +5,5 @@ public record StadiumListFilter(
     Guid? CountryId,
     Guid? CityId,
     int? MinCapacity,
-    int? MaxCapacity);
+    int? MaxCapacity,
+    SortSpec? Sort = null);

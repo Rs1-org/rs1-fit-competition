@@ -1,3 +1,5 @@
+import { SortParams } from './import-export';
+
 export interface CityName{
     name:string;
 }
@@ -33,7 +35,7 @@ export interface CreateCityDto{
     description:string;
 }
 
-export interface CityListFilter{
+export interface CityListFilter extends SortParams {
     name?:string;
     countryPublicId?:string;
     isCapital?:boolean;

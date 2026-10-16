@@ -12,5 +12,7 @@ namespace Competition.Application.Interfaces
     {
         Task<Country?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default);
         Task<PagedResult<Country>> GetPagedFilteredAsync(CountryListFilter filter, int page, int pageSize, CancellationToken cancellationToken = default);
+        /// <summary>Filtered + sorted, unpaged (export), capped at <paramref name="maxRows"/>.</summary>
+        Task<List<Country>> GetFilteredListAsync(CountryListFilter filter, int maxRows, CancellationToken cancellationToken = default);
     }
 }

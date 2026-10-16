@@ -1,0 +1,65 @@
+<div class="io-bar">
+  <div class="io-actions">
+    <button type="button" class="io-btn" (click)="export('csv')" [disabled]="busy() !== null">
+      <i class="fa-solid fa-file-csv" aria-hidden="true"></i>
+      {{ busy() === 'csv' ? 'Exporting…' : 'Export CSV' }}
+    </button>
+    <button type="button" class="io-btn" (click)="export('xlsx')" [disabled]="busy() !== null">
+      <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+      {{ busy() === 'xlsx' ? 'Exporting…' : 'Export Excel' }}
+    </button>
+    <button type="button" class="io-btn" (click)="export('json')" [disabled]="busy() !== null">
+      <i class="fa-solid fa-file-code" aria-hidden="true"></i>
+      {{ busy() === 'json' ? 'Exporting…' : 'Export JSON' }}
+    </button>
+
+    @if (canImport && importFn) {
+      <button type="button" class="io-btn io-btn-import" (click)="chooseFile()" [disabled]="busy() !== null">
+        <i class="fa-solid fa-file-import" aria-hidden="true"></i>
+        {{ busy() === 'import' ? 'Importing…' : 'Import' }}
+      </button>
+      <input #fileInput type="file" hidden
+             accept=".csv,.xlsx,.json,text/csv,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+             (change)="onFileSelected($event)">
+      @if (importColumns) {
+        <span class="io-hint">Columns: {{ importColumns }}</span>
+      }
+    }
+  </div>
+
+  @if (error(); as message) {
+    <div class="io-result io-result-error" role="alert">
+      <span>{{ message }}</span>
+      <button type="button" class="io-dismiss" (click)="dismiss()" aria-label="Dismiss">×</button>
+    </div>
+  }
+
+  @if (result(); as r) {
+    @if (r.success) {
+      <div class="io-result io-result-ok" role="status">
+        <span>Imported {{ r.imported }} of {{ r.totalRows }} rows.</span>
+        <button type="button" class="io-dismiss" (click)="dismiss()" aria-label="Dismiss">×</button>
+      </div>
+    } @else {
+      <div class="io-result io-result-error" role="alert">
+        <div class="io-result-head">
+          <strong>Nothing was imported.</strong>
+          <span>Fix these {{ r.errors.length }} problem(s) in the file and import it again.</span>
+          <button type="button" class="io-dismiss" (click)="dismiss()" aria-label="Dismiss">×</button>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table io-errors">
+            <thead>
+              <tr><th scope="col">Row</th><th scope="col">Column</th><th scope="col">Problem</th></tr>
+            </thead>
+            <tbody>
+              @for (e of r.errors; track $index) {
+                <tr><td>{{ e.row }}</td><td>{{ e.column || '—' }}</td><td>{{ e.message }}</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  }
+</div>

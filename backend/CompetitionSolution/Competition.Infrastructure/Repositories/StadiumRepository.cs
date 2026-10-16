@@ -44,6 +44,37 @@ public class StadiumRepository : Repository<Stadium>, IStadium
 
     public async Task<PagedResult<Stadium>> GetPagedFilteredAsync(StadiumListFilter filter, int page, int pageSize, CancellationToken cancellationToken = default)
     {
+        return await Sorted(Filtered(filter), filter.Sort)
+            .ToPagedResultAsync(page, pageSize, cancellationToken);
+    }
+
+    public async Task<List<Stadium>> GetFilteredListAsync(StadiumListFilter filter, int maxRows, CancellationToken cancellationToken = default)
+    {
+        return await Sorted(Filtered(filter).Include(s => s.GeoData), filter.Sort)
+            .Take(maxRows)
+            .ToListAsync(cancellationToken);
+    }
+
+    // Whitelisted keys only (validated in the query validators); ThenBy(Id) keeps paging stable.
+    private static IQueryable<Stadium> Sorted(IQueryable<Stadium> query, SortSpec? sort)
+    {
+        var desc = sort?.Descending ?? false;
+        IOrderedQueryable<Stadium> ordered = sort switch
+        {
+            _ when sort is not null && sort.Is("capacity") =>
+                desc ? query.OrderByDescending(s => s.Capacity) : query.OrderBy(s => s.Capacity),
+            _ when sort is not null && sort.Is("city") =>
+                desc ? query.OrderByDescending(s => s.City!.Name).ThenBy(s => s.Name)
+                     : query.OrderBy(s => s.City!.Name).ThenBy(s => s.Name),
+            _ when sort is not null && sort.Is("dateOfConstruction") =>
+                desc ? query.OrderByDescending(s => s.DateOfConstruction) : query.OrderBy(s => s.DateOfConstruction),
+            _ => desc ? query.OrderByDescending(s => s.Name) : query.OrderBy(s => s.Name),
+        };
+        return ordered.ThenBy(s => s.Id);
+    }
+
+    private IQueryable<Stadium> Filtered(StadiumListFilter filter)
+    {
         var query = _context.Stadiums
             .Include(s => s.City)
                 .ThenInclude(c => c!.Country)
@@ -63,8 +94,6 @@ public class StadiumRepository : Repository<Stadium>, IStadium
         if (filter.MaxCapacity.HasValue)
             query = query.Where(s => s.Capacity <= filter.MaxCapacity.Value);
 
-        return await query
-            .OrderBy(s => s.Name)
-            .ToPagedResultAsync(page, pageSize, cancellationToken);
+        return query;
     }
 }

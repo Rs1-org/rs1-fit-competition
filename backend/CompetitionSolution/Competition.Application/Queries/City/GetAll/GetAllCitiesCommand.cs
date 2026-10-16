@@ -13,5 +13,7 @@ namespace Competition.Application.Queries.City.GetAll
         public bool? IsCapital { get; init; }
         public int? MinPopulation { get; init; }
         public int? MaxPopulation { get; init; }
+        public string? SortBy { get; init; }
+        public string? SortDir { get; init; }
     }
 }

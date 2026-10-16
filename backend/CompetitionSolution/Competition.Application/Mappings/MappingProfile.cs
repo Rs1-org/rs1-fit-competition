@@ -56,7 +56,8 @@ public class MappingProfile:Profile
         CreateMap<CreateCountryCommands, Country>()
             .ForMember(m => m.Slug, opt => opt.MapFrom(src => SlugHelper.GenerateSlug(src.Name)));
         CreateMap<Country, CountryNameDto>();
-        CreateMap<Country, CountryListDto>();
+        CreateMap<Country, CountryListDto>()
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt.ToDateTimeUtc()));
         CreateMap<Country, CountryDetailsDto>()
             .ForMember(s => s.Cities, opt => opt.MapFrom(src => src.Cities));
 

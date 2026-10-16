@@ -30,7 +30,8 @@ public class GetAllStadiumsQueryHandler : IRequestHandler<GetAllStadiumsQuery, P
             || (request.CityPublicId is not null && cityId is null))
             return new PagedResult<StadiumListDto>(Array.Empty<StadiumListDto>(), 0, request.Page, request.PageSize);
 
-        var filter = new StadiumListFilter(request.Name, countryId, cityId, request.MinCapacity, request.MaxCapacity);
+        var filter = new StadiumListFilter(request.Name, countryId, cityId, request.MinCapacity, request.MaxCapacity,
+            new SortSpec(request.SortBy, request.SortDir));
         var paged = await _stadium.GetPagedFilteredAsync(filter, request.Page, request.PageSize, cancellationToken);
         var items = _mapper.Map<IReadOnlyList<StadiumListDto>>(paged.Items);
         return new PagedResult<StadiumListDto>(items, paged.TotalCount, paged.Page, paged.PageSize);

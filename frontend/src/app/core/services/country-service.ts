@@ -3,7 +3,8 @@ import { Observable } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { environment } from '../../../environments/environment';
 import { trackUpload } from "../helpers/upload-progress.helper";
-import { fetchAllPages, MAX_PAGE_SIZE, toPagedParams } from "../helpers/paging.helper";
+import { fetchAllPages, MAX_PAGE_SIZE, toFilterParams, toPagedParams } from "../helpers/paging.helper";
+import { ExportFormat, ImportResult } from "../models/import-export";
 import { CountryListDto, CountryListFilter, CountryName } from "../models/country";
 import { PagedResult } from "../models/paged-result";
 
@@ -41,5 +42,18 @@ export class CountryService{
 
     getAllForDropdown():Observable<CountryListDto[]>{
         return fetchAllPages((page) => this.getAll(page, MAX_PAGE_SIZE));
+    }
+
+    /** Current filters + sort, without paging (RS1 item 86). */
+    export(filter: CountryListFilter, format: ExportFormat): Observable<Blob> {
+        const params = toFilterParams({ ...filter, format });
+        return this.http.get(`${this.apiUrl}/export`, { params, responseType: 'blob' });
+    }
+
+    /** All-or-nothing import; the result lists row errors when nothing was saved. */
+    import(file: File): Observable<ImportResult> {
+        const form = new FormData();
+        form.append('file', file);
+        return this.http.post<ImportResult>(`${this.apiUrl}/import`, form);
     }
 }

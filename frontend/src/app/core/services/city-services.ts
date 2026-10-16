@@ -3,7 +3,8 @@ import { environment } from '../../../environments/environment';
 import { Observable } from "rxjs";
 import { CityDetailsDto, CityListDto, CityListFilter, CityName } from "../models/city";
 import { HttpClient } from "@angular/common/http";
-import { fetchAllPages, MAX_PAGE_SIZE, toPagedParams } from "../helpers/paging.helper";
+import { fetchAllPages, MAX_PAGE_SIZE, toFilterParams, toPagedParams } from "../helpers/paging.helper";
+import { ExportFormat, ImportResult } from "../models/import-export";
 import { PagedResult } from "../models/paged-result";
 
 @Injectable({
@@ -38,5 +39,18 @@ export class CityService{
 
     getBySlug(slug: string): Observable<CityDetailsDto> {
         return this.http.get<CityDetailsDto>(`${this.apiUrl}getCity/${slug}`);
+    }
+
+    /** Current filters + sort, without paging (RS1 item 86). */
+    export(filter: CityListFilter, format: ExportFormat): Observable<Blob> {
+        const params = toFilterParams({ ...filter, format });
+        return this.http.get(`${this.apiUrl}export`, { params, responseType: 'blob' });
+    }
+
+    /** All-or-nothing import; the result lists row errors when nothing was saved. */
+    import(file: File): Observable<ImportResult> {
+        const form = new FormData();
+        form.append('file', file);
+        return this.http.post<ImportResult>(`${this.apiUrl}import`, form);
     }
 }

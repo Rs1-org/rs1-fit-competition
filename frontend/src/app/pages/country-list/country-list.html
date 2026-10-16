@@ -41,32 +41,69 @@
         }
     </form>
 
-    <app-generic-list
-        [items]="countriesResult()?.items ?? []"
-        [pageSize]="pageSize"
-        [serverTotalItems]="countriesResult()?.totalCount"
-        [serverCurrentPage]="countriesResult()?.page ?? 1"
-        [showActions]="canManage()"
-        [showDelete]="canDelete()"
-        variant="card"
-        (update)="onEdit($event)"
-        (delete)="onDelete($event)"
-        (pageChange)="onPageChange($event)">
-        
-        <ng-template #itemTemplate let-country>
-            <div class="country-card-content">
-                @if (country.pictureUrl) {
-                    <img [src]="country.pictureUrl" [alt]="country.name" class="country-img">
-                } @else {
-                    <div class="country-placeholder">No Image</div>
+    <app-import-export-bar
+        fileBaseName="countries"
+        [exportFn]="exportFn"
+        [importFn]="importFn"
+        [canImport]="canDelete()"
+        importColumns="Name"
+        (imported)="onImported()">
+    </app-import-export-bar>
+
+    <div class="table-scroll">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th scope="col" class="hide-sm"><span class="visually-hidden">Flag</span></th>
+                    <th scope="col" [attr.aria-sort]="ariaSort(sort, 'name')">
+                        <button type="button" class="sort-btn" (click)="sortBy('name')">
+                            Name <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort, 'name') }}</span>
+                        </button>
+                    </th>
+                    <th scope="col" class="hide-sm">Slug</th>
+                    <th scope="col" [attr.aria-sort]="ariaSort(sort, 'createdAt')">
+                        <button type="button" class="sort-btn" (click)="sortBy('createdAt')">
+                            Created <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort, 'createdAt') }}</span>
+                        </button>
+                    </th>
+                    @if (canManage()) {
+                        <th scope="col" class="actions"><span class="visually-hidden">Actions</span></th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (country of countriesResult()?.items ?? []; track country.publicId) {
+                    <tr>
+                        <td class="hide-sm">
+                            @if (country.pictureUrl) {
+                                <img [src]="country.pictureUrl" [alt]="country.name" class="table-thumb">
+                            }
+                        </td>
+                        <td>{{ country.name }}</td>
+                        <td class="hide-sm">{{ country.slug }}</td>
+                        <td>{{ country.createdAt | appDate }}</td>
+                        @if (canManage()) {
+                            <td class="actions">
+                                <button type="button" class="row-btn" (click)="onEdit(country)">Edit</button>
+                                @if (canDelete()) {
+                                    <button type="button" class="row-btn row-btn-danger" (click)="onDelete(country)">Delete</button>
+                                }
+                            </td>
+                        }
+                    </tr>
+                } @empty {
+                    <tr><td class="table-empty" [attr.colspan]="canManage() ? 5 : 4">No countries match the filters.</td></tr>
                 }
-                <div class="country-info">
-                    <div class="item-title">{{ country.name }}</div>
-                    <div class="item-subtitle">{{ country.slug }}</div>
-                </div>
-            </div>
-        </ng-template>
-    </app-generic-list>
+            </tbody>
+        </table>
+    </div>
+
+    <app-pagination
+        [totalItems]="countriesResult()?.totalCount ?? 0"
+        [pageSize]="pageSize"
+        [currentPage]="countriesResult()?.page ?? 1"
+        (pageChange)="onPageChange($event)">
+    </app-pagination>
 </div>
 
 <app-country-form

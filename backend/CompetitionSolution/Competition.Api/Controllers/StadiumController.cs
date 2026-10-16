@@ -1,4 +1,6 @@
 using Competition.Application.Commands.StadiumCommands.Create;
+using Competition.Application.Commands.StadiumCommands.Import;
+using Competition.Application.Queries.Stadium.Export;
 using Competition.Application.Commands.StadiumCommands.Delete;
 using Competition.Application.Commands.StadiumCommands.Update;
 using Competition.Application.Queries.Stadium.GetAll;
@@ -54,6 +56,8 @@ public class StadiumController : ControllerBase
         [FromQuery] string? cityPublicId = null,
         [FromQuery] int? minCapacity = null,
         [FromQuery] int? maxCapacity = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortDir = null,
         CancellationToken cancellationToken = default)
     {
         var result = await _mediator.Send(new GetAllStadiumsQuery
@@ -64,7 +68,9 @@ public class StadiumController : ControllerBase
             CountryPublicId = countryPublicId,
             CityPublicId = cityPublicId,
             MinCapacity = minCapacity,
-            MaxCapacity = maxCapacity
+            MaxCapacity = maxCapacity,
+            SortBy = sortBy,
+            SortDir = sortDir
         }, cancellationToken);
         return Ok(result);
     }
@@ -73,6 +79,22 @@ public class StadiumController : ControllerBase
     public async Task<IActionResult> GetStadium(string slug, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetStadiumBySlugQuery { Slug = slug }, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("export")]
+    public async Task<IActionResult> Export([FromQuery] ExportStadiumsQuery query, CancellationToken cancellationToken)
+    {
+        var file = await _mediator.Send(query, cancellationToken);
+        return File(file.Content, file.ContentType, file.FileName);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("import")]
+    [RequestSizeLimit(2 * 1024 * 1024 + 64 * 1024)]
+    public async Task<IActionResult> Import([FromForm] ImportStadiumsCommand request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(request, cancellationToken);
         return Ok(result);
     }
 }

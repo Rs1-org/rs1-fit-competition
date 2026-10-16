@@ -1,7 +1,10 @@
+import { SortParams } from './import-export';
+
 export interface StadiumListDto {
     publicId: string;
     name: string;
     capacity: number;
+    dateOfConstruction: string;
     slug: string;
     pictureUrl: string;
     cityName: string;
@@ -24,7 +27,7 @@ export interface StadiumDetailsDto {
     cityLongitude: number | null;
 }
 
-export interface StadiumListFilter {
+export interface StadiumListFilter extends SortParams {
     name?: string;
     countryPublicId?: string;
     cityPublicId?: string;

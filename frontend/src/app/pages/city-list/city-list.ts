@@ -9,7 +9,10 @@ import { CityDetailsDto, CityListDto, CityListFilter } from '../../core/models/c
 import { UserStateService } from '../../core/services/user-state.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, combineLatest, debounceTime, filter, switchMap } from 'rxjs';
-import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
+import { Pagination } from '../../shared/components/pagination/pagination';
+import { ImportExportBar } from '../../shared/components/import-export-bar/import-export-bar';
+import { ExportFormat, SortParams } from '../../core/models/import-export';
+import { ariaSort, nextSort, sortIndicator } from '../../core/helpers/sort-state.helper';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 
 /** Mirrors the backend rule: max population must be >= min population. */
@@ -23,7 +26,7 @@ function populationRangeValidator(group: AbstractControl): ValidationErrors | nu
 @Component({
   selector: 'app-city-list',
   standalone: true,
-  imports: [CityForm, AppNumberPipe, GenericListComponent, CommonModule, ReactiveFormsModule],
+  imports: [CityForm, AppNumberPipe, CommonModule, ReactiveFormsModule, Pagination, ImportExportBar],
   templateUrl: './city-list.html',
   styleUrl: './city-list.css',
 })
@@ -53,11 +56,20 @@ export class CityList {
     )
   );
 
-  // Mirrors the backend: Admin/Moderator can add and edit, only Admin can delete.
+  // Mirrors the backend: Admin/Moderator can add and edit, only Admin can delete and import.
   canManage = this.userStateService.canManage;
   canDelete = this.userStateService.isAdmin;
   isFormOpen = false;
   selectedCity: CityDetailsDto | null = null;
+
+  // Backend column sorting (RS1 item 13).
+  sort: SortParams = {};
+  readonly ariaSort = ariaSort;
+  readonly sortIndicator = sortIndicator;
+
+  // Export uses the filters + sort currently applied to the table (RS1 item 86).
+  exportFn = (format: ExportFormat) => this.cityService.export(this.query$.value.filter, format);
+  importFn = (file: File) => this.cityService.import(file);
 
   constructor() {
     // Any filter change goes back to page 1; invalid combinations are not sent.
@@ -76,7 +88,17 @@ export class CityList {
       isCapital: isCapital === '' ? undefined : isCapital === 'true',
       minPopulation: minPopulation ?? undefined,
       maxPopulation: maxPopulation ?? undefined,
+      ...this.sort,
     };
+  }
+
+  sortBy(key: string): void {
+    this.sort = nextSort(this.sort, key);
+    this.query$.next({ page: 1, filter: { ...this.query$.value.filter, ...this.sort } });
+  }
+
+  onImported(): void {
+    this.refresh$.next();
   }
 
   resetFilters(): void {

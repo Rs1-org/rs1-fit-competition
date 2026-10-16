@@ -19,7 +19,8 @@ namespace Competition.Application.Queries.Country.GetAll
 
         public async Task<PagedResult<CountryListDto>> Handle(GetAllCountriesCommand request, CancellationToken cancellationToken)
         {
-            var filter = new CountryListFilter(request.Name, request.Slug, request.HasPicture, request.CreatedFrom, request.CreatedTo);
+            var filter = new CountryListFilter(request.Name, request.Slug, request.HasPicture, request.CreatedFrom, request.CreatedTo,
+                new SortSpec(request.SortBy, request.SortDir));
             var paged = await _country.GetPagedFilteredAsync(filter, request.Page, request.PageSize, cancellationToken);
             var items = _mapper.Map<IReadOnlyList<CountryListDto>>(paged.Items);
             return new PagedResult<CountryListDto>(items, paged.TotalCount, paged.Page, paged.PageSize);

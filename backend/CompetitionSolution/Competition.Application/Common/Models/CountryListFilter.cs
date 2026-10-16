@@ -5,4 +5,5 @@ public record CountryListFilter(
     string? Slug,
     bool? HasPicture,
     DateTime? CreatedFrom,
-    DateTime? CreatedTo);
+    DateTime? CreatedTo,
+    SortSpec? Sort = null);
