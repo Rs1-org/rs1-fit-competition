@@ -98,7 +98,7 @@ export class CountryList {
       message: `Are you sure you want to delete ${country.name}?`
     });
     if (!confirmed) return;
-    this.countryService.delete(country.id).subscribe({
+    this.countryService.delete(country.publicId).subscribe({
       next: () => this.refresh$.next(),
       error: (err) => console.error(err)
     });

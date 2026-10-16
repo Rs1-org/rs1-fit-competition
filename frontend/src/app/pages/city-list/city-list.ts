@@ -39,7 +39,7 @@ export class CityList {
 
   filterForm = this.fb.group({
     name: this.fb.nonNullable.control('', Validators.maxLength(100)),
-    countryId: this.fb.nonNullable.control(''),
+    countryPublicId: this.fb.nonNullable.control(''),
     isCapital: this.fb.nonNullable.control(''),
     minPopulation: this.fb.control<number | null>(null, Validators.min(0)),
     maxPopulation: this.fb.control<number | null>(null, Validators.min(0)),
@@ -69,10 +69,10 @@ export class CityList {
   }
 
   private toFilter(): CityListFilter {
-    const { name, countryId, isCapital, minPopulation, maxPopulation } = this.filterForm.getRawValue();
+    const { name, countryPublicId, isCapital, minPopulation, maxPopulation } = this.filterForm.getRawValue();
     return {
       name: name.trim() || undefined,
-      countryId: countryId || undefined,
+      countryPublicId: countryPublicId || undefined,
       isCapital: isCapital === '' ? undefined : isCapital === 'true',
       minPopulation: minPopulation ?? undefined,
       maxPopulation: maxPopulation ?? undefined,
@@ -110,7 +110,7 @@ export class CityList {
       message: `Are you sure you want to delete ${city.name}?`
     });
     if (!confirmed) return;
-    this.cityService.delete(city.id).subscribe({
+    this.cityService.delete(city.publicId).subscribe({
       next: () => this.refresh$.next(),
       error: (err) => console.error(err)
     });

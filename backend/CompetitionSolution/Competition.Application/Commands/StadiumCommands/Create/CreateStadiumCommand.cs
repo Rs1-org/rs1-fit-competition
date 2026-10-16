@@ -10,7 +10,7 @@ public class CreateStadiumCommand : IRequest<StadiumDetailsDto>
     public int Capacity { get; set; }
     public DateTime DateOfConstruction { get; set; }
     public IFormFile? Picture { get; set; }
-    public Guid CityId { get; set; }
+    public string CityPublicId { get; set; } = string.Empty;
 
     public decimal Latitude { get; set; }
     public decimal Longitude { get; set; }

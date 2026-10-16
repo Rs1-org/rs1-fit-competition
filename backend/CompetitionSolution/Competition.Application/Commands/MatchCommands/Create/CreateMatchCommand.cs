@@ -9,9 +9,9 @@ public class CreateMatchCommand : IRequest<MatchDetailsDto>
     public int FollowersCount { get; set; }
     public bool IsPostponed { get; set; }
     public string? Slug { get; set; }
-    public Guid StatusId { get; set; }
-    public Guid StadiumId { get; set; }
-    public Guid? HomeSelectionId { get; set; }
-    public Guid? AwaySelectionId { get; set; }
-    public Guid? RoundId { get; set; }
+    public string StatusPublicId { get; set; } = string.Empty;
+    public string StadiumPublicId { get; set; } = string.Empty;
+    public string? HomeSelectionPublicId { get; set; }
+    public string? AwaySelectionPublicId { get; set; }
+    public string? RoundPublicId { get; set; }
 }

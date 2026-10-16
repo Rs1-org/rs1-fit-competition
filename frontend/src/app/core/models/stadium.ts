@@ -1,5 +1,5 @@
 export interface StadiumListDto {
-    id: string;
+    publicId: string;
     name: string;
     capacity: number;
     slug: string;
@@ -9,13 +9,13 @@ export interface StadiumListDto {
 }
 
 export interface StadiumDetailsDto {
-    id: string;
+    publicId: string;
     name: string;
     capacity: number;
     dateOfConstruction: string;
     slug: string;
     pictureUrl: string;
-    cityId: string;
+    cityPublicId: string;
     cityName: string;
     latitude: number;
     longitude: number;
@@ -26,8 +26,8 @@ export interface StadiumDetailsDto {
 
 export interface StadiumListFilter {
     name?: string;
-    countryId?: string;
-    cityId?: string;
+    countryPublicId?: string;
+    cityPublicId?: string;
     minCapacity?: number;
     maxCapacity?: number;
 }

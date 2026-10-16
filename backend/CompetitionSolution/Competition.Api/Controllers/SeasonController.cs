@@ -24,7 +24,7 @@ public class SeasonController : ControllerBase
     public async Task<IActionResult> GetAll(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] Guid? competitionId = null,
+        [FromQuery] string? competitionPublicId = null,
         [FromQuery] bool? isCurrent = null,
         [FromQuery] string? search = null,
         CancellationToken cancellationToken = default)
@@ -33,7 +33,7 @@ public class SeasonController : ControllerBase
         {
             Page = page,
             PageSize = pageSize,
-            CompetitionId = competitionId,
+            CompetitionPublicId = competitionPublicId,
             IsCurrent = isCurrent,
             Search = search
         }, cancellationToken);
@@ -65,10 +65,10 @@ public class SeasonController : ControllerBase
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    [HttpDelete("delete/{publicId}")]
+    public async Task<IActionResult> Delete(string publicId, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new DeleteSeasonCommand { Id = id }, cancellationToken);
+        var result = await _mediator.Send(new DeleteSeasonCommand { PublicId = publicId }, cancellationToken);
         return Ok(result);
     }
 }

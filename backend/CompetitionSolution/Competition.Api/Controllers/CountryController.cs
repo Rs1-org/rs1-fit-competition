@@ -31,10 +31,10 @@ namespace Competition.Api.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteCountry(Guid id, CancellationToken cancellationToken)
+        [HttpDelete("delete/{publicId}")]
+        public async Task<IActionResult> DeleteCountry(string publicId, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new DeleteCountryCommands { Id = id }, cancellationToken);
+            var result = await _mediator.Send(new DeleteCountryCommands { PublicId = publicId }, cancellationToken);
             return Ok(result);
         }
 

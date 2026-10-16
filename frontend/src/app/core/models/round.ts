@@ -1,5 +1,5 @@
 export interface RoundListDto {
-  id: string;
+  publicId: string;
   name: string;
   slug: string;
   number: number;
@@ -7,11 +7,11 @@ export interface RoundListDto {
 }
 
 export interface RoundDetailsDto {
-  id: string;
+  publicId: string;
   name: string;
   slug: string;
   number: number;
-  seasonId: string;
+  seasonPublicId: string;
   seasonName: string;
   seasonSlug: string;
   competitionName: string;
@@ -19,14 +19,14 @@ export interface RoundDetailsDto {
 }
 
 export interface SaveRoundDto {
-  seasonId?: string;
+  seasonPublicId?: string;
   name: string;
   number: number;
 }
 
 /** Subset of the match list item shown on the round page (full match UI lives in COMP-65). */
 export interface RoundMatchDto {
-  id: string;
+  publicId: string;
   slug: string | null;
   date: string | null;
   homeScore: number | null;

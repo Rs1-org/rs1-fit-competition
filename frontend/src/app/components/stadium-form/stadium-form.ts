@@ -38,7 +38,7 @@ export class StadiumForm implements OnInit {
     name: this.fb.control('', { validators: [Validators.required, Validators.maxLength(150)] }),
     capacity: this.fb.control(0, { validators: [Validators.required, Validators.min(1)] }),
     dateOfConstruction: this.fb.control('', { validators: Validators.required }),
-    cityId: this.fb.control('', { validators: Validators.required }),
+    cityPublicId: this.fb.control('', { validators: Validators.required }),
     latitude: this.fb.control(43.8563, { validators: [Validators.required, Validators.min(-90), Validators.max(90)] }),
     longitude: this.fb.control(18.4131, { validators: [Validators.required, Validators.min(-180), Validators.max(180)] }),
     geoDescription: this.fb.control('', { validators: [Validators.required, Validators.maxLength(500)] })
@@ -70,7 +70,7 @@ export class StadiumForm implements OnInit {
       name: stadium.name ?? '',
       capacity: stadium.capacity,
       dateOfConstruction: new Date(stadium.dateOfConstruction).toISOString().split('T')[0],
-      cityId: stadium.cityId as unknown as string,
+      cityPublicId: stadium.cityPublicId as unknown as string,
       latitude: Number(stadium.latitude),
       longitude: Number(stadium.longitude),
       geoDescription: stadium.geoDescription ?? ''
@@ -99,7 +99,7 @@ export class StadiumForm implements OnInit {
     fd.append('name', value.name);
     fd.append('capacity', String(value.capacity));
     fd.append('dateOfConstruction', value.dateOfConstruction);
-    fd.append('cityId', value.cityId);
+    fd.append('cityPublicId', value.cityPublicId);
     fd.append('latitude', String(value.latitude));
     fd.append('longitude', String(value.longitude));
     fd.append('geoDescription', value.geoDescription);

@@ -11,5 +11,5 @@ public class UpdateCompetitionCommand : IRequest<CompetitionDetailsDto>
     public string Name { get; set; } = string.Empty;
     public string? ShortName { get; set; }
     public string? Description { get; set; }
-    public Guid? CountryId { get; set; }
+    public string? CountryPublicId { get; set; }
 }

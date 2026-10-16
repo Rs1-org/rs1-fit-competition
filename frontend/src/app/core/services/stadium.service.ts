@@ -39,7 +39,7 @@ export class StadiumService {
         );
     }
 
-    delete(id: string): Observable<any> {
-        return this.http.delete(`${this.apiUrl}/deleteStadium/${id}`);
+    delete(publicId: string): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/deleteStadium/${publicId}`);
     }
 }

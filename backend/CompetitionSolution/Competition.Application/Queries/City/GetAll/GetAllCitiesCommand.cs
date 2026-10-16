@@ -9,7 +9,7 @@ namespace Competition.Application.Queries.City.GetAll
         public int Page { get; init; } = 1;
         public int PageSize { get; init; } = 10;
         public string? Name { get; init; }
-        public Guid? CountryId { get; init; }
+        public string? CountryPublicId { get; init; }
         public bool? IsCapital { get; init; }
         public int? MinPopulation { get; init; }
         public int? MaxPopulation { get; init; }

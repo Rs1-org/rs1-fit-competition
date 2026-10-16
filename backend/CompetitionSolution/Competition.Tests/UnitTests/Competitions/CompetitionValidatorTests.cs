@@ -41,7 +41,7 @@ public class CompetitionValidatorTests
     {
         var result = new CreateSeasonCommandValidator().Validate(new CreateSeasonCommand
         {
-            CompetitionId = Guid.NewGuid(),
+            CompetitionPublicId = Competition.Domain.Entities.BaseEntity.NewPublicId(),
             Name = "2025/26",
             StartDate = DateOnly.Parse(start),
             EndDate = DateOnly.Parse(end)
@@ -61,7 +61,7 @@ public class CompetitionValidatorTests
             EndDate = new DateOnly(2026, 5, 31)
         });
 
-        result.Errors.Should().Contain(e => e.PropertyName == nameof(CreateSeasonCommand.CompetitionId));
+        result.Errors.Should().Contain(e => e.PropertyName == nameof(CreateSeasonCommand.CompetitionPublicId));
     }
 
     [Theory]
@@ -71,7 +71,7 @@ public class CompetitionValidatorTests
     {
         var result = new CreateRoundCommandValidator().Validate(new CreateRoundCommand
         {
-            SeasonId = Guid.NewGuid(),
+            SeasonPublicId = Competition.Domain.Entities.BaseEntity.NewPublicId(),
             Name = "Round",
             Number = number
         });

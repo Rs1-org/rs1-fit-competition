@@ -27,7 +27,7 @@ public class CityRepository : Repository<City>, ICity
 
     public async Task<City?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
     {
-        return await _context.Cities.Include(c => c.GeoData).FirstOrDefaultAsync(c => c.Slug == slug, cancellationToken);
+        return await _context.Cities.Include(c => c.GeoData).Include(c => c.Country).FirstOrDefaultAsync(c => c.Slug == slug, cancellationToken);
     }
 
     public async Task<PagedResult<City>> GetPagedByCountryAsync(Guid countryId, int page, int pageSize, CancellationToken cancellationToken = default)

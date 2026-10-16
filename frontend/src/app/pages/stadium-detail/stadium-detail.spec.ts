@@ -10,13 +10,13 @@ import { StadiumDetailsDto } from '../../core/models/stadium';
 
 describe('StadiumDetail', () => {
   const kosevo: StadiumDetailsDto = {
-    id: 's1',
+    publicId: 's1',
     name: 'Asim Ferhatović Hase',
     capacity: 34500,
     dateOfConstruction: '1947-01-01',
     slug: 'kosevo',
     pictureUrl: '',
-    cityId: 'c1',
+    cityPublicId: 'c1',
     cityName: 'Sarajevo',
     latitude: 43.8686,
     longitude: 18.4093,

@@ -1,5 +1,6 @@
 using Competition.Application.Queries.Stadium.GetAll;
 using Competition.Application.Queries.Stadium.GetBySlug;
+using Competition.Application.Common.Validation;
 using FluentValidation;
 
 namespace Competition.Application.Queries.Stadium;
@@ -19,8 +20,8 @@ public class GetAllStadiumsQueryValidator : AbstractValidator<GetAllStadiumsQuer
         RuleFor(s => s.Page).GreaterThanOrEqualTo(1);
         RuleFor(s => s.PageSize).InclusiveBetween(1, 100);
         RuleFor(s => s.Name).MaximumLength(150);
-        RuleFor(s => s.CountryId).NotEqual(Guid.Empty).When(s => s.CountryId.HasValue);
-        RuleFor(s => s.CityId).NotEqual(Guid.Empty).When(s => s.CityId.HasValue);
+        RuleFor(s => s.CountryPublicId).MustBeValidPublicId().When(s => s.CountryPublicId is not null);
+        RuleFor(s => s.CityPublicId).MustBeValidPublicId().When(s => s.CityPublicId is not null);
         RuleFor(s => s.MinCapacity).GreaterThanOrEqualTo(0).When(s => s.MinCapacity.HasValue);
         RuleFor(s => s.MaxCapacity).GreaterThanOrEqualTo(0).When(s => s.MaxCapacity.HasValue);
         RuleFor(s => s.MaxCapacity)

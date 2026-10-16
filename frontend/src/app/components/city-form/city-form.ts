@@ -32,7 +32,7 @@ export class CityForm implements OnInit, OnChanges {
     name: this.fb.control('', { validators: [Validators.required, Validators.maxLength(100)] }),
     population: this.fb.control(0, { validators: [Validators.required, Validators.min(1)] }),
     isCapital: this.fb.control(false),
-    countryId: this.fb.control('', { validators: Validators.required }),
+    countryPublicId: this.fb.control('', { validators: Validators.required }),
     latitude: this.fb.control(40, { validators: [Validators.required, Validators.min(-90), Validators.max(90)] }),
     longitude: this.fb.control(41, { validators: [Validators.required, Validators.min(-180), Validators.max(180)] }),
     description: this.fb.control('', { validators: Validators.required })
@@ -53,7 +53,7 @@ export class CityForm implements OnInit, OnChanges {
           name: this.editCity.name,
           population: this.editCity.population,
           isCapital: this.editCity.isCapital,
-          countryId: this.editCity.countryId,
+          countryPublicId: this.editCity.countryPublicId,
           latitude: Number(this.editCity.latitude),
           longitude: Number(this.editCity.longitude),
           description: this.editCity.description

@@ -25,14 +25,14 @@ export class CompetitionForm implements OnInit, OnChanges {
   private countryService = inject(CountryService);
   private competitionService = inject(CompetitionService);
 
-  countries: { id: string; name: string }[] = [];
+  countries: { publicId: string; name: string }[] = [];
   errorMessage = '';
   saving = false;
 
   form = this.fb.group({
     name: this.fb.control('', { validators: [Validators.required, Validators.minLength(2), Validators.maxLength(100)] }),
     shortName: this.fb.control('', { validators: Validators.maxLength(20) }),
-    countryId: this.fb.control(''),
+    countryPublicId: this.fb.control(''),
     description: this.fb.control('', { validators: Validators.maxLength(1000) }),
   });
 
@@ -42,7 +42,7 @@ export class CompetitionForm implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.countryService.getAll(1, 100).subscribe({
-      next: (data) => (this.countries = [{ id: '', name: 'No country (international)' }, ...data.items]),
+      next: (data) => (this.countries = [{ publicId: '', name: 'No country (international)' }, ...data.items]),
       error: (err) => console.error('Error loading countries:', err),
     });
   }
@@ -54,7 +54,7 @@ export class CompetitionForm implements OnInit, OnChanges {
         this.form.reset({
           name: this.editCompetition.name,
           shortName: this.editCompetition.shortName ?? '',
-          countryId: this.editCompetition.countryId ?? '',
+          countryPublicId: this.editCompetition.countryPublicId ?? '',
           description: this.editCompetition.description ?? '',
         });
       } else {
@@ -78,7 +78,7 @@ export class CompetitionForm implements OnInit, OnChanges {
       name: value.name.trim(),
       shortName: value.shortName.trim() || null,
       description: value.description.trim() || null,
-      countryId: value.countryId || null,
+      countryPublicId: value.countryPublicId || null,
     };
     const request$ = this.isEditMode
       ? this.competitionService.update(this.editCompetition!.slug, payload)

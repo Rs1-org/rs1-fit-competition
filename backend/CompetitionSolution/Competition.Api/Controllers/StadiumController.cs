@@ -29,10 +29,10 @@ public class StadiumController : ControllerBase
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpDelete("deleteStadium/{id}")]
-    public async Task<IActionResult> DeleteStadium(Guid id, CancellationToken cancellationToken)
+    [HttpDelete("deleteStadium/{publicId}")]
+    public async Task<IActionResult> DeleteStadium(string publicId, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new DeleteStadiumCommand { Id = id }, cancellationToken);
+        var result = await _mediator.Send(new DeleteStadiumCommand { PublicId = publicId }, cancellationToken);
         return Ok(result);
     }
 
@@ -50,8 +50,8 @@ public class StadiumController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? name = null,
-        [FromQuery] Guid? countryId = null,
-        [FromQuery] Guid? cityId = null,
+        [FromQuery] string? countryPublicId = null,
+        [FromQuery] string? cityPublicId = null,
         [FromQuery] int? minCapacity = null,
         [FromQuery] int? maxCapacity = null,
         CancellationToken cancellationToken = default)
@@ -61,8 +61,8 @@ public class StadiumController : ControllerBase
             Page = page,
             PageSize = pageSize,
             Name = name,
-            CountryId = countryId,
-            CityId = cityId,
+            CountryPublicId = countryPublicId,
+            CityPublicId = cityPublicId,
             MinCapacity = minCapacity,
             MaxCapacity = maxCapacity
         }, cancellationToken);

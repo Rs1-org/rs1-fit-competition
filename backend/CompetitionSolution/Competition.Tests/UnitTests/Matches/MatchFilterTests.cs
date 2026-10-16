@@ -66,9 +66,9 @@ public class MatchFilterTests : BaseUnitTest
         MapperMock
             .Setup(m => m.Map<IReadOnlyList<MatchListDto>>(It.IsAny<object>()))
             .Returns((object source) => ((IEnumerable<MatchEntity>)source)
-                .Select(m => new MatchListDto { Id = m.Id, Slug = m.Slug, StatusName = m.Status?.Name, StadiumName = m.Stadium?.Name })
+                .Select(m => new MatchListDto { PublicId = m.PublicId, Slug = m.Slug, StatusName = m.Status?.Name, StadiumName = m.Stadium?.Name })
                 .ToList());
-        return new GetAllMatchesQueryHandler(new MatchRepository(context), Mapper);
+        return new GetAllMatchesQueryHandler(new MatchRepository(context), new PublicIdLookup(context), Mapper);
     }
 
     [Fact]
@@ -85,27 +85,40 @@ public class MatchFilterTests : BaseUnitTest
     }
 
     [Fact]
-    public async Task StatusId_ShouldReturnOnlyMatchesWithThatStatus()
+    public async Task StatusPublicId_ShouldReturnOnlyMatchesWithThatStatus()
     {
         var seed = await SeedAsync();
         await using var _ = seed.Context;
 
         var result = await NewHandler(seed.Context)
-            .Handle(new GetAllMatchesQuery { StatusId = seed.Finished.Id }, CancellationToken.None);
+            .Handle(new GetAllMatchesQuery { StatusPublicId = seed.Finished.PublicId }, CancellationToken.None);
 
         result.Items.Select(m => m.Slug).Should().Equal("m1", "m3");
     }
 
     [Fact]
-    public async Task StadiumId_ShouldReturnOnlyMatchesAtThatStadium()
+    public async Task StadiumPublicId_ShouldReturnOnlyMatchesAtThatStadium()
     {
         var seed = await SeedAsync();
         await using var _ = seed.Context;
 
         var result = await NewHandler(seed.Context)
-            .Handle(new GetAllMatchesQuery { StadiumId = seed.Grbavica.Id }, CancellationToken.None);
+            .Handle(new GetAllMatchesQuery { StadiumPublicId = seed.Grbavica.PublicId }, CancellationToken.None);
 
         result.Items.Select(m => m.Slug).Should().Equal("m3", "m5");
+    }
+
+    [Fact]
+    public async Task UnknownStadiumPublicId_ShouldReturnEmptyPage()
+    {
+        var seed = await SeedAsync();
+        await using var _ = seed.Context;
+
+        var result = await NewHandler(seed.Context).Handle(
+            new GetAllMatchesQuery { StadiumPublicId = Guid.NewGuid().ToString("N") }, CancellationToken.None);
+
+        result.TotalCount.Should().Be(0);
+        result.Items.Should().BeEmpty();
     }
 
     [Fact]
@@ -128,7 +141,7 @@ public class MatchFilterTests : BaseUnitTest
         await using var _ = seed.Context;
 
         var result = await NewHandler(seed.Context).Handle(
-            new GetAllMatchesQuery { StatusId = seed.Scheduled.Id, StadiumId = seed.Kosevo.Id, IsPostponed = false },
+            new GetAllMatchesQuery { StatusPublicId = seed.Scheduled.PublicId, StadiumPublicId = seed.Kosevo.PublicId, IsPostponed = false },
             CancellationToken.None);
 
         result.Items.Should().ContainSingle(m => m.Slug == "m2");
@@ -141,7 +154,7 @@ public class MatchFilterTests : BaseUnitTest
         await using var _ = seed.Context;
 
         var result = await NewHandler(seed.Context).Handle(
-            new GetAllMatchesQuery { StatusId = seed.Scheduled.Id, Page = 2, PageSize = 2 },
+            new GetAllMatchesQuery { StatusPublicId = seed.Scheduled.PublicId, Page = 2, PageSize = 2 },
             CancellationToken.None);
 
         result.TotalCount.Should().Be(3);

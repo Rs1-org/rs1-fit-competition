@@ -16,8 +16,11 @@ public class CreateStadiumCommandHandler : IRequestHandler<CreateStadiumCommand,
     private readonly IUnitOfWork _unitOfWork;
     private readonly IImageService _imageService;
 
-    public CreateStadiumCommandHandler(IStadium stadium, IMapper mapper, IUnitOfWork unitOfWork, IImageService imageService)
+    private readonly IPublicIdLookup _lookup;
+
+    public CreateStadiumCommandHandler(IStadium stadium, IMapper mapper, IUnitOfWork unitOfWork, IImageService imageService, IPublicIdLookup lookup)
     {
+        _lookup = lookup;
         _stadium = stadium;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
@@ -26,6 +29,9 @@ public class CreateStadiumCommandHandler : IRequestHandler<CreateStadiumCommand,
 
     public async Task<StadiumDetailsDto> Handle(CreateStadiumCommand request, CancellationToken cancellationToken)
     {
+        // Unknown city → KeyNotFoundException (404) before the picture is uploaded.
+        var cityId = await _lookup.GetRequiredIdAsync<City>(request.CityPublicId, cancellationToken);
+
         var geoData = _mapper.Map<GeoData>(request);
 
         var stadium = _mapper.Map<Stadium>(request);
@@ -36,6 +42,7 @@ public class CreateStadiumCommandHandler : IRequestHandler<CreateStadiumCommand,
 
         // Attached by navigation: GeoData and the stadium are inserted in the same SaveChanges.
         stadium.GeoData = geoData;
+        stadium.CityId = cityId;
         stadium.DateOfConstruction = DateTime.SpecifyKind(stadium.DateOfConstruction, DateTimeKind.Utc);
 
         if (request.Picture != null)

@@ -1,6 +1,7 @@
 using Competition.Application.Commands.SeasonCommands.Create;
 using Competition.Application.Commands.SeasonCommands.Delete;
 using Competition.Application.Commands.SeasonCommands.Update;
+using Competition.Application.Common.Validation;
 using FluentValidation;
 
 namespace Competition.Application.Commands.SeasonCommands.Validators;
@@ -9,8 +10,8 @@ public class CreateSeasonCommandValidator : AbstractValidator<CreateSeasonComman
 {
     public CreateSeasonCommandValidator()
     {
-        RuleFor(x => x.CompetitionId)
-            .NotEmpty();
+        RuleFor(x => x.CompetitionPublicId)
+            .MustBeValidPublicId();
         RuleFor(x => x.Name)
             .NotEmpty()
             .MaximumLength(50);
@@ -45,7 +46,7 @@ public class DeleteSeasonCommandValidator : AbstractValidator<DeleteSeasonComman
 {
     public DeleteSeasonCommandValidator()
     {
-        RuleFor(x => x.Id)
-            .NotEmpty();
+        RuleFor(x => x.PublicId)
+            .MustBeValidPublicId();
     }
 }

@@ -41,7 +41,7 @@ export class RoundDetail {
 
   matches = toSignal(
     combineLatest([this.round$.pipe(filter((r): r is RoundDetailsDto => !!r)), this.page$]).pipe(
-      switchMap(([round, page]) => this.roundService.getMatches(round.id, page, this.pageSize))
+      switchMap(([round, page]) => this.roundService.getMatches(round.publicId, page, this.pageSize))
     )
   );
 

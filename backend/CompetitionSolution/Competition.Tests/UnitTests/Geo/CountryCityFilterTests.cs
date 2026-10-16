@@ -209,10 +209,10 @@ public class CountryCityFilterTests
     [Fact]
     public void GetAllCities_NegativePopulationOrEmptyCountry_ShouldFail()
     {
-        var result = new GetAllCitiesValidator().Validate(new GetAllCitiesCommand { MinPopulation = -1, CountryId = Guid.Empty });
+        var result = new GetAllCitiesValidator().Validate(new GetAllCitiesCommand { MinPopulation = -1, CountryPublicId = "" });
 
         result.Errors.Should().Contain(e => e.PropertyName == nameof(GetAllCitiesCommand.MinPopulation));
-        result.Errors.Should().Contain(e => e.PropertyName == nameof(GetAllCitiesCommand.CountryId));
+        result.Errors.Should().Contain(e => e.PropertyName == nameof(GetAllCitiesCommand.CountryPublicId));
     }
 
     [Fact]
@@ -221,7 +221,7 @@ public class CountryCityFilterTests
         var result = new GetAllCitiesValidator().Validate(new GetAllCitiesCommand
         {
             Name = "Sar",
-            CountryId = Guid.NewGuid(),
+            CountryPublicId = Guid.NewGuid().ToString("N"),
             IsCapital = true,
             MinPopulation = 0,
             MaxPopulation = 500_000

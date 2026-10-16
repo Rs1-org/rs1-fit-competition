@@ -47,6 +47,7 @@ public class MappingProfile:Profile
             .ForMember(m => m.CountryName, opt => opt.MapFrom(src => src.Country != null ? src.Country.Name : null));
         CreateMap<City, CityDetailsDto>()
             .ForMember(m => m.CountryName, opt => opt.MapFrom(src => src.Country!.Name))
+            .ForMember(m => m.CountryPublicId, opt => opt.MapFrom(src => src.Country != null ? src.Country.PublicId : string.Empty))
             .ForMember(m => m.Latitude, opt => opt.MapFrom(src => src.GeoData!.Latitude))
             .ForMember(m => m.Longitude, opt => opt.MapFrom(src => src.GeoData!.Longitude))
             .ForMember(m => m.Description, opt => opt.MapFrom(src => src.GeoData!.Description));
@@ -68,6 +69,7 @@ public class MappingProfile:Profile
             .ForMember(m => m.CityName, opt => opt.MapFrom(src => src.City != null ? src.City.Name : null))
             .ForMember(m => m.CountryName, opt => opt.MapFrom(src => src.City != null && src.City.Country != null ? src.City.Country.Name : null));
         CreateMap<Stadium, StadiumDetailsDto>()
+            .ForMember(m => m.CityPublicId, opt => opt.MapFrom(src => src.City != null ? src.City.PublicId : string.Empty))
             .ForMember(m => m.CityName, opt => opt.MapFrom(src => src.City != null ? src.City.Name : null))
             .ForMember(m => m.Latitude, opt => opt.MapFrom(src => src.GeoData != null ? src.GeoData.Latitude : (decimal)0))
             .ForMember(m => m.Longitude, opt => opt.MapFrom(src => src.GeoData != null ? src.GeoData.Longitude : (decimal)0))
@@ -96,6 +98,11 @@ public class MappingProfile:Profile
             .ForMember(d => d.Slug, opt => opt.MapFrom(src => SlugHelper.GenerateSlug(src.Slug)));
 
         CreateMap<Match, MatchDetailsDto>()
+            .ForMember(d => d.StatusPublicId, opt => opt.MapFrom(src => src.Status != null ? src.Status.PublicId : string.Empty))
+            .ForMember(d => d.StadiumPublicId, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.PublicId : string.Empty))
+            .ForMember(d => d.HomeSelectionPublicId, opt => opt.MapFrom(src => src.HomeSelection != null ? src.HomeSelection.PublicId : null))
+            .ForMember(d => d.AwaySelectionPublicId, opt => opt.MapFrom(src => src.AwaySelection != null ? src.AwaySelection.PublicId : null))
+            .ForMember(d => d.RoundPublicId, opt => opt.MapFrom(src => src.Round != null ? src.Round.PublicId : null))
             .ForMember(d => d.Date, opt => opt.MapFrom(src => NodaTimeMappingHelper.FormatInstant(src.Date)))
             .ForMember(d => d.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.Name : null))
             .ForMember(d => d.StadiumName, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Name : null))
@@ -104,6 +111,7 @@ public class MappingProfile:Profile
             .ForMember(d => d.RoundName, opt => opt.MapFrom(src => src.Round != null ? src.Round.Name : null));
 
         CreateMap<Match, MatchListDto>()
+            .ForMember(d => d.RoundPublicId, opt => opt.MapFrom(src => src.Round != null ? src.Round.PublicId : null))
             .ForMember(d => d.Date, opt => opt.MapFrom(src => NodaTimeMappingHelper.FormatInstant(src.Date)))
             .ForMember(d => d.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.Name : null))
             .ForMember(d => d.StadiumName, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Name : null))
@@ -121,6 +129,7 @@ public class MappingProfile:Profile
             .ForMember(d => d.SeasonCount, opt => opt.MapFrom(src => src.Seasons.Count));
 
         CreateMap<CompetitionEntity, CompetitionDetailsDto>()
+            .ForMember(d => d.CountryPublicId, opt => opt.MapFrom(src => src.Country != null ? src.Country.PublicId : null))
             .ForMember(d => d.CountryName, opt => opt.MapFrom(src => src.Country != null ? src.Country.Name : null));
 
         CreateMap<Season, SeasonListDto>()
@@ -130,6 +139,7 @@ public class MappingProfile:Profile
             .ForMember(d => d.RoundCount, opt => opt.MapFrom(src => src.Rounds.Count));
 
         CreateMap<Season, SeasonDetailsDto>()
+            .ForMember(d => d.CompetitionPublicId, opt => opt.MapFrom(src => src.Competition != null ? src.Competition.PublicId : string.Empty))
             .ForMember(d => d.StartDate, opt => opt.MapFrom(src => NodaTimeMappingHelper.FormatLocalDate(src.StartDate)))
             .ForMember(d => d.EndDate, opt => opt.MapFrom(src => NodaTimeMappingHelper.FormatLocalDate(src.EndDate)))
             .ForMember(d => d.CompetitionName, opt => opt.MapFrom(src => src.Competition != null ? src.Competition.Name : string.Empty))
@@ -139,6 +149,7 @@ public class MappingProfile:Profile
             .ForMember(d => d.MatchCount, opt => opt.MapFrom(src => src.Matches.Count));
 
         CreateMap<Round, RoundDetailsDto>()
+            .ForMember(d => d.SeasonPublicId, opt => opt.MapFrom(src => src.Season != null ? src.Season.PublicId : string.Empty))
             .ForMember(d => d.SeasonName, opt => opt.MapFrom(src => src.Season != null ? src.Season.Name : string.Empty))
             .ForMember(d => d.SeasonSlug, opt => opt.MapFrom(src => src.Season != null ? src.Season.Slug : string.Empty))
             .ForMember(d => d.CompetitionName, opt => opt.MapFrom(src => src.Season != null && src.Season.Competition != null ? src.Season.Competition.Name : string.Empty))

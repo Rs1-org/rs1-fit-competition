@@ -1,5 +1,5 @@
 export interface SeasonListDto {
-  id: string;
+  publicId: string;
   name: string;
   slug: string;
   startDate: string;
@@ -10,19 +10,19 @@ export interface SeasonListDto {
 }
 
 export interface SeasonDetailsDto {
-  id: string;
+  publicId: string;
   name: string;
   slug: string;
   startDate: string;
   endDate: string;
   isCurrent: boolean;
-  competitionId: string;
+  competitionPublicId: string;
   competitionName: string;
   competitionSlug: string;
 }
 
 export interface SaveSeasonDto {
-  competitionId?: string;
+  competitionPublicId?: string;
   name: string;
   startDate: string;
   endDate: string;

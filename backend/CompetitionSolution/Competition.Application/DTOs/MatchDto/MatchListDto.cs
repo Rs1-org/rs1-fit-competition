@@ -2,7 +2,7 @@ namespace Competition.Application.DTOs.MatchDto;
 
 public class MatchListDto
 {
-    public Guid Id { get; set; }
+    public string PublicId { get; set; } = string.Empty;
     public string? Slug { get; set; }
     public string? Date { get; set; }
     public int? HomeScore { get; set; }
@@ -12,6 +12,6 @@ public class MatchListDto
     public string? StadiumName { get; set; }
     public string? HomeSelectionName { get; set; }
     public string? AwaySelectionName { get; set; }
-    public Guid? RoundId { get; set; }
+    public string? RoundPublicId { get; set; }
     public string? RoundName { get; set; }
 }

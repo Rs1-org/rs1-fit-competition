@@ -1,6 +1,7 @@
 ﻿using Competition.Application.Queries.City.GetAll;
 using Competition.Application.Queries.City.GetAllByCountry;
 using Competition.Application.Queries.City.GetBySlug;
+using Competition.Application.Common.Validation;
 using FluentValidation;
 
 namespace Competition.Application.Queries.City
@@ -9,7 +10,7 @@ namespace Competition.Application.Queries.City
     {
         public GetAllCitiesByCountryValidator()
         {
-            RuleFor(s => s.CountryId).NotEmpty();
+            RuleFor(s => s.CountryPublicId).MustBeValidPublicId();
         }
     }
 
@@ -28,7 +29,7 @@ namespace Competition.Application.Queries.City
             RuleFor(s => s.Page).GreaterThanOrEqualTo(1);
             RuleFor(s => s.PageSize).InclusiveBetween(1, 100);
             RuleFor(s => s.Name).MaximumLength(100);
-            RuleFor(s => s.CountryId).NotEqual(Guid.Empty).When(s => s.CountryId.HasValue);
+            RuleFor(s => s.CountryPublicId).MustBeValidPublicId().When(s => s.CountryPublicId is not null);
             RuleFor(s => s.MinPopulation).GreaterThanOrEqualTo(0).When(s => s.MinPopulation.HasValue);
             RuleFor(s => s.MaxPopulation).GreaterThanOrEqualTo(0).When(s => s.MaxPopulation.HasValue);
             RuleFor(s => s.MaxPopulation)

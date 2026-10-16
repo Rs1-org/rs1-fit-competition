@@ -15,7 +15,7 @@ import { apiErrorMessage } from '../../core/utils/api-error';
 })
 export class RoundForm implements OnChanges {
   @Input() isOpen = false;
-  @Input({ required: true }) seasonId = '';
+  @Input({ required: true }) seasonPublicId = '';
   /** Suggested number for a new round (next free one). */
   @Input() nextNumber = 1;
   @Input() editRound: RoundListDto | null = null;
@@ -61,7 +61,7 @@ export class RoundForm implements OnChanges {
     const payload: SaveRoundDto = { name: value.name.trim(), number: Number(value.number) };
     const request$ = this.isEditMode
       ? this.roundService.update(this.editRound!.slug, payload)
-      : this.roundService.create({ ...payload, seasonId: this.seasonId });
+      : this.roundService.create({ ...payload, seasonPublicId: this.seasonPublicId });
 
     this.saving = true;
     this.errorMessage = '';

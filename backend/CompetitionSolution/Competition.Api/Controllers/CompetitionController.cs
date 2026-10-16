@@ -25,7 +25,7 @@ public class CompetitionController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? search = null,
-        [FromQuery] Guid? countryId = null,
+        [FromQuery] string? countryPublicId = null,
         CancellationToken cancellationToken = default)
     {
         var result = await _mediator.Send(new GetAllCompetitionsQuery
@@ -33,7 +33,7 @@ public class CompetitionController : ControllerBase
             Page = page,
             PageSize = pageSize,
             Search = search,
-            CountryId = countryId
+            CountryPublicId = countryPublicId
         }, cancellationToken);
         return Ok(result);
     }
@@ -63,10 +63,10 @@ public class CompetitionController : ControllerBase
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    [HttpDelete("delete/{publicId}")]
+    public async Task<IActionResult> Delete(string publicId, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new DeleteCompetitionCommand { Id = id }, cancellationToken);
+        var result = await _mediator.Send(new DeleteCompetitionCommand { PublicId = publicId }, cancellationToken);
         return Ok(result);
     }
 }

@@ -2,7 +2,7 @@ using MediatR;
 
 namespace Competition.Application.Commands.SeasonCommands.Delete;
 
-public class DeleteSeasonCommand : IRequest<Guid>
+public class DeleteSeasonCommand : IRequest<string>
 {
-    public Guid Id { get; set; }
+    public string PublicId { get; set; } = string.Empty;
 }

@@ -6,7 +6,7 @@ namespace Competition.Application.Queries.City.GetAllByCountry
 {
     public class GetAllCitiesByCountryCommand : IRequest<PagedResult<CityListDto>>
     {
-        public Guid CountryId { get; set; }
+        public string CountryPublicId { get; set; } = string.Empty;
         public int Page { get; init; } = 1;
         public int PageSize { get; init; } = 10;
     }

@@ -25,9 +25,9 @@ public class MatchController : ControllerBase
     public async Task<IActionResult> GetAll(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] Guid? statusId = null,
-        [FromQuery] Guid? stadiumId = null,
-        [FromQuery] Guid? roundId = null,
+        [FromQuery] string? statusPublicId = null,
+        [FromQuery] string? stadiumPublicId = null,
+        [FromQuery] string? roundPublicId = null,
         [FromQuery] bool? isPostponed = null,
         [FromQuery] DateTime? dateFrom = null,
         [FromQuery] DateTime? dateTo = null,
@@ -37,9 +37,9 @@ public class MatchController : ControllerBase
         {
             Page = page,
             PageSize = pageSize,
-            StatusId = statusId,
-            StadiumId = stadiumId,
-            RoundId = roundId,
+            StatusPublicId = statusPublicId,
+            StadiumPublicId = stadiumPublicId,
+            RoundPublicId = roundPublicId,
             IsPostponed = isPostponed,
             DateFrom = dateFrom,
             DateTo = dateTo
@@ -54,10 +54,10 @@ public class MatchController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("getById/{id}")]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    [HttpGet("getByPublicId/{publicId}")]
+    public async Task<IActionResult> GetByPublicId(string publicId, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetMatchByIdQuery { Id = id }, cancellationToken);
+        var result = await _mediator.Send(new GetMatchByPublicIdQuery { PublicId = publicId }, cancellationToken);
         return Ok(result);
     }
 
@@ -79,10 +79,10 @@ public class MatchController : ControllerBase
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    [HttpDelete("delete/{publicId}")]
+    public async Task<IActionResult> Delete(string publicId, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new DeleteMatchCommand { Id = id }, cancellationToken);
+        var result = await _mediator.Send(new DeleteMatchCommand { PublicId = publicId }, cancellationToken);
         return Ok(result);
     }
 }

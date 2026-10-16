@@ -9,7 +9,7 @@ namespace Competition.Application.DTOs.CityDto
 {
     public class CityListDto
     {
-        public Guid Id { get; set; }
+        public string PublicId { get; set; } = string.Empty;
         public string? Name { get; set; }
         public string? Slug { get; set; }
         public int Population { get; set; }

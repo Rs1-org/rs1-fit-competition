@@ -2,7 +2,7 @@ using MediatR;
 
 namespace Competition.Application.Commands.MatchCommands.Delete;
 
-public class DeleteMatchCommand : IRequest<Guid>
+public class DeleteMatchCommand : IRequest<string>
 {
-    public Guid Id { get; set; }
+    public string PublicId { get; set; } = string.Empty;
 }

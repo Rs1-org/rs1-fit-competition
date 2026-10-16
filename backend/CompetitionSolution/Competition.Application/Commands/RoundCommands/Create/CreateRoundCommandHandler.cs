@@ -10,22 +10,21 @@ namespace Competition.Application.Commands.RoundCommands.Create;
 public class CreateRoundCommandHandler : IRequestHandler<CreateRoundCommand, RoundDetailsDto>
 {
     private readonly IRound _round;
-    private readonly ISeason _season;
+    private readonly IPublicIdLookup _lookup;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    public CreateRoundCommandHandler(IRound round, ISeason season, IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateRoundCommandHandler(IRound round, IPublicIdLookup lookup, IUnitOfWork unitOfWork, IMapper mapper)
     {
         _round = round;
-        _season = season;
+        _lookup = lookup;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
 
     public async Task<RoundDetailsDto> Handle(CreateRoundCommand request, CancellationToken cancellationToken)
     {
-        var season = await _season.GetByIdAsync(request.SeasonId, cancellationToken)
-            ?? throw new KeyNotFoundException($"Season with ID '{request.SeasonId}' not found.");
+        var season = await _lookup.GetRequiredEntityAsync<Season>(request.SeasonPublicId, cancellationToken);
 
         if (await _round.NumberExistsInSeasonAsync(season.Id, request.Number, null, cancellationToken))
             throw BusinessRule.Violation(nameof(request.Number), $"Season {season.Name} already has round {request.Number}.");
