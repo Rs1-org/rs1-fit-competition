@@ -1,12 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { registerLocaleData } from '@angular/common';
+import localeBs from '@angular/common/locales/bs-Latn';
+import { AppDatePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { StadiumDetail } from './stadium-detail';
 import { StadiumService } from '../../core/services/stadium.service';
 import { StadiumDetailsDto } from '../../core/models/stadium';
+
+registerLocaleData(localeBs);
 
 describe('StadiumDetail', () => {
   const kosevo: StadiumDetailsDto = {
@@ -22,7 +26,7 @@ describe('StadiumDetail', () => {
     longitude: 18.4093,
     geoDescription: '',
     cityLatitude: 43.8563,
-    cityLongitude: 18.4131
+    cityLongitude: 18.4131,
   };
 
   async function setup(stadium: StadiumDetailsDto): Promise<ComponentFixture<StadiumDetail>> {
@@ -30,12 +34,17 @@ describe('StadiumDetail', () => {
       imports: [StadiumDetail],
       providers: [
         provideRouter([]),
-        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ slug: stadium.slug })) } },
-        { provide: StadiumService, useValue: { getBySlug: () => of(stadium) } }
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: of(convertToParamMap({ slug: stadium.slug })) },
+        },
+        { provide: StadiumService, useValue: { getBySlug: () => of(stadium) } },
       ],
     })
       // The Leaflet map is covered by its own spec; keep it out of this one.
-      .overrideComponent(StadiumDetail, { set: { imports: [DecimalPipe, DatePipe], schemas: [CUSTOM_ELEMENTS_SCHEMA] } })
+      .overrideComponent(StadiumDetail, {
+        set: { imports: [AppNumberPipe, AppDatePipe], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
+      })
       .compileComponents();
 
     const fixture = TestBed.createComponent(StadiumDetail);
@@ -48,7 +57,7 @@ describe('StadiumDetail', () => {
     const fixture = await setup(kosevo);
 
     expect(fixture.componentInstance.distanceToCityKm()).toBe(1.4);
-    expect(fixture.nativeElement.querySelector('.distance').textContent).toContain('1.4 km');
+    expect(fixture.nativeElement.querySelector('.distance').textContent).toContain('1,4 km');
   });
 
   it('hides the distance when the city has no coordinates', async () => {

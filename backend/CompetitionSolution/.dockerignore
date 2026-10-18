@@ -7,3 +7,11 @@
 .gitignore
 **/NuGet.Config
 **/nuget.config
+**/.env
+**/.env.*
+**/appsettings.Local.json
+**/secrets.json
+**/TestResults/
+**/*.log
+**/*.pfx
+**/*.pem

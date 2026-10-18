@@ -1,0 +1,31 @@
+# Optional Git-backed deployment only after explicit permission to publish changes.
+# For the no-Git-push workflow, use a prebuilt private image (see DEPLOYMENT.md).
+services:
+  - type: web
+    name: competition-dev-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerContext: ./backend/CompetitionSolution
+    dockerfilePath: ./backend/CompetitionSolution/Competition.Api/Dockerfile
+    autoDeployTrigger: "off"
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Staging
+      - key: ASPNETCORE_FORWARDEDHEADERS_ENABLED
+        value: "true"
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Jwt__Key
+        generateValue: true
+      - key: Cors__AllowedOrigins__0
+        sync: false
+      - key: Storage__Provider
+        value: Supabase
+      - key: SupabaseStorage__ProjectUrl
+        sync: false
+      - key: SupabaseStorage__ServiceRoleKey
+        sync: false
+      - key: SupabaseStorage__BucketName
+        value: images-dev

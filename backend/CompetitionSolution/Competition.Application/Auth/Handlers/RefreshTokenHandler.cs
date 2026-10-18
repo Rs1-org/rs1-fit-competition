@@ -14,7 +14,7 @@ public class RefreshTokenHandler(IRefreshTokenService refreshTokenService, UserM
     public async Task<LoginResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
         var tokenUser = await refreshTokenService.GetUserAsync(request.RefreshToken);
-        if (tokenUser == null || tokenUser.Expires < DateTime.UtcNow)
+        if (tokenUser == null || tokenUser.IsRevoked || tokenUser.Expires < DateTime.UtcNow)
         {
             throw new UnauthorizedAccessException("Invalid or expired refresh token");
         }

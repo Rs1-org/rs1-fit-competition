@@ -32,7 +32,9 @@ COPY . .
 
 RUN dotnet publish Competition.Api/Competition.Api.csproj \
     -c Release \
-    -o /app/publish 
+    --no-restore \
+    -p:UseAppHost=false \
+    -o /app/publish
 
 # ═══════════════════════════════════════════════════════════════
 #  Stage 3 – EF Migrator
@@ -60,8 +62,12 @@ CMD ["dotnet-ef", "--version"]
 # ═══════════════════════════════════════════════════════════════
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
+ARG APP_REVISION=local
+ENV Deployment__Revision=$APP_REVISION
 
 COPY --from=publish /app/publish .
+
+USER $APP_UID
 
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
