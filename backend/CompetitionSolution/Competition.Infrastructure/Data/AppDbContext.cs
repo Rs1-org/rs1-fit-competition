@@ -186,6 +186,33 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             e.HasQueryFilter(x => x.DeletedAt == null);
         });
 
+        modelBuilder.Entity<Statistic>(e =>
+        {
+            e.ToTable("Statistics");
+            e.HasOne(x => x.Match).WithMany(x => x.Statistics)
+                .HasForeignKey(x => x.MatchId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => x.MatchId).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasQueryFilter(x => x.DeletedAt == null && x.Match.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<TeamStatistic>(e =>
+        {
+            e.ToTable("TeamStatistics", table =>
+            {
+                table.HasCheckConstraint("CK_TeamStatistics_NonNegative",
+                    "\"TotalShots\" >= 0 AND \"ShotsOnTarget\" >= 0 AND \"TotalRedCards\" >= 0 AND \"TotalYellowCards\" >= 0 AND \"Corners\" >= 0 AND \"BigChances\" >= 0");
+                table.HasCheckConstraint("CK_TeamStatistics_ShotsOnTarget", "\"ShotsOnTarget\" <= \"TotalShots\"");
+                table.HasCheckConstraint("CK_TeamStatistics_Possession", "\"Possession\" >= 0 AND \"Possession\" <= 100");
+            });
+            e.HasOne(x => x.Statistic).WithMany(x => x.TeamStatistics)
+                .HasForeignKey(x => x.StatisticId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Selection).WithMany()
+                .HasForeignKey(x => x.SelectionId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.StatisticId, x.SelectionId }).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasQueryFilter(x => x.DeletedAt == null && x.Statistic.DeletedAt == null
+                && x.Statistic.Match.DeletedAt == null && x.Selection.DeletedAt == null);
+        });
+
         modelBuilder.Entity<Club>(e =>
         {
             e.ToTable("Clubs");
@@ -385,6 +412,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<Stadium> Stadiums { get; set; }
     public DbSet<MatchStatus> MatchStatuses { get; set; } = null!;
     public DbSet<Match> Matches { get; set; } = null!;
+    public DbSet<Statistic> Statistics { get; set; } = null!;
+    public DbSet<TeamStatistic> TeamStatistics { get; set; } = null!;
     public DbSet<FormationMark> FormationMarks { get; set; } = null!;
     public DbSet<Formation> Formations { get; set; } = null!;
     public DbSet<Position> Positions { get; set; } = null!;

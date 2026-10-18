@@ -902,6 +902,111 @@ namespace Competition.Infrastructure.Migrations
                     b.ToTable("Stadiums", (string)null);
                 });
 
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Statistic", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MatchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MatchId")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.ToTable("Statistics", (string)null);
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.TeamStatistic", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<int>("BigChances")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Corners")
+                        .HasColumnType("integer");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Possession")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("SelectionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ShotsOnTarget")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("StatisticId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("TotalRedCards")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalShots")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalYellowCards")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("SelectionId");
+
+                    b.HasIndex("StatisticId", "SelectionId")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.ToTable("TeamStatistics", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_TeamStatistics_NonNegative", "\"TotalShots\" >= 0 AND \"ShotsOnTarget\" >= 0 AND \"TotalRedCards\" >= 0 AND \"TotalYellowCards\" >= 0 AND \"Corners\" >= 0 AND \"BigChances\" >= 0");
+
+                            t.HasCheckConstraint("CK_TeamStatistics_Possession", "\"Possession\" >= 0 AND \"Possession\" <= 100");
+
+                            t.HasCheckConstraint("CK_TeamStatistics_ShotsOnTarget", "\"ShotsOnTarget\" <= \"TotalShots\"");
+                        });
+                });
+
             modelBuilder.Entity("Competition.Domain.Entities.Person.Person", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1523,6 +1628,36 @@ namespace Competition.Infrastructure.Migrations
                     b.Navigation("GeoData");
                 });
 
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Statistic", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.MatchEntities.Match", "Match")
+                        .WithMany("Statistics")
+                        .HasForeignKey("MatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Match");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.TeamStatistic", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.Selection", "Selection")
+                        .WithMany()
+                        .HasForeignKey("SelectionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Competition.Domain.Entities.MatchEntities.Statistic", "Statistic")
+                        .WithMany("TeamStatistics")
+                        .HasForeignKey("StatisticId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Selection");
+
+                    b.Navigation("Statistic");
+                });
+
             modelBuilder.Entity("Competition.Domain.Entities.PlayerSelectionHistory", b =>
                 {
                     b.HasOne("Competition.Domain.Entities.Person.Player", "Player")
@@ -1744,9 +1879,19 @@ namespace Competition.Infrastructure.Migrations
                     b.Navigation("Players");
                 });
 
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Match", b =>
+                {
+                    b.Navigation("Statistics");
+                });
+
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchStatus", b =>
                 {
                     b.Navigation("Matches");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Statistic", b =>
+                {
+                    b.Navigation("TeamStatistics");
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.Selection", b =>
