@@ -28,7 +28,7 @@ public class DeploymentTests(WebApplicationFactory<Program> factory) : BaseInteg
         var password = $"Dev!aA1{Guid.NewGuid():N}";
         var registration = await Client.PostAsJsonAsync("/api/auth/register", new
         {
-            email, password, firstName = "Deployment", lastName = "Test", phoneNumber = "061111111",
+            email, password, confirmPassword = password, firstName = "Deployment", lastName = "Test", phoneNumber = "061111111",
         });
         registration.StatusCode.Should().Be(HttpStatusCode.OK);
         var login = await Client.PostAsJsonAsync("/api/auth/login", new { email, password });

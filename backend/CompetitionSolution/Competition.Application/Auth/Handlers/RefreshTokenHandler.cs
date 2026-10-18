@@ -13,25 +13,26 @@ public class RefreshTokenHandler(IRefreshTokenService refreshTokenService, UserM
 {
     public async Task<LoginResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var tokenUser = await refreshTokenService.GetUserAsync(request.RefreshToken);
-        if (tokenUser == null || tokenUser.IsRevoked || tokenUser.Expires < DateTime.UtcNow)
+        var tokenUser = await refreshTokenService.GetUserAsync(request.RefreshToken, cancellationToken);
+        if (tokenUser == null || tokenUser.IsRevoked || tokenUser.Expires <= DateTime.UtcNow)
         {
             throw new UnauthorizedAccessException("Invalid or expired refresh token");
         }
         var user = await userManager.FindByIdAsync(tokenUser.UserId.ToString());
-        if (user == null)
-            throw new UnauthorizedAccessException("User not found");
+        if (user == null || !user.IsActive)
+            throw new UnauthorizedAccessException("Invalid or expired refresh token");
         
         var roles = await userManager.GetRolesAsync(user);
+        cancellationToken.ThrowIfCancellationRequested();
         
         var newAccessToken = jwtTokenGenerator.GenerateJwtToken(user, roles);
         
         var newRefreshToken = refreshTokenService.GenerateRefreshToken();
         var expires = DateTime.UtcNow.AddDays(7);
         
-        await refreshTokenService.SaveRefreshTokenAsync(user.Id, newRefreshToken, expires);
+        await refreshTokenService.SaveRefreshTokenAsync(user.Id, newRefreshToken, expires, cancellationToken);
         
-        await refreshTokenService.RevokeTokenAsync(request.RefreshToken);
+        await refreshTokenService.RevokeTokenAsync(request.RefreshToken, cancellationToken);
         
         return new LoginResponse
         {

@@ -16,7 +16,7 @@ public class RefreshTokenService(AppDbContext context) : IRefreshTokenService
         return Convert.ToBase64String(randomNumber);
     }
 
-    public async Task SaveRefreshTokenAsync(Guid userId, string refreshToken, DateTime expires)
+    public async Task SaveRefreshTokenAsync(Guid userId, string refreshToken, DateTime expires, CancellationToken cancellationToken = default)
     {
         var token = new RefreshToken
         {
@@ -26,34 +26,35 @@ public class RefreshTokenService(AppDbContext context) : IRefreshTokenService
         };
 
         context.RefreshTokens.Add(token);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<bool> ValidateRefreshTokenAsync(Guid userId, string refreshToken)
+    public async Task<bool> ValidateRefreshTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken = default)
     {
         var token = await context.RefreshTokens
-            .FirstOrDefaultAsync(t => t.UserId == userId && t.Token == refreshToken);
+            .FirstOrDefaultAsync(t => t.UserId == userId && t.Token == refreshToken, cancellationToken);
 
-        if (token == null || token.Expires < DateTime.UtcNow)
+        if (token == null || token.IsRevoked || token.Expires <= DateTime.UtcNow)
             return false;
 
         return true;
     }
 
-    public async Task RevokeTokenAsync(string refreshToken)
+    public async Task RevokeTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
         var token = await context.RefreshTokens
-            .FirstOrDefaultAsync(t => t.Token == refreshToken);
+            .FirstOrDefaultAsync(t => t.Token == refreshToken, cancellationToken);
 
-        if (token != null)
+        if (token is { IsRevoked: false })
         {
-            context.RefreshTokens.Remove(token);
-            await context.SaveChangesAsync();
+            token.IsRevoked = true;
+            token.RevokedAt = DateTime.UtcNow;
+            await context.SaveChangesAsync(cancellationToken);
         }
     }
 
-    public async Task<RefreshToken?> GetUserAsync(string refreshToken)
+    public async Task<RefreshToken?> GetUserAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
-        return await context.RefreshTokens.FirstOrDefaultAsync(it => it.Token == refreshToken);
+        return await context.RefreshTokens.FirstOrDefaultAsync(it => it.Token == refreshToken, cancellationToken);
     }
 }

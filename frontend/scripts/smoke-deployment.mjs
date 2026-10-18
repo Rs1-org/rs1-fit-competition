@@ -62,6 +62,7 @@ if (process.env.DEV_SMOKE_AUTH === 'true') {
   const registration = await post('/api/auth/register', {
     email,
     password,
+    confirmPassword: password,
     firstName: 'Deployment',
     lastName: 'Verification',
     phoneNumber: '061111111',

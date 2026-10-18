@@ -16,8 +16,9 @@ public class LoginUserHandler(UserManager<ApplicationUser> userManager, IJwtToke
         LoginUserCommand request,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var user = await userManager.FindByNameAsync(request.LoginUser.Email);
-        if (user is null)
+        if (user is null || !user.IsActive)
             throw new LoginFailedException("Invalid credentials");
 
         var isValid = await userManager.CheckPasswordAsync(user, request.LoginUser.Password);
@@ -25,6 +26,7 @@ public class LoginUserHandler(UserManager<ApplicationUser> userManager, IJwtToke
             throw new LoginFailedException("Invalid credentials");
 
         var roles = await userManager.GetRolesAsync(user);
+        cancellationToken.ThrowIfCancellationRequested();
         
         var accessToken = jwtTokenGenerator.GenerateJwtToken(user, roles);
         
@@ -34,7 +36,7 @@ public class LoginUserHandler(UserManager<ApplicationUser> userManager, IJwtToke
         await refreshTokenService.SaveRefreshTokenAsync(
             user.Id,
             refreshToken,
-            refreshExpires);
+            refreshExpires, cancellationToken);
 
         return new LoginResponse
         {

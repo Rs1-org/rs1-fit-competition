@@ -11,9 +11,9 @@ namespace Competition.Api.Controllers;
 public class AuthController(IMediator mediator) : ControllerBase
 {
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterUserDto user)
+    public async Task<IActionResult> Register([FromBody] RegisterUserDto user, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new RegisterUserCommand(user));
+        var response = await mediator.Send(new RegisterUserCommand(user), cancellationToken);
 
         if (!response.Success)
             return BadRequest(new { message = "Registration failed", errors = response.Errors });
@@ -22,30 +22,22 @@ public class AuthController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginUserDto userDto)
+    public async Task<IActionResult> Login([FromBody] LoginUserDto userDto, CancellationToken cancellationToken)
     {
-        var loginResponse = await mediator.Send(new LoginUserCommand(userDto));
+        var loginResponse = await mediator.Send(new LoginUserCommand(userDto), cancellationToken);
         return Ok(loginResponse);
     }
 
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> Login([FromBody] string userToken)
+    public async Task<IActionResult> Refresh([FromBody] string userToken, CancellationToken cancellationToken)
     {
-        try
-        {
-            var user = await mediator.Send(new RefreshTokenCommand(userToken));
-            return Ok(user);
-        }
-        catch (ApplicationException ex)
-        {
-            return BadRequest(new { Error = ex.Message });
-        }
+        return Ok(await mediator.Send(new RefreshTokenCommand(userToken), cancellationToken));
     }
     
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout([FromBody] LogoutUserCommand request)
+    public async Task<IActionResult> Logout([FromBody] LogoutRequest request, CancellationToken cancellationToken)
     {
-        await mediator.Send(new LogoutUserCommand(request.token));
+        await mediator.Send(new LogoutUserCommand(request.Token), cancellationToken);
         return Ok();
     }
 }

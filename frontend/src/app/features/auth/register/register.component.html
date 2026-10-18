@@ -7,6 +7,8 @@
       <input
         type="email"
         formControlName="email"
+        aria-label="Email"
+        autocomplete="email"
         placeholder="Email"
         [class.field-invalid]="isInvalid('email')"
       />
@@ -15,6 +17,8 @@
         <input
           [type]="showPassword ? 'text' : 'password'"
           formControlName="password"
+          aria-label="Password"
+          autocomplete="new-password"
           placeholder="Password"
           [class.field-invalid]="isInvalid('password')"
         />
@@ -29,24 +33,42 @@
       </div>
 
       <small class="password-hint">
-        Password must be at least 6 characters and include uppercase, lowercase, and a special character (e.g. Test123!).
+        Use 8–128 characters including uppercase, lowercase, a digit and a special character.
       </small>
+
+      <input
+        type="password"
+        formControlName="confirmPassword"
+        placeholder="Confirm Password"
+        aria-label="Confirm password"
+        autocomplete="new-password"
+        [class.field-invalid]="isInvalid('confirmPassword') || (form.controls.confirmPassword.touched && form.hasError('passwordMismatch'))"
+      />
+      @if (form.controls.confirmPassword.touched && form.hasError('passwordMismatch')) {
+        <small role="alert">Passwords must match.</small>
+      }
 
       <input
         type="text"
         formControlName="firstName"
+        aria-label="First name"
+        autocomplete="given-name"
         placeholder="First Name"
         [class.field-invalid]="isInvalid('firstName')"
       />
       <input
         type="text"
         formControlName="lastName"
+        aria-label="Last name"
+        autocomplete="family-name"
         placeholder="Last Name"
         [class.field-invalid]="isInvalid('lastName')"
       />
       <input
         type="text"
         formControlName="phoneNumber"
+        aria-label="Phone number"
+        autocomplete="tel"
         placeholder="Phone Number"
         [class.field-invalid]="isInvalid('phoneNumber')"
       />
@@ -63,7 +85,7 @@
     }
 
     @if (errors.length > 0) {
-      <div class="error">
+      <div class="error" role="alert">
         @for (item of errors; track item) {
           <p>{{ item }}</p>
         }
