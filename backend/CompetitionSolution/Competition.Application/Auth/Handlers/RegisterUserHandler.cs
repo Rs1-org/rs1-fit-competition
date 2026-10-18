@@ -11,11 +11,13 @@ public class RegisterUserHandler(UserManager<ApplicationUser>userManager,IMapper
 {
     public async Task<RegisterResponse> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var user = mapper.Map<ApplicationUser>(request.UserDto);
         user.UserName = request.UserDto.Email;
         user.Email = request.UserDto.Email;
 
         var result = await userManager.CreateAsync(user, request.UserDto.Password);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!result.Succeeded)
         {

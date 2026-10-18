@@ -11,6 +11,8 @@
 
 /* Modal container */
 .modal-container {
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
   background: var(--bg-secondary);
   width: 380px;
   padding: 2rem;

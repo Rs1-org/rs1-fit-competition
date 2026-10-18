@@ -8,7 +8,7 @@ public class LogoutUserHandler(IRefreshTokenService refreshTokenService) : IRequ
 {
     public async Task<bool> Handle(LogoutUserCommand request, CancellationToken cancellationToken)
     {
-        await refreshTokenService.RevokeTokenAsync(request.token);
+        await refreshTokenService.RevokeTokenAsync(request.token, cancellationToken);
         return true;
     }
 }
