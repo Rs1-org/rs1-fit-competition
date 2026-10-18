@@ -12,3 +12,6 @@ export interface ReviewMatch {
   publicId: string; date: string | null; homeSelectionName: string | null; awaySelectionName: string | null;
   homeScore: number | null; awayScore: number | null; statusName: string | null; stadiumName: string | null;
 }
+export interface ReviewMatchDetails extends ReviewMatch {
+  homeSelectionPublicId: string | null; awaySelectionPublicId: string | null;
+}

@@ -1,0 +1,10 @@
+<main class="statistics-page"><a routerLink="/statistics">Back to statistics</a><h1>Match statistics</h1>
+  @if (state().loading) { <p role="status">Loading match…</p> }
+  @else if (state().error) { <p role="alert" class="stat-error">{{ state().error }}</p><button type="button" (click)="retry()">Try again</button> }
+  @else if (state().data; as match) {
+    <h2>{{ match.homeSelectionName || 'Home selection not assigned' }} vs {{ match.awaySelectionName || 'Away selection not assigned' }}</h2>
+    <p>{{ match.date | appDateTime }} · {{ match.statusName || 'Status not set' }}</p>
+    <div class="stat-actions"><a [routerLink]="['/match-events', match.publicId]">Timeline</a><a [routerLink]="['/match-reviews', match.publicId]">Match reviews</a></div>
+    <app-match-statistics-panel [matchPublicId]="match.publicId" />
+  }
+</main>
