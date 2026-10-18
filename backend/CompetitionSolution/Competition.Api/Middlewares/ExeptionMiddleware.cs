@@ -63,6 +63,17 @@ public class ExceptionMiddleware
                 response = new { message = exception.Message };
                 break;
 
+            case ForbiddenAccessException:
+                status = HttpStatusCode.Forbidden;
+                response = new { message = exception.Message };
+                break;
+
+            case Microsoft.EntityFrameworkCore.DbUpdateException { InnerException: Npgsql.PostgresException
+                { SqlState: "23505", ConstraintName: "IX_MatchReviews_MatchId_AuthorId" or "IX_ReviewReactions_ReviewId_UserId" } }:
+                status = HttpStatusCode.Conflict;
+                response = new { message = "Another change was saved first. Reload and try again." };
+                break;
+
             default:
                 status = HttpStatusCode.InternalServerError;
                 response = _env.IsDevelopment()

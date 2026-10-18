@@ -216,6 +216,17 @@ classDiagram
     class Statistic {
         +Guid MatchId
     }
+    class MatchReview {
+        +Guid MatchId
+        +Guid AuthorId
+        +int Rating
+        +string Comment
+    }
+    class ReviewReaction {
+        +Guid ReviewId
+        +Guid UserId
+        +int Value
+    }
     class TeamStatistic {
         +Guid StatisticId
         +Guid SelectionId
@@ -239,6 +250,8 @@ classDiagram
     BaseEntity <|-- Match
     BaseEntity <|-- MatchStatus
     BaseEntity <|-- Statistic
+    BaseEntity <|-- MatchReview
+    BaseEntity <|-- ReviewReaction
     BaseEntity <|-- TeamStatistic
     BaseEntity <|-- Selection
     BaseEntity <|-- Person
@@ -274,6 +287,10 @@ classDiagram
     Match "1" <--> "0..*" Statistic : Statistics / Match
     Statistic "1" <--> "0..*" TeamStatistic : TeamStatistics / Statistic
     TeamStatistic "0..*" --> "1" Selection : Selection
+    MatchReview "0..*" --> "1" Match : Match
+    MatchReview "0..*" --> "1" ApplicationUser : Author
+    MatchReview "1" <--> "0..*" ReviewReaction : Reactions / Review
+    ReviewReaction ..> ApplicationUser : UserId FK
     Match "0..*" <--> "0..1" Selection : HomeSelection / HomeMatches
     Match "0..*" <--> "0..1" Selection : AwaySelection / AwayMatches
 

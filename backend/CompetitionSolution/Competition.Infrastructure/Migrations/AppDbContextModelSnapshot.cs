@@ -815,6 +815,58 @@ namespace Competition.Infrastructure.Migrations
                     b.ToTable("Matches", (string)null);
                 });
 
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchReview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MatchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("MatchId", "AuthorId")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.ToTable("MatchReviews", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_MatchReviews_Rating", "\"Rating\" BETWEEN 1 AND 5");
+                        });
+                });
+
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchStatus", b =>
                 {
                     b.Property<Guid>("Id")
@@ -854,6 +906,53 @@ namespace Competition.Infrastructure.Migrations
                         .HasFilter("\"Slug\" IS NOT NULL");
 
                     b.ToTable("MatchStatuses", (string)null);
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.ReviewReaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("ReviewId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("ReviewId", "UserId")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.ToTable("ReviewReactions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ReviewReactions_Value", "\"Value\" IN (-1, 1)");
+                        });
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Stadium", b =>
@@ -1622,6 +1721,42 @@ namespace Competition.Infrastructure.Migrations
                     b.Navigation("Status");
                 });
 
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchReview", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.ApplicationUser", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Competition.Domain.Entities.MatchEntities.Match", "Match")
+                        .WithMany()
+                        .HasForeignKey("MatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Match");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.ReviewReaction", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.MatchEntities.MatchReview", "Review")
+                        .WithMany("Reactions")
+                        .HasForeignKey("ReviewId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Competition.Domain.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Review");
+                });
+
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Stadium", b =>
                 {
                     b.HasOne("Competition.Domain.Entities.City", "City")
@@ -1895,6 +2030,11 @@ namespace Competition.Infrastructure.Migrations
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Match", b =>
                 {
                     b.Navigation("Statistics");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchReview", b =>
+                {
+                    b.Navigation("Reactions");
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchStatus", b =>
