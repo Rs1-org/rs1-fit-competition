@@ -1,0 +1,43 @@
+<section aria-labelledby="club-selections-title" [attr.aria-busy]="state().loading">
+  <h2 id="club-selections-title">Selections</h2>
+  @if (state().loading) {
+    <p role="status">Loading selections…</p>
+  } @else if (state().error) {
+    <div role="alert">
+      <p>{{ state().error }}</p>
+      <button type="button" (click)="retry()">Try again</button>
+    </div>
+  } @else if (!state().data.totalCount) {
+    <p>This club has no selections yet.</p>
+  } @else {
+    <p>{{ state().data.totalCount | appNumber: '1.0-0' }} selections</p>
+    <ul>
+      @for (selection of state().data.items; track selection.id) {
+        <li>
+          <a [routerLink]="['/selection', selection.slug]">{{ selection.name }}</a
+          ><span>{{ selection.abbreviation }}</span>
+        </li>
+      }
+    </ul>
+    <nav aria-label="Selection pages">
+      <button
+        type="button"
+        [disabled]="!state().data.hasPreviousPage"
+        (click)="page(state().data.page - 1)"
+      >
+        Previous
+      </button>
+      <span
+        >Page {{ state().data.page | appNumber: '1.0-0' }} of
+        {{ state().data.totalPages | appNumber: '1.0-0' }}</span
+      >
+      <button
+        type="button"
+        [disabled]="!state().data.hasNextPage"
+        (click)="page(state().data.page + 1)"
+      >
+        Next
+      </button>
+    </nav>
+  }
+</section>

@@ -16,11 +16,14 @@ public class SelectionRepository : Repository<Selection>, ISelection
     public SelectionRepository(AppDbContext context) : base(context) => _context = context;
 
     public Task<Selection?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default) =>
-        _context.Selections.Include(x => x.Country).FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
+        _context.Selections.Include(x => x.Club).Include(x => x.Country).FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
 
     public Task<PagedResult<Selection>> GetPagedAsync(SelectionListFilter filter, int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        var query = _context.Selections.Include(x => x.Country).AsQueryable();
+        var query = _context.Selections.Include(x => x.Club).Include(x => x.Country).AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.ClubPublicId))
+            query = query.Where(x => x.Club != null && x.Club.DeletedAt == null && x.Club.PublicId == filter.ClubPublicId);
 
         if (!string.IsNullOrWhiteSpace(filter.Name))
         {
@@ -46,7 +49,7 @@ public class SelectionRepository : Repository<Selection>, ISelection
         if (filter.FollowersMax.HasValue)
             query = query.Where(x => x.FollowersCount <= filter.FollowersMax.Value);
 
-        return query.OrderBy(x => x.Name).ToPagedResultAsync(page, pageSize, cancellationToken);
+        return query.AsNoTracking().OrderBy(x => x.Name).ThenBy(x => x.PublicId).ToPagedResultAsync(page, pageSize, cancellationToken);
     }
 }
 

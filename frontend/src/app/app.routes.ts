@@ -160,6 +160,11 @@ export const routes: Routes = [
       import('./pages/formation-list/formation-list').then((m) => m.FormationList),
   },
   {
+    path: 'selection/:slug',
+    loadComponent: () =>
+      import('./pages/selection-detail/selection-detail').then((m) => m.SelectionDetail),
+  },
+  {
     path: 'selection-list',
     loadComponent: () =>
       import('./pages/selection-list/selection-list').then((m) => m.SelectionList),

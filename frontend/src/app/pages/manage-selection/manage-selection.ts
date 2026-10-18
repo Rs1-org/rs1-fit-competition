@@ -1,9 +1,16 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CountryListDto } from '../../core/models/country';
 import { CountryService } from '../../core/services/country-service';
 import { SelectionService } from '../../core/services/selection.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { EMPTY, catchError, finalize, switchMap } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ClubService } from '../../core/services/club.service';
+import { ClubListDto } from '../../core/models/club';
+import { fetchAllPages } from '../../core/helpers/paging.helper';
+import { apiErrorMessage } from '../../core/utils/api-error';
 import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
 
 @Component({
@@ -18,54 +25,102 @@ export class ManageSelection implements OnInit {
   private selections = inject(SelectionService);
   private countries = inject(CountryService);
   private fb = inject(FormBuilder);
+  private clubs = inject(ClubService);
+  private destroyRef = inject(DestroyRef);
 
   form = this.fb.group({
     name: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(120)]),
     abbreviation: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(10)]),
     countryPublicId: this.fb.nonNullable.control('', Validators.required),
+    clubPublicId: this.fb.nonNullable.control('', Validators.required),
     followersCount: this.fb.nonNullable.control(0, [Validators.required, Validators.min(0)]),
   });
 
   countryOptions: CountryListDto[] = [];
+  clubOptions: ClubListDto[] = [];
+  clubsLoading = false;
+  clubsError = '';
+  saving = false;
+  loading = false;
+  loadFailed = false;
   slug: string | null = null;
   isEditMode = false;
   error = '';
 
   ngOnInit(): void {
-    this.countries.getAll(1, 100).subscribe((page) => {
-      this.countryOptions = page.items;
-    });
+    this.loadClubs();
+    fetchAllPages((page) => this.countries.getAll(page, 100))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (countries) => (this.countryOptions = countries),
+        error: (err) => (this.error = apiErrorMessage(err, 'Countries could not be loaded.')),
+      });
 
-    this.route.paramMap.subscribe((params) => {
-      const slug = params.get('slug');
-      this.slug = slug;
-      this.isEditMode = !!slug;
-      this.error = '';
-      if (!slug) {
-        this.form.reset({ name: '', abbreviation: '', countryPublicId: '', followersCount: 0 });
-        return;
-      }
+    this.route.paramMap
+      .pipe(
+        switchMap((params) => {
+          const slug = params.get('slug');
+          this.slug = slug;
+          this.isEditMode = !!slug;
+          this.error = '';
+          this.loadFailed = false;
+          this.form.reset({
+            name: '',
+            abbreviation: '',
+            countryPublicId: '',
+            clubPublicId: '',
+            followersCount: 0,
+          });
+          if (!slug) {
+            return EMPTY;
+          }
 
-      this.selections.getBySlug(slug).subscribe({
+          this.loading = true;
+          return this.selections.getBySlug(slug).pipe(
+            catchError((err) => {
+              this.error = apiErrorMessage(err, 'Selection could not be loaded.');
+              this.loadFailed = true;
+              return EMPTY;
+            }),
+            finalize(() => (this.loading = false)),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
         next: (selection) => {
           this.form.patchValue({
             name: selection.name,
             abbreviation: selection.abbreviation,
             followersCount: selection.followersCount,
             countryPublicId: selection.countryPublicId ?? '',
+            clubPublicId: selection.clubPublicId ?? '',
           });
         },
-        error: () => {
-          this.error = 'Selection was not found.';
-        },
       });
-    });
   }
 
-  fieldError(name: 'name' | 'abbreviation' | 'countryPublicId' | 'followersCount'): string | null {
+  loadClubs(): void {
+    this.clubsLoading = true;
+    this.clubsError = '';
+    fetchAllPages((page) => this.clubs.getAll(page, 100))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => (this.clubsLoading = false)),
+      )
+      .subscribe({
+        next: (clubs) => (this.clubOptions = clubs),
+        error: (err) => (this.clubsError = apiErrorMessage(err, 'Clubs could not be loaded.')),
+      });
+  }
+
+  fieldError(
+    name: 'name' | 'abbreviation' | 'countryPublicId' | 'clubPublicId' | 'followersCount',
+  ): string | null {
     const control = this.form.controls[name];
     if (!control.touched || control.valid) return null;
     if (control.hasError('required')) return 'This field is required.';
+    if (control.hasError('server')) return control.getError('server');
     if (control.hasError('maxlength')) {
       return name === 'abbreviation'
         ? 'Maximum length is 10 characters.'
@@ -76,6 +131,8 @@ export class ManageSelection implements OnInit {
   }
 
   save(): void {
+    if (this.saving || this.loading || this.loadFailed || this.clubsLoading || this.clubsError)
+      return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -87,17 +144,35 @@ export class ManageSelection implements OnInit {
       abbreviation: value.abbreviation.trim(),
       followersCount: Number(value.followersCount) || 0,
       countryPublicId: value.countryPublicId,
+      clubPublicId: value.clubPublicId,
     };
     const request$ = this.isEditMode
       ? this.selections.update(this.slug!, body)
       : this.selections.create(body);
 
-    request$.subscribe({
-      next: () => this.router.navigate(['/selection-list']),
-      error: (err) => {
-        this.error = err?.error?.message || err?.error?.title || 'Could not save the selection.';
-      },
-    });
+    this.saving = true;
+    this.error = '';
+    request$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => (this.saving = false)),
+      )
+      .subscribe({
+        next: () => this.router.navigate(['/selection-list']),
+        error: (err) => {
+          this.error = apiErrorMessage(err, 'Could not save the selection.');
+          if (err instanceof HttpErrorResponse) {
+            const errors = err.error?.errors as
+              | { propertyName: string; errorMessage: string }[]
+              | undefined;
+            const clubError = errors?.find((error) => error.propertyName === 'ClubPublicId');
+            if (clubError) {
+              this.form.controls.clubPublicId.setErrors({ server: clubError.errorMessage });
+              this.form.controls.clubPublicId.markAsTouched();
+            }
+          }
+        },
+      });
   }
 
   cancel(): void {

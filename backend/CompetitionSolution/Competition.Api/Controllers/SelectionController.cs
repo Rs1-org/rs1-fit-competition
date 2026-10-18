@@ -17,6 +17,7 @@ public class SelectionController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> GetAll(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
+        [FromQuery] string? clubPublicId = null,
         [FromQuery] string? name = null,
         [FromQuery] string? countryPublicId = null,
         [FromQuery] string? abbreviation = null,
@@ -28,6 +29,7 @@ public class SelectionController(IMediator mediator) : ControllerBase
         {
             Page = page,
             PageSize = pageSize,
+            ClubPublicId = clubPublicId,
             Name = name,
             CountryPublicId = countryPublicId,
             Abbreviation = abbreviation,

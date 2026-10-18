@@ -32,25 +32,56 @@
       <label for="filter-followers-max">Followers to</label>
       <input id="filter-followers-max" type="number" min="0" formControlName="followersMax" />
     </div>
+    <div class="filter-field">
+      <label for="filter-club">Club</label>
+      <select id="filter-club" formControlName="clubPublicId">
+        <option value="">Any club</option>
+        @for (club of clubOptions().items; track club.publicId) {
+          <option [value]="club.publicId">{{ club.name }}</option>
+        }
+      </select>
+      @if (clubOptions().error) {
+        <p role="alert">{{ clubOptions().error }}</p>
+      }
+    </div>
     <button type="button" class="filter-reset" (click)="resetFilters()">Reset</button>
     @if (filterForm.hasError('followersRange')) {
       <p class="filter-error">Followers to must be greater than or equal to followers from.</p>
     }
   </form>
 
-  <app-generic-list
-    [items]="result().items"
-    [pageSize]="pageSize"
-    [serverTotalItems]="result().totalCount"
-    [serverCurrentPage]="result().page"
-    [showActions]="canManage()"
-    variant="card"
-    (update)="onEdit($event)"
-    (delete)="onDelete($event)"
-    (pageChange)="onPageChange($event)">
-    <ng-template #itemTemplate let-item>
-      <div class="item-title">{{ item.name }} · {{ item.abbreviation }}</div>
-      <div class="item-subtitle">{{ item.countryName || 'No country' }} · {{ item.followersCount | appNumber:'1.0-0' }} followers</div>
-    </ng-template>
-  </app-generic-list>
+  @if (state().loading) {
+    <p role="status">Loading selections...</p>
+  } @else if (state().error) {
+    <div role="alert">
+      <p>{{ state().error }}</p>
+      <button type="button" (click)="retry()">Try again</button>
+    </div>
+  } @else {
+    <app-generic-list
+      [items]="state().data.items"
+      [pageSize]="pageSize"
+      [serverTotalItems]="state().data.totalCount"
+      [serverCurrentPage]="state().data.page"
+      [showActions]="canManage()"
+      [showDelete]="isAdmin()"
+      variant="card"
+      (update)="onEdit($event)"
+      (delete)="onDelete($event)"
+      (pageChange)="onPageChange($event)"
+    >
+      <ng-template #itemTemplate let-item>
+        <div class="item-title">
+          <a [routerLink]="['/selection', item.slug]">{{ item.name }} · {{ item.abbreviation }}</a>
+        </div>
+        @if (item.clubSlug) {
+          <a [routerLink]="['/clubs', item.clubSlug]">{{ item.clubName }}</a>
+        }
+        <div class="item-subtitle">
+          {{ item.countryName || 'No country' }} ·
+          {{ item.followersCount | appNumber: '1.0-0' }} followers
+        </div>
+      </ng-template>
+    </app-generic-list>
+  }
 </div>
