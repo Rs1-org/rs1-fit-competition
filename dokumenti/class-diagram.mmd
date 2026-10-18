@@ -58,6 +58,25 @@ classDiagram
         +decimal Longitude
         +string? Description
     }
+    class Club {
+        +string Name
+        +string Slug
+        +LocalDate? FoundingDate
+        +ClubAge ClubAge
+        +Guid? CityId
+        +Guid? StadiumId
+    }
+    class ClubAge {
+        <<enumeration>>
+        U7
+        U9
+        U11
+        U13
+        U16
+        U19
+        U21
+        Senior
+    }
     class Stadium {
         +string? Name
         +int Capacity
@@ -197,6 +216,7 @@ classDiagram
     BaseEntity <|-- City
     BaseEntity <|-- GeoData
     BaseEntity <|-- Stadium
+    BaseEntity <|-- Club
     BaseEntity <|-- Match
     BaseEntity <|-- MatchStatus
     BaseEntity <|-- Selection
@@ -222,6 +242,9 @@ classDiagram
 
     Country "1" <--> "0..*" City : Cities / Country
     City "0..*" --> "1" GeoData : GeoData
+    Club "0..*" --> "0..1" City : City
+    Club "0..*" --> "0..1" Stadium : Stadium
+    Club --> ClubAge : age group
     Stadium "0..*" --> "1" City : City
     Stadium "0..*" --> "1" GeoData : GeoData
 
@@ -265,7 +288,7 @@ classDiagram
     %% ---------- Notes ----------
     note for BaseEntity "All domain classes inherit BaseEntity (soft delete via DeletedAt). ApplicationUser, ApplicationRole and RefreshToken do not."
     note for LegendSprint4 "Sprint 4 also added Match.RoundId (Match -> Round).
-Planned for Sprint 4 but not implemented yet: Event, EventType, MatchPart (COMP-41), Club, Statistic / TeamStatistic (COMP-62), Selection.ClubId, Selection.HomeStadiumId."
+Planned for Sprint 4 but not implemented yet: Event, EventType, MatchPart (COMP-41), Statistic / TeamStatistic (COMP-62), Selection.ClubId, Selection.HomeStadiumId."
 
     %% ---------- Colours ----------
 
@@ -277,6 +300,8 @@ Planned for Sprint 4 but not implemented yet: Event, EventType, MatchPart (COMP-
     style City fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style GeoData fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Stadium fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Club fill:#e8f5e9,stroke:#2e7d32,color:#1b3a1f
+    style ClubAge fill:#e8f5e9,stroke:#2e7d32,color:#1b3a1f
     style Match fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style MatchStatus fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Selection fill:#eceff1,stroke:#546e7a,color:#1f2a30

@@ -1,0 +1,207 @@
+:host {
+  display: block;
+}
+.clubs-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.club-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.club-heading h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.club-heading p,
+.club-identity p {
+  color: var(--text-secondary);
+}
+.clubs-page a {
+  color: var(--text-primary);
+  text-underline-offset: 3px;
+}
+.clubs-page button,
+.club-primary,
+.club-actions a {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: none;
+}
+.clubs-page .club-primary {
+  background: var(--accent);
+  color: #06281f;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.clubs-page :is(a, button, input, select):focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+.clubs-page button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.club-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+  gap: 16px;
+  padding: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+.club-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.club-field label {
+  font-weight: 600;
+}
+.club-field input,
+.club-field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 10px;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--field-bg);
+  color: var(--text-primary);
+}
+.club-error {
+  color: var(--danger);
+  grid-column: 1 / -1;
+  margin: 8px 0;
+}
+.club-state {
+  padding: 32px 16px;
+  text-align: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+}
+.club-state p {
+  margin-bottom: 12px;
+}
+.club-count {
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+.club-list {
+  list-style: none;
+  padding: 0;
+}
+.club-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.club-identity {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.club-identity h2 {
+  font-size: 1.35rem;
+}
+.club-facts {
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+.club-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.clubs-page .club-delete {
+  color: var(--danger);
+}
+.club-form {
+  max-width: 720px;
+}
+.club-form form {
+  display: grid;
+  gap: 20px;
+}
+.club-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.club-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+.club-details dt {
+  color: var(--text-secondary);
+}
+.club-details dd {
+  margin: 4px 0 0;
+  font-size: 1.2rem;
+  overflow-wrap: anywhere;
+}
+.club-back {
+  display: inline-block;
+  margin-bottom: 20px;
+}
+@media (max-width: 800px) {
+  .club-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .club-row {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .club-actions {
+    width: 100%;
+  }
+}
+@media (max-width: 480px) {
+  .clubs-page {
+    padding: 16px;
+  }
+  .club-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .club-filters {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+  .club-identity,
+  .club-facts {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+  .club-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

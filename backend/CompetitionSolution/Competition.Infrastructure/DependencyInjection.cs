@@ -46,6 +46,7 @@ namespace Competition.Infrastructure
             services.AddScoped<IStadium,StadiumRepository>();
             services.AddScoped<IMatch, MatchRepository>();
             services.AddScoped<ICompetition, CompetitionRepository>();
+            services.AddScoped<IClub, ClubRepository>();
             services.AddScoped<ISeason, SeasonRepository>();
             services.AddScoped<IRound, RoundRepository>();
             services.AddScoped<IFormationMark, FormationMarkRepository>();

@@ -1,0 +1,107 @@
+<main class="clubs-page club-form">
+  <a class="club-back" routerLink="/clubs">Back to clubs</a>
+  <header class="club-heading">
+    <div>
+      <h1>{{ slug() ? 'Edit club' : 'Add club' }}</h1>
+      <p>Set the club's identity, location and home stadium.</p>
+    </div>
+  </header>
+  @if (loading()) {
+    <p class="club-state" role="status">Loading club form…</p>
+  } @else if (loadError()) {
+    <div class="club-state" role="alert">
+      <p>{{ loadError() }}</p>
+      <button type="button" (click)="load()">Try again</button>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" [attr.aria-busy]="saving()">
+      <div class="club-field">
+        <label for="club-form-name">Name (required)</label
+        ><input
+          id="club-form-name"
+          formControlName="name"
+          maxlength="100"
+          required
+          [attr.aria-invalid]="!!errorFor('name')"
+          aria-describedby="club-form-name-error"
+        />
+        @if (errorFor('name'); as error) {
+          <p id="club-form-name-error" class="club-error">{{ error }}</p>
+        }
+      </div>
+      <div class="club-field">
+        <label for="club-form-date">Founding date</label
+        ><input
+          id="club-form-date"
+          type="date"
+          formControlName="foundingDate"
+          [max]="today"
+          [attr.aria-invalid]="!!errorFor('foundingDate')"
+          aria-describedby="club-form-date-error"
+        />
+        @if (errorFor('foundingDate'); as error) {
+          <p id="club-form-date-error" class="club-error">{{ error }}</p>
+        }
+      </div>
+      <div class="club-field">
+        <label for="club-form-age">Age group (required)</label
+        ><select
+          id="club-form-age"
+          formControlName="clubAge"
+          required
+          [attr.aria-invalid]="!!errorFor('clubAge')"
+          aria-describedby="club-form-age-error"
+        >
+          @for (age of ages; track age; let i = $index) {
+            <option [ngValue]="i">{{ age }}</option>
+          }
+        </select>
+        @if (errorFor('clubAge'); as error) {
+          <p id="club-form-age-error" class="club-error">{{ error }}</p>
+        }
+      </div>
+      <div class="club-field">
+        <label for="club-form-city">City</label
+        ><select
+          id="club-form-city"
+          formControlName="cityPublicId"
+          [attr.aria-invalid]="!!errorFor('cityPublicId')"
+          aria-describedby="club-form-city-error"
+        >
+          <option value="">No city</option>
+          @for (city of cities(); track city.publicId) {
+            <option [value]="city.publicId">{{ city.name }} ({{ city.countryName }})</option>
+          }
+        </select>
+        @if (errorFor('cityPublicId'); as error) {
+          <p id="club-form-city-error" class="club-error">{{ error }}</p>
+        }
+      </div>
+      <div class="club-field">
+        <label for="club-form-stadium">Home stadium</label
+        ><select
+          id="club-form-stadium"
+          formControlName="stadiumPublicId"
+          [attr.aria-invalid]="!!errorFor('stadiumPublicId')"
+          aria-describedby="club-form-stadium-error"
+        >
+          <option value="">No stadium</option>
+          @for (stadium of stadiums(); track stadium.publicId) {
+            <option [value]="stadium.publicId">{{ stadium.name }} ({{ stadium.cityName }})</option>
+          }
+        </select>
+        @if (errorFor('stadiumPublicId'); as error) {
+          <p id="club-form-stadium-error" class="club-error">{{ error }}</p>
+        }
+      </div>
+      @if (saveError()) {
+        <p class="club-error" role="alert">{{ saveError() }}</p>
+      }
+      <div class="club-form-actions">
+        <button class="club-primary" type="submit" [disabled]="saving()">
+          {{ saving() ? 'Saving…' : 'Save club' }}</button
+        ><a routerLink="/clubs">Cancel</a>
+      </div>
+    </form>
+  }
+</main>

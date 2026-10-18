@@ -1,8 +1,9 @@
 <div class="overlay" (click)="close.emit()">
-    <div class="modal-container" (click)="$event.stopPropagation()" [style.width]="width" [style.height]="height">
+    <div #dialog class="modal-container" role="dialog" aria-modal="true" [attr.aria-labelledby]="titleId" tabindex="-1" (keydown)="onKeydown($event)" (click)="$event.stopPropagation()" [style.width]="width" [style.height]="height">
         <div class="modal-content">
             <div class="modal-header">
-                <h1>{{title}}</h1>
+                <h1 [id]="titleId">{{title}}</h1>
+                <button class="modal-close" type="button" aria-label="Close dialog" (click)="close.emit()">×</button>
             </div>
             <div class="modal-body">
                 <ng-content></ng-content>

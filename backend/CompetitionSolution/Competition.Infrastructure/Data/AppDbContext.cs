@@ -186,6 +186,17 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             e.HasQueryFilter(x => x.DeletedAt == null);
         });
 
+        modelBuilder.Entity<Club>(e =>
+        {
+            e.ToTable("Clubs");
+            e.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            e.Property(x => x.Slug).IsRequired().HasMaxLength(120);
+            e.HasIndex(x => x.Slug).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasOne(x => x.City).WithMany().HasForeignKey(x => x.CityId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Stadium).WithMany().HasForeignKey(x => x.StadiumId).OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
         modelBuilder.Entity<CompetitionEntity>(e =>
         {
             e.ToTable("Competitions");
@@ -382,6 +393,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<TransferValueHistory> TransferValueHistories { get; set; } = null!;
     public DbSet<MandateDate> MandateDates { get; set; } = null!;
     public DbSet<Selection> Selections { get; set; } = null!;
+    public DbSet<Club> Clubs { get; set; } = null!;
     public DbSet<CompetitionEntity> Competitions { get; set; } = null!;
     public DbSet<Season> Seasons { get; set; } = null!;
     public DbSet<Round> Rounds { get; set; } = null!;
