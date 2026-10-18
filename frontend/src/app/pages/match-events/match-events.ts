@@ -13,9 +13,10 @@ import { Pagination } from '../../shared/components/pagination/pagination';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { MatchLiveSummary, MatchRefreshReason } from '../../components/match-live-summary/match-live-summary';
+import { MatchPolls } from '../../components/match-polls/match-polls';
 
 interface EventsState { loading: boolean; data: PagedResult<MatchEvent> | null; error: string; }
-@Component({ selector: 'app-match-events', imports: [ReactiveFormsModule, RouterLink, EventMatchPicker, MatchEventTimeline, Pagination, MatchLiveSummary],
+@Component({ selector: 'app-match-events', imports: [ReactiveFormsModule, RouterLink, EventMatchPicker, MatchEventTimeline, Pagination, MatchLiveSummary, MatchPolls],
   templateUrl: './match-events.html', styleUrl: './events.css' })
 export class MatchEvents {
   private readonly service = inject(MatchEventService);

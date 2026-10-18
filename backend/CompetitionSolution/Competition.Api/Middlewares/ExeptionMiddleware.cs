@@ -69,7 +69,7 @@ public class ExceptionMiddleware
                 break;
 
             case Microsoft.EntityFrameworkCore.DbUpdateException { InnerException: Npgsql.PostgresException
-                { SqlState: "23505", ConstraintName: "IX_MatchReviews_MatchId_AuthorId" or "IX_ReviewReactions_ReviewId_UserId" } }:
+                { SqlState: "23505", ConstraintName: "IX_MatchReviews_MatchId_AuthorId" or "IX_ReviewReactions_ReviewId_UserId" or "IX_PollVotes_PollId_UserId" } }:
                 status = HttpStatusCode.Conflict;
                 response = new { message = "Another change was saved first. Reload and try again." };
                 break;

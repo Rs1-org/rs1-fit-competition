@@ -1,0 +1,23 @@
+.poll-panel, .poll-form-page { color: var(--text-primary); }
+.poll-panel { margin: 1.5rem 0; }
+.poll-form-page { max-width: 800px; padding: 0 1rem; margin: 2rem auto; }
+.poll-panel p, .poll-form-page p { margin: .65rem 0; }
+.poll-panel h2, .poll-form-page h1 { margin: .75rem 0; }
+.poll-actions, .poll-result-label { display: flex; gap: 1rem; justify-content: space-between; flex-wrap: wrap; align-items: center; }
+.poll-entry { border-top: 1px solid var(--border-color); padding: 1rem 0; }
+.poll-entry h3 { font-size: 1.25rem; overflow-wrap: anywhere; }
+.poll-results { list-style: none; margin: 1rem 0; }
+.poll-results li { margin: .75rem 0; }
+.poll-results progress { display: block; width: 100%; height: .6rem; accent-color: var(--accent); margin: .35rem 0; }
+.poll-choice { display: flex; gap: .5rem; align-items: center; min-height: 44px; overflow-wrap: anywhere; }
+.poll-panel fieldset, .poll-form-page fieldset { min-width: 0; padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin: 1rem 0; background: var(--bg-card); }
+.poll-panel legend, .poll-form-page legend { font-weight: 600; padding: 0 .35rem; }
+.poll-panel button, .poll-form-page :is(input,button) { font: inherit; min-height: 44px; padding: .5rem .75rem; min-width: 0; max-width: 100%; color: var(--text-primary); background: var(--field-bg); border: 1px solid var(--border-color); border-radius: 5px; }
+.poll-panel button, .poll-form-page button { cursor: pointer; font-weight: 600; }
+.poll-panel button:disabled, .poll-form-page button:disabled { opacity: .55; cursor: default; }
+.poll-panel :is(a,button,input):focus-visible, .poll-form-page :is(a,button,input):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.poll-form-page label { display: grid; gap: .35rem; margin: .75rem 0; font-weight: 600; }
+.poll-form-option { display: flex; gap: .75rem; align-items: center; }
+.poll-form-option label { flex: 1; min-width: 0; }
+.poll-error { color: var(--danger); }
+@media (max-width: 480px) { .poll-result-label { gap: .25rem; } .poll-form-option { flex-wrap: wrap; } .poll-form-option label { flex-basis: 100%; } }

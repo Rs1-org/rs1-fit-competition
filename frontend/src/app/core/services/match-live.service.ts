@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { defer, filter, finalize, Observable, shareReplay } from 'rxjs';
 import { RealtimeEvent, SignalRService } from './signalr.service';
 
-export interface MatchChangeNotice { matchPublicId: string; change: 'match' | 'events' | 'deleted'; changedAt: string; }
+export interface MatchChangeNotice { matchPublicId: string; change: 'match' | 'events' | 'deleted' | 'polls'; changedAt: string; }
 @Injectable({ providedIn: 'root' })
 export class MatchLiveService {
   private readonly realtime = inject(SignalRService);

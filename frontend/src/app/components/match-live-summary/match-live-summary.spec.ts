@@ -24,5 +24,8 @@ describe('Live match summary snapshots', () => {
     getMatch.mockReturnValue(of({ publicId: summary.matchPublicId, homeScore: 2, awayScore: 0 }));
     notices.next({ type: 'state', state: 'connected' }); expect(summary.state().data?.homeScore).toBe(2);
     expect(changed).toHaveBeenLastCalledWith('resync');
+    getMatch.mockClear(); changed.mockClear();
+    notices.next({ type: 'data', data: { matchPublicId: summary.matchPublicId, change: 'polls', changedAt: '' } });
+    expect(getMatch).not.toHaveBeenCalled(); expect(changed).not.toHaveBeenCalled();
   });
 });
