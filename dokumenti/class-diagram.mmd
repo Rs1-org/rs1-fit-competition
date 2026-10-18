@@ -211,6 +211,21 @@ classDiagram
         +Guid SeasonId
     }
 
+    class Statistic {
+        +Guid MatchId
+    }
+    class TeamStatistic {
+        +Guid StatisticId
+        +Guid SelectionId
+        +int TotalShots
+        +int ShotsOnTarget
+        +int TotalRedCards
+        +int TotalYellowCards
+        +int Corners
+        +int BigChances
+        +int Possession
+    }
+
     %% ---------- Inheritance ----------
     IdentityUser~Guid~ <|-- ApplicationUser
     IdentityRole~Guid~ <|-- ApplicationRole
@@ -221,6 +236,8 @@ classDiagram
     BaseEntity <|-- Club
     BaseEntity <|-- Match
     BaseEntity <|-- MatchStatus
+    BaseEntity <|-- Statistic
+    BaseEntity <|-- TeamStatistic
     BaseEntity <|-- Selection
     BaseEntity <|-- Person
     BaseEntity <|-- TransferValueHistory
@@ -252,6 +269,9 @@ classDiagram
 
     Match "0..*" <--> "1" MatchStatus : Status / Matches
     Match "0..*" --> "1" Stadium : Stadium
+    Match "1" <--> "0..*" Statistic : Statistics / Match
+    Statistic "1" <--> "0..*" TeamStatistic : TeamStatistics / Statistic
+    TeamStatistic "0..*" --> "1" Selection : Selection
     Match "0..*" <--> "0..1" Selection : HomeSelection / HomeMatches
     Match "0..*" <--> "0..1" Selection : AwaySelection / AwayMatches
 
@@ -291,7 +311,7 @@ classDiagram
     %% ---------- Notes ----------
     note for BaseEntity "All domain classes inherit BaseEntity (soft delete via DeletedAt). ApplicationUser, ApplicationRole and RefreshToken do not."
     note for LegendSprint4 "Sprint 4 also added Match.RoundId (Match -> Round).
-Planned for Sprint 4 but not implemented yet: Event, EventType, MatchPart (COMP-41), Statistic / TeamStatistic (COMP-62), Selection.HomeStadiumId."
+Planned for Sprint 4 but not implemented yet: Event, EventType, MatchPart (COMP-41), Selection.HomeStadiumId."
 
     %% ---------- Colours ----------
 
@@ -323,6 +343,8 @@ Planned for Sprint 4 but not implemented yet: Event, EventType, MatchPart (COMP-
     style Competition fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
     style Season fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
     style Round fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
+    style Statistic fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
+    style TeamStatistic fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
     style LegendSprint1to3 fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style LegendSprint4 fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
     style LegendIdentity fill:#ECECFF,stroke:#9370DB,color:#333

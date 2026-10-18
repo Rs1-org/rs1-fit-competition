@@ -29,4 +29,6 @@ public class Match : BaseEntity
 
     public Guid? RoundId { get; set; }
     public Round? Round { get; set; }
+
+    public ICollection<Statistic> Statistics { get; set; } = [];
 }
