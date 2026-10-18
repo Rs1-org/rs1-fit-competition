@@ -106,6 +106,22 @@ classDiagram
         +Guid? AwaySelectionId
         +Guid? RoundId
     }
+    class Poll {
+        Guid MatchId
+        string Question
+        Instant OpensAt
+        Instant ClosesAt
+    }
+    class PollOption {
+        Guid PollId
+        string Label
+        int SortOrder
+    }
+    class PollVote {
+        Guid PollId
+        Guid OptionId
+        Guid UserId
+    }
     class Event {
         Guid MatchId
         Guid EventTypeId
@@ -271,6 +287,9 @@ classDiagram
     BaseEntity <|-- Match
     BaseEntity <|-- MatchStatus
     BaseEntity <|-- Event
+    BaseEntity <|-- Poll
+    BaseEntity <|-- PollOption
+    BaseEntity <|-- PollVote
     BaseEntity <|-- EventType
     BaseEntity <|-- MatchPart
     BaseEntity <|-- Statistic
@@ -313,6 +332,11 @@ classDiagram
     TeamStatistic "0..*" --> "1" Selection : Selection
     MatchReview "0..*" --> "1" Match : Match
     Event "0..*" --> "1" Match : Match
+    Poll "0..*" --> "1" Match : Match
+    Poll "1" <--> "0..*" PollOption : Options / Poll
+    Poll "1" <--> "0..*" PollVote : Votes / Poll
+    PollOption "1" <--> "0..*" PollVote : Votes / Option (same poll)
+    PollVote "0..*" --> "1" ApplicationUser : User
     Event "0..*" --> "1" EventType : EventType
     Event "0..*" --> "1" MatchPart : MatchPart
     Event "0..*" --> "1" Selection : Selection
@@ -354,8 +378,12 @@ classDiagram
     class LegendIdentity["Legend: ASP.NET Identity"] {
         <<legend>>
     }
+    class LegendSprint6["Legend: Sprint 6 polls"] {
+        <<legend>>
+    }
     LegendSprint1to3 .. LegendSprint4
     LegendSprint4 .. LegendIdentity
+    LegendSprint4 .. LegendSprint6
 
     %% ---------- Notes ----------
     note for BaseEntity "All domain classes inherit BaseEntity (soft delete via DeletedAt). ApplicationUser, ApplicationRole and RefreshToken do not."
@@ -376,6 +404,10 @@ COMP-41 added Event, EventType and MatchPart. Selection.HomeStadiumId remains pl
     style ClubAge fill:#e8f5e9,stroke:#2e7d32,color:#1b3a1f
     style Match fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style MatchStatus fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Poll fill:#e3f2fd,stroke:#1565c0,color:#102b4e
+    style PollOption fill:#e3f2fd,stroke:#1565c0,color:#102b4e
+    style PollVote fill:#e3f2fd,stroke:#1565c0,color:#102b4e
+    style LegendSprint6 fill:#e3f2fd,stroke:#1565c0,color:#102b4e
     style Event fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
     style EventType fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
     style MatchPart fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16

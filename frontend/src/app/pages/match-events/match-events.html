@@ -7,7 +7,7 @@
   @if (!fixedMatch()) { <app-event-match-picker [selected]="matchId()" [selectedName]="context().data ? context().data!.homeName + ' vs ' + context().data!.awayName : 'Selected match'" (changeMatch)="chooseMatch($event)" /> }
   @if (context().loading) { <p role="status">Loading match…</p> }
   @if (context().error) { <p role="alert" class="event-error">{{ context().error }}</p><button type="button" (click)="retry()">Try again</button> }
-  @if (matchId()) { <app-match-live-summary [matchPublicId]="matchId()" (changed)="liveChanged($event)" /> }
+  @if (matchId()) { <app-match-live-summary [matchPublicId]="matchId()" (changed)="liveChanged($event)" /><app-match-polls [matchPublicId]="matchId()" /> }
   @if (lookups().error) { <p role="alert" class="event-error">{{ lookups().error }}</p><button type="button" (click)="retry()">Retry filters</button> }
   <form [formGroup]="filters" (ngSubmit)="apply()"><fieldset><legend>Filter events</legend>
     <div class="event-fields">

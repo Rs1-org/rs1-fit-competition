@@ -1,0 +1,32 @@
+<section class="poll-panel" aria-label="Match polls"><div class="poll-actions"><h2>Match polls</h2>
+  @if (canManage()) { <a [routerLink]="['/manage-polls', matchPublicId]">Create poll</a> }
+</div>
+  @if (connection() !== 'connected') { <p role="status">{{ connection() === 'unavailable' ? 'Live results unavailable. Reload to reconnect.' : 'Connecting to live results; counts may be out of date.' }}</p> }
+  @if (state().loading && !state().data) { <p role="status">Loading polls…</p> }
+  @if (state().error) { <p role="alert" class="poll-error">{{ state().error }}</p><button type="button" (click)="retry()">Retry polls</button> }
+  @if (state().data; as data) {
+    @if (!data.totalCount) { <p>No polls have been created for this match.</p> }
+    @for (poll of data.items; track poll.publicId) {
+      <article class="poll-entry"><h3>{{ poll.question }}</h3>
+        <p>{{ poll.isOpen ? 'Voting open' : poll.opensAt > poll.serverNow ? 'Voting scheduled' : 'Voting closed' }} · {{ poll.totalVotes | appNumber:'1.0-0' }} votes</p>
+        <p>Opens {{ poll.opensAt | appDateTime }} · Closes {{ poll.closesAt | appDateTime }}</p>
+        <ul class="poll-results">@for (option of poll.options; track option.publicId) {
+          <li><div class="poll-result-label"><span>{{ option.label }} @if (choice(poll) === option.publicId) { <strong>· Your vote</strong> }</span>
+            <span>{{ option.votes | appNumber:'1.0-0' }} · {{ option.percentage | appNumber:'1.0-1' }}%</span></div>
+            <progress [value]="option.percentage" max="100" [attr.aria-label]="option.label + ' share of votes'"></progress></li>
+        }</ul>
+        @if (viewer() && poll.isOpen && !choice(poll)) {
+          <form [formGroup]="voteForm(poll)" (ngSubmit)="vote(poll)"><fieldset [disabled]="!!busy() || !!state().error"><legend>Choose one option. Your vote is final.</legend>
+            @for (option of poll.options; track option.publicId) { <label class="poll-choice"><input type="radio" formControlName="optionPublicId" [value]="option.publicId">{{ option.label }}</label> }
+            @if (voteForm(poll).touched && voteForm(poll).invalid) { <p role="alert" class="poll-error">Choose an option.</p> }
+            <button type="submit" [disabled]="!!busy()">{{ busy() === poll.publicId ? 'Voting…' : 'Vote' }}</button>
+          </fieldset></form>
+        }
+        @if (errors()[poll.publicId]) { <p role="alert" class="poll-error">{{ errors()[poll.publicId] }}</p> }
+      </article>
+    }
+    @if (!viewer() && data.totalCount) { <p>Sign in to vote. Results are public.</p><button type="button" (click)="login()">Sign in</button> }
+    <app-pagination [totalItems]="data.totalCount" [currentPage]="data.page" [pageSize]="data.pageSize" (pageChange)="page($event)" />
+  }
+  <app-auth-modal />
+</section>

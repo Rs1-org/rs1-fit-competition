@@ -1,0 +1,27 @@
+<main class="poll-form-page"><a routerLink="/match-reviews">Browse matches</a><h1>Create match poll</h1>
+  @if (loading()) { <p role="status">Loading match…</p> }
+  @else if (loadError()) { <p role="alert" class="poll-error">{{ loadError() }}</p><button type="button" (click)="retry()">Try again</button> }
+  @else if (match(); as match) {
+    <h2>{{ match.homeSelectionName || 'Home not assigned' }} vs {{ match.awaySelectionName || 'Away not assigned' }}</h2>
+    <form [formGroup]="form" (ngSubmit)="save()"><fieldset [disabled]="busy()"><legend>Question and schedule</legend>
+      <label>Question (required, up to 200 characters)<input formControlName="question" maxlength="200"></label>
+      <label>Opens at (required)<input type="datetime-local" formControlName="opensAt"></label>
+      <label>Closes at (required)<input type="datetime-local" formControlName="closesAt"></label>
+      <p>Enter times in your local time zone. Votes are accepted from opening time up to, but not including, closing time.</p>
+      @if (form.touched && form.hasError('pollWindow')) { <p role="alert" class="poll-error">Closing time must be in the future and after opening time.</p> }
+    </fieldset>
+    <fieldset formArrayName="options" [disabled]="busy()"><legend>Answer options (2–8 required)</legend>
+      @for (option of form.controls.options.controls; track option; let index = $index) {
+        <div class="poll-form-option"><label>Option {{ index + 1 }}<input [formControlName]="index" maxlength="100"></label>
+          <button type="button" [disabled]="form.controls.options.length <= 2 || busy()" (click)="removeOption(index)" [attr.aria-label]="'Remove option ' + (index + 1)">Remove</button></div>
+        @if (option.touched && option.invalid) { <p role="alert" class="poll-error">Enter a nonblank option of at most 100 characters.</p> }
+      }
+      @if (form.controls.options.touched && form.controls.options.hasError('distinctOptions')) { <p class="poll-error">Options must be different, ignoring case and surrounding spaces.</p> }
+      <button type="button" [disabled]="form.controls.options.length >= 8 || busy()" (click)="addOption()">Add option</button>
+    </fieldset>
+    @if (error()) { <p role="alert" class="poll-error">{{ error() }}</p> }
+    @if (fieldErrors().length) { <ul role="alert" class="poll-error">@for (message of fieldErrors(); track $index) { <li>{{ message }}</li> }</ul> }
+    <div class="poll-actions"><button type="submit" [disabled]="busy()">{{ busy() ? 'Creating…' : 'Create poll' }}</button><a [routerLink]="['/live-matches', match.publicId]">Cancel</a></div>
+    </form>
+  }
+</main>

@@ -196,6 +196,33 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             e.HasQueryFilter(x => x.DeletedAt == null);
         });
 
+        modelBuilder.Entity<Poll>(e =>
+        {
+            e.ToTable("Polls", t => t.HasCheckConstraint("CK_Polls_TimeWindow", "\"OpensAt\" < \"ClosesAt\""));
+            e.Property(x => x.Question).IsRequired().HasMaxLength(200);
+            e.HasOne(x => x.Match).WithMany().HasForeignKey(x => x.MatchId).OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null && x.Match.DeletedAt == null);
+        });
+        modelBuilder.Entity<PollOption>(e =>
+        {
+            e.ToTable("PollOptions");
+            e.Property(x => x.Label).IsRequired().HasMaxLength(100);
+            e.HasOne(x => x.Poll).WithMany(x => x.Options).HasForeignKey(x => x.PollId).OnDelete(DeleteBehavior.Restrict);
+            e.HasAlternateKey(x => new { x.PollId, x.Id });
+            e.HasIndex(x => new { x.PollId, x.SortOrder }).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasQueryFilter(x => x.DeletedAt == null && x.Poll.DeletedAt == null && x.Poll.Match.DeletedAt == null);
+        });
+        modelBuilder.Entity<PollVote>(e =>
+        {
+            e.ToTable("PollVotes");
+            e.HasOne(x => x.Poll).WithMany(x => x.Votes).HasForeignKey(x => x.PollId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Option).WithMany(x => x.Votes).HasForeignKey(x => new { x.PollId, x.OptionId })
+                .HasPrincipalKey(x => new { x.PollId, x.Id }).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.PollId, x.UserId }).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasQueryFilter(x => x.DeletedAt == null && x.Poll.DeletedAt == null && x.Poll.Match.DeletedAt == null && x.Option.DeletedAt == null);
+        });
+
         modelBuilder.Entity<EventType>(e =>
         {
             e.ToTable("EventTypes");
@@ -476,6 +503,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<Stadium> Stadiums { get; set; }
     public DbSet<MatchStatus> MatchStatuses { get; set; } = null!;
     public DbSet<Match> Matches { get; set; } = null!;
+    public DbSet<Poll> Polls { get; set; } = null!;
+    public DbSet<PollOption> PollOptions { get; set; } = null!;
+    public DbSet<PollVote> PollVotes { get; set; } = null!;
     public DbSet<Event> Events { get; set; } = null!;
     public DbSet<EventType> EventTypes { get; set; } = null!;
     public DbSet<MatchPart> MatchParts { get; set; } = null!;

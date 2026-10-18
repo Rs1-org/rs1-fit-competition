@@ -7,6 +7,8 @@ using System.Text.Json;
 using Competition.Application.Auth.Interfaces;
 using Competition.Application.DTOs.MatchDto;
 using Competition.Application.Events;
+using Competition.Application.Polls;
+using Competition.Application.Common.Models;
 using Competition.Domain.Entities;
 using Competition.Domain.Entities.MatchEntities;
 using Competition.Infrastructure.Data;
@@ -109,6 +111,22 @@ public class MatchLiveTests(WebApplicationFactory<Program> factory) : BaseIntegr
         approved.Headers.Add("Origin", "http://localhost:4200");
         var result = await Client.SendAsync(approved); result.StatusCode.Should().Be(HttpStatusCode.OK);
         result.Headers.GetValues("Access-Control-Allow-Origin").Should().ContainSingle().Which.Should().Be("http://localhost:4200");
+    }
+
+    [Fact]
+    public async Task PollCreationAndVoting_NotifyEveryMatchSpectator()
+    {
+        var match = await Match(); using var first = await Connect(); using var second = await Connect();
+        await first.Invoke("WatchMatch", match.PublicId); await second.Invoke("WatchMatch", match.PublicId);
+        await Moderator();
+        var created = await Client.PostAsJsonAsync($"/api/polls/match/{match.PublicId}", new
+        { question = "Who wins?", options = new[] { "Home", "Away" }, opensAt = DateTimeOffset.UtcNow.AddMinutes(-1), closesAt = DateTimeOffset.UtcNow.AddHours(1) });
+        created.StatusCode.Should().Be(HttpStatusCode.OK);
+        await first.AssertNotice(match.PublicId, "polls", match.Id); await second.AssertNotice(match.PublicId, "polls", match.Id);
+        var poll = (await Client.GetFromJsonAsync<PagedResult<PollDto>>($"/api/polls/match/{match.PublicId}"))!.Items.Single();
+        (await Client.PostAsJsonAsync($"/api/polls/{poll.PublicId}/vote", new { optionPublicId = poll.Options[0].PublicId })).StatusCode.Should().Be(HttpStatusCode.OK);
+        await first.AssertNotice(match.PublicId, "polls", match.Id); await second.AssertNotice(match.PublicId, "polls", match.Id);
+        (await Client.GetFromJsonAsync<PagedResult<PollDto>>($"/api/polls/match/{match.PublicId}"))!.Items.Single().TotalVotes.Should().Be(1);
     }
 
     private sealed class WireClient(WebSocket socket) : IDisposable

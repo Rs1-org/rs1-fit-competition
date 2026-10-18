@@ -27,9 +27,9 @@ export class MatchLiveSummary implements OnChanges {
         this.connection.set(event.state);
         if (event.state === 'connected') this.changed.emit('resync');
       } else {
-        this.connection.set('connected'); this.changed.emit(event.data.change);
+        this.connection.set('connected'); if (event.data.change !== 'polls') this.changed.emit(event.data.change);
       }
-    }), filter(event => event.type === 'data' || event.state === 'connected'));
+    }), filter(event => event.type === 'data' ? event.data.change !== 'polls' : event.state === 'connected'));
     return merge(this.retry$, changes).pipe(switchMap(() => this.matches.getMatch(id).pipe(
       map((data): SummaryState => ({ loading: false, data, error: '' })),
       catchError(err => of({ loading: false, data: null, error: apiErrorMessage(err, 'The current score could not be loaded.') } as SummaryState)),
