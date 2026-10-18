@@ -12,9 +12,10 @@ import { EventMatchPicker } from '../../components/event-match-picker/event-matc
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
+import { MatchLiveSummary, MatchRefreshReason } from '../../components/match-live-summary/match-live-summary';
 
 interface EventsState { loading: boolean; data: PagedResult<MatchEvent> | null; error: string; }
-@Component({ selector: 'app-match-events', imports: [ReactiveFormsModule, RouterLink, EventMatchPicker, MatchEventTimeline, Pagination],
+@Component({ selector: 'app-match-events', imports: [ReactiveFormsModule, RouterLink, EventMatchPicker, MatchEventTimeline, Pagination, MatchLiveSummary],
   templateUrl: './match-events.html', styleUrl: './events.css' })
 export class MatchEvents {
   private readonly service = inject(MatchEventService);
@@ -46,6 +47,8 @@ export class MatchEvents {
     .filter(s => !this.selectionId() || s.publicId === this.selectionId()).flatMap(s => s.players)
     .filter((p, index, all) => all.findIndex(x => x.publicId === p.publicId) === index) ?? []);
   readonly state = toSignal(this.query$.pipe(switchMap(query => this.service.getPage(query.filter, query.page).pipe(
+    switchMap(data => data.page > 1 && !data.items.length
+      ? this.service.getPage(query.filter, Math.max(1, data.totalPages)) : of(data)),
     map((data): EventsState => ({ loading: false, data, error: '' })),
     startWith({ loading: true, data: null, error: '' } as EventsState),
     catchError(err => of({ loading: false, data: null, error: apiErrorMessage(err, 'Events could not be loaded.') } as EventsState)),
@@ -70,6 +73,10 @@ export class MatchEvents {
   }
   page(page: number): void { this.query$.next({ ...this.query$.value, page }); }
   retry(): void { this.page(this.query$.value.page); this.retry$.next(this.retry$.value + 1); }
+  liveChanged(reason: MatchRefreshReason): void {
+    this.page(this.state().data?.page ?? this.query$.value.page);
+    if (reason !== 'events') this.match$.next(this.matchId());
+  }
   reset(): void { this.filters.reset(); if (!this.fixedMatch()) this.chooseMatch(''); else this.apply(); }
   async remove(event: MatchEvent): Promise<void> {
     if (!this.canManage() || this.busy()) return;

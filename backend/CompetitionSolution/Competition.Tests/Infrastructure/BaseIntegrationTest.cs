@@ -12,6 +12,7 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 {
     protected readonly HttpClient Client;
     protected readonly IServiceProvider ServiceProvider;
+    protected readonly Microsoft.AspNetCore.TestHost.TestServer Server;
 
     protected BaseIntegrationTest(WebApplicationFactory<Program> factory)
     {
@@ -36,5 +37,6 @@ public abstract class BaseIntegrationTest : IClassFixture<WebApplicationFactory<
 
         Client = testFactory.CreateClient();
         ServiceProvider = testFactory.Services;
+        Server = testFactory.Server;
     }
 }

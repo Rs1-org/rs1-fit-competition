@@ -6,7 +6,8 @@
     <ul class="review-matches">
       @for (match of pageData.items; track match.publicId) {
         <li><a [routerLink]="['/match-reviews', match.publicId]">{{ match.homeSelectionName || 'Home selection not assigned' }} vs {{ match.awaySelectionName || 'Away selection not assigned' }}</a>
-          <p>{{ match.date ? (match.date | appDateTime) : 'Date not scheduled' }} · {{ match.statusName || 'Status not set' }}</p></li>
+          <p>{{ match.date ? (match.date | appDateTime) : 'Date not scheduled' }} · {{ match.statusName || 'Status not set' }}</p>
+          <a [routerLink]="['/live-matches', match.publicId]">Follow live timeline</a></li>
       }
     </ul>
     <app-pagination [totalItems]="pageData.totalCount" [pageSize]="10" [currentPage]="pageData.page" (pageChange)="page($event)" />

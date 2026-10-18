@@ -1,0 +1,17 @@
+<section class="live-summary" aria-label="Current match score">
+  @if (state().loading) { <p role="status">Loading current score…</p> }
+  @else if (state().error) { <p role="alert">{{ state().error }}</p><button type="button" (click)="retry()">Retry score</button> }
+  @else if (state().data; as match) {
+    <h2>{{ match.homeSelectionName || 'Home selection not assigned' }} vs {{ match.awaySelectionName || 'Away selection not assigned' }}</h2>
+    <p>{{ match.date | appDateTime }} · {{ match.statusName || 'Status not set' }}</p>
+    <p class="live-score" aria-live="polite">@if (match.homeScore !== null && match.awayScore !== null) { Score: {{ match.homeScore | appNumber:'1.0-0' }} – {{ match.awayScore | appNumber:'1.0-0' }} } @else { Score not recorded }</p>
+  }
+  <p class="live-connection" role="status">
+    @switch (connection()) {
+      @case ('connected') { Updates connected }
+      @case ('connecting') { Connecting to match updates… }
+      @case ('reconnecting') { Connection lost. Reconnecting; the displayed score may be out of date. }
+      @case ('unavailable') { Match updates unavailable. Reload this page to reconnect. }
+    }
+  </p>
+</section>

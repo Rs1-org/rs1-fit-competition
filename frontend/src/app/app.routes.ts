@@ -4,6 +4,7 @@ import { AdminModeratorGuard } from './core/guards/admin-moderator.guard';
 import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
+  { path: 'live-matches/:publicId', loadComponent: () => import('./pages/match-events/match-events').then(m => m.MatchEvents) },
   { path: 'statistics', loadComponent: () => import('./pages/statistics/statistics').then(m => m.Statistics) },
   { path: 'match-statistics/:publicId', loadComponent: () => import('./pages/statistics/match-statistics').then(m => m.MatchStatistics) },
   { path: 'manage-statistics/:matchPublicId', canActivate: [AdminModeratorGuard], loadComponent: () => import('./components/statistic-form/statistic-form').then(m => m.StatisticForm) },

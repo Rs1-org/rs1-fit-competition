@@ -12,6 +12,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NodaTime;
+using Competition.Api.Live;
+using Competition.Application.Live;
+using MediatR;
 
 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
@@ -37,6 +40,8 @@ if (string.IsNullOrWhiteSpace(connectionString))
 builder.Services.AddSingleton<IClock>(SystemClock.Instance);
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR(options => { options.EnableDetailedErrors = false; options.MaximumReceiveMessageSize = 4096; });
+builder.Services.AddScoped<INotificationHandler<MatchChangedNotification>, MatchChangedHandler>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -143,6 +148,17 @@ if (!app.Environment.IsDevelopment())
 
 await dbScope.ServiceProvider.GetRequiredService<DataSeeder>().SeedAsync(app.Lifetime.ApplicationStopping);
 
+// Browser WebSocket upgrades are not governed by CORS, so check their Origin too.
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/hubs") && context.Request.Headers.TryGetValue("Origin", out var origin)
+        && (origin.Count != 1 || !corsSettings.AllowedOrigins.Contains(origin.ToString(), StringComparer.OrdinalIgnoreCase)))
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return;
+    }
+    await next(context);
+});
 app.UseCors(CorsSettings.PolicyName);
 
 app.UseAuthentication();
@@ -158,5 +174,6 @@ app.MapGet("/health/ready", async (AppDbContext context, CancellationToken cance
         ? Results.Ok(new { status = "ready" })
         : Results.StatusCode(StatusCodes.Status503ServiceUnavailable)).AllowAnonymous();
 app.MapControllers();
+app.MapHub<MatchHub>("/hubs/matches");
 
 app.Run();public partial class Program { }

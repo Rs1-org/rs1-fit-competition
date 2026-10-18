@@ -1,0 +1,7 @@
+.live-summary { margin: 1.25rem 0; color: var(--text-primary); }
+.live-summary h2 { font-size: 1.5rem; overflow-wrap: anywhere; }
+.live-summary p { margin: .5rem 0; }
+.live-score { font-size: 1.5rem; font-weight: 700; }
+.live-connection { color: var(--text-secondary); }
+.live-summary button { font: inherit; min-height: 44px; padding: .5rem .75rem; color: var(--text-primary); background: var(--field-bg); border: 1px solid var(--border-color); border-radius: 5px; cursor: pointer; }
+.live-summary button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }

@@ -4,13 +4,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, catchError, combineLatest, map, of, startWith, switchMap } from 'rxjs';
 import { MatchReviewService } from '../../core/services/match-review.service';
 import { ReviewMatch } from '../../core/models/match-review';
-import { AppDateTimePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
+import { MatchLiveSummary } from '../../components/match-live-summary/match-live-summary';
 import { MatchReviewPanel } from '../../components/match-review-panel/match-review-panel';
 import { MatchStatisticsPanel } from '../../components/match-statistics-panel/match-statistics-panel';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
 interface MatchState { loading: boolean; data: ReviewMatch | null; error: string; }
-@Component({ selector: 'app-match-reviews', imports: [RouterLink, AppDateTimePipe, AppNumberPipe, MatchReviewPanel, MatchStatisticsPanel],
+@Component({ selector: 'app-match-reviews', imports: [RouterLink, MatchLiveSummary, MatchReviewPanel, MatchStatisticsPanel],
   templateUrl: './match-reviews.html', styleUrl: './reviews.css' })
 export class MatchReviews {
   private readonly service = inject(MatchReviewService);
