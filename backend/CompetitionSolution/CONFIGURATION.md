@@ -44,7 +44,7 @@ Cors__AllowedOrigins__0
 
 Notes:
 - The CORS origins in `appsettings.Staging.json` / `appsettings.Production.json` are placeholders. A real deployment must set `Cors__AllowedOrigins__0` (startup only checks that the list is not empty). Development allows `http(s)://localhost:4200` only.
-- `Stripe` and `Seed` settings are bound but not used yet; COMP-54 (Stripe) and COMP-84 (seeded logins) will read them.
+- `Stripe` settings are bound for COMP-54. `Seed` is used by the startup `DataSeeder`; see [seeded logins](../../dokumenti/SEEDED_LOGINS.md).
 
 ## Frontend
 

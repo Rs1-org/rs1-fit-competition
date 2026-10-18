@@ -43,7 +43,7 @@ secret names and first-deployment steps: [DEV_CICD.md](dokumenti/DEV_CICD.md).
 | Local behavior | Native API HTTP 5244 / HTTPS 7208; Angular 4200. Root Compose API 8080, frontend 4200, PostgreSQL 5432. Existing nginx `/api` proxy and environment files are unchanged. |
 | Public API | Controllers under `/api`; Swagger remains available at `/swagger` for DEV. Bearer JWT in Authorization; refresh tokens in PostgreSQL, browser tokens in localStorage. No cross-site auth cookies required. |
 | Files | Existing Azure Blob Storage is still the default. An optional Supabase Free Storage adapter implements the same `IBlobStorageService` for new public DEV images. CSV/XLSX imports/exports use streams. No durable local upload store was introduced. |
-| Other services | No registered background workers, queue, Redis, SMTP or active Stripe integration found. Stripe/Seed settings exist but do not implement those features. |
+| Other services | No registered background workers, queue, Redis, SMTP or active Stripe integration found. Role seeding runs at startup; configured DEV users are opt-in (COMP-84). |
 | Browser dependencies | Google Fonts, cdnjs Font Awesome, unpkg Leaflet images and OpenStreetMap tiles; existing third-party availability/usage rules still apply. |
 | Automation | Existing Jira workflow was not changed by this task; no cloud deployment workflow was added. |
 
@@ -163,7 +163,7 @@ WHERE u."NormalizedEmail" = upper('<your-registered-dev-email>')
 ON CONFLICT DO NOTHING;
 ```
 
-Log out and log in again to obtain the role claim. This is a manual DEV bootstrap, not an anonymous elevation endpoint. Existing `Seed` password settings are not a configurable account bootstrap implementation.
+Log out and log in again to obtain the role claim. This is a manual DEV bootstrap, not an anonymous elevation endpoint. Alternatively, initialize separate DEV/review logins using the opt-in [DataSeeder configuration](dokumenti/SEEDED_LOGINS.md). It does not change existing accounts or the manually provisioned DEV admin.
 
 ## Deployment without a source push
 
