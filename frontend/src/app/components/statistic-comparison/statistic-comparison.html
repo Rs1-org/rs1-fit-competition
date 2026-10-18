@@ -1,0 +1,9 @@
+<div class="stat-table-wrap" tabindex="0" role="region" aria-label="Home and away statistics comparison">
+  <table class="stat-table"><caption>Team statistics</caption>
+    <thead><tr><th scope="col">Statistic</th><th scope="col">{{ statistic().home?.selectionName || 'Home team not recorded' }}</th><th scope="col">{{ statistic().away?.selectionName || 'Away team not recorded' }}</th></tr></thead>
+    <tbody>@for (metric of metrics; track metric.key) { <tr><th scope="row">{{ metric.label }}</th>
+      <td>@if (statistic().home; as home) { {{ home[metric.key] | appNumber:'1.0-0' }} } @else { Not recorded }</td>
+      <td>@if (statistic().away; as away) { {{ away[metric.key] | appNumber:'1.0-0' }} } @else { Not recorded }</td>
+    </tr> }</tbody>
+  </table>
+</div>

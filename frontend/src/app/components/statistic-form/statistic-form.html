@@ -1,0 +1,34 @@
+<main class="statistics-page"><a routerLink="/statistics">Back to statistics</a><h1>{{ existing() ? 'Edit statistics' : 'Enter statistics' }}</h1>
+  @if (loading()) { <p role="status">Loading statistics form…</p> }
+  @else if (loadError()) { <p role="alert" class="stat-error">{{ loadError() }}</p><button type="button" (click)="retry()">Try again</button> }
+  @else if (match(); as match) {
+    <h2>{{ match.homeSelectionName || 'Home selection not assigned' }} vs {{ match.awaySelectionName || 'Away selection not assigned' }}</h2>
+    @if (!hasTeams()) { <p role="alert">Assign two distinct active teams to the match before entering statistics.</p> }
+    @else {
+      <form [formGroup]="form" (ngSubmit)="save()"><div class="stat-entry-form">
+        @for (side of sides; track side) {
+          <fieldset [formGroupName]="side" [disabled]="busy()"><legend>{{ side === 'home' ? 'Home: ' + match.homeSelectionName : 'Away: ' + match.awaySelectionName }}</legend>
+            @for (metric of metrics; track metric.key) {
+              <label>{{ metric.label }} (required)<input type="number" min="0" [max]="metric.key === 'possession' ? 100 : 2147483647" step="1" [formControlName]="metric.key"
+                [attr.aria-invalid]="form.controls[side].controls[metric.key].touched && form.controls[side].controls[metric.key].invalid"
+                [attr.aria-describedby]="side + '-' + metric.key + '-error'">
+                <span [id]="side + '-' + metric.key + '-error'" class="stat-error">
+                  @if (form.controls[side].controls[metric.key].touched && form.controls[side].controls[metric.key].invalid) { Enter a whole number from 0 to {{ metric.key === 'possession' ? '100' : '2147483647' }}. }
+                  {{ fieldErrors()[side + '.' + metric.key.toLowerCase()] || '' }}
+                </span>
+              </label>
+            }
+            @if (form.controls[side].touched && form.controls[side].hasError('shotsWithinTotal')) { <p role="alert" class="stat-error">Shots on target cannot exceed total shots.</p> }
+          </fieldset>
+        }
+        <div class="stat-full">
+          <p>All values are required. Home and away possession must total 100%.</p>
+          @if (form.touched && form.hasError('possessionTotal')) { <p role="alert" class="stat-error">Home and away possession must sum to 100%.</p> }
+          @if (fieldErrors()['possession']) { <p role="alert" class="stat-error">{{ fieldErrors()['possession'] }}</p> }
+          @if (error()) { <p role="alert" class="stat-error">{{ error() }}</p> }
+          <div class="stat-actions"><button type="submit" [disabled]="busy()">{{ busy() ? 'Saving…' : 'Save statistics' }}</button><a [routerLink]="['/match-statistics', match.publicId]">Cancel</a></div>
+        </div>
+      </div></form>
+    }
+  }
+</main>
