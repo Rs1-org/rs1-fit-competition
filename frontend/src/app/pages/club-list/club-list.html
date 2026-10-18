@@ -1,0 +1,164 @@
+<main class="clubs-page">
+  <header class="club-heading">
+    <div>
+      <h1>Clubs</h1>
+      <p>Browse football clubs by location, founding date and age group.</p>
+    </div>
+    @if (user.canManage()) {
+      <a class="club-primary" routerLink="/manage-clubs">Add club</a>
+    }
+  </header>
+
+  <form
+    class="club-filters"
+    [formGroup]="filterForm"
+    (submit)="$event.preventDefault()"
+    aria-label="Filter clubs"
+  >
+    <div class="club-field">
+      <label for="club-name">Name</label
+      ><input id="club-name" formControlName="name" maxlength="100" placeholder="Search clubs" />
+    </div>
+    <div class="club-field">
+      <label for="club-country">Country</label
+      ><select id="club-country" formControlName="countryPublicId">
+        <option value="">Any country</option>
+        @for (c of countries(); track c.publicId) {
+          <option [value]="c.publicId">{{ c.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="club-field">
+      <label for="club-city">City</label
+      ><select id="club-city" formControlName="cityPublicId">
+        <option value="">Any city</option>
+        @for (c of cities(); track c.publicId) {
+          <option [value]="c.publicId">{{ c.name }} ({{ c.countryName }})</option>
+        }
+      </select>
+    </div>
+    <div class="club-field">
+      <label for="club-from">Founded from</label
+      ><input id="club-from" type="date" formControlName="foundedFrom" />
+    </div>
+    <div class="club-field">
+      <label for="club-to">Founded to</label
+      ><input
+        id="club-to"
+        type="date"
+        formControlName="foundedTo"
+        [attr.aria-invalid]="filterForm.hasError('dateRange')"
+        aria-describedby="club-range-error"
+      />
+    </div>
+    <div class="club-field">
+      <label for="club-stadium">Stadium</label
+      ><select id="club-stadium" formControlName="hasStadium">
+        <option value="">Any stadium status</option>
+        <option value="true">Has stadium</option>
+        <option value="false">No stadium</option>
+      </select>
+    </div>
+    <div class="club-field">
+      <label for="club-age">Age group</label
+      ><select id="club-age" formControlName="clubAge">
+        <option value="">Any age group</option>
+        @for (age of ages; track age; let i = $index) {
+          <option [value]="i">{{ age }}</option>
+        }
+      </select>
+    </div>
+    <div class="club-field">
+      <label for="club-sort">Sort by</label
+      ><select id="club-sort" formControlName="sort">
+        <option value="name">Name</option>
+        <option value="founded">Most recently founded</option>
+        <option value="age">Age group</option>
+      </select>
+    </div>
+    <button type="button" (click)="resetFilters()">Reset filters</button>
+    @if (filterForm.hasError('dateRange')) {
+      <p id="club-range-error" class="club-error" role="alert">
+        Founded to must be on or after founded from.
+      </p>
+    }
+  </form>
+  @if (optionsError()) {
+    <p class="club-error" role="alert">
+      {{ optionsError() }} <button type="button" (click)="loadOptions()">Retry options</button>
+    </p>
+  }
+  @if (actionError()) {
+    <p class="club-error" role="alert">{{ actionError() }}</p>
+  }
+  <section aria-label="Club results" [attr.aria-busy]="state().loading">
+    @if (state().loading) {
+      <p class="club-state" role="status">Loading clubs…</p>
+    } @else if (state().error) {
+      <div class="club-state" role="alert">
+        <p>{{ state().error }}</p>
+        <button type="button" (click)="retry()">Try again</button>
+      </div>
+    } @else if (state().data; as result) {
+      <p class="club-count" role="status">
+        {{ result.totalCount | appNumber: '1.0-0' }} clubs found
+      </p>
+      @if (!result.items.length) {
+        <div class="club-state">
+          <h2>No clubs match these filters</h2>
+          <p>Reset the filters to see all available clubs.</p>
+          <button type="button" (click)="resetFilters()">Reset filters</button>
+        </div>
+      } @else {
+        <ul class="club-list">
+          @for (club of result.items; track club.publicId) {
+            <li class="club-row">
+              <div class="club-identity">
+                <h2>
+                  <a [routerLink]="['/clubs', club.slug]">{{ club.name }}</a>
+                </h2>
+                <p>
+                  {{ club.cityName || 'City not set' }} ·
+                  {{ club.countryName || 'Country not set' }}
+                </p>
+              </div>
+              <div class="club-facts">
+                <span>{{ ages[club.clubAge] }}</span
+                ><span
+                  >Founded
+                  {{ club.foundingDate ? (club.foundingDate | appDate) : 'date not set' }}</span
+                ><span>{{ club.stadiumName || 'No stadium' }}</span>
+              </div>
+              @if (user.canManage()) {
+                <div class="club-actions">
+                  <a
+                    [routerLink]="['/manage-clubs', club.slug]"
+                    [attr.aria-label]="'Edit ' + club.name"
+                    >Edit</a
+                  >
+                  @if (user.isAdmin()) {
+                    <button
+                      type="button"
+                      class="club-delete"
+                      [disabled]="!!deleting()"
+                      (click)="onDelete(club)"
+                      [attr.aria-label]="'Delete ' + club.name"
+                    >
+                      {{ deleting() === club.publicId ? 'Deleting…' : 'Delete' }}
+                    </button>
+                  }
+                </div>
+              }
+            </li>
+          }
+        </ul>
+        <app-pagination
+          [totalItems]="result.totalCount"
+          [pageSize]="pageSize"
+          [currentPage]="result.page"
+          (pageChange)="onPageChange($event)"
+        />
+      }
+    }
+  </section>
+</main>

@@ -1,0 +1,49 @@
+<main class="clubs-page" [attr.aria-busy]="state().loading">
+  <a class="club-back" routerLink="/clubs">Back to clubs</a>
+  @if (state().loading) {
+    <p class="club-state" role="status">Loading club…</p>
+  } @else if (state().error) {
+    <div class="club-state" role="alert">
+      <p>{{ state().error }}</p>
+      <button type="button" (click)="retry()">Try again</button>
+    </div>
+  } @else if (state().data; as club) {
+    <header class="club-heading">
+      <div>
+        <h1>{{ club.name }}</h1>
+        <p>{{ club.cityName || 'City not set' }} · {{ club.countryName || 'Country not set' }}</p>
+      </div>
+      @if (user.canManage()) {
+        <a class="club-primary" [routerLink]="['/manage-clubs', club.slug]">Edit club</a>
+      }
+    </header>
+    <dl class="club-details">
+      <div>
+        <dt>Founded</dt>
+        <dd>{{ club.foundingDate ? (club.foundingDate | appDate) : 'Not set' }}</dd>
+      </div>
+      <div>
+        <dt>Age group</dt>
+        <dd>{{ ages[club.clubAge] }}</dd>
+      </div>
+      <div>
+        <dt>City</dt>
+        <dd>{{ club.cityName || 'Not set' }}</dd>
+      </div>
+      <div>
+        <dt>Country</dt>
+        <dd>{{ club.countryName || 'Not set' }}</dd>
+      </div>
+      <div>
+        <dt>Home stadium</dt>
+        <dd>
+          @if (club.stadiumSlug) {
+            <a [routerLink]="['/stadium', club.stadiumSlug]">{{ club.stadiumName }}</a>
+          } @else {
+            {{ club.stadiumName || 'Not set' }}
+          }
+        </dd>
+      </div>
+    </dl>
+  }
+</main>

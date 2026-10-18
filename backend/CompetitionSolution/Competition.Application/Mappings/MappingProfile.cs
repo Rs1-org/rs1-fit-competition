@@ -8,6 +8,7 @@ using Competition.Application.DTOs.CityDto;
 using Competition.Application.DTOs.CountryDto;
 using Competition.Application.DTOs.MatchDto;
 using Competition.Application.DTOs.CompetitionDto;
+using Competition.Application.DTOs.ClubDto;
 using Competition.Application.DTOs.SeasonDto;
 using Competition.Application.DTOs.RoundDto;
 using Competition.Application.DTOs.PersonDto;
@@ -77,6 +78,18 @@ public class MappingProfile:Profile
             .ForMember(m => m.GeoDescription, opt => opt.MapFrom(src => src.GeoData != null ? src.GeoData.Description : null))
             .ForMember(m => m.CityLatitude, opt => opt.MapFrom(src => src.City != null && src.City.GeoData != null ? src.City.GeoData.Latitude : (decimal?)null))
             .ForMember(m => m.CityLongitude, opt => opt.MapFrom(src => src.City != null && src.City.GeoData != null ? src.City.GeoData.Longitude : (decimal?)null));
+
+        CreateMap<Club, ClubListDto>()
+            .ForMember(d => d.FoundingDate, opt => opt.MapFrom(s => NodaTimeMappingHelper.FormatNullableLocalDate(s.FoundingDate)))
+            .ForMember(d => d.CityName, opt => opt.MapFrom(s => s.City != null ? s.City.Name : null))
+            .ForMember(d => d.CountryName, opt => opt.MapFrom(s => s.City != null && s.City.Country != null ? s.City.Country.Name : null))
+            .ForMember(d => d.StadiumName, opt => opt.MapFrom(s => s.Stadium != null ? s.Stadium.Name : null));
+        CreateMap<Club, ClubDetailsDto>()
+            .IncludeBase<Club, ClubListDto>()
+            .ForMember(d => d.CityPublicId, opt => opt.MapFrom(s => s.City != null ? s.City.PublicId : null))
+            .ForMember(d => d.CountryPublicId, opt => opt.MapFrom(s => s.City != null && s.City.Country != null ? s.City.Country.PublicId : null))
+            .ForMember(d => d.StadiumPublicId, opt => opt.MapFrom(s => s.Stadium != null ? s.Stadium.PublicId : null))
+            .ForMember(d => d.StadiumSlug, opt => opt.MapFrom(s => s.Stadium != null ? s.Stadium.Slug : null));
 
         ConfigureMatchMappings();
         ConfigureCompetitionMappings();

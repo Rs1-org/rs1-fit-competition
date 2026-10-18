@@ -181,6 +181,65 @@ namespace Competition.Infrastructure.Migrations
                     b.ToTable("Cities", (string)null);
                 });
 
+            modelBuilder.Entity("Competition.Domain.Entities.Club", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid?>("CityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ClubAge")
+                        .HasColumnType("integer");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<LocalDate?>("FoundingDate")
+                        .HasColumnType("date");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<Guid?>("StadiumId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.HasIndex("StadiumId");
+
+                    b.ToTable("Clubs", (string)null);
+                });
+
             modelBuilder.Entity("Competition.Domain.Entities.CompetitionEntities.Competition", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1307,6 +1366,23 @@ namespace Competition.Infrastructure.Migrations
                     b.Navigation("Country");
 
                     b.Navigation("GeoData");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.Club", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.City", "City")
+                        .WithMany()
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Competition.Domain.Entities.MatchEntities.Stadium", "Stadium")
+                        .WithMany()
+                        .HasForeignKey("StadiumId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("City");
+
+                    b.Navigation("Stadium");
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.CompetitionEntities.Competition", b =>

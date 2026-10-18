@@ -4,6 +4,24 @@ import { AdminModeratorGuard } from './core/guards/admin-moderator.guard';
 
 export const routes: Routes = [
   {
+    path: 'clubs',
+    loadComponent: () => import('./pages/club-list/club-list').then(m => m.ClubList),
+  },
+  {
+    path: 'clubs/:slug',
+    loadComponent: () => import('./pages/club-detail/club-detail').then(m => m.ClubDetail),
+  },
+  {
+    path: 'manage-clubs',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () => import('./components/club-form/club-form').then(m => m.ClubForm),
+  },
+  {
+    path: 'manage-clubs/:slug',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () => import('./components/club-form/club-form').then(m => m.ClubForm),
+  },
+  {
     path: '',
     loadComponent: () => import('./pages/home/home').then((m) => m.Home),
   },
