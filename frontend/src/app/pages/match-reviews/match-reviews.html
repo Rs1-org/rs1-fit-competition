@@ -8,6 +8,7 @@
       <p>{{ match.date ? (match.date | appDateTime) : 'Date not scheduled' }} · {{ match.statusName || 'Status not set' }}</p>
       @if (match.homeScore !== null && match.awayScore !== null) { <p>Score: {{ match.homeScore | appNumber:'1.0-0' }} – {{ match.awayScore | appNumber:'1.0-0' }}</p> }
     </header>
+    <a [routerLink]="['/match-events', match.publicId]">View match timeline</a>
     <app-match-review-panel [matchPublicId]="match.publicId" />
   }
 </main>

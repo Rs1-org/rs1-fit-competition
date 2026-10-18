@@ -106,6 +106,27 @@ classDiagram
         +Guid? AwaySelectionId
         +Guid? RoundId
     }
+    class Event {
+        Guid MatchId
+        Guid EventTypeId
+        Guid MatchPartId
+        Guid SelectionId
+        Guid? PlayerId
+        Guid? RelatedPlayerId
+        int Minute
+        int AddedMinute
+        string? Note
+    }
+    class EventType {
+        string Code
+        string Name
+        int SortOrder
+    }
+    class MatchPart {
+        string Code
+        string Name
+        int SortOrder
+    }
     class MatchStatus {
         +string Name
         +string? Slug
@@ -249,6 +270,9 @@ classDiagram
     BaseEntity <|-- Club
     BaseEntity <|-- Match
     BaseEntity <|-- MatchStatus
+    BaseEntity <|-- Event
+    BaseEntity <|-- EventType
+    BaseEntity <|-- MatchPart
     BaseEntity <|-- Statistic
     BaseEntity <|-- MatchReview
     BaseEntity <|-- ReviewReaction
@@ -288,6 +312,12 @@ classDiagram
     Statistic "1" <--> "0..*" TeamStatistic : TeamStatistics / Statistic
     TeamStatistic "0..*" --> "1" Selection : Selection
     MatchReview "0..*" --> "1" Match : Match
+    Event "0..*" --> "1" Match : Match
+    Event "0..*" --> "1" EventType : EventType
+    Event "0..*" --> "1" MatchPart : MatchPart
+    Event "0..*" --> "1" Selection : Selection
+    Event "0..*" --> "0..1" Player : Player off / event player
+    Event "0..*" --> "0..1" Player : RelatedPlayer on
     MatchReview "0..*" --> "1" ApplicationUser : Author
     MatchReview "1" <--> "0..*" ReviewReaction : Reactions / Review
     ReviewReaction ..> ApplicationUser : UserId FK
@@ -330,7 +360,7 @@ classDiagram
     %% ---------- Notes ----------
     note for BaseEntity "All domain classes inherit BaseEntity (soft delete via DeletedAt). ApplicationUser, ApplicationRole and RefreshToken do not."
     note for LegendSprint4 "Sprint 4 also added Match.RoundId (Match -> Round).
-Planned for Sprint 4 but not implemented yet: Event, EventType, MatchPart (COMP-41), Selection.HomeStadiumId."
+COMP-41 added Event, EventType and MatchPart. Selection.HomeStadiumId remains planned under COMP-75."
 
     %% ---------- Colours ----------
 
@@ -346,6 +376,9 @@ Planned for Sprint 4 but not implemented yet: Event, EventType, MatchPart (COMP-
     style ClubAge fill:#e8f5e9,stroke:#2e7d32,color:#1b3a1f
     style Match fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style MatchStatus fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Event fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
+    style EventType fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
+    style MatchPart fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
     style Selection fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Person fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Player fill:#eceff1,stroke:#546e7a,color:#1f2a30

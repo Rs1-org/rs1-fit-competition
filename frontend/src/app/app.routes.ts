@@ -4,6 +4,9 @@ import { AdminModeratorGuard } from './core/guards/admin-moderator.guard';
 import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
+  { path: 'match-events', loadComponent: () => import('./pages/match-events/match-events').then(m => m.MatchEvents) },
+  { path: 'match-events/:publicId', loadComponent: () => import('./pages/match-events/match-events').then(m => m.MatchEvents) },
+  { path: 'manage-events/:id', canActivate: [AdminModeratorGuard], loadComponent: () => import('./components/match-event-form/match-event-form').then(m => m.MatchEventForm) },
   { path: 'match-reviews', loadComponent: () => import('./pages/match-reviews/review-matches').then(m => m.ReviewMatches) },
   { path: 'match-reviews/:publicId', loadComponent: () => import('./pages/match-reviews/match-reviews').then(m => m.MatchReviews) },
   {

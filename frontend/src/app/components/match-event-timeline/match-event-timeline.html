@@ -1,0 +1,22 @@
+@for (group of groups(); track group.key) {
+  <section class="event-group" [attr.aria-label]="group.name">
+    <h3>{{ group.name }}</h3>
+    <ol class="event-timeline">
+      @for (event of group.events; track event.publicId) {
+        <li>
+          <span class="event-minute">{{ event.minute | appNumber:'1.0-0' }}@if (event.addedMinute) {+{{ event.addedMinute | appNumber:'1.0-0' }}}′</span>
+          <div class="event-description"><strong>{{ event.eventType.name }}</strong> · {{ event.selection.name }}
+            @if (event.player) { <p>{{ event.eventType.code === 'substitution' ? 'Off: ' : '' }}{{ event.player.name }}</p> }
+            @if (event.relatedPlayer) { <p>On: {{ event.relatedPlayer.name }}</p> }
+            @if (event.note) { <p class="event-note">{{ event.note }}</p> }
+            @if (showMatch()) { <a [routerLink]="['/match-events', event.matchPublicId]">Match timeline</a> }
+          </div>
+          @if (canManage()) {
+            <div class="event-actions"><a [routerLink]="['/manage-events', event.publicId]">Edit<span class="sr-only"> {{ event.eventType.name }} at minute {{ event.minute | appNumber:'1.0-0' }}</span></a>
+              <button type="button" [disabled]="busy()" (click)="remove.emit(event)">Delete<span class="sr-only"> {{ event.eventType.name }} at minute {{ event.minute | appNumber:'1.0-0' }}</span></button></div>
+          }
+        </li>
+      }
+    </ol>
+  </section>
+}
