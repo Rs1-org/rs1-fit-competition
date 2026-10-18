@@ -24,6 +24,8 @@ public class JwtTokenGenerator(IOptions<JwtSettings> options) : IJwtTokenGenerat
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
         };
         claims.AddRange(roles.Select(it => new Claim(ClaimTypes.Role, it)));
+        if (!string.IsNullOrWhiteSpace(user.SecurityStamp))
+            claims.Add(new Claim("security_stamp", user.SecurityStamp));
         
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

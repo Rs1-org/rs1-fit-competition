@@ -46,6 +46,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     {
         var now = _clock.GetCurrentInstant();
 
+        foreach (var entry in ChangeTracker.Entries<ApplicationUser>().Where(x => x.State == EntityState.Added))
+            entry.Entity.RegisteredAt ??= now;
+
         foreach (var entry in ChangeTracker.Entries<BaseEntity>())
         {
             if (entry.State == EntityState.Added)
@@ -72,6 +75,13 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<ApplicationUser>(e =>
+        {
+            e.Property(x => x.PublicId).IsRequired().HasMaxLength(BaseEntity.PublicIdLength)
+                .HasDefaultValueSql("replace(gen_random_uuid()::text, '-', '')");
+            e.HasIndex(x => x.PublicId).IsUnique();
+        });
 
         modelBuilder.Entity<Person>().ToTable("Persons");
         modelBuilder.Entity<Player>().ToTable("Players");

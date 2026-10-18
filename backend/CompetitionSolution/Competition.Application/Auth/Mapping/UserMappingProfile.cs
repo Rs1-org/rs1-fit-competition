@@ -9,6 +9,8 @@ public class UserMappingProfile:Profile {
     {
         CreateMap<RegisterUserDto, ApplicationUser>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.PublicId, opt => opt.Ignore())
+            .ForMember(dest => dest.RegisteredAt, opt => opt.Ignore())
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email)) // <-- username = email
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())

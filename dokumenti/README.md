@@ -7,6 +7,7 @@ Project documentation required by RS1 (diagrams, later also the ER diagram).
 | `class-diagram.mmd` | Class diagram source (Mermaid). Edit this one. |
 | `class-diagram.png` | Rendered diagram, exported from the `.mmd`. |
 | [SEEDED_LOGINS.md](SEEDED_LOGINS.md) | Role login names and private DEV/review seeding configuration. |
+| [USER_MANAGEMENT.md](USER_MANAGEMENT.md) | Admin account/role management, public identifiers and session revocation. |
 
 ## Colours
 

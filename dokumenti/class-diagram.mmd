@@ -26,6 +26,8 @@ classDiagram
         <<ASP.NET Identity>>
     }
     class ApplicationUser {
+        +string PublicId
+        +Instant? RegisteredAt
         +string FirstName
         +string LastName
         +bool IsActive

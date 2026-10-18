@@ -104,6 +104,16 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValueSql("replace(gen_random_uuid()::text, '-', '')");
+
+                    b.Property<Instant?>("RegisteredAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
@@ -122,6 +132,9 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
