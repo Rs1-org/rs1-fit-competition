@@ -34,7 +34,7 @@ public class AuthController(IMediator mediator) : ControllerBase
         try
         {
             var user = await mediator.Send(new RefreshTokenCommand(userToken));
-            return Ok(new { user });
+            return Ok(user);
         }
         catch (ApplicationException ex)
         {

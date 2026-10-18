@@ -58,7 +58,21 @@ namespace Competition.Infrastructure
             services.AddScoped<IPlayerAppearances, PlayerAppearanceReader>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IPublicIdLookup, PublicIdLookup>();
-            services.AddScoped<IBlobStorageService, BlobStorageService>();
+            var storageProvider = configuration["Storage:Provider"] ?? "Azure";
+            if (storageProvider.Equals("Supabase", StringComparison.OrdinalIgnoreCase))
+            {
+                services.AddOptions<SupabaseStorageSettings>()
+                    .Bind(configuration.GetSection(SupabaseStorageSettings.SectionName))
+                    .Validate(s => s.IsValid(), "SupabaseStorage requires an HTTPS project URL, a service-role key and a valid bucket name.")
+                    .ValidateOnStart();
+                services.AddHttpClient<IBlobStorageService, SupabaseBlobStorageService>()
+                    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false })
+                    .RedactLoggedHeaders(["Authorization", "apikey"]);
+            }
+            else if (storageProvider.Equals("Azure", StringComparison.OrdinalIgnoreCase))
+                services.AddScoped<IBlobStorageService, BlobStorageService>();
+            else
+                throw new InvalidOperationException("Storage:Provider must be Azure or Supabase.");
             services.AddScoped<IImageService,ImageService>();
             services.AddScoped<ITabularFileService, TabularFileService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

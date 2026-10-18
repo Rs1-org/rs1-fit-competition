@@ -58,6 +58,7 @@ public class ExceptionMiddleware
                 break;
 
             case LoginFailedException:
+            case UnauthorizedAccessException:
                 status = HttpStatusCode.Unauthorized;
                 response = new { message = exception.Message };
                 break;

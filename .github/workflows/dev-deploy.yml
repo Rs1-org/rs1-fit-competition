@@ -1,0 +1,151 @@
+name: DEV checks and deployment
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Serialize main releases; never cancel a deployment halfway through a migration.
+concurrency:
+  group: dev-release-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  DEV_API_URL: https://competition-dev-api.onrender.com
+  DEV_FRONTEND_URL: https://competition-dev-fejza.pages.dev
+  IMAGE_REPOSITORY: docker.io/dinofejzagic/competition-dev
+  CLOUDFLARE_ACCOUNT_ID: f1d95df1e86b15a2b58ba9c380d8d2c0
+  PAGES_PROJECT: competition-dev-fejza
+
+jobs:
+  backend:
+    name: Backend checks
+    if: vars.DEV_CI_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: dotnet restore backend/CompetitionSolution/CompetitionSolution.sln
+      - run: dotnet build backend/CompetitionSolution/CompetitionSolution.sln --configuration Release --no-restore
+      - name: Test without cloud database credentials
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+        run: dotnet test backend/CompetitionSolution/Competition.Tests/Competition.Tests.csproj --configuration Release --no-build
+
+  frontend:
+    name: Frontend checks
+    if: vars.DEV_CI_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+      - name: Test deploy orchestration
+        run: node --test .github/scripts/deploy-dev.test.mjs
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run test:deployment
+        working-directory: frontend
+      - run: npm test -- --watch=false
+        working-directory: frontend
+      - name: Build Pages assets
+        env:
+          PUBLIC_API_URL: ${{ env.DEV_API_URL }}
+        run: npm run build:pages
+        working-directory: frontend
+      - name: Keep the verified main build for deployment
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pages-${{ github.sha }}
+          path: frontend/dist/pages/browser/
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy:
+    name: Deploy DEV
+    needs: [backend, frontend]
+    if: vars.DEV_CI_ENABLED == 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+      - name: Verify deployment credentials are configured
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          for name in DOCKERHUB_TOKEN RENDER_DEPLOY_HOOK_URL CLOUDFLARE_API_TOKEN; do
+            if [[ -z "${!name}" ]]; then
+              echo "::error::Missing repository secret: $name"
+              exit 1
+            fi
+          done
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          username: dinofejzagic
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Publish private runtime image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: backend/CompetitionSolution
+          file: backend/CompetitionSolution/Competition.Api/Dockerfile
+          platforms: linux/amd64
+          push: true
+          build-args: APP_REVISION=${{ github.sha }}
+          tags: |
+            ${{ env.IMAGE_REPOSITORY }}:sha-${{ github.sha }}
+            ${{ env.IMAGE_REPOSITORY }}:dev
+      - name: Deploy Render and wait for this commit
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: node .github/scripts/deploy-dev.mjs
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: pages-${{ github.sha }}
+          path: frontend/dist/pages/browser
+      - name: Deploy verified frontend assets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          WRANGLER_SEND_METRICS: "false"
+        working-directory: frontend
+        run: >-
+          npx --yes wrangler@4.151.1 pages deploy dist/pages/browser
+          --project-name "$PAGES_PROJECT" --branch main --commit-hash "$GITHUB_SHA" --commit-dirty=true
+      - name: Check public DEV integration
+        # No automatic account creation or synthetic writes on each merge.
+        run: node frontend/scripts/smoke-deployment.mjs
+      - name: Publish deployment links
+        run: |
+          {
+            echo "### DEV deployed"
+            echo "Commit: $GITHUB_SHA"
+            echo "Frontend: $DEV_FRONTEND_URL"
+            echo "API: $DEV_API_URL"
+          } >> "$GITHUB_STEP_SUMMARY"

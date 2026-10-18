@@ -13,6 +13,17 @@
 Sections: `ConnectionStrings`, `Jwt`, `Cors`, `AzureBlobStorage`, `Stripe`, `Seed`. They are bound to the classes in
 `Competition.Infrastructure/Settings/`. The API refuses to start without a connection string, a JWT key (32+ chars) and at least one CORS origin.
 
+Free public DEV deployment is documented in the root `DEPLOYMENT.md`. The optional `Storage__Provider`
+selects `Supabase`; the default remains `Azure` for existing environments. Supabase requires
+`SupabaseStorage__ProjectUrl`, `SupabaseStorage__ServiceRoleKey` (server secret only), and
+`SupabaseStorage__BucketName` for a pre-created public DEV image bucket. No existing images are migrated.
+The provider is selected at startup; switching it is intended for a fresh DEV database.
+
+Render supplies `PORT`; the API binds to that port on all interfaces. Enable
+`ASPNETCORE_FORWARDEDHEADERS_ENABLED` only behind Render's trusted HTTPS edge. `/health` checks liveness;
+`/health/ready` checks database connectivity. Outside Development, startup disables the exact published
+sample account password hashes from the historical seed migration; rotated passwords are preserved.
+
 Never commit real secrets. Local setup for image upload (from `Competition.Api/`):
 
 ```

@@ -1,4 +1,13 @@
-import { AppCurrencyPipe, AppDatePipe, AppDateTimePipe, AppNumberPipe } from './regional-format.pipes';
+import {
+  AppCurrencyPipe,
+  AppDatePipe,
+  AppDateTimePipe,
+  AppNumberPipe,
+} from './regional-format.pipes';
+import { registerLocaleData } from '@angular/common';
+import localeBs from '@angular/common/locales/bs-Latn';
+
+registerLocaleData(localeBs);
 
 describe('regional format pipes', () => {
   it('formats a date-only value as dd.MM.yyyy', () => {

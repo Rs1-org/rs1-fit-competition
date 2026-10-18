@@ -5,6 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:pages": "node scripts/build-pages.mjs",
+    "test:deployment": "node --test scripts/pages-config.test.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

@@ -18,6 +18,14 @@ CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Render supplies PORT dynamically. Keep launch profiles and Compose unchanged elsewhere.
+if (Environment.GetEnvironmentVariable("PORT") is { Length: > 0 } port)
+{
+    if (!int.TryParse(port, out var portNumber) || portNumber is < 1 or > 65535)
+        throw new InvalidOperationException("PORT must be a valid TCP port.");
+    builder.WebHost.UseUrls($"http://0.0.0.0:{portNumber}");
+}
+
 // Values come from appsettings.{Environment}.json, user-secrets or environment variables (e.g. Jwt__Key).
 var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>() ?? new JwtSettings();
 var corsSettings = builder.Configuration.GetSection(CorsSettings.SectionName).Get<CorsSettings>() ?? new CorsSettings();
@@ -100,6 +108,9 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+// Enabled explicitly on Render, whose edge terminates TLS. Do not enable this on a
+// directly exposed server: the platform must strip/overwrite incoming forwarded headers.
+app.UseForwardedHeaders();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -112,10 +123,23 @@ if (db.Database.IsRelational())
 else
     db.Database.EnsureCreated();
 
+if (!app.Environment.IsDevelopment())
+    await SampleAccountProtection.DisableDefaultPasswordsAsync(db);
+
 app.UseCors(CorsSettings.PolicyName);
 
 app.UseAuthentication();
 app.UseAuthorization();
+// Liveness does not query Postgres, allowing Neon to suspend idle compute.
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "ok",
+    revision = app.Configuration["Deployment:Revision"] ?? "local"
+})).AllowAnonymous();
+app.MapGet("/health/ready", async (AppDbContext context, CancellationToken cancellationToken) =>
+    await context.Database.CanConnectAsync(cancellationToken)
+        ? Results.Ok(new { status = "ready" })
+        : Results.StatusCode(StatusCodes.Status503ServiceUnavailable)).AllowAnonymous();
 app.MapControllers();
 
 using var roleScope = app.Services.CreateScope();
