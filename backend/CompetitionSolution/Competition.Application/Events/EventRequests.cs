@@ -9,6 +9,7 @@ using Competition.Domain.Entities.Person;
 using FluentValidation;
 using MediatR;
 using NodaTime;
+using Competition.Application.Live;
 
 namespace Competition.Application.Events;
 
@@ -122,7 +123,7 @@ internal static class EventRules
         item.Note = string.IsNullOrWhiteSpace(input.Note) ? null : input.Note.Trim();
     }
 }
-public class CreateEventHandler(IEventStore store, IPublicIdLookup lookup, IUnitOfWork unit) : IRequestHandler<CreateEventCommand, SavedEventDto>
+public class CreateEventHandler(IEventStore store, IPublicIdLookup lookup, IUnitOfWork unit, IPublisher publisher) : IRequestHandler<CreateEventCommand, SavedEventDto>
 {
     public async Task<SavedEventDto> Handle(CreateEventCommand request, CancellationToken cancellationToken)
     {
@@ -130,26 +131,29 @@ public class CreateEventHandler(IEventStore store, IPublicIdLookup lookup, IUnit
         await EventRules.ApplyAsync(item, request, store, lookup, cancellationToken);
         await store.AddAsync(item, cancellationToken);
         await unit.SaveChangesAsync(cancellationToken);
+        await publisher.Publish(new MatchChangedNotification(request.MatchPublicId, "events"), cancellationToken);
         return new(item.PublicId);
     }
 }
-public class UpdateEventHandler(IEventStore store, IPublicIdLookup lookup, IUnitOfWork unit) : IRequestHandler<UpdateEventCommand, SavedEventDto>
+public class UpdateEventHandler(IEventStore store, IPublicIdLookup lookup, IUnitOfWork unit, IPublisher publisher) : IRequestHandler<UpdateEventCommand, SavedEventDto>
 {
     public async Task<SavedEventDto> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
     {
         var item = await store.FindAsync(request.PublicId, cancellationToken) ?? throw new KeyNotFoundException("Event not found.");
         await EventRules.ApplyAsync(item, request, store, lookup, cancellationToken);
         await unit.SaveChangesAsync(cancellationToken);
+        await publisher.Publish(new MatchChangedNotification(request.MatchPublicId, "events"), cancellationToken);
         return new(item.PublicId);
     }
 }
-public class DeleteEventHandler(IEventStore store, IUnitOfWork unit, IClock clock) : IRequestHandler<DeleteEventCommand, SavedEventDto>
+public class DeleteEventHandler(IEventStore store, IUnitOfWork unit, IClock clock, IPublisher publisher) : IRequestHandler<DeleteEventCommand, SavedEventDto>
 {
     public async Task<SavedEventDto> Handle(DeleteEventCommand request, CancellationToken cancellationToken)
     {
         var item = await store.FindAsync(request.PublicId, cancellationToken) ?? throw new KeyNotFoundException("Event not found.");
         item.DeletedAt = clock.GetCurrentInstant();
         await unit.SaveChangesAsync(cancellationToken);
+        await publisher.Publish(new MatchChangedNotification(item.Match.PublicId, "events"), cancellationToken);
         return new(item.PublicId);
     }
 }

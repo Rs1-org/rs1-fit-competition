@@ -5,11 +5,11 @@ import { BehaviorSubject, catchError, combineLatest, map, of, startWith, switchM
 import { ReviewMatchDetails } from '../../core/models/match-review';
 import { MatchReviewService } from '../../core/services/match-review.service';
 import { MatchStatisticsPanel } from '../../components/match-statistics-panel/match-statistics-panel';
-import { AppDateTimePipe } from '../../shared/pipes/regional-format.pipes';
+import { MatchLiveSummary } from '../../components/match-live-summary/match-live-summary';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
 interface MatchState { loading: boolean; data: ReviewMatchDetails | null; error: string; }
-@Component({ selector: 'app-match-statistics', imports: [RouterLink, MatchStatisticsPanel, AppDateTimePipe],
+@Component({ selector: 'app-match-statistics', imports: [RouterLink, MatchStatisticsPanel, MatchLiveSummary],
   templateUrl: './match-statistics.html', styleUrl: './statistics.css' })
 export class MatchStatistics {
   private readonly service = inject(MatchReviewService);

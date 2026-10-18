@@ -6,6 +6,7 @@ using Competition.Domain.Entities.CompetitionEntities;
 using Competition.Domain.Entities.MatchEntities;
 using MediatR;
 using NodaTime;
+using Competition.Application.Live;
 
 namespace Competition.Application.Commands.MatchCommands.Update;
 
@@ -15,13 +16,15 @@ public class UpdateMatchCommandHandler : IRequestHandler<UpdateMatchCommand, Mat
     private readonly IPublicIdLookup _lookup;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IPublisher _publisher;
 
-    public UpdateMatchCommandHandler(IMatch match, IPublicIdLookup lookup, IUnitOfWork unitOfWork, IMapper mapper)
+    public UpdateMatchCommandHandler(IMatch match, IPublicIdLookup lookup, IUnitOfWork unitOfWork, IMapper mapper, IPublisher publisher)
     {
         _match = match;
         _lookup = lookup;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _publisher = publisher;
     }
 
     public async Task<MatchDetailsDto> Handle(UpdateMatchCommand request, CancellationToken cancellationToken)
@@ -51,6 +54,7 @@ public class UpdateMatchCommandHandler : IRequestHandler<UpdateMatchCommand, Mat
 
         await _match.UpdateAsync(match, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _publisher.Publish(new MatchChangedNotification(match.PublicId, "match"), cancellationToken);
 
         var updated = await _match.GetBySlugAsync(match.Slug!, cancellationToken);
         return _mapper.Map<MatchDetailsDto>(updated);

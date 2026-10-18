@@ -38,7 +38,7 @@ public class EventStore(AppDbContext db) : IEventStore
     public Task<EventDto?> GetAsync(string publicId, CancellationToken ct) =>
         db.Events.AsNoTracking().Where(x => x.PublicId == publicId).Select(Projection).FirstOrDefaultAsync(ct);
     public Task<Event?> FindAsync(string publicId, CancellationToken ct) =>
-        db.Events.FirstOrDefaultAsync(x => x.PublicId == publicId, ct);
+        db.Events.Include(x => x.Match).FirstOrDefaultAsync(x => x.PublicId == publicId, ct);
     public async Task<EventLookupsDto> LookupsAsync(CancellationToken ct) => new(
         await db.EventTypes.AsNoTracking().OrderBy(x => x.SortOrder).ThenBy(x => x.PublicId)
             .Select(x => new EventLookupDto(x.PublicId, x.Code, x.Name, x.SortOrder)).ToListAsync(ct),

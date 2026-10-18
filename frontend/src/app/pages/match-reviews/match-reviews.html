@@ -4,11 +4,8 @@
   @if (state().loading) { <p role="status">Loading match…</p> }
   @else if (state().error) { <p role="alert">{{ state().error }}</p><button type="button" (click)="retry()">Try again</button> }
   @else if (state().data; as match) {
-    <header class="review-match-heading"><h2>{{ match.homeSelectionName || 'Home selection not assigned' }} vs {{ match.awaySelectionName || 'Away selection not assigned' }}</h2>
-      <p>{{ match.date ? (match.date | appDateTime) : 'Date not scheduled' }} · {{ match.statusName || 'Status not set' }}</p>
-      @if (match.homeScore !== null && match.awayScore !== null) { <p>Score: {{ match.homeScore | appNumber:'1.0-0' }} – {{ match.awayScore | appNumber:'1.0-0' }}</p> }
-    </header>
-    <a [routerLink]="['/match-events', match.publicId]">View match timeline</a>
+    <app-match-live-summary [matchPublicId]="match.publicId" />
+    <a [routerLink]="['/live-matches', match.publicId]">View live timeline</a>
     <app-match-statistics-panel [matchPublicId]="match.publicId" />
     <app-match-review-panel [matchPublicId]="match.publicId" />
   }
