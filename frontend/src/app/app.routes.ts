@@ -1,8 +1,14 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { AdminModeratorGuard } from './core/guards/admin-moderator.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
+  {
+    path: 'admin/users',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./pages/admin-users/admin-users').then(m => m.AdminUsers),
+  },
   {
     path: 'clubs',
     loadComponent: () => import('./pages/club-list/club-list').then(m => m.ClubList),

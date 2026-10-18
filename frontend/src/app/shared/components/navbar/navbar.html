@@ -40,6 +40,7 @@
         <button *appHasRole="'Admin,Moderator'" (click)="openAddSelection($event)">Add selection</button>
         <button *appHasRole="'Admin,Moderator'" (click)="openAddFormation($event)">Add formation</button>
         <button *appHasRole="'Admin,Moderator'" (click)="openGallery($event)">Image gallery</button>
+        <button type="button" *appHasRole="'Admin'" routerLink="/admin/users" (click)="$event.stopPropagation(); openManageTab = false">Users</button>
       </div>
     </div>
     <div class="navbar-text manage-wrapper" (click)="toggleAccount($event)">

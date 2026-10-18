@@ -1,0 +1,56 @@
+<main class="users-page">
+  <header><h1>Users</h1><p>Review accounts, roles and access.</p></header>
+  <form class="user-filters" [formGroup]="filterForm" (submit)="$event.preventDefault()" aria-label="Filter users">
+    <label>Search name or email<input formControlName="search" maxlength="256" type="search" /></label>
+    <label>Role<select formControlName="role"><option value="">All roles</option>
+      @for (role of filterRoles; track role) { <option [value]="role">{{ role }}</option> }
+    </select></label>
+    <label>Status<select formControlName="isActive"><option value="">All accounts</option><option value="true">Active</option><option value="false">Inactive</option></select></label>
+    <label>Registered from<input formControlName="registeredFrom" type="date" min="0001-01-01" max="9999-12-31" /></label>
+    <label>Registered to<input formControlName="registeredTo" type="date" min="0001-01-01" max="9999-12-31" [attr.aria-invalid]="filterForm.hasError('dateRange')" aria-describedby="user-date-error" /></label>
+    <button type="button" (click)="resetFilters()">Reset filters</button>
+  </form>
+  @if (filterForm.hasError('dateRange')) { <p id="user-date-error" role="alert">Choose valid dates with registered to on or after registered from.</p> }
+  @if (actionError()) { <p class="user-error" role="alert">{{ actionError() }}</p> }
+  @if (actionMessage()) { <p role="status">{{ actionMessage() }}</p> }
+  <section [attr.aria-busy]="state().loading" aria-label="User results">
+    @if (state().loading) { <p role="status">Loading users…</p> }
+    @else if (state().error) { <p class="user-error" role="alert">{{ state().error }}</p><button type="button" (click)="retry()">Try again</button> }
+    @else if (state().data; as page) {
+      <p>{{ page.totalCount | appNumber:'1.0-0' }} accounts</p>
+      @if (!page.items.length) { <p>No users match these filters.</p> }
+      @else {
+        <div class="user-table-scroll" role="region" tabindex="0" aria-label="User accounts table">
+          <table><caption class="user-sr-only">Accounts and available administrative actions</caption>
+            <thead><tr><th scope="col">Account</th><th scope="col">Roles</th><th scope="col">Status</th><th scope="col">Registered</th><th scope="col">Actions</th></tr></thead>
+            <tbody>
+              @for (user of page.items; track user.publicId) {
+                <tr><th scope="row"><span>{{ user.firstName }} {{ user.lastName }}</span><small>{{ user.email }}</small></th>
+                  <td>{{ user.roles.join(', ') || 'No roles' }}</td><td>{{ user.isActive ? 'Active' : 'Inactive' }}</td>
+                  <td>{{ user.registeredAt ? (user.registeredAt | appDate) : 'Not recorded' }}</td>
+                  <td>
+                    @if (user.isSelf) { <span>Your account</span> }
+                    @else {
+                      <div class="user-actions">
+                        @if (roleControls.get(user.publicId); as control) {
+                          <label class="user-sr-only" [for]="'role-' + user.publicId">Role for {{ user.email }}</label>
+                          <select [id]="'role-' + user.publicId" [formControl]="control">
+                            @if (!isAssignable(control.value)) { <option [value]="control.value" disabled>{{ control.value }} (current)</option> }
+                            @for (role of roles; track role) { <option [value]="role">{{ role }}</option> }
+                          </select>
+                          <button type="button" (click)="changeRole(user)" [disabled]="!canSaveRole(user)">Save role</button>
+                        }
+                        <button type="button" (click)="setActive(user)" [disabled]="!!busy()">{{ user.isActive ? 'Deactivate' : 'Reactivate' }}</button>
+                      </div>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+      <app-pagination [totalItems]="page.totalCount" [pageSize]="pageSize" [currentPage]="page.page" (pageChange)="goToPage($event)" />
+    }
+  </section>
+</main>

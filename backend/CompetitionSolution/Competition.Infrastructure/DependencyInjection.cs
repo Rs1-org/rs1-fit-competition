@@ -38,6 +38,7 @@ namespace Competition.Infrastructure
             services.AddHttpContextAccessor();
             services.AddScoped<DataSeeder>();
             services.AddScoped<ICurrentUser, CurrentUser>();
+            services.AddScoped<Competition.Application.Admin.Users.IAdminUserStore, AdminUserStore>();
             services.AddScoped<IUserPreferenceStore, UserPreferenceStore>();
             services.AddScoped<IRefreshTokenService,RefreshTokenService>();
             services.AddScoped<IJwtTokenGenerator,JwtTokenGenerator>();

@@ -85,6 +85,22 @@ builder.Services.AddAuthentication(options =>
 
             RoleClaimType = ClaimTypes.Role
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                // Previously issued bearer tokens keep their normal expiry; new sessions support immediate revocation.
+                var stamp = context.Principal?.FindFirstValue("security_stamp");
+                if (stamp is null) return;
+                var subject = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier)
+                    ?? context.Principal?.FindFirstValue("sub");
+                var db = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+                if (!Guid.TryParse(subject, out var userId) || !await db.Users.AsNoTracking().AnyAsync(
+                        user => user.Id == userId && user.IsActive && user.SecurityStamp == stamp,
+                        context.HttpContext.RequestAborted))
+                    context.Fail("This session is no longer valid. Sign in again.");
+            },
+        };
     });
 
 builder.Services.AddSwaggerGen(options =>
