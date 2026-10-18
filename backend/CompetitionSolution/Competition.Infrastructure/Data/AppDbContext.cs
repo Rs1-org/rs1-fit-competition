@@ -196,6 +196,25 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             e.HasQueryFilter(x => x.DeletedAt == null);
         });
 
+        modelBuilder.Entity<MatchReview>(e =>
+        {
+            e.ToTable("MatchReviews", table => table.HasCheckConstraint("CK_MatchReviews_Rating", "\"Rating\" BETWEEN 1 AND 5"));
+            e.Property(x => x.Comment).IsRequired().HasMaxLength(2000);
+            e.HasOne(x => x.Match).WithMany().HasForeignKey(x => x.MatchId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Author).WithMany().HasForeignKey(x => x.AuthorId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.MatchId, x.AuthorId }).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasQueryFilter(x => x.DeletedAt == null && x.Match.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<ReviewReaction>(e =>
+        {
+            e.ToTable("ReviewReactions", table => table.HasCheckConstraint("CK_ReviewReactions_Value", "\"Value\" IN (-1, 1)"));
+            e.HasOne(x => x.Review).WithMany(x => x.Reactions).HasForeignKey(x => x.ReviewId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.ReviewId, x.UserId }).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasQueryFilter(x => x.DeletedAt == null && x.Review.DeletedAt == null && x.Review.Match.DeletedAt == null);
+        });
+
         modelBuilder.Entity<Statistic>(e =>
         {
             e.ToTable("Statistics");
@@ -423,6 +442,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<MatchStatus> MatchStatuses { get; set; } = null!;
     public DbSet<Match> Matches { get; set; } = null!;
     public DbSet<Statistic> Statistics { get; set; } = null!;
+    public DbSet<MatchReview> MatchReviews { get; set; } = null!;
+    public DbSet<ReviewReaction> ReviewReactions { get; set; } = null!;
     public DbSet<TeamStatistic> TeamStatistics { get; set; } = null!;
     public DbSet<FormationMark> FormationMarks { get; set; } = null!;
     public DbSet<Formation> Formations { get; set; } = null!;

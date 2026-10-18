@@ -1,0 +1,47 @@
+<section class="review-panel" aria-label="Ratings and reviews" [attr.aria-busy]="state().loading">
+  <h2>Ratings and reviews</h2>
+  @if (state().loading) { <p role="status">Loading reviews…</p> }
+  @else if (state().error) { <p role="alert">{{ state().error }}</p><button type="button" (click)="retry()">Try again</button> }
+  @else if (state().data; as data) {
+    <p class="review-summary">
+      @if (data.averageRating !== null) { <strong>{{ data.averageRating | appNumber:'1.1-2' }} / 5</strong> }
+      @else { <strong>No ratings yet</strong> }
+      <span>{{ data.reviewCount | appNumber:'1.0-0' }} reviews</span>
+    </p>
+    @if (viewer()) {
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <fieldset [disabled]="busy()"><legend>{{ ownId() ? 'Edit your review' : 'Your review' }}</legend>
+          <label [for]="'review-rating-' + matchPublicId">Rating (required)</label>
+          <select [id]="'review-rating-' + matchPublicId" formControlName="rating" [attr.aria-describedby]="'review-rating-error-' + matchPublicId">
+            <option [ngValue]="null">Choose a rating</option>
+            @for (rating of [1,2,3,4,5]; track rating) { <option [ngValue]="rating">{{ rating }} / 5</option> }
+          </select>
+          @if ((form.controls.rating.touched && form.controls.rating.invalid) || fieldErrors()['rating']) { <small [id]="'review-rating-error-' + matchPublicId" role="alert">{{ fieldErrors()['rating'] || 'Choose a whole rating from 1 to 5.' }}</small> }
+          <label [for]="'review-comment-' + matchPublicId">Comment (required)</label>
+          <textarea [id]="'review-comment-' + matchPublicId" formControlName="comment" rows="4" maxlength="2000" [attr.aria-describedby]="'review-comment-error-' + matchPublicId"></textarea>
+          @if ((form.controls.comment.touched && form.controls.comment.invalid) || fieldErrors()['comment']) { <small [id]="'review-comment-error-' + matchPublicId" role="alert">{{ fieldErrors()['comment'] || 'Write a comment with 1–2000 characters.' }}</small> }
+          <div class="review-actions"><button type="submit" [disabled]="busy()">{{ busy() ? 'Saving…' : ownId() ? 'Save changes' : 'Post review' }}</button>
+            @if (ownId()) { <button type="button" (click)="remove()" [disabled]="busy()">Delete my review</button> }
+          </div>
+        </fieldset>
+      </form>
+    } @else { <p>Sign in to rate this match or react to reviews.</p><button type="button" (click)="login()">Sign in</button> }
+    @if (actionError()) { <p class="review-error" role="alert">{{ actionError() }}</p> }
+    @if (!data.reviews.items.length) { <p>No reviews on this page yet.</p> }
+    @for (review of data.reviews.items; track review.publicId) {
+      <article class="review-entry">
+        <header><strong>{{ review.authorName }}</strong><span>{{ review.rating | appNumber:'1.0-0' }} / 5</span><time [attr.datetime]="review.createdAt">{{ review.createdAt | appDateTime }}</time></header>
+        <p class="review-comment">{{ review.comment }}</p>
+        @if (review.isMine) { <p>Your review · {{ review.likeCount | appNumber:'1.0-0' }} likes · {{ review.dislikeCount | appNumber:'1.0-0' }} dislikes</p> }
+        @else {
+          <div class="review-actions">
+            <button type="button" [disabled]="!viewer() || busy()" [attr.aria-pressed]="review.myReaction === 1" (click)="react(review, 1)">Like ({{ review.likeCount | appNumber:'1.0-0' }})</button>
+            <button type="button" [disabled]="!viewer() || busy()" [attr.aria-pressed]="review.myReaction === -1" (click)="react(review, -1)">Dislike ({{ review.dislikeCount | appNumber:'1.0-0' }})</button>
+          </div>
+        }
+      </article>
+    }
+    <app-pagination [totalItems]="data.reviews.totalCount" [pageSize]="10" [currentPage]="data.reviews.page" (pageChange)="page($event)" />
+  }
+</section>
+<app-auth-modal />

@@ -4,6 +4,8 @@ import { AdminModeratorGuard } from './core/guards/admin-moderator.guard';
 import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
+  { path: 'match-reviews', loadComponent: () => import('./pages/match-reviews/review-matches').then(m => m.ReviewMatches) },
+  { path: 'match-reviews/:publicId', loadComponent: () => import('./pages/match-reviews/match-reviews').then(m => m.MatchReviews) },
   {
     path: 'admin/users',
     canActivate: [adminGuard],

@@ -1,0 +1,14 @@
+<main class="reviews-page"><h1>Match reviews</h1><p>Choose a match to read ratings or share your review.</p>
+  @if (state().loading) { <p role="status">Loading matches…</p> }
+  @else if (state().error) { <p role="alert">{{ state().error }}</p><button type="button" (click)="retry()">Try again</button> }
+  @else if (state().data; as pageData) {
+    @if (!pageData.items.length) { <p>No matches are available to review yet.</p> }
+    <ul class="review-matches">
+      @for (match of pageData.items; track match.publicId) {
+        <li><a [routerLink]="['/match-reviews', match.publicId]">{{ match.homeSelectionName || 'Home selection not assigned' }} vs {{ match.awaySelectionName || 'Away selection not assigned' }}</a>
+          <p>{{ match.date ? (match.date | appDateTime) : 'Date not scheduled' }} · {{ match.statusName || 'Status not set' }}</p></li>
+      }
+    </ul>
+    <app-pagination [totalItems]="pageData.totalCount" [pageSize]="10" [currentPage]="pageData.page" (pageChange)="page($event)" />
+  }
+</main>

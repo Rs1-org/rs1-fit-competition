@@ -1,0 +1,21 @@
+.reviews-page { max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: var(--text-primary); }
+.reviews-page h1 { margin: .75rem 0; font-size: 2rem; }
+.review-match-heading, .review-panel { margin: 1.5rem 0; }
+.review-panel p, .reviews-page p { margin: .65rem 0; }
+.review-summary, .review-entry header, .review-actions { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
+.review-panel fieldset { display: grid; gap: .5rem; border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; background: var(--bg-card); margin: 1rem 0; min-width: 0; }
+.review-panel legend, .review-panel label { font-weight: 600; }
+.review-panel textarea { resize: vertical; min-height: 100px; width: 100%; }
+.review-panel :is(button, select, textarea), .reviews-page > button { min-height: 42px; border: 1px solid var(--border-color); border-radius: 5px; padding: .5rem .75rem; color: var(--text-primary); background: var(--field-bg); font-size: 1rem; }
+.review-panel button, .reviews-page > button { cursor: pointer; font-weight: 600; }
+.review-panel button[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); }
+.review-panel button:disabled { opacity: .55; cursor: default; }
+.review-panel :is(button, select, textarea):focus-visible, .reviews-page a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.review-entry { padding: 1rem 0; border-top: 1px solid var(--border-color); }
+.review-entry header time { color: var(--text-secondary); }
+.review-comment { white-space: pre-wrap; overflow-wrap: anywhere; }
+.review-error, .review-panel small[role=alert] { color: var(--danger); }
+.review-matches { list-style: none; margin: 1rem 0; }
+.review-matches li { padding: 1rem 0; border-bottom: 1px solid var(--border-color); }
+.review-matches a { color: var(--text-primary); font-size: 1.2rem; font-weight: 600; }
+@media (max-width: 480px) { .review-entry header { align-items: start; flex-direction: column; gap: .2rem; } }
