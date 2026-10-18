@@ -2,6 +2,8 @@ using Competition.Domain.Entities;
 using Competition.Infrastructure.Settings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+using Competition.Domain.Entities.MatchEntities;
 
 namespace Competition.Infrastructure.Data;
 
@@ -9,15 +11,42 @@ namespace Competition.Infrastructure.Data;
 public class DataSeeder(
     RoleManager<ApplicationRole> roleManager,
     UserManager<ApplicationUser> userManager,
-    IOptions<SeedSettings> options)
+    IOptions<SeedSettings> options,
+    AppDbContext db)
 {
     public static IReadOnlyList<string> Roles { get; } = Array.AsReadOnly(new[] { "Admin", "Moderator", "User", "Manager" });
 
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
         await SeedRolesAsync(cancellationToken);
+        await SeedEventLookupsAsync(db, cancellationToken);
         if (options.Value.Enabled)
             await SeedUsersAsync(cancellationToken);
+    }
+
+    /// <summary>Required reference data, independent of the optional demo-user switch.</summary>
+    public static async Task SeedEventLookupsAsync(AppDbContext context, CancellationToken cancellationToken = default)
+    {
+        (string Code, string Name)[] types =
+        [
+            ("goal", "Goal"), ("own-goal", "Own goal"), ("yellow-card", "Yellow card"),
+            ("red-card", "Red card"), ("substitution", "Substitution"),
+            ("penalty", "Penalty scored"), ("penalty-missed", "Penalty missed"),
+        ];
+        (string Code, string Name)[] parts =
+        [
+            ("first-half", "1st half"), ("second-half", "2nd half"),
+            ("extra-time", "Extra time"), ("penalties", "Penalties"),
+        ];
+        var existingTypes = await context.EventTypes.Select(x => x.Code).ToListAsync(cancellationToken);
+        var existingParts = await context.MatchParts.Select(x => x.Code).ToListAsync(cancellationToken);
+        for (var i = 0; i < types.Length; i++)
+            if (!existingTypes.Contains(types[i].Code))
+                context.EventTypes.Add(new EventType { Code = types[i].Code, Name = types[i].Name, SortOrder = i });
+        for (var i = 0; i < parts.Length; i++)
+            if (!existingParts.Contains(parts[i].Code))
+                context.MatchParts.Add(new MatchPart { Code = parts[i].Code, Name = parts[i].Name, SortOrder = i });
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     private async Task SeedRolesAsync(CancellationToken cancellationToken)

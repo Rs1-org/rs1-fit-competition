@@ -196,6 +196,41 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             e.HasQueryFilter(x => x.DeletedAt == null);
         });
 
+        modelBuilder.Entity<EventType>(e =>
+        {
+            e.ToTable("EventTypes");
+            e.Property(x => x.Code).IsRequired().HasMaxLength(40);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(80);
+            e.HasIndex(x => x.Code).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+        modelBuilder.Entity<MatchPart>(e =>
+        {
+            e.ToTable("MatchParts");
+            e.Property(x => x.Code).IsRequired().HasMaxLength(40);
+            e.Property(x => x.Name).IsRequired().HasMaxLength(80);
+            e.HasIndex(x => x.Code).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+        modelBuilder.Entity<Event>(e =>
+        {
+            e.ToTable("Events", t =>
+            {
+                t.HasCheckConstraint("CK_Events_Minute", "\"Minute\" BETWEEN 0 AND 130 AND \"AddedMinute\" BETWEEN 0 AND 30");
+                t.HasCheckConstraint("CK_Events_DifferentPlayers", "\"PlayerId\" IS NULL OR \"RelatedPlayerId\" IS NULL OR \"PlayerId\" <> \"RelatedPlayerId\"");
+            });
+            e.Property(x => x.Note).HasMaxLength(500);
+            e.HasOne(x => x.Match).WithMany().HasForeignKey(x => x.MatchId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.EventType).WithMany().HasForeignKey(x => x.EventTypeId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.MatchPart).WithMany().HasForeignKey(x => x.MatchPartId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Selection).WithMany().HasForeignKey(x => x.SelectionId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Player).WithMany().HasForeignKey(x => x.PlayerId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.RelatedPlayer).WithMany().HasForeignKey(x => x.RelatedPlayerId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.MatchId, x.MatchPartId, x.Minute, x.AddedMinute });
+            e.HasQueryFilter(x => x.DeletedAt == null && x.Match.DeletedAt == null
+                && x.EventType.DeletedAt == null && x.MatchPart.DeletedAt == null && x.Selection.DeletedAt == null);
+        });
+
         modelBuilder.Entity<MatchReview>(e =>
         {
             e.ToTable("MatchReviews", table => table.HasCheckConstraint("CK_MatchReviews_Rating", "\"Rating\" BETWEEN 1 AND 5"));
@@ -441,6 +476,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<Stadium> Stadiums { get; set; }
     public DbSet<MatchStatus> MatchStatuses { get; set; } = null!;
     public DbSet<Match> Matches { get; set; } = null!;
+    public DbSet<Event> Events { get; set; } = null!;
+    public DbSet<EventType> EventTypes { get; set; } = null!;
+    public DbSet<MatchPart> MatchParts { get; set; } = null!;
     public DbSet<Statistic> Statistics { get; set; } = null!;
     public DbSet<MatchReview> MatchReviews { get; set; } = null!;
     public DbSet<ReviewReaction> ReviewReactions { get; set; } = null!;

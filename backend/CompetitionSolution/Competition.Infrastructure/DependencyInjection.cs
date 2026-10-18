@@ -49,6 +49,7 @@ namespace Competition.Infrastructure
             services.AddScoped<IMatch, MatchRepository>();
             services.AddScoped<IStatistic, StatisticRepository>();
             services.AddScoped<Competition.Application.Reviews.IReviewStore, ReviewStore>();
+            services.AddScoped<Competition.Application.Events.IEventStore, EventStore>();
             services.AddScoped<ICompetition, CompetitionRepository>();
             services.AddScoped<IClub, ClubRepository>();
             services.AddScoped<ISeason, SeasonRepository>();

@@ -142,7 +142,8 @@ public class SeededLoginTests : IClassFixture<WebApplicationFactory<Program>>, I
     private static DataSeeder NewSeeder(IServiceProvider services, SeedSettings settings) => new(
         services.GetRequiredService<RoleManager<ApplicationRole>>(),
         services.GetRequiredService<UserManager<ApplicationUser>>(),
-        Microsoft.Extensions.Options.Options.Create(settings));
+        Microsoft.Extensions.Options.Options.Create(settings),
+        services.GetRequiredService<AppDbContext>());
 
     public void Dispose()
     {

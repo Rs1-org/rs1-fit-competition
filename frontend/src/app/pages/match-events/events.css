@@ -1,0 +1,26 @@
+.events-page { max-width: 1050px; margin: 2rem auto; padding: 0 1rem; color: var(--text-primary); }
+.events-page h1 { font-size: 2rem; margin: .75rem 0; }
+.events-page h2, .event-group h3 { margin: 1.25rem 0 .75rem; }
+.events-page p { margin: .5rem 0; }
+.event-actions { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
+.event-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: 1rem 0; }
+.event-fields label { display: grid; gap: .35rem; font-weight: 600; }
+.events-page :is(input, select, textarea, button), .event-actions button { font: inherit; min-height: 44px; padding: .5rem .75rem; border: 1px solid var(--border-color); border-radius: 5px; color: var(--text-primary); background: var(--field-bg); min-width: 0; max-width: 100%; }
+.events-page button, .event-actions button { cursor: pointer; font-weight: 600; }
+.events-page button:disabled, .event-actions button:disabled { opacity: .55; cursor: default; }
+.events-page :is(a, input, select, textarea, button):focus-visible, .event-actions :is(a,button):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.events-page fieldset { min-width: 0; padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin: 1rem 0; background: var(--bg-card); }
+.events-page legend { padding: 0 .35rem; font-weight: 600; }
+.event-error { color: var(--danger); }
+.events-page textarea { width: 100%; resize: vertical; }
+.event-timeline { list-style: none; padding: 0; }
+.event-timeline li { display: flex; gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--border-color); }
+.event-minute { flex: 0 0 4rem; font-weight: 700; color: var(--text-primary); }
+.event-description { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.event-description p { margin-top: .25rem; }
+.event-note { white-space: pre-wrap; color: var(--text-secondary); }
+.event-group { margin: 1rem 0; }
+.event-group h3 { font-size: 1.25rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+@media (max-width: 768px) { .event-fields { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 480px) { .event-fields { grid-template-columns: 1fr; } .event-timeline li { flex-wrap: wrap; gap: .5rem; } .event-description { flex-basis: calc(100% - 5rem); } .event-timeline .event-actions { width: 100%; padding-left: 4.5rem; } }

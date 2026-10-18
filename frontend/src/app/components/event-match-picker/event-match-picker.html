@@ -1,0 +1,17 @@
+<fieldset [disabled]="disabled()"><legend>Match</legend>
+  @if (state().loading) { <p role="status">Loading matches…</p> }
+  @else if (state().error) { <p role="alert">{{ state().error }}</p><button type="button" (click)="page(1)">Try again</button> }
+  @else if (state().data; as data) {
+    <label>Choose a match
+      <select #picker [value]="selected()" (change)="changeMatch.emit(picker.value)">
+        <option value="">No match selected</option>
+        @if (selected() && !containsSelected()) { <option [value]="selected()">{{ selectedName() }}</option> }
+        @for (match of data.items; track match.publicId) {
+          <option [value]="match.publicId">{{ match.homeSelectionName || 'Home not assigned' }} vs {{ match.awaySelectionName || 'Away not assigned' }} · {{ match.date | appDateTime }}</option>
+        }
+      </select>
+    </label>
+    @if (!data.totalCount) { <p>No matches are available yet.</p> }
+    <app-pagination [totalItems]="data.totalCount" [currentPage]="data.page" [pageSize]="data.pageSize" (pageChange)="page($event)" />
+  }
+</fieldset>

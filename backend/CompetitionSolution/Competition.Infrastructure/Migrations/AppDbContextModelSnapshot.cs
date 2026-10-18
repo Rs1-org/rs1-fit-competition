@@ -733,6 +733,126 @@ namespace Competition.Infrastructure.Migrations
                     b.ToTable("MandateDates", (string)null);
                 });
 
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Event", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<int>("AddedMinute")
+                        .HasColumnType("integer");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EventTypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MatchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MatchPartId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Minute")
+                        .HasColumnType("integer");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("PlayerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid?>("RelatedPlayerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SelectionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventTypeId");
+
+                    b.HasIndex("MatchPartId");
+
+                    b.HasIndex("PlayerId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("RelatedPlayerId");
+
+                    b.HasIndex("SelectionId");
+
+                    b.HasIndex("MatchId", "MatchPartId", "Minute", "AddedMinute");
+
+                    b.ToTable("Events", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Events_DifferentPlayers", "\"PlayerId\" IS NULL OR \"RelatedPlayerId\" IS NULL OR \"PlayerId\" <> \"RelatedPlayerId\"");
+
+                            t.HasCheckConstraint("CK_Events_Minute", "\"Minute\" BETWEEN 0 AND 130 AND \"AddedMinute\" BETWEEN 0 AND 30");
+                        });
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.EventType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.ToTable("EventTypes", (string)null);
+                });
+
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Match", b =>
                 {
                     b.Property<Guid>("Id")
@@ -813,6 +933,52 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("StatusId");
 
                     b.ToTable("Matches", (string)null);
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchPart", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.ToTable("MatchParts", (string)null);
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchReview", b =>
@@ -1679,6 +1845,55 @@ namespace Competition.Infrastructure.Migrations
                     b.Navigation("PlayerSelectionHistory");
 
                     b.Navigation("SelectionManagerHistory");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Event", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.MatchEntities.EventType", "EventType")
+                        .WithMany()
+                        .HasForeignKey("EventTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Competition.Domain.Entities.MatchEntities.Match", "Match")
+                        .WithMany()
+                        .HasForeignKey("MatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Competition.Domain.Entities.MatchEntities.MatchPart", "MatchPart")
+                        .WithMany()
+                        .HasForeignKey("MatchPartId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Competition.Domain.Entities.Person.Player", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Competition.Domain.Entities.Person.Player", "RelatedPlayer")
+                        .WithMany()
+                        .HasForeignKey("RelatedPlayerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Competition.Domain.Entities.Selection", "Selection")
+                        .WithMany()
+                        .HasForeignKey("SelectionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("EventType");
+
+                    b.Navigation("Match");
+
+                    b.Navigation("MatchPart");
+
+                    b.Navigation("Player");
+
+                    b.Navigation("RelatedPlayer");
+
+                    b.Navigation("Selection");
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Match", b =>
