@@ -244,6 +244,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
         modelBuilder.Entity<Selection>(e =>
         {
             e.ToTable("Selections");
+            e.HasOne(x => x.Club).WithMany().HasForeignKey(x => x.ClubId).OnDelete(DeleteBehavior.Restrict);
             e.Property(x => x.Name).IsRequired().HasMaxLength(120);
             e.Property(x => x.Abbreviation).IsRequired().HasMaxLength(10);
             e.HasIndex(x => x.Slug).IsUnique().HasFilter("\"Slug\" IS NOT NULL");

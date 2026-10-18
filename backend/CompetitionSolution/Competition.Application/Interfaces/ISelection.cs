@@ -9,7 +9,8 @@ public record SelectionListFilter(
     string? CountryPublicId,
     string? Abbreviation,
     int? FollowersMin,
-    int? FollowersMax);
+    int? FollowersMax,
+    string? ClubPublicId = null);
 
 public interface ISelection : IRepository<Selection>
 {

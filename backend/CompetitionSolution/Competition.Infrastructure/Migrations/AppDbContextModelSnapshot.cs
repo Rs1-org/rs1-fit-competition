@@ -1037,6 +1037,9 @@ namespace Competition.Infrastructure.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
+                    b.Property<Guid?>("ClubId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("CountryId")
                         .HasColumnType("uuid");
 
@@ -1069,6 +1072,8 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClubId");
 
                     b.HasIndex("CountryId");
 
@@ -1546,11 +1551,18 @@ namespace Competition.Infrastructure.Migrations
 
             modelBuilder.Entity("Competition.Domain.Entities.Selection", b =>
                 {
+                    b.HasOne("Competition.Domain.Entities.Club", "Club")
+                        .WithMany()
+                        .HasForeignKey("ClubId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Competition.Domain.Entities.Country", "Country")
                         .WithMany()
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Club");
 
                     b.Navigation("Country");
                 });

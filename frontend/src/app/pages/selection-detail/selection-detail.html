@@ -1,0 +1,43 @@
+<main class="clubs-page" [attr.aria-busy]="state().loading">
+  <a class="club-back" routerLink="/selection-list">Back to selections</a>
+  @if (state().loading) {
+    <p class="club-state" role="status">Loading selection…</p>
+  } @else if (state().error) {
+    <div class="club-state" role="alert">
+      <p>{{ state().error }}</p>
+      <button type="button" (click)="retry()">Try again</button>
+    </div>
+  } @else if (state().data; as selection) {
+    <header class="club-heading">
+      <div>
+        <h1>{{ selection.name }}</h1>
+        <p>{{ selection.abbreviation }}</p>
+      </div>
+      @if (user.canManagePersons()) {
+        <a class="club-primary" [routerLink]="['/manage-selections', selection.slug]"
+          >Edit selection</a
+        >
+      }
+    </header>
+    <dl class="club-details">
+      <div>
+        <dt>Club</dt>
+        <dd>
+          @if (selection.clubSlug) {
+            <a [routerLink]="['/clubs', selection.clubSlug]">{{ selection.clubName }}</a>
+          } @else {
+            Club not assigned
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>Country</dt>
+        <dd>{{ selection.countryName || 'Not set' }}</dd>
+      </div>
+      <div>
+        <dt>Followers</dt>
+        <dd>{{ selection.followersCount | appNumber: '1.0-0' }}</dd>
+      </div>
+    </dl>
+  }
+</main>

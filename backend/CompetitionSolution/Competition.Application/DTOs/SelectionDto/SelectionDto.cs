@@ -8,6 +8,9 @@ public class SelectionDto
     public string? PictureUrl { get; set; }
     public int FollowersCount { get; set; }
     public string? Slug { get; set; }
+    public string? ClubPublicId { get; set; }
+    public string? ClubName { get; set; }
+    public string? ClubSlug { get; set; }
     public string? CountryPublicId { get; set; }
     public string? CountryName { get; set; }
 }

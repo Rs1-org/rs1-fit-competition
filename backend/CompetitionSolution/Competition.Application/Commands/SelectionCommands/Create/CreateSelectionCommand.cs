@@ -14,6 +14,7 @@ public class CreateSelectionCommand : IRequest<SelectionDto>
     public string Abbreviation { get; set; } = string.Empty;
     public string? PictureUrl { get; set; }
     public int FollowersCount { get; set; }
+    public string ClubPublicId { get; set; } = string.Empty;
     public string CountryPublicId { get; set; } = string.Empty;
 }
 
@@ -24,6 +25,7 @@ public class CreateSelectionCommandValidator : AbstractValidator<CreateSelection
         RuleFor(x => x.Name).NotEmpty().MaximumLength(120);
         RuleFor(x => x.Abbreviation).NotEmpty().MaximumLength(10);
         RuleFor(x => x.CountryPublicId).MustReferenceExisting<CreateSelectionCommand, Country>(lookup);
+        RuleFor(x => x.ClubPublicId).MustReferenceExisting<CreateSelectionCommand, Club>(lookup);
         RuleFor(x => x.FollowersCount).GreaterThanOrEqualTo(0);
     }
 }
@@ -43,6 +45,7 @@ public class CreateSelectionCommandHandler : IRequestHandler<CreateSelectionComm
 
     public async Task<SelectionDto> Handle(CreateSelectionCommand request, CancellationToken cancellationToken)
     {
+        var clubId = await _publicIds.GetRequiredIdAsync<Club>(request.ClubPublicId, cancellationToken);
         var countryId = await _publicIds.GetRequiredIdAsync<Country>(request.CountryPublicId, cancellationToken);
 
         var slug = SlugHelper.GenerateSlug(request.Name);
@@ -56,6 +59,7 @@ public class CreateSelectionCommandHandler : IRequestHandler<CreateSelectionComm
             Abbreviation = request.Abbreviation.Trim().ToUpperInvariant(),
             PictureUrl = string.IsNullOrWhiteSpace(request.PictureUrl) ? null : request.PictureUrl.Trim(),
             FollowersCount = request.FollowersCount,
+            ClubId = clubId,
             CountryId = countryId,
             Slug = slug
         };
@@ -75,6 +79,9 @@ public class CreateSelectionCommandHandler : IRequestHandler<CreateSelectionComm
         PictureUrl = entity.PictureUrl,
         FollowersCount = entity.FollowersCount,
         Slug = entity.Slug,
+        ClubPublicId = entity.Club?.DeletedAt == null ? entity.Club?.PublicId : null,
+        ClubName = entity.Club?.DeletedAt == null ? entity.Club?.Name : null,
+        ClubSlug = entity.Club?.DeletedAt == null ? entity.Club?.Slug : null,
         CountryPublicId = entity.Country?.PublicId,
         CountryName = entity.Country?.Name
     };

@@ -39,8 +39,42 @@
           <p class="field-error">{{ message }}</p>
         }
       </div>
+      <div class="form-group">
+        <label for="clubPublicId">Club</label>
+        <select
+          id="clubPublicId"
+          formControlName="clubPublicId"
+          aria-describedby="club-help club-error"
+        >
+          <option value="">Select a club</option>
+          @for (club of clubOptions; track club.publicId) {
+            <option [value]="club.publicId">{{ club.name }}</option>
+          }
+        </select>
+        <p id="club-help">Every selection must belong to an active club.</p>
+        @if (clubsLoading) {
+          <p role="status">Loading clubs...</p>
+        }
+        @if (clubsError) {
+          <p role="alert">{{ clubsError }}</p>
+          <button type="button" (click)="loadClubs()">Retry clubs</button>
+        } @else if (!clubsLoading && !clubOptions.length) {
+          <p role="status">No active clubs available. Create a club before saving a selection.</p>
+        }
+        <p id="club-error" class="field-error">{{ fieldError('clubPublicId') }}</p>
+      </div>
+      @if (loading) {
+        <p role="status">Loading selection...</p>
+      }
       <div class="button-group">
-        <button type="submit" [disabled]="form.invalid">Save</button>
+        <button
+          type="submit"
+          [disabled]="
+            form.invalid || saving || loading || loadFailed || clubsLoading || !!clubsError
+          "
+        >
+          {{ saving ? 'Saving...' : 'Save' }}
+        </button>
         <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
       </div>
     </form>

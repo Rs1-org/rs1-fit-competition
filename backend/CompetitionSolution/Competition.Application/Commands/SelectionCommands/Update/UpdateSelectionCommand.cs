@@ -18,6 +18,7 @@ public class UpdateSelectionCommand : IRequest<SelectionDto>
     public string Abbreviation { get; set; } = string.Empty;
     public string? PictureUrl { get; set; }
     public int FollowersCount { get; set; }
+    public string ClubPublicId { get; set; } = string.Empty;
     public string CountryPublicId { get; set; } = string.Empty;
 }
 
@@ -29,6 +30,7 @@ public class UpdateSelectionCommandValidator : AbstractValidator<UpdateSelection
         RuleFor(x => x.Name).NotEmpty().MaximumLength(120);
         RuleFor(x => x.Abbreviation).NotEmpty().MaximumLength(10);
         RuleFor(x => x.CountryPublicId).MustReferenceExisting<UpdateSelectionCommand, Country>(lookup);
+        RuleFor(x => x.ClubPublicId).MustReferenceExisting<UpdateSelectionCommand, Club>(lookup);
         RuleFor(x => x.FollowersCount).GreaterThanOrEqualTo(0);
     }
 }
@@ -51,6 +53,7 @@ public class UpdateSelectionCommandHandler : IRequestHandler<UpdateSelectionComm
         var entity = await _selections.GetBySlugAsync(request.Slug, cancellationToken)
             ?? throw new KeyNotFoundException($"Selection '{request.Slug}' was not found.");
 
+        var clubId = await _publicIds.GetRequiredIdAsync<Club>(request.ClubPublicId, cancellationToken);
         var countryId = await _publicIds.GetRequiredIdAsync<Country>(request.CountryPublicId, cancellationToken);
 
         var slug = SlugHelper.GenerateSlug(request.Name);
@@ -63,6 +66,7 @@ public class UpdateSelectionCommandHandler : IRequestHandler<UpdateSelectionComm
         if (!string.IsNullOrWhiteSpace(request.PictureUrl))
             entity.PictureUrl = request.PictureUrl.Trim();
         entity.FollowersCount = request.FollowersCount;
+        entity.ClubId = clubId;
         entity.CountryId = countryId;
         entity.Slug = slug;
 

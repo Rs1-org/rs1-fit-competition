@@ -116,6 +116,7 @@ classDiagram
         +int FollowersCount
         +string? Slug
         +Guid CountryId
+        +Guid? ClubId
     }
     class Person {
         +string FirstName
@@ -254,6 +255,7 @@ classDiagram
     Match "0..*" <--> "0..1" Selection : AwaySelection / AwayMatches
 
     Selection "0..*" --> "1" Country : Country
+    Selection "0..*" --> "0..1" Club : Club
     Player "0..*" <--> "0..1" Position : Position / Players
     Player "0..*" <--> "0..1" SubPosition : SubPosition / Players
     Position "1" <--> "0..*" SubPosition : SubPositions / Position
@@ -288,7 +290,7 @@ classDiagram
     %% ---------- Notes ----------
     note for BaseEntity "All domain classes inherit BaseEntity (soft delete via DeletedAt). ApplicationUser, ApplicationRole and RefreshToken do not."
     note for LegendSprint4 "Sprint 4 also added Match.RoundId (Match -> Round).
-Planned for Sprint 4 but not implemented yet: Event, EventType, MatchPart (COMP-41), Statistic / TeamStatistic (COMP-62), Selection.ClubId, Selection.HomeStadiumId."
+Planned for Sprint 4 but not implemented yet: Event, EventType, MatchPart (COMP-41), Statistic / TeamStatistic (COMP-62), Selection.HomeStadiumId."
 
     %% ---------- Colours ----------
 

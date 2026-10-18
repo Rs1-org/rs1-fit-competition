@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { PagedResult } from '../models/paged-result';
 
 export interface SelectionListFilter {
+  clubPublicId?: string;
   name?: string;
   countryPublicId?: string;
   abbreviation?: string;
@@ -19,6 +20,9 @@ export interface SelectionOption {
   pictureUrl: string | null;
   followersCount: number;
   slug: string;
+  clubPublicId: string | null;
+  clubName: string | null;
+  clubSlug: string | null;
   countryPublicId: string | null;
   countryName: string | null;
 }
@@ -28,8 +32,13 @@ export class SelectionService {
   private readonly apiUrl = `${environment.apiUrl}/api/selection`;
   private http = inject(HttpClient);
 
-  getAll(page = 1, pageSize = 10, filter: SelectionListFilter = {}): Observable<PagedResult<SelectionOption>> {
+  getAll(
+    page = 1,
+    pageSize = 10,
+    filter: SelectionListFilter = {},
+  ): Observable<PagedResult<SelectionOption>> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    if (filter.clubPublicId) params = params.set('clubPublicId', filter.clubPublicId);
     if (filter.name) params = params.set('name', filter.name);
     if (filter.countryPublicId) params = params.set('countryPublicId', filter.countryPublicId);
     if (filter.abbreviation) params = params.set('abbreviation', filter.abbreviation);
@@ -42,11 +51,28 @@ export class SelectionService {
     return this.http.get<SelectionOption>(`${this.apiUrl}/${slug}`);
   }
 
-  create(body: { name: string; abbreviation: string; followersCount: number; countryPublicId: string; pictureUrl?: string | null }): Observable<SelectionOption> {
+  create(body: {
+    name: string;
+    abbreviation: string;
+    followersCount: number;
+    countryPublicId: string;
+    clubPublicId: string;
+    pictureUrl?: string | null;
+  }): Observable<SelectionOption> {
     return this.http.post<SelectionOption>(this.apiUrl, body);
   }
 
-  update(slug: string, body: { name: string; abbreviation: string; followersCount: number; countryPublicId: string; pictureUrl?: string | null }): Observable<SelectionOption> {
+  update(
+    slug: string,
+    body: {
+      name: string;
+      abbreviation: string;
+      followersCount: number;
+      countryPublicId: string;
+      clubPublicId: string;
+      pictureUrl?: string | null;
+    },
+  ): Observable<SelectionOption> {
     return this.http.put<SelectionOption>(`${this.apiUrl}/${slug}`, body);
   }
 

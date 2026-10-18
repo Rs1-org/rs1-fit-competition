@@ -10,6 +10,10 @@ public class Selection : BaseEntity
     public int FollowersCount { get; set; }
     public string? Slug { get; set; }
 
+    // Nullable for legacy rows; create/update require an active club.
+    public Guid? ClubId { get; set; }
+    public Club? Club { get; set; }
+
     public Guid CountryId { get; set; }
     public Country? Country { get; set; }
 

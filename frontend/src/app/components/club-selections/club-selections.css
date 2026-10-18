@@ -1,0 +1,51 @@
+:host {
+  display: block;
+  margin-top: 32px;
+}
+h2 {
+  margin-bottom: 12px;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+a {
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+  text-underline-offset: 3px;
+}
+span,
+p {
+  color: var(--text-secondary);
+}
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+}
+button {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+:is(a, button):focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}

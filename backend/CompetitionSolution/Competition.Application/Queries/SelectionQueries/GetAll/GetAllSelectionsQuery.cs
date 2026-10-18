@@ -12,6 +12,7 @@ public class GetAllSelectionsQuery : IRequest<PagedResult<SelectionDto>>
 {
     public int Page { get; init; } = 1;
     public int PageSize { get; init; } = 10;
+    public string? ClubPublicId { get; init; }
     public string? Name { get; init; }
     public string? CountryPublicId { get; init; }
     public string? Abbreviation { get; init; }
@@ -25,6 +26,7 @@ public class GetAllSelectionsQueryValidator : AbstractValidator<GetAllSelections
     {
         RuleFor(x => x.Page).GreaterThanOrEqualTo(1);
         RuleFor(x => x.PageSize).InclusiveBetween(1, 100);
+        RuleFor(x => x.ClubPublicId).MustBeValidPublicId().When(x => !string.IsNullOrWhiteSpace(x.ClubPublicId));
         RuleFor(x => x.Name).MaximumLength(120);
         RuleFor(x => x.Abbreviation).MaximumLength(10);
         RuleFor(x => x.CountryPublicId)
@@ -52,7 +54,8 @@ public class GetAllSelectionsQueryHandler : IRequestHandler<GetAllSelectionsQuer
             request.CountryPublicId,
             request.Abbreviation,
             request.FollowersMin,
-            request.FollowersMax);
+            request.FollowersMax,
+            request.ClubPublicId);
         var paged = await _selections.GetPagedAsync(filter, request.Page, request.PageSize, cancellationToken);
         var items = paged.Items.Select(CreateSelectionCommandHandler.Map).ToList();
         return new PagedResult<SelectionDto>(items, paged.TotalCount, paged.Page, paged.PageSize);

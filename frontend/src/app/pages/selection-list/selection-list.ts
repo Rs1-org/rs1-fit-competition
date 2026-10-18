@@ -1,13 +1,28 @@
 import { Component, inject } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { BehaviorSubject, combineLatest, debounceTime, filter, map, switchMap } from 'rxjs';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { UserStateService } from '../../core/services/user-state.service';
-import { SelectionListFilter, SelectionOption, SelectionService } from '../../core/services/selection.service';
+import {
+  SelectionListFilter,
+  SelectionOption,
+  SelectionService,
+} from '../../core/services/selection.service';
+import { ClubService } from '../../core/services/club.service';
+import { ClubListDto } from '../../core/models/club';
+import { fetchAllPages } from '../../core/helpers/paging.helper';
+import { apiErrorMessage } from '../../core/utils/api-error';
+import { catchError, of, startWith } from 'rxjs';
 import { CountryService } from '../../core/services/country-service';
 import { CountryListDto } from '../../core/models/country';
 import { emptyPage } from '../../core/models/paged-result';
@@ -22,50 +37,91 @@ function followersRangeValidator(group: AbstractControl): ValidationErrors | nul
 
 @Component({
   selector: 'app-selection-list',
-  imports: [CommonModule, GenericListComponent, ReactiveFormsModule, AppNumberPipe],
+  imports: [CommonModule, GenericListComponent, ReactiveFormsModule, AppNumberPipe, RouterLink],
   templateUrl: './selection-list.html',
   styleUrl: '../catalog.css',
 })
 export class SelectionList {
+  readonly isAdmin = inject(UserStateService).isAdmin;
   private service = inject(SelectionService);
   private countries = inject(CountryService);
+  private clubs = inject(ClubService);
   private confirmDialog = inject(ConfirmDialogService);
   private userState = inject(UserStateService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
   private refresh$ = new BehaviorSubject<void>(undefined);
-  private query$ = new BehaviorSubject<{ page: number; filter: SelectionListFilter }>({ page: 1, filter: {} });
+  private query$ = new BehaviorSubject<{ page: number; filter: SelectionListFilter }>({
+    page: 1,
+    filter: {},
+  });
   readonly pageSize = 10;
 
-  filterForm = this.fb.group({
-    name: this.fb.nonNullable.control('', Validators.maxLength(120)),
-    countryPublicId: this.fb.nonNullable.control(''),
-    abbreviation: this.fb.nonNullable.control('', Validators.maxLength(10)),
-    followersMin: this.fb.control<number | null>(null, Validators.min(0)),
-    followersMax: this.fb.control<number | null>(null, Validators.min(0)),
-  }, { validators: followersRangeValidator });
+  filterForm = this.fb.group(
+    {
+      name: this.fb.nonNullable.control('', Validators.maxLength(120)),
+      countryPublicId: this.fb.nonNullable.control(''),
+      clubPublicId: this.fb.nonNullable.control(''),
+      abbreviation: this.fb.nonNullable.control('', Validators.maxLength(10)),
+      followersMin: this.fb.control<number | null>(null, Validators.min(0)),
+      followersMax: this.fb.control<number | null>(null, Validators.min(0)),
+    },
+    { validators: followersRangeValidator },
+  );
 
-  countryOptions = toSignal(this.countries.getAll(1, 100), { initialValue: emptyPage<CountryListDto>() });
+  countryOptions = toSignal(this.countries.getAll(1, 100), {
+    initialValue: emptyPage<CountryListDto>(),
+  });
 
-  result = toSignal(
-    combineLatest([this.query$, this.refresh$]).pipe(
-      switchMap(([{ page, filter }]) => this.service.getAll(page, this.pageSize, filter)),
+  clubOptions = toSignal(
+    fetchAllPages((page) => this.clubs.getAll(page, 100)).pipe(
+      map((items) => ({ items, error: '' })),
+      catchError((err) =>
+        of({
+          items: [] as ClubListDto[],
+          error: apiErrorMessage(err, 'Clubs could not be loaded.'),
+        }),
+      ),
     ),
-    { initialValue: emptyPage<SelectionOption>() },
+    { initialValue: { items: [] as ClubListDto[], error: '' } },
   );
 
-  canManage = toSignal(
-    this.userState.roles$.pipe(map(() => this.userState.canManagePersons())),
-    { initialValue: this.userState.canManagePersons() },
+  state = toSignal(
+    combineLatest([this.query$, this.refresh$]).pipe(
+      switchMap(([{ page, filter }]) =>
+        this.service.getAll(page, this.pageSize, filter).pipe(
+          map((data) => ({ data, loading: false, error: '' })),
+          startWith({ data: emptyPage<SelectionOption>(), loading: true, error: '' }),
+          catchError((err) =>
+            of({
+              data: emptyPage<SelectionOption>(),
+              loading: false,
+              error: apiErrorMessage(err, 'Selections could not be loaded.'),
+            }),
+          ),
+        ),
+      ),
+    ),
+    { initialValue: { data: emptyPage<SelectionOption>(), loading: true, error: '' } },
   );
+
+  canManage = toSignal(this.userState.roles$.pipe(map(() => this.userState.canManagePersons())), {
+    initialValue: this.userState.canManagePersons(),
+  });
 
   constructor() {
-    this.filterForm.valueChanges.pipe(
-      debounceTime(300),
-      filter(() => this.filterForm.valid),
-      takeUntilDestroyed(),
-    ).subscribe(() => this.query$.next({ page: 1, filter: this.toFilter() }));
+    this.filterForm.valueChanges
+      .pipe(
+        debounceTime(300),
+        filter(() => this.filterForm.valid),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.query$.next({ page: 1, filter: this.toFilter() }));
+  }
+
+  retry(): void {
+    this.refresh$.next();
   }
 
   onPageChange(page: number): void {
@@ -73,23 +129,31 @@ export class SelectionList {
   }
 
   resetFilters(): void {
-    this.filterForm.reset({ name: '', countryPublicId: '', abbreviation: '' });
+    this.filterForm.reset({ name: '', countryPublicId: '', clubPublicId: '', abbreviation: '' });
   }
 
-  onAdd(): void { this.router.navigate(['/manage-selections']); }
-  onEdit(item: SelectionOption): void { this.router.navigate(['/manage-selections', item.slug]); }
+  onAdd(): void {
+    this.router.navigate(['/manage-selections']);
+  }
+  onEdit(item: SelectionOption): void {
+    this.router.navigate(['/manage-selections', item.slug]);
+  }
 
   async onDelete(item: SelectionOption): Promise<void> {
-    const confirmed = await this.confirmDialog.confirm({ message: `Delete selection ${item.name}?` });
+    const confirmed = await this.confirmDialog.confirm({
+      message: `Delete selection ${item.name}?`,
+    });
     if (!confirmed) return;
     this.service.delete(item.id).subscribe({ next: () => this.refresh$.next() });
   }
 
   private toFilter(): SelectionListFilter {
-    const { name, countryPublicId, abbreviation, followersMin, followersMax } = this.filterForm.getRawValue();
+    const { name, countryPublicId, clubPublicId, abbreviation, followersMin, followersMax } =
+      this.filterForm.getRawValue();
     return {
       name: name.trim() || undefined,
       countryPublicId: countryPublicId || undefined,
+      clubPublicId: clubPublicId || undefined,
       abbreviation: abbreviation.trim() || undefined,
       followersMin: followersMin ?? undefined,
       followersMax: followersMax ?? undefined,
