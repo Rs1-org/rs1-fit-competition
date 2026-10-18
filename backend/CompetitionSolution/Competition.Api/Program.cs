@@ -115,7 +115,6 @@ app.UseMiddleware<ExceptionMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-using var scope = app.Services.CreateScope();
 using var dbScope = app.Services.CreateScope();
 var db = dbScope.ServiceProvider.GetRequiredService<AppDbContext>();
 if (db.Database.IsRelational())
@@ -125,6 +124,8 @@ else
 
 if (!app.Environment.IsDevelopment())
     await SampleAccountProtection.DisableDefaultPasswordsAsync(db);
+
+await dbScope.ServiceProvider.GetRequiredService<DataSeeder>().SeedAsync(app.Lifetime.ApplicationStopping);
 
 app.UseCors(CorsSettings.PolicyName);
 
@@ -141,18 +142,5 @@ app.MapGet("/health/ready", async (AppDbContext context, CancellationToken cance
         ? Results.Ok(new { status = "ready" })
         : Results.StatusCode(StatusCodes.Status503ServiceUnavailable)).AllowAnonymous();
 app.MapControllers();
-
-using var roleScope = app.Services.CreateScope();
-var roleManager = roleScope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
-
-string[] roles = new[] { "Admin", "Moderator", "User", "Manager" };
-
-foreach (var role in roles)
-{
-    if (!await roleManager.RoleExistsAsync(role))
-    {
-        await roleManager.CreateAsync(new ApplicationRole { Name = role });
-    }
-}
 
 app.Run();public partial class Program { }
