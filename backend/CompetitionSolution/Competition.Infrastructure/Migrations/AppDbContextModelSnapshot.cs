@@ -1062,6 +1062,9 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<string>("Slug")
                         .HasColumnType("text");
 
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PublicId")
@@ -1576,6 +1579,9 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<int>("FollowersCount")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("HomeStadiumId")
+                        .HasColumnType("uuid");
+
                     b.Property<Instant>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1600,6 +1606,8 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("ClubId");
 
                     b.HasIndex("CountryId");
+
+                    b.HasIndex("HomeStadiumId");
 
                     b.HasIndex("PublicId")
                         .IsUnique();
@@ -2251,9 +2259,16 @@ namespace Competition.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Competition.Domain.Entities.MatchEntities.Stadium", "HomeStadium")
+                        .WithMany()
+                        .HasForeignKey("HomeStadiumId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Club");
 
                     b.Navigation("Country");
+
+                    b.Navigation("HomeStadium");
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.SelectionManagerHistory", b =>

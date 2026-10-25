@@ -17,6 +17,9 @@ public class Selection : BaseEntity
     public Guid CountryId { get; set; }
     public Country? Country { get; set; }
 
+    public Guid? HomeStadiumId { get; set; }
+    public Stadium? HomeStadium { get; set; }
+
     public ICollection<PlayerSelectionHistory> PlayerHistories { get; set; } = [];
     public ICollection<SelectionManagerHistory> ManagerHistories { get; set; } = [];
     public ICollection<Match> HomeMatches { get; set; } = [];

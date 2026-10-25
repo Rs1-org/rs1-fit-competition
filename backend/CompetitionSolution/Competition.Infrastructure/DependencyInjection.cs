@@ -47,6 +47,7 @@ namespace Competition.Infrastructure
             services.AddScoped<ICountry,CountryRepository>();
             services.AddScoped<IStadium,StadiumRepository>();
             services.AddScoped<IMatch, MatchRepository>();
+            services.AddScoped<IMatchStatus, MatchStatusRepository>();
             services.AddScoped<IStatistic, StatisticRepository>();
             services.AddScoped<Competition.Application.Reviews.IReviewStore, ReviewStore>();
             services.AddScoped<Competition.Application.Events.IEventStore, EventStore>();

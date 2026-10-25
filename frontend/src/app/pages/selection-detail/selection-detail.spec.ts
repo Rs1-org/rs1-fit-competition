@@ -27,6 +27,8 @@ describe('SelectionDetail club navigation', () => {
                 followersCount: 1234,
                 clubName: 'Club',
                 clubSlug: 'club',
+                stadiumName: 'Kosevo',
+                stadiumSlug: 'kosevo',
               }),
           },
         },
@@ -38,6 +40,9 @@ describe('SelectionDetail club navigation', () => {
     expect(fixture.nativeElement.querySelector('a[href="/clubs/club"]').textContent).toContain(
       'Club',
     );
+    expect(
+      fixture.nativeElement.querySelector('a[href="/stadium/kosevo"]').textContent,
+    ).toContain('Kosevo');
     expect(fixture.nativeElement.textContent).not.toContain('Edit selection');
   });
 });

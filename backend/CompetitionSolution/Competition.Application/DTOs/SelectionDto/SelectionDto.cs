@@ -13,4 +13,7 @@ public class SelectionDto
     public string? ClubSlug { get; set; }
     public string? CountryPublicId { get; set; }
     public string? CountryName { get; set; }
+    public string? HomeStadiumPublicId { get; set; }
+    public string? StadiumName { get; set; }
+    public string? StadiumSlug { get; set; }
 }

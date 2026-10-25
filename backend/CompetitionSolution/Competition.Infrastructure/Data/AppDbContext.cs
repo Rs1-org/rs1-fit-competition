@@ -370,6 +370,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 .WithMany()
                 .HasForeignKey(x => x.CountryId)
                 .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.HomeStadium)
+                .WithMany()
+                .HasForeignKey(x => x.HomeStadiumId)
+                .OnDelete(DeleteBehavior.Restrict);
             e.HasQueryFilter(x => x.DeletedAt == null);
         });
 

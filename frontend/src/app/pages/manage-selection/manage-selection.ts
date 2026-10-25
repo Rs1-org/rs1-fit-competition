@@ -9,6 +9,8 @@ import { EMPTY, catchError, finalize, switchMap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ClubService } from '../../core/services/club.service';
 import { ClubListDto } from '../../core/models/club';
+import { StadiumService } from '../../core/services/stadium.service';
+import { StadiumListDto } from '../../core/models/stadium';
 import { fetchAllPages } from '../../core/helpers/paging.helper';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
@@ -26,6 +28,7 @@ export class ManageSelection implements OnInit {
   private countries = inject(CountryService);
   private fb = inject(FormBuilder);
   private clubs = inject(ClubService);
+  private stadiums = inject(StadiumService);
   private destroyRef = inject(DestroyRef);
 
   form = this.fb.group({
@@ -33,6 +36,8 @@ export class ManageSelection implements OnInit {
     abbreviation: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(10)]),
     countryPublicId: this.fb.nonNullable.control('', Validators.required),
     clubPublicId: this.fb.nonNullable.control('', Validators.required),
+    // Optional: an empty value means the selection has no home stadium.
+    homeStadiumPublicId: this.fb.nonNullable.control(''),
     followersCount: this.fb.nonNullable.control(0, [Validators.required, Validators.min(0)]),
   });
 
@@ -40,6 +45,9 @@ export class ManageSelection implements OnInit {
   clubOptions: ClubListDto[] = [];
   clubsLoading = false;
   clubsError = '';
+  stadiumOptions: StadiumListDto[] = [];
+  stadiumsLoading = false;
+  stadiumsError = '';
   saving = false;
   loading = false;
   loadFailed = false;
@@ -49,6 +57,7 @@ export class ManageSelection implements OnInit {
 
   ngOnInit(): void {
     this.loadClubs();
+    this.loadStadiums();
     fetchAllPages((page) => this.countries.getAll(page, 100))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -69,6 +78,7 @@ export class ManageSelection implements OnInit {
             abbreviation: '',
             countryPublicId: '',
             clubPublicId: '',
+            homeStadiumPublicId: '',
             followersCount: 0,
           });
           if (!slug) {
@@ -95,6 +105,7 @@ export class ManageSelection implements OnInit {
             followersCount: selection.followersCount,
             countryPublicId: selection.countryPublicId ?? '',
             clubPublicId: selection.clubPublicId ?? '',
+            homeStadiumPublicId: selection.homeStadiumPublicId ?? '',
           });
         },
       });
@@ -114,8 +125,29 @@ export class ManageSelection implements OnInit {
       });
   }
 
+  loadStadiums(): void {
+    this.stadiumsLoading = true;
+    this.stadiumsError = '';
+    fetchAllPages((page) => this.stadiums.getAll(page, 100))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => (this.stadiumsLoading = false)),
+      )
+      .subscribe({
+        next: (stadiums) => (this.stadiumOptions = stadiums),
+        error: (err) =>
+          (this.stadiumsError = apiErrorMessage(err, 'Stadiums could not be loaded.')),
+      });
+  }
+
   fieldError(
-    name: 'name' | 'abbreviation' | 'countryPublicId' | 'clubPublicId' | 'followersCount',
+    name:
+      | 'name'
+      | 'abbreviation'
+      | 'countryPublicId'
+      | 'clubPublicId'
+      | 'homeStadiumPublicId'
+      | 'followersCount',
   ): string | null {
     const control = this.form.controls[name];
     if (!control.touched || control.valid) return null;
@@ -145,6 +177,7 @@ export class ManageSelection implements OnInit {
       followersCount: Number(value.followersCount) || 0,
       countryPublicId: value.countryPublicId,
       clubPublicId: value.clubPublicId,
+      homeStadiumPublicId: value.homeStadiumPublicId || null,
     };
     const request$ = this.isEditMode
       ? this.selections.update(this.slug!, body)
@@ -169,6 +202,15 @@ export class ManageSelection implements OnInit {
             if (clubError) {
               this.form.controls.clubPublicId.setErrors({ server: clubError.errorMessage });
               this.form.controls.clubPublicId.markAsTouched();
+            }
+            const stadiumError = errors?.find(
+              (error) => error.propertyName === 'HomeStadiumPublicId',
+            );
+            if (stadiumError) {
+              this.form.controls.homeStadiumPublicId.setErrors({
+                server: stadiumError.errorMessage,
+              });
+              this.form.controls.homeStadiumPublicId.markAsTouched();
             }
           }
         },

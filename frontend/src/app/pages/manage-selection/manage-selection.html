@@ -63,6 +63,28 @@
         }
         <p id="club-error" class="field-error">{{ fieldError('clubPublicId') }}</p>
       </div>
+      <div class="form-group">
+        <label for="homeStadiumPublicId">Home stadium</label>
+        <select
+          id="homeStadiumPublicId"
+          formControlName="homeStadiumPublicId"
+          aria-describedby="stadium-help stadium-error"
+        >
+          <option value="">No home stadium</option>
+          @for (stadium of stadiumOptions; track stadium.publicId) {
+            <option [value]="stadium.publicId">{{ stadium.name }} ({{ stadium.cityName }})</option>
+          }
+        </select>
+        <p id="stadium-help">Optional. Shown as a link on the selection page.</p>
+        @if (stadiumsLoading) {
+          <p role="status">Loading stadiums...</p>
+        }
+        @if (stadiumsError) {
+          <p role="alert">{{ stadiumsError }}</p>
+          <button type="button" (click)="loadStadiums()">Retry stadiums</button>
+        }
+        <p id="stadium-error" class="field-error">{{ fieldError('homeStadiumPublicId') }}</p>
+      </div>
       @if (loading) {
         <p role="status">Loading selection...</p>
       }
