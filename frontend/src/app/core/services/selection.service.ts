@@ -25,6 +25,19 @@ export interface SelectionOption {
   clubSlug: string | null;
   countryPublicId: string | null;
   countryName: string | null;
+  homeStadiumPublicId: string | null;
+  stadiumName: string | null;
+  stadiumSlug: string | null;
+}
+
+export interface SelectionSaveBody {
+  name: string;
+  abbreviation: string;
+  followersCount: number;
+  countryPublicId: string;
+  clubPublicId: string;
+  homeStadiumPublicId?: string | null;
+  pictureUrl?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -51,28 +64,11 @@ export class SelectionService {
     return this.http.get<SelectionOption>(`${this.apiUrl}/${slug}`);
   }
 
-  create(body: {
-    name: string;
-    abbreviation: string;
-    followersCount: number;
-    countryPublicId: string;
-    clubPublicId: string;
-    pictureUrl?: string | null;
-  }): Observable<SelectionOption> {
+  create(body: SelectionSaveBody): Observable<SelectionOption> {
     return this.http.post<SelectionOption>(this.apiUrl, body);
   }
 
-  update(
-    slug: string,
-    body: {
-      name: string;
-      abbreviation: string;
-      followersCount: number;
-      countryPublicId: string;
-      clubPublicId: string;
-      pictureUrl?: string | null;
-    },
-  ): Observable<SelectionOption> {
+  update(slug: string, body: SelectionSaveBody): Observable<SelectionOption> {
     return this.http.put<SelectionOption>(`${this.apiUrl}/${slug}`, body);
   }
 

@@ -19,9 +19,29 @@ public class DataSeeder(
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
         await SeedRolesAsync(cancellationToken);
+        await SeedMatchStatusesAsync(db, cancellationToken);
         await SeedEventLookupsAsync(db, cancellationToken);
         if (options.Value.Enabled)
             await SeedUsersAsync(cancellationToken);
+    }
+
+    /// <summary>Required match statuses; a match cannot be created without one.</summary>
+    public static async Task SeedMatchStatusesAsync(AppDbContext context, CancellationToken cancellationToken = default)
+    {
+        (string Slug, string Name)[] statuses =
+        [
+            ("scheduled", "Scheduled"), ("live", "Live"), ("half-time", "HalfTime"),
+            ("finished", "Finished"), ("postponed", "Postponed"), ("cancelled", "Cancelled"),
+        ];
+        // IgnoreQueryFilters: a soft-deleted status still owns its unique slug.
+        // Match on name too, so statuses created by hand before this seeder are not duplicated.
+        var existing = await context.MatchStatuses.IgnoreQueryFilters()
+            .Select(x => new { x.Slug, x.Name }).ToListAsync(cancellationToken);
+        for (var i = 0; i < statuses.Length; i++)
+            if (!existing.Any(x => x.Slug == statuses[i].Slug
+                    || string.Equals(x.Name, statuses[i].Name, StringComparison.OrdinalIgnoreCase)))
+                context.MatchStatuses.Add(new MatchStatus { Slug = statuses[i].Slug, Name = statuses[i].Name, SortOrder = i });
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     /// <summary>Required reference data, independent of the optional demo-user switch.</summary>

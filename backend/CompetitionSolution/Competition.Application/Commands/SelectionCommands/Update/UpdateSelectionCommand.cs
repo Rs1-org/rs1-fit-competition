@@ -4,6 +4,7 @@ using Competition.Application.DTOs.SelectionDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
 using Competition.Domain.Entities;
+using Competition.Domain.Entities.MatchEntities;
 using FluentValidation;
 using MediatR;
 using System.Text.Json.Serialization;
@@ -20,6 +21,7 @@ public class UpdateSelectionCommand : IRequest<SelectionDto>
     public int FollowersCount { get; set; }
     public string ClubPublicId { get; set; } = string.Empty;
     public string CountryPublicId { get; set; } = string.Empty;
+    public string? HomeStadiumPublicId { get; set; }
 }
 
 public class UpdateSelectionCommandValidator : AbstractValidator<UpdateSelectionCommand>
@@ -31,6 +33,8 @@ public class UpdateSelectionCommandValidator : AbstractValidator<UpdateSelection
         RuleFor(x => x.Abbreviation).NotEmpty().MaximumLength(10);
         RuleFor(x => x.CountryPublicId).MustReferenceExisting<UpdateSelectionCommand, Country>(lookup);
         RuleFor(x => x.ClubPublicId).MustReferenceExisting<UpdateSelectionCommand, Club>(lookup);
+        RuleFor(x => x.HomeStadiumPublicId).MustReferenceExisting<UpdateSelectionCommand, Stadium>(lookup)
+            .When(x => !string.IsNullOrWhiteSpace(x.HomeStadiumPublicId));
         RuleFor(x => x.FollowersCount).GreaterThanOrEqualTo(0);
     }
 }
@@ -55,6 +59,9 @@ public class UpdateSelectionCommandHandler : IRequestHandler<UpdateSelectionComm
 
         var clubId = await _publicIds.GetRequiredIdAsync<Club>(request.ClubPublicId, cancellationToken);
         var countryId = await _publicIds.GetRequiredIdAsync<Country>(request.CountryPublicId, cancellationToken);
+        Guid? homeStadiumId = string.IsNullOrWhiteSpace(request.HomeStadiumPublicId)
+            ? null
+            : await _publicIds.GetRequiredIdAsync<Stadium>(request.HomeStadiumPublicId, cancellationToken);
 
         var slug = SlugHelper.GenerateSlug(request.Name);
         var existing = await _selections.GetBySlugAsync(slug, cancellationToken);
@@ -68,6 +75,7 @@ public class UpdateSelectionCommandHandler : IRequestHandler<UpdateSelectionComm
         entity.FollowersCount = request.FollowersCount;
         entity.ClubId = clubId;
         entity.CountryId = countryId;
+        entity.HomeStadiumId = homeStadiumId;
         entity.Slug = slug;
 
         await _selections.UpdateAsync(entity, cancellationToken);

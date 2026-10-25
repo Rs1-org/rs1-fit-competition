@@ -3,6 +3,7 @@ using Competition.Application.DTOs.SelectionDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
 using Competition.Domain.Entities;
+using Competition.Domain.Entities.MatchEntities;
 using FluentValidation;
 using MediatR;
 
@@ -16,6 +17,7 @@ public class CreateSelectionCommand : IRequest<SelectionDto>
     public int FollowersCount { get; set; }
     public string ClubPublicId { get; set; } = string.Empty;
     public string CountryPublicId { get; set; } = string.Empty;
+    public string? HomeStadiumPublicId { get; set; }
 }
 
 public class CreateSelectionCommandValidator : AbstractValidator<CreateSelectionCommand>
@@ -26,6 +28,8 @@ public class CreateSelectionCommandValidator : AbstractValidator<CreateSelection
         RuleFor(x => x.Abbreviation).NotEmpty().MaximumLength(10);
         RuleFor(x => x.CountryPublicId).MustReferenceExisting<CreateSelectionCommand, Country>(lookup);
         RuleFor(x => x.ClubPublicId).MustReferenceExisting<CreateSelectionCommand, Club>(lookup);
+        RuleFor(x => x.HomeStadiumPublicId).MustReferenceExisting<CreateSelectionCommand, Stadium>(lookup)
+            .When(x => !string.IsNullOrWhiteSpace(x.HomeStadiumPublicId));
         RuleFor(x => x.FollowersCount).GreaterThanOrEqualTo(0);
     }
 }
@@ -47,6 +51,9 @@ public class CreateSelectionCommandHandler : IRequestHandler<CreateSelectionComm
     {
         var clubId = await _publicIds.GetRequiredIdAsync<Club>(request.ClubPublicId, cancellationToken);
         var countryId = await _publicIds.GetRequiredIdAsync<Country>(request.CountryPublicId, cancellationToken);
+        Guid? homeStadiumId = string.IsNullOrWhiteSpace(request.HomeStadiumPublicId)
+            ? null
+            : await _publicIds.GetRequiredIdAsync<Stadium>(request.HomeStadiumPublicId, cancellationToken);
 
         var slug = SlugHelper.GenerateSlug(request.Name);
         if (await _selections.GetBySlugAsync(slug, cancellationToken) != null)
@@ -61,6 +68,7 @@ public class CreateSelectionCommandHandler : IRequestHandler<CreateSelectionComm
             FollowersCount = request.FollowersCount,
             ClubId = clubId,
             CountryId = countryId,
+            HomeStadiumId = homeStadiumId,
             Slug = slug
         };
 
@@ -83,6 +91,9 @@ public class CreateSelectionCommandHandler : IRequestHandler<CreateSelectionComm
         ClubName = entity.Club?.DeletedAt == null ? entity.Club?.Name : null,
         ClubSlug = entity.Club?.DeletedAt == null ? entity.Club?.Slug : null,
         CountryPublicId = entity.Country?.PublicId,
-        CountryName = entity.Country?.Name
+        CountryName = entity.Country?.Name,
+        HomeStadiumPublicId = entity.HomeStadium?.DeletedAt == null ? entity.HomeStadium?.PublicId : null,
+        StadiumName = entity.HomeStadium?.DeletedAt == null ? entity.HomeStadium?.Name : null,
+        StadiumSlug = entity.HomeStadium?.DeletedAt == null ? entity.HomeStadium?.Slug : null
     };
 }

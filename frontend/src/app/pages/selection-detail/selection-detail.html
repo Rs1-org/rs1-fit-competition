@@ -31,6 +31,16 @@
         </dd>
       </div>
       <div>
+        <dt>Home stadium</dt>
+        <dd>
+          @if (selection.stadiumSlug) {
+            <a [routerLink]="['/stadium', selection.stadiumSlug]">{{ selection.stadiumName }}</a>
+          } @else {
+            No home stadium
+          }
+        </dd>
+      </div>
+      <div>
         <dt>Country</dt>
         <dd>{{ selection.countryName || 'Not set' }}</dd>
       </div>
