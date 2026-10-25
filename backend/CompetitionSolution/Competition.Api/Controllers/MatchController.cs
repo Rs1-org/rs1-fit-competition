@@ -61,7 +61,7 @@ public class MatchController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody] CreateMatchCommand request, CancellationToken cancellationToken)
     {
@@ -69,7 +69,7 @@ public class MatchController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Admin,Moderator")]
     [HttpPut("update/{slug}")]
     public async Task<IActionResult> Update(string slug, [FromBody] UpdateMatchCommand request, CancellationToken cancellationToken)
     {

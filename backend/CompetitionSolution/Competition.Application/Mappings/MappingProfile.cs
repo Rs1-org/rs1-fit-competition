@@ -109,9 +109,16 @@ public class MappingProfile:Profile
             .ForMember(d => d.HomeSelection, opt => opt.Ignore())
             .ForMember(d => d.AwaySelection, opt => opt.Ignore())
             .ForMember(d => d.Round, opt => opt.Ignore())
-            .ForMember(d => d.Slug, opt => opt.MapFrom(src => SlugHelper.GenerateSlug(src.Slug)));
+            .ForMember(d => d.Slug, opt => opt.Ignore());          // validated or generated in handler
 
         CreateMap<Match, MatchDetailsDto>()
+            .ForMember(d => d.StadiumSlug, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Slug : null))
+            .ForMember(d => d.HomeSelectionSlug, opt => opt.MapFrom(src => src.HomeSelection != null ? src.HomeSelection.Slug : null))
+            .ForMember(d => d.AwaySelectionSlug, opt => opt.MapFrom(src => src.AwaySelection != null ? src.AwaySelection.Slug : null))
+            .ForMember(d => d.RoundSlug, opt => opt.MapFrom(src => src.Round != null ? src.Round.Slug : null))
+            .ForMember(d => d.SeasonPublicId, opt => opt.MapFrom(src => src.Round != null && src.Round.Season != null ? src.Round.Season.PublicId : null))
+            .ForMember(d => d.CompetitionPublicId, opt => opt.MapFrom(src =>
+                src.Round != null && src.Round.Season != null && src.Round.Season.Competition != null ? src.Round.Season.Competition.PublicId : null))
             .ForMember(d => d.StatusPublicId, opt => opt.MapFrom(src => src.Status != null ? src.Status.PublicId : string.Empty))
             .ForMember(d => d.StadiumPublicId, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.PublicId : string.Empty))
             .ForMember(d => d.HomeSelectionPublicId, opt => opt.MapFrom(src => src.HomeSelection != null ? src.HomeSelection.PublicId : null))

@@ -62,6 +62,24 @@ export const routes: Routes = [
       import('./pages/stadium-detail/stadium-detail').then((m) => m.StadiumDetail),
   },
   {
+    path: 'matches',
+    loadComponent: () => import('./pages/match-list/match-list').then((m) => m.MatchList),
+  },
+  {
+    path: 'matches/:slug',
+    loadComponent: () => import('./pages/match-detail/match-detail').then((m) => m.MatchDetail),
+  },
+  {
+    path: 'manage-matches',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () => import('./pages/manage-match/manage-match').then((m) => m.ManageMatch),
+  },
+  {
+    path: 'manage-matches/:slug',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () => import('./pages/manage-match/manage-match').then((m) => m.ManageMatch),
+  },
+  {
     path: 'competitions',
     loadComponent: () =>
       import('./pages/competition-list/competition-list').then((m) => m.CompetitionList),

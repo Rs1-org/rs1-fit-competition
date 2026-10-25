@@ -1,0 +1,112 @@
+<div class="container">
+  <div class="header-actions">
+    <h1>Matches</h1>
+    @if (canManage()) {
+      <a class="row-btn" routerLink="/manage-matches">Add match</a>
+    }
+  </div>
+
+  <form class="filter-bar" [formGroup]="filterForm">
+    <div class="filter-field">
+      <label for="filter-status">Status</label>
+      <select id="filter-status" formControlName="statusPublicId">
+        <option value="">All statuses</option>
+        @for (status of statuses(); track status.publicId) {
+          <option [value]="status.publicId">{{ status.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="filter-field">
+      <label for="filter-stadium">Stadium</label>
+      <select id="filter-stadium" formControlName="stadiumPublicId">
+        <option value="">All stadiums</option>
+        @for (stadium of stadiums(); track stadium.publicId) {
+          <option [value]="stadium.publicId">{{ stadium.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="filter-field">
+      <label for="filter-postponed">Postponed</label>
+      <select id="filter-postponed" formControlName="postponed">
+        <option value="">Any</option>
+        <option value="true">Postponed only</option>
+        <option value="false">Not postponed</option>
+      </select>
+    </div>
+    <div class="filter-field">
+      <label for="filter-from">From</label>
+      <input id="filter-from" type="date" formControlName="dateFrom" />
+    </div>
+    <div class="filter-field">
+      <label for="filter-to">To</label>
+      <input id="filter-to" type="date" formControlName="dateTo" />
+    </div>
+    <button type="button" class="filter-reset" (click)="resetFilters()">Reset</button>
+
+    @if (filterForm.hasError('dateRange')) {
+      <p class="filter-error">"To" date must be on or after the "From" date.</p>
+    }
+  </form>
+
+  @if (error) {
+    <p class="filter-error" role="alert">{{ error }}</p>
+  }
+
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Match</th>
+          <th scope="col" class="num">Score</th>
+          <th scope="col">Status</th>
+          <th scope="col" class="hide-sm">Stadium</th>
+          <th scope="col" class="hide-sm">Round</th>
+          @if (canManage()) {
+            <th scope="col" class="actions"><span class="visually-hidden">Actions</span></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (match of pagedResult()?.items ?? []; track match.publicId) {
+          <tr class="row-link" tabindex="0" (click)="view(match)" (keydown.enter)="view(match)">
+            <td>{{ match.date | appDateTime }}</td>
+            <td>{{ match.homeSelectionName ?? 'TBD' }} vs {{ match.awaySelectionName ?? 'TBD' }}</td>
+            <td class="num">
+              @if (match.homeScore !== null && match.awayScore !== null) {
+                {{ match.homeScore }} : {{ match.awayScore }}
+              } @else {
+                -
+              }
+            </td>
+            <td>
+              {{ match.statusName }}
+              @if (match.isPostponed) {
+                <span class="badge">Postponed</span>
+              }
+            </td>
+            <td class="hide-sm">{{ match.stadiumName }}</td>
+            <td class="hide-sm">{{ match.roundName ?? '-' }}</td>
+            @if (canManage()) {
+              <td class="actions">
+                <button type="button" class="row-btn" (click)="$event.stopPropagation(); edit(match)">Edit</button>
+                @if (canDelete()) {
+                  <button type="button" class="row-btn row-btn-danger" (click)="$event.stopPropagation(); delete(match)">Delete</button>
+                }
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr><td class="table-empty" [attr.colspan]="canManage() ? 7 : 6">No matches match the filters.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <app-pagination
+    [totalItems]="pagedResult()?.totalCount ?? 0"
+    [pageSize]="pageSize"
+    [currentPage]="pagedResult()?.page ?? 1"
+    (pageChange)="onPageChange($event)">
+  </app-pagination>
+</div>
