@@ -15,6 +15,9 @@ public class MatchRepository : Repository<Match>, IMatch
     public MatchRepository(AppDbContext context) : base(context)
         => _context = context;
 
+    public async Task<bool> SlugExistsAsync(string slug, CancellationToken cancellationToken = default) =>
+        await _context.Matches.IgnoreQueryFilters().AnyAsync(m => m.Slug == slug, cancellationToken);
+
     public async Task<Match?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default) =>
         await _context.Matches
             .Include(m => m.Status)
@@ -22,6 +25,8 @@ public class MatchRepository : Repository<Match>, IMatch
             .Include(m => m.HomeSelection)
             .Include(m => m.AwaySelection)
             .Include(m => m.Round)
+                .ThenInclude(r => r!.Season)
+                    .ThenInclude(s => s!.Competition)
             .FirstOrDefaultAsync(m => m.Slug == slug, cancellationToken);
 
     public async Task<Match?> GetByIdWithNavAsync(Guid id, CancellationToken cancellationToken = default) =>
@@ -31,6 +36,8 @@ public class MatchRepository : Repository<Match>, IMatch
             .Include(m => m.HomeSelection)
             .Include(m => m.AwaySelection)
             .Include(m => m.Round)
+                .ThenInclude(r => r!.Season)
+                    .ThenInclude(s => s!.Competition)
             .FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
 
     public async Task<PagedResult<Match>> GetPagedWithFiltersAsync(

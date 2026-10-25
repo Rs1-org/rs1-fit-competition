@@ -1,0 +1,92 @@
+<div class="container">
+  <button class="btn-back" (click)="goBack()">&#8592; Back to Matches</button>
+
+  @if (match() === undefined) {
+    <div class="loading">Loading match...</div>
+  }
+
+  @if (match() === null) {
+    <div class="not-found">Match not found.</div>
+  }
+
+  @if (match(); as data) {
+    <div class="detail-card">
+      <div class="scoreboard">
+        <div class="team">
+          @if (data.homeSelectionSlug) {
+            <a [routerLink]="['/selection', data.homeSelectionSlug]">{{ data.homeSelectionName }}</a>
+          } @else {
+            <span>{{ data.homeSelectionName ?? 'TBD' }}</span>
+          }
+        </div>
+        <div class="score" aria-label="Score">
+          @if (hasScore(data)) {
+            <strong>{{ data.homeScore }} : {{ data.awayScore }}</strong>
+            @if (data.halfHomeScore !== null && data.halfAwayScore !== null) {
+              <small>Half-time {{ data.halfHomeScore }} : {{ data.halfAwayScore }}</small>
+            }
+          } @else {
+            <strong>vs</strong>
+          }
+        </div>
+        <div class="team">
+          @if (data.awaySelectionSlug) {
+            <a [routerLink]="['/selection', data.awaySelectionSlug]">{{ data.awaySelectionName }}</a>
+          } @else {
+            <span>{{ data.awaySelectionName ?? 'TBD' }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Kick-off</span>
+          <span class="info-value">{{ data.date | appDateTime }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Status</span>
+          <span class="info-value">
+            {{ data.statusName }}
+            @if (data.isPostponed) {
+              (postponed)
+            }
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Stadium</span>
+          <span class="info-value">
+            @if (data.stadiumSlug) {
+              <a [routerLink]="['/stadium', data.stadiumSlug]">{{ data.stadiumName }}</a>
+            } @else {
+              {{ data.stadiumName }}
+            }
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Round</span>
+          <span class="info-value">
+            @if (data.roundSlug) {
+              <a [routerLink]="['/rounds', data.roundSlug]">{{ data.roundName }}</a>
+            } @else {
+              Not assigned
+            }
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Followers</span>
+          <span class="info-value">{{ data.followersCount | appNumber: '1.0-0' }}</span>
+        </div>
+      </div>
+
+      <nav class="match-links" aria-label="Match pages">
+        <a [routerLink]="['/live-matches', data.publicId]">Live</a>
+        <a [routerLink]="['/match-events', data.publicId]">Events</a>
+        <a [routerLink]="['/match-statistics', data.publicId]">Statistics</a>
+        <a [routerLink]="['/match-reviews', data.publicId]">Reviews</a>
+        @if (canManage()) {
+          <a class="match-edit" [routerLink]="['/manage-matches', data.slug]">Edit match</a>
+        }
+      </nav>
+    </div>
+  }
+</div>

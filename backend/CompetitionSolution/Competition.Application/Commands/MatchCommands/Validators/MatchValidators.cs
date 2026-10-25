@@ -10,9 +10,12 @@ public class CreateMatchCommandValidator : AbstractValidator<CreateMatchCommand>
 {
     public CreateMatchCommandValidator()
     {
+        // Optional: the handler generates one from the teams and date when it is left empty,
+        // and rejects a provided slug that is already taken.
         RuleFor(x => x.Slug)
-            .NotEmpty()
-            .MaximumLength(200);
+            .MaximumLength(200)
+            .Matches("^[a-z0-9]+(-[a-z0-9]+)*$").WithMessage("Slug may contain only lowercase letters, digits and single dashes.")
+            .When(x => !string.IsNullOrWhiteSpace(x.Slug));
 
         RuleFor(x => x.Date)
             .NotEmpty()

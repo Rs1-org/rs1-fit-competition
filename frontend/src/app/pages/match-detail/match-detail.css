@@ -1,0 +1,46 @@
+.scoreboard {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.team {
+  font-size: 1.25rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.score strong {
+  font-size: 2rem;
+}
+
+.match-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px;
+}
+
+.match-edit {
+  margin-left: auto;
+}
+
+@media (max-width: 600px) {
+  .scoreboard {
+    grid-template-columns: 1fr;
+  }
+
+  .match-edit {
+    margin-left: 0;
+  }
+}

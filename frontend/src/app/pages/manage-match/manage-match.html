@@ -1,0 +1,152 @@
+<div class="player-card-wrapper">
+  <div class="player-card">
+    <h2>{{ isEditMode ? 'Edit match' : 'Add match' }}</h2>
+    @if (error) {
+      <p class="field-error" role="alert">{{ error }}</p>
+    }
+    @if (loading) {
+      <p role="status">Loading match...</p>
+    }
+
+    <form class="formation-form" [formGroup]="form" (ngSubmit)="save()">
+      <div class="form-group">
+        <label for="date">Kick-off</label>
+        <input type="datetime-local" id="date" formControlName="date" />
+        @if (fieldError('date'); as message) {
+          <p class="field-error">{{ message }}</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="statusPublicId">Status</label>
+        <select id="statusPublicId" formControlName="statusPublicId">
+          <option value="">Select a status</option>
+          @for (status of statusOptions; track status.publicId) {
+            <option [value]="status.publicId">{{ status.name }}</option>
+          }
+        </select>
+        @if (fieldError('statusPublicId'); as message) {
+          <p class="field-error">{{ message }}</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="stadiumPublicId">Stadium</label>
+        <select id="stadiumPublicId" formControlName="stadiumPublicId">
+          <option value="">Select a stadium</option>
+          @for (stadium of stadiumOptions; track stadium.publicId) {
+            <option [value]="stadium.publicId">{{ stadium.name }} ({{ stadium.cityName }})</option>
+          }
+        </select>
+        @if (fieldError('stadiumPublicId'); as message) {
+          <p class="field-error">{{ message }}</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="homeSelectionPublicId">Home team</label>
+        <select id="homeSelectionPublicId" formControlName="homeSelectionPublicId">
+          <option value="">To be decided</option>
+          @for (selection of selectionOptions; track selection.publicId) {
+            <option [value]="selection.publicId">{{ selection.name }}</option>
+          }
+        </select>
+        @if (fieldError('homeSelectionPublicId'); as message) {
+          <p class="field-error">{{ message }}</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="awaySelectionPublicId">Away team</label>
+        <select id="awaySelectionPublicId" formControlName="awaySelectionPublicId">
+          <option value="">To be decided</option>
+          @for (selection of selectionOptions; track selection.publicId) {
+            <option [value]="selection.publicId">{{ selection.name }}</option>
+          }
+        </select>
+        @if (fieldError('awaySelectionPublicId'); as message) {
+          <p class="field-error">{{ message }}</p>
+        }
+        @if (form.hasError('sameTeams')) {
+          <p class="field-error">Home and away team must be different.</p>
+        }
+      </div>
+
+      <fieldset class="form-group">
+        <legend>Round (optional)</legend>
+        <label for="competitionPublicId">Competition</label>
+        <select id="competitionPublicId" formControlName="competitionPublicId">
+          <option value="">No competition</option>
+          @for (competition of competitionOptions; track competition.publicId) {
+            <option [value]="competition.publicId">{{ competition.name }}</option>
+          }
+        </select>
+        <label for="seasonPublicId">Season</label>
+        <select id="seasonPublicId" formControlName="seasonPublicId">
+          <option value="">No season</option>
+          @for (season of seasonOptions; track season.publicId) {
+            <option [value]="season.publicId">{{ season.name }}</option>
+          }
+        </select>
+        <label for="roundPublicId">Round</label>
+        <select id="roundPublicId" formControlName="roundPublicId">
+          <option value="">No round</option>
+          @for (round of roundOptions; track round.publicId) {
+            <option [value]="round.publicId">{{ round.name }}</option>
+          }
+        </select>
+        @if (fieldError('roundPublicId'); as message) {
+          <p class="field-error">{{ message }}</p>
+        }
+      </fieldset>
+
+      <div class="form-group">
+        <label for="followersCount">Followers</label>
+        <input type="number" id="followersCount" formControlName="followersCount" min="0" />
+        @if (fieldError('followersCount'); as message) {
+          <p class="field-error">{{ message }}</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" formControlName="isPostponed" />
+          Postponed
+        </label>
+      </div>
+
+      @if (isEditMode) {
+        <fieldset class="form-group">
+          <legend>Score</legend>
+          <label for="homeScore">Home (full time)</label>
+          <input type="number" id="homeScore" formControlName="homeScore" min="0" />
+          <label for="awayScore">Away (full time)</label>
+          <input type="number" id="awayScore" formControlName="awayScore" min="0" />
+          <label for="halfHomeScore">Home (half time)</label>
+          <input type="number" id="halfHomeScore" formControlName="halfHomeScore" min="0" />
+          <label for="halfAwayScore">Away (half time)</label>
+          <input type="number" id="halfAwayScore" formControlName="halfAwayScore" min="0" />
+          @if (fieldError('homeScore') || fieldError('awayScore') || fieldError('halfHomeScore') || fieldError('halfAwayScore')) {
+            <p class="field-error">Scores cannot be negative.</p>
+          }
+          @if (form.hasError('scorePair')) {
+            <p class="field-error">Enter both full-time scores or neither.</p>
+          }
+          @if (form.hasError('halfScorePair')) {
+            <p class="field-error">Enter both half-time scores or neither.</p>
+          }
+          @if (form.hasError('halfAboveFull')) {
+            <p class="field-error">A half-time score cannot be higher than the full-time score.</p>
+          }
+        </fieldset>
+      }
+
+      <div class="button-group">
+        <button type="submit" [disabled]="form.invalid || saving || loading || loadFailed">
+          {{ saving ? 'Saving...' : 'Save' }}
+        </button>
+        <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

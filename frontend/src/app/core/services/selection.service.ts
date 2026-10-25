@@ -15,6 +15,7 @@ export interface SelectionListFilter {
 
 export interface SelectionOption {
   id: string;
+  publicId: string;
   name: string;
   abbreviation: string;
   pictureUrl: string | null;
