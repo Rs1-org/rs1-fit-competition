@@ -11,6 +11,8 @@ export interface MatchListDto {
   awaySelectionName: string | null;
   roundPublicId: string | null;
   roundName: string | null;
+  seasonName: string | null;
+  competitionName: string | null;
 }
 
 export interface MatchDetailsDto {
@@ -38,7 +40,9 @@ export interface MatchDetailsDto {
   roundName: string | null;
   roundSlug: string | null;
   seasonPublicId: string | null;
+  seasonName: string | null;
   competitionPublicId: string | null;
+  competitionName: string | null;
 }
 
 /** Mirrors the backend GetAllMatchesQuery filters. */

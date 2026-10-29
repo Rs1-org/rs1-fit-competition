@@ -1,6 +1,7 @@
 using Competition.Application.DTOs.MatchDto;
 using Competition.Application.Queries.Match.GetAll;
 using Competition.Domain.Entities;
+using Competition.Domain.Entities.CompetitionEntities;
 using Competition.Domain.Entities.MatchEntities;
 using Competition.Infrastructure.Data;
 using Competition.Infrastructure.Repositories;
@@ -11,6 +12,7 @@ using Moq;
 using NodaTime;
 using Xunit;
 using CityEntity = Competition.Domain.Entities.City;
+using CompetitionEntity = Competition.Domain.Entities.CompetitionEntities.Competition;
 using MatchEntity = Competition.Domain.Entities.MatchEntities.Match;
 
 namespace Competition.Tests.UnitTests.Matches;
@@ -66,9 +68,45 @@ public class MatchFilterTests : BaseUnitTest
         MapperMock
             .Setup(m => m.Map<IReadOnlyList<MatchListDto>>(It.IsAny<object>()))
             .Returns((object source) => ((IEnumerable<MatchEntity>)source)
-                .Select(m => new MatchListDto { PublicId = m.PublicId, Slug = m.Slug, StatusName = m.Status?.Name, StadiumName = m.Stadium?.Name })
+                .Select(m => new MatchListDto
+                {
+                    PublicId = m.PublicId,
+                    Slug = m.Slug,
+                    StatusName = m.Status?.Name,
+                    StadiumName = m.Stadium?.Name,
+                    RoundName = m.Round?.Name,
+                    SeasonName = m.Round?.Season?.Name,
+                    CompetitionName = m.Round?.Season?.Competition?.Name
+                })
                 .ToList());
         return new GetAllMatchesQueryHandler(new MatchRepository(context), new PublicIdLookup(context), Mapper);
+    }
+
+    [Fact]
+    public async Task RoundFilter_ShouldLoadSeasonAndCompetitionForTheList()
+    {
+        var seed = await SeedAsync();
+        await using var _ = seed.Context;
+        var round = new Round
+        {
+            Name = "Round 1",
+            Slug = "round-1",
+            Number = 1,
+            Season = new Season { Name = "2026/27", Slug = "2026-27", Competition = new CompetitionEntity { Name = "Premijer liga", Slug = "premijer-liga" } }
+        };
+        var m2 = await seed.Context.Matches.SingleAsync(m => m.Slug == "m2");
+        m2.Round = round;
+        await seed.Context.SaveChangesAsync();
+        // Forget tracked entities so the names can only come from the repository's includes.
+        seed.Context.ChangeTracker.Clear();
+
+        var result = await NewHandler(seed.Context)
+            .Handle(new GetAllMatchesQuery { RoundPublicId = round.PublicId }, CancellationToken.None);
+
+        var match = result.Items.Should().ContainSingle().Subject;
+        match.RoundName.Should().Be("Round 1");
+        match.SeasonName.Should().Be("2026/27");
+        match.CompetitionName.Should().Be("Premijer liga");
     }
 
     [Fact]

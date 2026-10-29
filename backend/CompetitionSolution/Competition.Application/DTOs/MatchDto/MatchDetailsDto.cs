@@ -23,7 +23,9 @@ public class MatchDetailsDto
     public string? RoundName { get; set; }
     public string? RoundSlug { get; set; }
     public string? SeasonPublicId { get; set; }
+    public string? SeasonName { get; set; }
     public string? CompetitionPublicId { get; set; }
+    public string? CompetitionName { get; set; }
     public string? StadiumSlug { get; set; }
     public string? HomeSelectionSlug { get; set; }
     public string? AwaySelectionSlug { get; set; }

@@ -129,7 +129,10 @@ public class MappingProfile:Profile
             .ForMember(d => d.StadiumName, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Name : null))
             .ForMember(d => d.HomeSelectionName, opt => opt.MapFrom(src => src.HomeSelection != null ? src.HomeSelection.Name : null))
             .ForMember(d => d.AwaySelectionName, opt => opt.MapFrom(src => src.AwaySelection != null ? src.AwaySelection.Name : null))
-            .ForMember(d => d.RoundName, opt => opt.MapFrom(src => src.Round != null ? src.Round.Name : null));
+            .ForMember(d => d.RoundName, opt => opt.MapFrom(src => src.Round != null ? src.Round.Name : null))
+            .ForMember(d => d.SeasonName, opt => opt.MapFrom(src => src.Round != null && src.Round.Season != null ? src.Round.Season.Name : null))
+            .ForMember(d => d.CompetitionName, opt => opt.MapFrom(src =>
+                src.Round != null && src.Round.Season != null && src.Round.Season.Competition != null ? src.Round.Season.Competition.Name : null));
 
         CreateMap<Match, MatchListDto>()
             .ForMember(d => d.RoundPublicId, opt => opt.MapFrom(src => src.Round != null ? src.Round.PublicId : null))
@@ -138,7 +141,10 @@ public class MappingProfile:Profile
             .ForMember(d => d.StadiumName, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Name : null))
             .ForMember(d => d.HomeSelectionName, opt => opt.MapFrom(src => src.HomeSelection != null ? src.HomeSelection.Name : null))
             .ForMember(d => d.AwaySelectionName, opt => opt.MapFrom(src => src.AwaySelection != null ? src.AwaySelection.Name : null))
-            .ForMember(d => d.RoundName, opt => opt.MapFrom(src => src.Round != null ? src.Round.Name : null));
+            .ForMember(d => d.RoundName, opt => opt.MapFrom(src => src.Round != null ? src.Round.Name : null))
+            .ForMember(d => d.SeasonName, opt => opt.MapFrom(src => src.Round != null && src.Round.Season != null ? src.Round.Season.Name : null))
+            .ForMember(d => d.CompetitionName, opt => opt.MapFrom(src =>
+                src.Round != null && src.Round.Season != null && src.Round.Season.Competition != null ? src.Round.Season.Competition.Name : null));
 
         CreateMap<MatchStatus, MatchStatusListDto>();
     }

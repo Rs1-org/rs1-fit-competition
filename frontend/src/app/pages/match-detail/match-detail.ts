@@ -6,6 +6,7 @@ import { AppDateTimePipe, AppNumberPipe } from '../../shared/pipes/regional-form
 import { MatchService } from '../../core/services/match.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { MatchDetailsDto } from '../../core/models/match';
+import { roundLabel } from '../../core/helpers/match.helper';
 
 @Component({
   selector: 'app-match-detail',
@@ -18,6 +19,7 @@ export class MatchDetail {
   private router = inject(Router);
   private matchService = inject(MatchService);
   canManage = inject(UserStateService).canManage;
+  roundLabel = roundLabel;
 
   /** undefined = loading, null = not found. */
   match = toSignal(

@@ -98,18 +98,29 @@ export class ManageMatch implements OnInit {
   private pendingRound = '';
 
   ngOnInit(): void {
-    this.loadOptions((page) => this.statuses.getAll(page, MAX_PAGE_SIZE), (items) => (this.statusOptions = items));
+    const slug = this.route.snapshot.paramMap.get('slug');
+    this.slug = slug;
+    this.isEditMode = !!slug;
+
+    this.loadOptions((page) => this.statuses.getAll(page, MAX_PAGE_SIZE), (items) => {
+      this.statusOptions = items;
+      // A new match starts as Scheduled unless the user already picked a status.
+      const scheduled = items.find((s) => s.name.toLowerCase() === 'scheduled');
+      if (!this.isEditMode && scheduled && !this.form.controls.statusPublicId.value) {
+        this.form.controls.statusPublicId.setValue(scheduled.publicId);
+      }
+    });
     this.loadOptions((page) => this.stadiums.getAll(page, MAX_PAGE_SIZE), (items) => (this.stadiumOptions = items));
     this.loadOptions((page) => this.selections.getAll(page, MAX_PAGE_SIZE), (items) => (this.selectionOptions = items));
     this.loadOptions((page) => this.competitions.getAll(page, MAX_PAGE_SIZE), (items) => (this.competitionOptions = items));
     this.setupCascade();
 
-    const slug = this.route.snapshot.paramMap.get('slug');
-    this.slug = slug;
-    this.isEditMode = !!slug;
     if (!slug) {
       // A new match must be scheduled in the future (same rule as the backend).
       this.form.controls.date.addValidators(futureDateValidator);
+      // "Schedule match here" on the stadium page passes the stadium along.
+      const stadium = this.route.snapshot.queryParamMap.get('stadium');
+      if (stadium) this.form.controls.stadiumPublicId.setValue(stadium);
       return;
     }
 

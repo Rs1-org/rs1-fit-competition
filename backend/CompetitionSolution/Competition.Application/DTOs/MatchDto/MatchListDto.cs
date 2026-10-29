@@ -14,4 +14,6 @@ public class MatchListDto
     public string? AwaySelectionName { get; set; }
     public string? RoundPublicId { get; set; }
     public string? RoundName { get; set; }
+    public string? SeasonName { get; set; }
+    public string? CompetitionName { get; set; }
 }
