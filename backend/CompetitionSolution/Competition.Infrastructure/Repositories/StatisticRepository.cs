@@ -26,6 +26,38 @@ public class StatisticRepository : Repository<Statistic>, IStatistic
     public Task<bool> ExistsForMatchAsync(Guid matchId, CancellationToken cancellationToken = default) =>
         _db.Statistics.IgnoreQueryFilters().AnyAsync(x => x.MatchId == matchId && x.DeletedAt == null, cancellationToken);
 
+    public const string FinishedStatusSlug = "finished";
+
+    private IQueryable<Match> FinishedMatches(ChartFilter filter)
+    {
+        var query = _db.Matches.AsNoTracking().Where(x => x.Status != null && x.Status.Slug == FinishedStatusSlug
+            && x.HomeScore != null && x.AwayScore != null && x.HomeSelection != null && x.AwaySelection != null);
+        if (filter.SeasonPublicId is not null)
+            query = query.Where(x => x.Round != null && x.Round.Season!.PublicId == filter.SeasonPublicId);
+        if (filter.CompetitionPublicId is not null)
+            query = query.Where(x => x.Round != null && x.Round.Season!.Competition!.PublicId == filter.CompetitionPublicId);
+        return query;
+    }
+
+    public async Task<IReadOnlyList<ChartMatchRow>> GetChartMatchesAsync(ChartFilter filter,
+        CancellationToken cancellationToken = default) =>
+        await FinishedMatches(filter).Select(x => new ChartMatchRow(
+                x.Round != null ? x.Round.Number : null, x.Round != null ? x.Round.Name : null,
+                x.HomeSelection!.PublicId, x.HomeSelection.Name, x.HomeScore!.Value,
+                x.AwaySelection!.PublicId, x.AwaySelection.Name, x.AwayScore!.Value))
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<ChartTeamShotRow>> GetChartTeamShotsAsync(ChartFilter filter,
+        CancellationToken cancellationToken = default)
+    {
+        var matchIds = FinishedMatches(filter).Select(x => x.Id);
+        return await _db.TeamStatistics.AsNoTracking()
+            .Where(x => matchIds.Contains(x.Statistic.MatchId))
+            .Select(x => new ChartTeamShotRow(x.Selection.PublicId, x.Selection.Name,
+                x.TotalShots, x.ShotsOnTarget, x.Possession))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<PagedResult<Statistic>> GetFilteredAsync(StatisticFilter filter, int page, int pageSize,
         CancellationToken cancellationToken = default)
     {
