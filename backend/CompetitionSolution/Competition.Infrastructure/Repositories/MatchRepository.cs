@@ -53,6 +53,8 @@ public class MatchRepository : Repository<Match>, IMatch
             .Include(m => m.HomeSelection)
             .Include(m => m.AwaySelection)
             .Include(m => m.Round)
+                .ThenInclude(r => r!.Season)
+                    .ThenInclude(s => s!.Competition)
             .AsQueryable();
 
         if (statusId.HasValue)

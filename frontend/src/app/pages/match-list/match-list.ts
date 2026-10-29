@@ -11,6 +11,7 @@ import { MatchStatusService } from '../../core/services/match-status.service';
 import { StadiumService } from '../../core/services/stadium.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { MatchListDto, MatchListFilter } from '../../core/models/match';
+import { roundLabel } from '../../core/helpers/match.helper';
 import { fetchAllPages, MAX_PAGE_SIZE } from '../../core/helpers/paging.helper';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
@@ -56,6 +57,7 @@ export class MatchList {
   // Mirrors the backend: Admin/Moderator can add and edit, only Admin can delete.
   canManage = this.userState.canManage;
   canDelete = this.userState.isAdmin;
+  roundLabel = roundLabel;
   error = '';
 
   pagedResult = toSignal(

@@ -86,7 +86,7 @@
               }
             </td>
             <td class="hide-sm">{{ match.stadiumName }}</td>
-            <td class="hide-sm">{{ match.roundName ?? '-' }}</td>
+            <td class="hide-sm">{{ roundLabel(match) ?? '-' }}</td>
             @if (canManage()) {
               <td class="actions">
                 <button type="button" class="row-btn" (click)="$event.stopPropagation(); edit(match)">Edit</button>

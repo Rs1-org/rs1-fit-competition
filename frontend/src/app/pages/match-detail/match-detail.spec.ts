@@ -18,7 +18,8 @@ const derby: MatchDetailsDto = {
   stadiumPublicId: 'st1', stadiumName: 'Grbavica', stadiumSlug: 'grbavica',
   homeSelectionPublicId: 'h', homeSelectionName: 'Zeljeznicar', homeSelectionSlug: 'zeljeznicar',
   awaySelectionPublicId: 'a', awaySelectionName: 'Sarajevo', awaySelectionSlug: 'fk-sarajevo',
-  roundPublicId: 'r1', roundName: 'Round 1', roundSlug: 'round-1', seasonPublicId: 'se1', competitionPublicId: 'c1',
+  roundPublicId: 'r1', roundName: 'Round 1', roundSlug: 'round-1',
+  seasonPublicId: 'se1', seasonName: '2026/27', competitionPublicId: 'c1', competitionName: 'Premijer liga',
 };
 
 function render(getBySlug: () => unknown, canManage = false) {
@@ -42,7 +43,7 @@ describe('MatchDetail', () => {
     expect(page.textContent).toContain('Half-time 1 : 0');
     expect(page.querySelector('a[href="/stadium/grbavica"]')?.textContent).toContain('Grbavica');
     expect(page.querySelector('a[href="/selection/zeljeznicar"]')).not.toBeNull();
-    expect(page.querySelector('a[href="/rounds/round-1"]')).not.toBeNull();
+    expect(page.querySelector('a[href="/rounds/round-1"]')?.textContent).toContain('Premijer liga · 2026/27 · Round 1');
     expect(page.querySelector('a[href="/match-statistics/m1"]')).not.toBeNull();
     expect(page.textContent).not.toContain('Edit match');
   });

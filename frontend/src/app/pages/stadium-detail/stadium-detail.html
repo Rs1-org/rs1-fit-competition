@@ -71,6 +71,38 @@
         </app-map>
       </div>
 
+      <div class="matches-section">
+        <div class="section-header">
+          <h3 class="section-title">Matches at this stadium</h3>
+          @if (canManage()) {
+            <button type="button" class="btn-schedule" (click)="scheduleMatch(data.publicId)">Schedule match here</button>
+          }
+        </div>
+
+        @if (matches() === undefined) {
+          <p class="matches-empty" role="status">Loading matches...</p>
+        } @else if (matches() === null) {
+          <p class="matches-empty" role="alert">Matches could not be loaded.</p>
+        } @else {
+          <ul class="match-rows">
+            @for (match of matches()!.items; track match.publicId) {
+              <li>
+                <a class="match-row" [routerLink]="['/matches', match.slug]">
+                  <span class="match-date">{{ match.date | appDateTime }}</span>
+                  <span class="match-teams">{{ match.homeSelectionName ?? 'TBD' }} vs {{ match.awaySelectionName ?? 'TBD' }}</span>
+                  <span class="match-meta">{{ match.statusName }}@if (roundLabel(match); as label) { · {{ label }}}</span>
+                </a>
+              </li>
+            } @empty {
+              <li class="matches-empty">No matches scheduled here yet.</li>
+            }
+          </ul>
+          @if (matches()!.totalCount > matches()!.items.length) {
+            <p class="matches-more">Showing {{ matches()!.items.length }} of {{ matches()!.totalCount }}. <a routerLink="/matches">See all matches</a></p>
+          }
+        }
+      </div>
+
     </div>
   }
 </div>
