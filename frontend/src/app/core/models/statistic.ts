@@ -17,3 +17,10 @@ export const statisticMetrics = [
   { key: 'totalYellowCards', label: 'Yellow cards' }, { key: 'totalRedCards', label: 'Red cards' },
   { key: 'bigChances', label: 'Big chances' },
 ] as const;
+export interface RoundGoals { roundNumber: number; roundName: string; matches: number; goals: number; }
+export interface TeamResults { selectionPublicId: string; selectionName: string; played: number; wins: number; draws: number;
+  losses: number; goalsFor: number; goalsAgainst: number; points: number; }
+export interface TeamShots { selectionPublicId: string; selectionName: string; matches: number; averageShots: number;
+  averageShotsOnTarget: number; averagePossession: number; }
+export interface StatisticCharts { goalsPerRound: RoundGoals[]; teamResults: TeamResults[]; teamShots: TeamShots[]; }
+export interface StatisticChartFilter { competitionPublicId?: string; seasonPublicId?: string; }
