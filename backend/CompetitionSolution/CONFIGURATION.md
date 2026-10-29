@@ -45,6 +45,7 @@ Cors__AllowedOrigins__0
 Notes:
 - The CORS origins in `appsettings.Staging.json` / `appsettings.Production.json` are placeholders. A real deployment must set `Cors__AllowedOrigins__0` (startup only checks that the list is not empty). Development allows `http(s)://localhost:4200` only.
 - `Stripe` settings are bound for COMP-54. `Seed` is used by the startup `DataSeeder`; see [seeded logins](../../dokumenti/SEEDED_LOGINS.md).
+- `Seed:DemoData` (default `false`, `true` in Development) seeds demo countries, cities, stadiums with map coordinates, the Premijer liga BiH competition with seasons and rounds, 8 demo teams and their matches. It only inserts rows that are missing, so it is safe on every startup. Set `Seed__DemoData=false` to start with an empty database.
 
 ## Frontend
 

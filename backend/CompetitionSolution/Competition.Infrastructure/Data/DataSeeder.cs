@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using Competition.Domain.Entities.MatchEntities;
+using Competition.Infrastructure.Data.Seed;
+using NodaTime;
 
 namespace Competition.Infrastructure.Data;
 
@@ -21,8 +23,26 @@ public class DataSeeder(
         await SeedRolesAsync(cancellationToken);
         await SeedMatchStatusesAsync(db, cancellationToken);
         await SeedEventLookupsAsync(db, cancellationToken);
+        if (options.Value.DemoData)
+            await SeedDemoDataAsync(db, SystemClock.Instance.GetCurrentInstant(), cancellationToken);
         if (options.Value.Enabled)
             await SeedUsersAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Demo data in FK order (COMP-44). Each member's seed is a separate call; add yours in its slot.
+    /// Needs match statuses, so it runs after <see cref="SeedMatchStatusesAsync"/>.
+    /// </summary>
+    public static async Task SeedDemoDataAsync(AppDbContext context, Instant now, CancellationToken cancellationToken = default)
+    {
+        // 1. Geography + competitions/seasons/rounds (Muhamed, COMP-110 part 1)
+        await DemoDataSeed.SeedGeographyAndCompetitionsAsync(context, cancellationToken);
+        // 2. Clubs (Dino, COMP-112 part 1)
+        // 3. Persons, selections, formations (Edin, COMP-111). Demo teams below are reused by slug.
+        await DemoDataSeed.SeedDemoTeamsAsync(context, cancellationToken);
+        // 4. Matches (Muhamed, COMP-110 part 2)
+        await DemoDataSeed.SeedMatchesAsync(context, now, cancellationToken);
+        // 5. Match events + statistics (Dino, COMP-112 part 2)
     }
 
     /// <summary>Required match statuses; a match cannot be created without one.</summary>

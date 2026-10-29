@@ -6,6 +6,9 @@ public class SeedSettings
 
     public bool Enabled { get; set; }
 
+    /// <summary>Seeds demo places, competitions, teams and matches (COMP-44). Development only.</summary>
+    public bool DemoData { get; set; }
+
     public string SuperAdminPassword { get; set; } = string.Empty;
     public string AdminPassword { get; set; } = string.Empty;
     public string ModeratorPassword { get; set; } = string.Empty;
