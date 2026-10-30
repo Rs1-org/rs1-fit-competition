@@ -1,0 +1,10 @@
+.paywall { max-width: 520px; margin: 1.5rem auto; padding: 1.5rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); }
+.paywall h2 { margin: 0 0 .5rem; }
+.paywall fieldset { margin: 1rem 0; padding: .75rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; }
+.paywall legend { font-weight: 600; padding: 0 .35rem; }
+.paywall-plan { display: flex; align-items: center; gap: .5rem; min-height: 44px; cursor: pointer; }
+.paywall-plan span { margin-left: auto; font-weight: 600; }
+.paywall button { font: inherit; font-weight: 600; width: 100%; min-height: 44px; padding: .5rem .75rem; color: var(--text-primary); background: var(--field-bg); border: 1px solid var(--accent); border-radius: 5px; cursor: pointer; }
+.paywall button:disabled { opacity: .55; cursor: default; }
+.paywall button:focus-visible, .paywall input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.stat-error { color: var(--danger); }

@@ -1,5 +1,6 @@
 using Competition.Application.Auth.Interfaces;
 using Competition.Application.DTOs;
+using Competition.Application.Payments;
 using Competition.Domain.Entities;
 using FluentValidation;
 using FluentValidation.Results;
@@ -80,7 +81,8 @@ public class UpdateProfileCommandHandler(UserManager<ApplicationUser> users, ICu
             Email = user.Email ?? email,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            PhoneNumber = user.PhoneNumber
+            PhoneNumber = user.PhoneNumber,
+            PremiumUntil = PremiumPlan.Format(user.PremiumUntil)
         };
     }
 }

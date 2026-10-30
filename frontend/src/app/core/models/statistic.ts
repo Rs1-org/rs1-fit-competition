@@ -24,3 +24,14 @@ export interface TeamShots { selectionPublicId: string; selectionName: string; m
   averageShotsOnTarget: number; averagePossession: number; }
 export interface StatisticCharts { goalsPerRound: RoundGoals[]; teamResults: TeamResults[]; teamShots: TeamShots[]; }
 export interface StatisticChartFilter { competitionPublicId?: string; seasonPublicId?: string; }
+export interface TeamFormMatch { date: string; opponentName: string; goalsFor: number; goalsAgainst: number; result: 'W' | 'D' | 'L'; }
+export interface TeamForm {
+  selectionPublicId: string; selectionName: string; wins: number; draws: number; losses: number;
+  goalsFor: number; goalsAgainst: number; points: number; matches: TeamFormMatch[];
+}
+export interface HeadToHeadMatch { date: string; homeName: string; homeScore: number; awayName: string; awayScore: number; }
+export interface HeadToHead {
+  firstName: string; secondName: string; firstWins: number; draws: number; secondWins: number;
+  firstGoals: number; secondGoals: number; matches: HeadToHeadMatch[];
+}
+export interface PlayerStats { playerPublicId: string; playerName: string; selectionName: string; goals: number; yellowCards: number; redCards: number; }
