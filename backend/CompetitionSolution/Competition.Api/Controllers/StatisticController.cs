@@ -1,5 +1,6 @@
 using Competition.Application.Commands.StatisticCommands;
 using Competition.Application.Queries.Statistics;
+using Competition.Application.Queries.Statistics.Advanced;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,21 @@ public class StatisticController(IMediator mediator) : ControllerBase
 
     [HttpGet("charts")]
     public async Task<IActionResult> GetCharts([FromQuery] GetStatisticChartsQuery query, CancellationToken cancellationToken) =>
+        Ok(await mediator.Send(query, cancellationToken));
+
+    [Authorize]
+    [HttpGet("advanced/team-form")]
+    public async Task<IActionResult> GetTeamForm([FromQuery] GetTeamFormQuery query, CancellationToken cancellationToken) =>
+        Ok(await mediator.Send(query, cancellationToken));
+
+    [Authorize]
+    [HttpGet("advanced/head-to-head")]
+    public async Task<IActionResult> GetHeadToHead([FromQuery] GetHeadToHeadQuery query, CancellationToken cancellationToken) =>
+        Ok(await mediator.Send(query, cancellationToken));
+
+    [Authorize]
+    [HttpGet("advanced/players")]
+    public async Task<IActionResult> GetPlayerStats([FromQuery] GetPlayerStatsQuery query, CancellationToken cancellationToken) =>
         Ok(await mediator.Send(query, cancellationToken));
 
     [HttpGet("{publicId}")]

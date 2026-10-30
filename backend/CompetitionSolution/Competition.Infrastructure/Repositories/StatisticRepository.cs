@@ -58,6 +58,48 @@ public class StatisticRepository : Repository<Statistic>, IStatistic
             .ToListAsync(cancellationToken);
     }
 
+    private static IQueryable<AdvancedMatchRow> ToAdvancedRows(IQueryable<Match> query) => query
+        .OrderByDescending(x => x.Date).ThenBy(x => x.PublicId)
+        .Select(x => new AdvancedMatchRow(x.Date, x.HomeSelection!.PublicId, x.HomeSelection.Name, x.HomeScore!.Value,
+            x.AwaySelection!.PublicId, x.AwaySelection.Name, x.AwayScore!.Value));
+
+    public async Task<IReadOnlyList<AdvancedMatchRow>> GetTeamMatchesAsync(string selectionPublicId, int last, ChartFilter filter,
+        CancellationToken cancellationToken = default) =>
+        await ToAdvancedRows(FinishedMatches(filter).Where(x =>
+                x.HomeSelection!.PublicId == selectionPublicId || x.AwaySelection!.PublicId == selectionPublicId))
+            .Take(last).ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<AdvancedMatchRow>> GetHeadToHeadMatchesAsync(string firstPublicId, string secondPublicId, ChartFilter filter,
+        CancellationToken cancellationToken = default) =>
+        await ToAdvancedRows(FinishedMatches(filter).Where(x =>
+                (x.HomeSelection!.PublicId == firstPublicId && x.AwaySelection!.PublicId == secondPublicId)
+                || (x.HomeSelection!.PublicId == secondPublicId && x.AwaySelection!.PublicId == firstPublicId)))
+            .ToListAsync(cancellationToken);
+
+    public const string GoalCode = "goal", PenaltyCode = "penalty", YellowCardCode = "yellow-card", RedCardCode = "red-card";
+
+    public async Task<PagedResult<PlayerStatsRow>> GetPlayerStatsAsync(string? selectionPublicId, ChartFilter filter, int page, int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var matchIds = FinishedMatches(filter).Select(x => x.Id);
+        var events = _db.Events.AsNoTracking().Where(x => x.Player != null && matchIds.Contains(x.MatchId));
+        if (selectionPublicId is not null)
+            events = events.Where(x => x.Selection.PublicId == selectionPublicId);
+        return await events
+            .GroupBy(x => new { x.Player!.PublicId, x.Player.FirstName, x.Player.LastName, SelectionName = x.Selection.Name })
+            .Select(g => new
+            {
+                g.Key.PublicId, Name = g.Key.FirstName + " " + g.Key.LastName, g.Key.SelectionName,
+                Goals = g.Count(x => x.EventType.Code == GoalCode || x.EventType.Code == PenaltyCode),
+                YellowCards = g.Count(x => x.EventType.Code == YellowCardCode),
+                RedCards = g.Count(x => x.EventType.Code == RedCardCode),
+            })
+            .Where(x => x.Goals + x.YellowCards + x.RedCards > 0)
+            .OrderByDescending(x => x.Goals).ThenBy(x => x.RedCards + x.YellowCards).ThenBy(x => x.Name).ThenBy(x => x.PublicId)
+            .Select(x => new PlayerStatsRow(x.PublicId, x.Name, x.SelectionName, x.Goals, x.YellowCards, x.RedCards))
+            .ToPagedResultAsync(page, pageSize, cancellationToken);
+    }
+
     public async Task<PagedResult<Statistic>> GetFilteredAsync(StatisticFilter filter, int page, int pageSize,
         CancellationToken cancellationToken = default)
     {

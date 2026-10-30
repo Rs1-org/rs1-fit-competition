@@ -3,6 +3,7 @@ using Competition.Application.Auth.Commands;
 using Competition.Application.Auth.DTOs;
 using Competition.Application.Auth.Interfaces;
 using Competition.Application.DTOs;
+using Competition.Application.Payments;
 using Competition.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -45,7 +46,8 @@ public class RefreshTokenHandler(IRefreshTokenService refreshTokenService, UserM
                 Email = user.Email!,
                 FirstName = user.FirstName!,
                 LastName = user.LastName,
-                PhoneNumber = user.PhoneNumber
+                PhoneNumber = user.PhoneNumber,
+                PremiumUntil = PremiumPlan.Format(user.PremiumUntil)
             },
             Roles = roles.ToList()
         };

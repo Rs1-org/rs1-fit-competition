@@ -49,6 +49,9 @@ namespace Competition.Infrastructure
             services.AddScoped<IMatch, MatchRepository>();
             services.AddScoped<IMatchStatus, MatchStatusRepository>();
             services.AddScoped<IStatistic, StatisticRepository>();
+            services.AddScoped<Competition.Application.Payments.IPaymentGateway, StripePaymentGateway>();
+            services.AddScoped<Competition.Application.Payments.IPaymentStore, PaymentStore>();
+            services.AddScoped<Competition.Application.Payments.IPremiumAccess, PremiumAccess>();
             services.AddScoped<Competition.Application.Reviews.IReviewStore, ReviewStore>();
             services.AddScoped<Competition.Application.Events.IEventStore, EventStore>();
             services.AddScoped<Competition.Application.Polls.IPollStore, PollStore>();

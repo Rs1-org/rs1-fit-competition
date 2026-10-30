@@ -43,7 +43,7 @@ secret names and first-deployment steps: [DEV_CICD.md](dokumenti/DEV_CICD.md).
 | Local behavior | Native API HTTP 5244 / HTTPS 7208; Angular 4200. Root Compose API 8080, frontend 4200, PostgreSQL 5432. Existing nginx `/api` proxy and environment files are unchanged. |
 | Public API | Controllers under `/api`; Swagger remains available at `/swagger` for DEV. Bearer JWT in Authorization; refresh tokens in PostgreSQL, browser tokens in localStorage. No cross-site auth cookies required. |
 | Files | Existing Azure Blob Storage is still the default. An optional Supabase Free Storage adapter implements the same `IBlobStorageService` for new public DEV images. CSV/XLSX imports/exports use streams. No durable local upload store was introduced. |
-| Other services | No registered background workers, queue, Redis, SMTP or active Stripe integration found. Role seeding runs at startup; configured DEV users are opt-in (COMP-84). |
+| Other services | No registered background workers, queue, Redis or SMTP found. Stripe Checkout (test mode) needs the `Stripe__*` environment variables and a webhook to `/api/payment/webhook`; see `backend/CompetitionSolution/CONFIGURATION.md`. Role seeding runs at startup; configured DEV users are opt-in (COMP-84). |
 | Browser dependencies | Google Fonts, cdnjs Font Awesome, unpkg Leaflet images and OpenStreetMap tiles; existing third-party availability/usage rules still apply. |
 | Automation | Existing Jira workflow was not changed by this task; no cloud deployment workflow was added. |
 
