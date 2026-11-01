@@ -6,6 +6,11 @@
     }
   </div>
   <app-generic-search placeholder="Search formations..." (onSearch)="search($event)"></app-generic-search>
+  @if (loadError()) {
+    <app-error-banner [message]="loadError()" (retry)="retry()" />
+  } @else if (!result()) {
+    <app-skeleton [rows]="4" />
+  } @else {
   <app-generic-list
     [items]="result()?.items ?? []"
     [pageSize]="pageSize"
@@ -28,4 +33,5 @@
       </div>
     </ng-template>
   </app-generic-list>
+  }
 </div>

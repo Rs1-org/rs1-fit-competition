@@ -6,6 +6,11 @@
     }
   </div>
   <app-generic-search placeholder="Search subpositions..." (onSearch)="search($event)"></app-generic-search>
+  @if (loadError()) {
+    <app-error-banner [message]="loadError()" (retry)="retry()" />
+  } @else if (!result()) {
+    <app-skeleton [rows]="4" />
+  } @else {
   <app-generic-list
     [items]="result()?.items ?? []"
     [pageSize]="pageSize"
@@ -21,5 +26,6 @@
       <div class="item-subtitle">{{ item.positionName }}</div>
     </ng-template>
   </app-generic-list>
+  }
 </div>
 <app-subposition-form [isOpen]="isFormOpen" [editItem]="selected" (saved)="onFormSaved()" (closed)="onFormClosed()"></app-subposition-form>

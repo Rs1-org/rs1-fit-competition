@@ -37,6 +37,7 @@
       [formControl]="control()"
       [placeholder]="placeholder()"
       [type]="type()"
+      [attr.step]="step() || null"
       [attr.lang]="type() === 'date' ? 'bs-Latn' : null"
       [class.invalid]="showError()"
       [attr.aria-invalid]="showError() || null"

@@ -1,7 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
+import { signal } from '@angular/core';
+import { BehaviorSubject, catchError, combineLatest, map, of, switchMap, tap } from 'rxjs';
+import { emptyPage } from '../../core/models/paged-result';
+import { Skeleton } from '../../shared/components/skeleton/skeleton';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
@@ -14,7 +18,7 @@ import { apiErrorMessage } from '../../core/utils/api-error';
 
 @Component({
   selector: 'app-formation-list',
-  imports: [CommonModule, GenericListComponent, GenericSearch],
+  imports: [CommonModule, GenericListComponent, GenericSearch, Skeleton, ErrorBanner],
   templateUrl: './formation-list.html',
   styleUrls: ['../catalog.css', './formation-list.css'],
 })
@@ -29,11 +33,21 @@ export class FormationList {
   private search$ = new BehaviorSubject<string>('');
   readonly pageSize = 10;
 
+  loadError = signal('');
+
   result = toSignal(
     combineLatest([this.page$, this.search$, this.refresh$]).pipe(
-      switchMap(([page, term]) => this.service.getAll(page, this.pageSize, term || undefined)),
+      switchMap(([page, term]) => this.service.getAll(page, this.pageSize, term || undefined).pipe(
+        tap(() => this.loadError.set('')),
+        catchError((err) => {
+          this.loadError.set(apiErrorMessage(err, 'Formations could not be loaded.'));
+          return of(emptyPage<Formation>());
+        }),
+      )),
     ),
   );
+
+  retry(): void { this.refresh$.next(); }
 
   canManage = toSignal(
     this.userState.roles$.pipe(map(() => this.userState.canManagePersons())),

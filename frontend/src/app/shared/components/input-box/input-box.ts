@@ -14,9 +14,10 @@ export class InputBox implements AfterViewInit {
 
   label = input<string>('');
   placeholder = input<string>('');
-  control = input<FormControl>(new FormControl());
+  control = input<FormControl<any>>(new FormControl());
   type = input<string>('text');
   accept = input<string>('');
+  step = input<string>('');
   autofocus = input(false);
   fileChange = output<Event>();
   private field = viewChild<ElementRef<HTMLElement>>('field');
@@ -38,6 +39,7 @@ export class InputBox implements AfterViewInit {
     if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} characters.`;
     if (errors['minlength']) return `Minimum ${errors['minlength'].requiredLength} characters.`;
     if (errors['email']) return 'Enter a valid email address.';
+    if (errors['pastDate']) return 'Date of birth must be in the past.';
     return 'Invalid value.';
   }
 }

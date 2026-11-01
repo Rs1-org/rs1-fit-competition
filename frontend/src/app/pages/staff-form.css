@@ -1,0 +1,20 @@
+.staff-page { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; color: var(--tx); }
+.staff-header h1 { margin: 0 0 16px; font-family: var(--font-title); font-size: 40px; line-height: 1; }
+.form-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.form-tab {
+  min-height: 44px; padding: 0 14px; border: 1px solid var(--bd); border-radius: var(--r-ctl);
+  background: var(--card); color: var(--tx); font-weight: 700; cursor: pointer;
+}
+.form-tab.active { background: var(--acs); border-color: var(--ac); color: var(--actx); }
+.form-group, .staff-page select { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.staff-page select, .staff-page input[type='file'] {
+  min-height: 44px; padding: 8px 12px; border: 1px solid var(--bd); border-radius: var(--r-ctl);
+  background: var(--field); color: var(--tx);
+}
+.field-error { margin: 4px 0 0; color: var(--dg); font-size: 13px; }
+.history-section-title { margin: 16px 0 8px; font-family: var(--font-title); font-size: 22px; }
+.appearance { padding: 10px 12px; margin-bottom: 8px; border: 1px solid var(--bd); border-radius: var(--r-card); background: var(--field); }
+.button-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.person-picture-preview { width: 120px; height: 120px; object-fit: cover; border-radius: var(--r-card); border: 1px solid var(--bd); }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--ac); outline-offset: 3px; }
+@media (max-width: 768px) { .staff-header h1 { font-size: 32px; } }

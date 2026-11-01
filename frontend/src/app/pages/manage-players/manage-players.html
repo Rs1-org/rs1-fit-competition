@@ -1,152 +1,90 @@
-<div class="player-card-wrapper">
-  <div class="player-card">
-    <h2>{{ isEditMode ? 'Edit Player' : 'Add Player' }}</h2>
+<main class="staff-page">
+  <header class="staff-header">
+    <h1>{{ isEditMode ? 'Edit player' : 'Add player' }}</h1>
+  </header>
 
-    <div class="form-tabs">
-      <button type="button" class="form-tab" [class.active]="activeTab === 'info'" (click)="activeTab = 'info'">
-        Details
-      </button>
-      <button type="button" class="form-tab" [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
-        History
-      </button>
-    </div>
+  <div class="form-tabs" role="tablist" aria-label="Player form">
+    <button type="button" class="form-tab" role="tab" [class.active]="activeTab === 'info'" [attr.aria-selected]="activeTab === 'info'" (click)="activeTab = 'info'">Details</button>
+    <button type="button" class="form-tab" role="tab" [class.active]="activeTab === 'history'" [attr.aria-selected]="activeTab === 'history'" (click)="activeTab = 'history'">History</button>
+  </div>
 
-    @if (isLoading) {
-      <p class="loading-text">Loading...</p>
-    }
-
-    @if (!isLoading) {
-      <form [formGroup]="form" (ngSubmit)="savePlayer()">
-        <div [@fadeSwap]="activeTab">
-          @if (activeTab === 'info') {
-            <div class="form-group">
-              <label for="firstName">First Name</label>
-              <input type="text" id="firstName" formControlName="firstName" />
-              @if (fieldError('firstName'); as error) { <p class="field-error">{{ error }}</p> }
-            </div>
-            <div class="form-group">
-              <label for="lastName">Last Name</label>
-              <input type="text" id="lastName" formControlName="lastName" />
-              @if (fieldError('lastName'); as error) { <p class="field-error">{{ error }}</p> }
-            </div>
-            <div class="form-group">
-              <label for="dateOfBirth">Date of Birth</label>
-              <input type="date" lang="bs-Latn" id="dateOfBirth" formControlName="dateOfBirth" />
-              @if (fieldError('dateOfBirth'); as error) { <p class="field-error">{{ error }}</p> }
-            </div>
+  @if (isLoading) {
+    <app-skeleton [rows]="6" />
+  } @else if (loadError) {
+    <app-error-banner [message]="loadError" (retry)="loadPlayer(editingId!)" />
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="savePlayer()">
+      <div [@fadeSwap]="activeTab">
+        @if (activeTab === 'info') {
+          <app-section-card title="Details">
+            <app-input-box label="First name" [control]="form.controls.firstName" />
+            <app-input-box label="Last name" [control]="form.controls.lastName" />
+            <app-input-box label="Date of birth" type="date" [control]="form.controls.dateOfBirth" />
             <div class="form-group">
               <label for="picture">Picture</label>
               <input type="file" id="picture" accept="image/*" (change)="onPictureSelected($event)" />
-              <app-upload-progress [percent]="uploadProgress"></app-upload-progress>
-              @if (picturePreview) {
-                <img [src]="picturePreview" alt="Picture preview" class="person-picture-preview" />
-              }
+              <app-upload-progress [percent]="uploadProgress" />
+              @if (picturePreview) { <img [src]="picturePreview" alt="Picture preview" class="person-picture-preview" /> }
             </div>
-            <div class="form-group">
-              <label for="height">Height (m)</label>
-              <input type="number" step="0.01" id="height" formControlName="height" />
-              @if (fieldError('height'); as error) { <p class="field-error">{{ error }}</p> }
-            </div>
-            <div class="form-group">
-              <label for="shirtNumber">Shirt Number</label>
-              <input type="number" id="shirtNumber" formControlName="shirtNumber" />
-              @if (fieldError('shirtNumber'); as error) { <p class="field-error">{{ error }}</p> }
-            </div>
+            <app-input-box label="Height" type="number" step="0.01" [control]="form.controls.height" />
+            <app-input-box label="Shirt number" type="number" [control]="form.controls.shirtNumber" />
             <div class="form-group">
               <label for="positionId">Position</label>
               <select id="positionId" formControlName="positionId">
                 <option value="">—</option>
-                @for (position of positions; track position.id) {
-                  <option [value]="position.id">{{ position.name }}</option>
-                }
+                @for (position of positions; track position.id) { <option [value]="position.id">{{ position.name }}</option> }
               </select>
             </div>
             <div class="form-group">
               <label for="subPositionId">Subposition</label>
               <select id="subPositionId" formControlName="subPositionId">
                 <option value="">—</option>
-                @for (sub of filteredSubPositions; track sub.id) {
-                  <option [value]="sub.id">{{ sub.name }}</option>
-                }
+                @for (sub of filteredSubPositions; track sub.id) { <option [value]="sub.id">{{ sub.name }}</option> }
               </select>
               @if (fieldError('subPositionId'); as error) { <p class="field-error">{{ error }}</p> }
             </div>
-            <div class="form-group">
-              <label for="transferValue">Transfer Value (€)</label>
-              <input type="number" step="0.01" id="transferValue" formControlName="transferValue" />
-              @if (fieldError('transferValue'); as error) { <p class="field-error">{{ error }}</p> }
-            </div>
-          }
+            <app-input-box label="Transfer value (€)" type="number" step="0.01" [control]="form.controls.transferValue" />
+          </app-section-card>
+        }
 
-          @if (activeTab === 'history') {
-            <div class="history-tab-content" formGroupName="history">
-              <p class="history-section-title">Selection</p>
+        @if (activeTab === 'history') {
+          <app-section-card title="History">
+            <div formGroupName="history">
               <div class="form-group">
                 <label for="teamSelectionId">Selection</label>
                 <select id="teamSelectionId" formControlName="teamSelectionId">
                   <option value="">—</option>
-                  @for (selection of selections; track selection.id) {
-                    <option [value]="selection.id">{{ selection.name }} ({{ selection.abbreviation }})</option>
-                  }
+                  @for (selection of selections; track selection.id) { <option [value]="selection.id">{{ selection.name }} ({{ selection.abbreviation }})</option> }
                 </select>
               </div>
-              <div class="form-group">
-                <label for="goals">Goals</label>
-                <input type="number" id="goals" formControlName="goals" />
-              </div>
-              <div class="form-group">
-                <label for="matchPlayed">Matches played</label>
-                <input type="number" id="matchPlayed" formControlName="matchPlayed" />
-              </div>
-              <div class="form-group">
-                <label for="assists">Assists</label>
-                <input type="number" id="assists" formControlName="assists" />
-              </div>
-              <div class="form-group">
-                <label for="historyShirtNumber">Shirt number (history)</label>
-                <input type="number" id="historyShirtNumber" formControlName="shirtNumber" />
-              </div>
-              <p class="history-section-title">Transfer</p>
-              <div class="form-group">
-                <label for="transferDate">Transfer date</label>
-                <input type="date" lang="bs-Latn" id="transferDate" formControlName="transferDate" />
-              </div>
-              <div class="form-group">
-                <label for="transferHistoryValue">Transfer value (€)</label>
-                <input type="number" step="0.01" id="transferHistoryValue" formControlName="transferValue" />
-              </div>
-              <p class="history-section-title">Appearances</p>
+              <app-input-box label="Goals" type="number" [control]="form.controls.history.controls.goals" />
+              <app-input-box label="Matches played" type="number" [control]="form.controls.history.controls.matchPlayed" />
+              <app-input-box label="Assists" type="number" [control]="form.controls.history.controls.assists" />
+              <app-input-box label="Shirt number" type="number" [control]="form.controls.history.controls.shirtNumber" />
+              <app-input-box label="Transfer date" type="date" [control]="form.controls.history.controls.transferDate" />
+              <app-input-box label="Transfer value (€)" type="number" step="0.01" [control]="form.controls.history.controls.transferValue" />
+              <h3 class="history-section-title">Appearances</h3>
               @if (!appearances.length) {
-                <p class="loading-text">Appearances are counted when the mandate covers the match date and the match has this selection as home or away.</p>
+                <app-empty-state icon="player" title="No appearances yet" message="Appearances are counted when the mandate covers the match date and the match has this selection as home or away." />
               }
               @for (appearance of appearances; track appearance.matchId) {
                 <div class="appearance">
                   <strong>{{ appearance.matchDate | appDate }}</strong>
-                  {{ appearance.selectionName }} · {{ appearance.side === 'home' ? 'home' : 'away' }}
+                  {{ appearance.selectionName }} · {{ appearance.side === 'home' ? 'Home' : 'Away' }}
                   @if (appearance.stadiumName) { <span> · {{ appearance.stadiumName }}</span> }
                   @if (appearance.shirtNumber != null) { <span> · #{{ appearance.shirtNumber }}</span> }
                 </div>
               }
-              <p class="history-section-title">Mandate</p>
-              <div class="form-group">
-                <label for="startMandatDate">Mandate start</label>
-                <input type="date" lang="bs-Latn" id="startMandatDate" formControlName="startMandatDate" />
-              </div>
-              <div class="form-group">
-                <label for="endMandatDate">Mandate end</label>
-                <input type="date" lang="bs-Latn" id="endMandatDate" formControlName="endMandatDate" />
-              </div>
+              <app-input-box label="Mandate start" type="date" [control]="form.controls.history.controls.startMandatDate" />
+              <app-input-box label="Mandate end" type="date" [control]="form.controls.history.controls.endMandatDate" />
             </div>
-          }
-        </div>
-
-        <div class="button-group">
-          <button type="submit" [disabled]="form.invalid">
-            {{ isEditMode ? 'Update Player' : 'Save Player' }}
-          </button>
-          <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
-        </div>
-      </form>
-    }
-  </div>
-</div>
+          </app-section-card>
+        }
+      </div>
+      <div class="button-group">
+        <app-button type="submit" [text]="isEditMode ? 'Update player' : 'Save player'" [loading]="isSaving" [disabled]="form.invalid" />
+        <app-button type="button" variant="secondary" text="Cancel" (click)="cancel()" />
+      </div>
+    </form>
+  }
+</main>

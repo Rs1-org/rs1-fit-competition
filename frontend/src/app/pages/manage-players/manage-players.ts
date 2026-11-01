@@ -16,6 +16,12 @@ import { ConfirmDialogService } from '../../shared/components/confirm-dialog/con
 import { fadeSwap } from '../../core/animations/motion';
 import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
 import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
+import { SectionCard } from '../../shared/components/section-card/section-card';
+import { Button } from '../../shared/components/button/button';
+import { Skeleton } from '../../shared/components/skeleton/skeleton';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { InputBox } from '../../shared/components/input-box/input-box';
 import { ToastService } from '../../core/services/toast.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
@@ -34,9 +40,9 @@ function positionWhenSubPosition(group: AbstractControl): ValidationErrors | nul
 
 @Component({
   selector: 'app-manage-players',
-  imports: [CommonModule, ReactiveFormsModule, UploadProgress, AppDatePipe],
+  imports: [CommonModule, ReactiveFormsModule, UploadProgress, AppDatePipe, SectionCard, Button, Skeleton, ErrorBanner, EmptyState, InputBox],
   templateUrl: './manage-players.html',
-  styleUrl: './manage-players.css',
+  styleUrl: '../staff-form.css',
   animations: [fadeSwap],
 })
 export class ManagePlayers implements OnInit {
@@ -78,6 +84,8 @@ export class ManagePlayers implements OnInit {
   editingId: string | null = null;
   isEditMode = false;
   isLoading = false;
+  isSaving = false;
+  loadError = '';
   picture: string | null = null;
   pictureChanged = false;
   uploadProgress: number | null = null;
@@ -150,6 +158,7 @@ export class ManagePlayers implements OnInit {
 
   loadPlayer(id: string): void {
     this.isLoading = true;
+    this.loadError = '';
     this.playerService.getById(id).subscribe({
       next: (data) => {
         this.form.patchValue({
@@ -166,8 +175,9 @@ export class ManagePlayers implements OnInit {
         this.pictureChanged = false;
         void this.loadHistory(id);
       },
-      error: () => {
+      error: (err) => {
         this.isLoading = false;
+        this.loadError = apiErrorMessage(err, 'Player could not be loaded.');
         this.cdr.detectChanges();
       },
     });
@@ -229,6 +239,7 @@ export class ManagePlayers implements OnInit {
       ? this.playerService.update(this.editingId!, payload, onProgress)
       : this.playerService.create(payload, onProgress);
 
+    this.isSaving = true;
     request$.subscribe({
       next: async (saved) => {
         const playerId = this.isEditMode ? this.editingId! : saved.id!;
@@ -238,10 +249,12 @@ export class ManagePlayers implements OnInit {
           this.toast.error(apiErrorMessage(err, 'Player saved, but the history could not be saved.'));
         }
         this.playerService.notifyListRefresh();
+        this.isSaving = false;
         this.toast.success('Player saved');
         this.router.navigate(['/player-list']);
       },
       error: (err) => {
+        this.isSaving = false;
         this.setUploadProgress(null);
         this.toast.error(apiErrorMessage(err, 'Could not save the player.'));
       },
