@@ -2,7 +2,6 @@ import { Icon } from '../icon/icon';
 import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
 import { ThemeService } from '../../../core/services/theme.service';
 import { AppLanguage, LanguageService } from '../../../core/services/language.service';
-import { Modal } from '../modal/modal';
 import { AuthModalService } from 'src/app/core/services/auth-modal.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { Router } from '@angular/router';
@@ -17,7 +16,7 @@ import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, RouterModule, Modal, HasRoleDirective, Icon],
+  imports: [CommonModule, RouterModule, HasRoleDirective, Icon],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
   animations: [popIn],
@@ -29,7 +28,6 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
   constructor(private tokenService:TokenService, private router:Router, private redirectSerive:AuthRedirectService, private userStateService:UserStateService, private authService:AuthService, private authModal: AuthModalService, public themeService: ThemeService, public language: LanguageService) {}
   openManageTab = false;
   accountOpen = false;
-  profileOpen = false;
   settingsOpen = false;
   roles: string[] = [];
   openManage() {
@@ -178,17 +176,9 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
     this.accountOpen = !this.accountOpen;
   }
 
-  openProfilePopup(event: MouseEvent): void {
-    event.stopPropagation();
-    this.accountOpen = false;
-    this.settingsOpen = false;
-    this.profileOpen = true;
-  }
-
   openSettingsPopup(event: MouseEvent): void {
     event.stopPropagation();
     this.accountOpen = false;
-    this.profileOpen = false;
     this.settingsOpen = false;
     this.router.navigate(['/settings']);
   }
@@ -213,7 +203,8 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
     this.authService.logout();
   }
 
-  openProfile(){
+  openProfile(event?: MouseEvent){
+  event?.stopPropagation();
   if(!this.tokenService.getAccessToken()){
     this.authModal.openLogin();
     this.redirectSerive.setRedirectUrl('/profile');
@@ -225,7 +216,8 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
     return;
   }
 
-  this.router.navigate(['profile']);
+  this.accountOpen = false;
+  this.router.navigate(['/profile']);
 }
 
 }

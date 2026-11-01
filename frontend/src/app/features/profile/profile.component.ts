@@ -1,17 +1,25 @@
-import { Component } from '@angular/core';
-import { UserStateService } from 'src/app/core/services/user-state.service';
-import { UserDto } from 'src/app/core/models/auth.models';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
+import { UserStateService } from '../../core/services/user-state.service';
+import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
+import { StatTile } from '../../shared/components/stat-tile/stat-tile';
 
 @Component({
   selector: 'app-profile',
-  templateUrl: './profile.component.html'
+  imports: [RouterLink, AppDatePipe, StatTile],
+  templateUrl: './profile.component.html',
+  styleUrl: '../../pages/player-view/person-profile.css',
 })
 export class ProfileComponent {
-    user: UserDto | null = null;
-    constructor(private userStateService: UserStateService){}
-    ngOnInit(){
-        this.userStateService.user$.subscribe((userData)=>{
-            this.user = userData
-        })
-    }
+  private userState = inject(UserStateService);
+  readonly user = toSignal(this.userState.user$, { initialValue: null });
+  readonly roles = toSignal(this.userState.roles$, { initialValue: [] as string[] });
+  readonly premium = this.userState.isPremium;
+
+  initials(): string {
+    const person = this.user();
+    const letters = `${person?.firstName?.[0] ?? ''}${person?.lastName?.[0] ?? ''}`.toUpperCase();
+    return letters || '—';
+  }
 }
