@@ -46,23 +46,25 @@ public class GetStatisticChartsQueryHandler(IStatistic statistics) : IRequestHan
             g.Sum(x => x.HomeScore + x.AwayScore)))
         .ToList();
 
-    public static IReadOnlyList<TeamResultsDto> TeamResults(IEnumerable<ChartMatchRow> matches) => matches
-        .SelectMany(x => new[]
-        {
-            (Id: x.HomePublicId, Name: x.HomeName, For: x.HomeScore, Against: x.AwayScore),
-            (Id: x.AwayPublicId, Name: x.AwayName, For: x.AwayScore, Against: x.HomeScore),
-        })
-        .GroupBy(x => x.Id)
-        .Select(g =>
-        {
-            int wins = g.Count(x => x.For > x.Against), draws = g.Count(x => x.For == x.Against);
-            return new TeamResultsDto(g.Key, g.First().Name, g.Count(), wins, draws, g.Count() - wins - draws,
-                g.Sum(x => x.For), g.Sum(x => x.Against), wins * 3 + draws);
-        })
-        .OrderByDescending(x => x.Points).ThenByDescending(x => x.GoalsFor - x.GoalsAgainst)
-        .ThenByDescending(x => x.GoalsFor).ThenBy(x => x.SelectionName)
-        .Take(MaxTeams)
-        .ToList();
+    public static IReadOnlyList<TeamResultsDto> TeamResults(IEnumerable<ChartMatchRow> matches, int? take = MaxTeams)
+    {
+        var ordered = matches
+            .SelectMany(x => new[]
+            {
+                (Id: x.HomePublicId, Name: x.HomeName, For: x.HomeScore, Against: x.AwayScore),
+                (Id: x.AwayPublicId, Name: x.AwayName, For: x.AwayScore, Against: x.HomeScore),
+            })
+            .GroupBy(x => x.Id)
+            .Select(g =>
+            {
+                int wins = g.Count(x => x.For > x.Against), draws = g.Count(x => x.For == x.Against);
+                return new TeamResultsDto(g.Key, g.First().Name, g.Count(), wins, draws, g.Count() - wins - draws,
+                    g.Sum(x => x.For), g.Sum(x => x.Against), wins * 3 + draws);
+            })
+            .OrderByDescending(x => x.Points).ThenByDescending(x => x.GoalsFor - x.GoalsAgainst)
+            .ThenByDescending(x => x.GoalsFor).ThenBy(x => x.SelectionName);
+        return (take is null ? ordered : ordered.Take(take.Value)).ToList();
+    }
 
     public static IReadOnlyList<TeamShotsDto> TeamShots(IEnumerable<ChartTeamShotRow> rows) => rows
         .GroupBy(x => x.SelectionPublicId)

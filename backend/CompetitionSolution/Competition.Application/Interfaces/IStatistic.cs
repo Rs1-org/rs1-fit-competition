@@ -33,6 +33,8 @@ public interface IStatistic : IRepository<Statistic>
     Task<PagedResult<PlayerStatsRow>> GetPlayerStatsAsync(string? selectionPublicId, ChartFilter filter, int page, int pageSize,
         CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ChartMatchRow>> GetChartMatchesAsync(ChartFilter filter, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ChartMatchRow>> GetScoredMatchesAsync(ChartFilter filter, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<string>> GetMatchPublicIdsAsync(ChartFilter filter, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ChartTeamShotRow>> GetChartTeamShotsAsync(ChartFilter filter, CancellationToken cancellationToken = default);
     Task<Statistic?> GetDetailsAsync(string publicId, CancellationToken cancellationToken = default);
     Task<Statistic?> GetForMatchAsync(string matchPublicId, CancellationToken cancellationToken = default);

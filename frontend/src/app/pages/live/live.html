@@ -1,0 +1,69 @@
+<main class="live-page">
+  <header>
+    <h1>Live table</h1>
+    <p>Standings update when a match score changes.</p>
+  </header>
+  <form class="live-filters" [formGroup]="filters" aria-label="Choose a competition">
+    <label>Competition
+      <select formControlName="competitionPublicId">
+        <option value="">Choose a competition</option>
+        @for (competition of competitions(); track competition.publicId) {
+          <option [value]="competition.publicId">{{ competition.name }}</option>
+        }
+      </select>
+    </label>
+    <label>Season
+      <select formControlName="seasonPublicId">
+        <option value="">All seasons</option>
+        @for (season of seasons(); track season.publicId) {
+          <option [value]="season.publicId">{{ season.name }}@if (season.isCurrent) { (current) }</option>
+        }
+      </select>
+    </label>
+  </form>
+
+  @if (!filters.controls.competitionPublicId.value) {
+    <app-empty-state icon="trophy" title="Choose a competition" message="The table is shown for one competition and season." />
+  } @else if (state().loading) {
+    <app-skeleton [rows]="6" />
+  } @else if (state().error) {
+    <app-error-banner [message]="state().error" (retry)="retry()" />
+  } @else if (!state().data?.table?.length) {
+    <app-empty-state icon="trophy" title="No results yet" message="The table fills in once matches in this season have a score." />
+  } @else {
+    <div class="table-scroll">
+      <table>
+        <caption class="sr-only">League table sorted by points, goal difference and goals scored</caption>
+        <thead>
+          <tr>
+            <th scope="col">#</th><th scope="col">Team</th><th scope="col">P</th><th scope="col">W</th>
+            <th scope="col">D</th><th scope="col">L</th><th scope="col">GF</th><th scope="col">GA</th>
+            <th scope="col">GD</th><th scope="col">Pts</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (team of state().data!.table; track team.selectionPublicId; let index = $index) {
+            <tr>
+              <td>{{ (index + 1) | appNumber: '1.0-0' }}</td>
+              <th scope="row">
+                @if (slug(team); as teamSlug) {
+                  <a [routerLink]="['/selection', teamSlug]">{{ team.selectionName }}</a>
+                } @else {
+                  {{ team.selectionName }}
+                }
+              </th>
+              <td>{{ team.played | appNumber: '1.0-0' }}</td>
+              <td>{{ team.wins | appNumber: '1.0-0' }}</td>
+              <td>{{ team.draws | appNumber: '1.0-0' }}</td>
+              <td>{{ team.losses | appNumber: '1.0-0' }}</td>
+              <td>{{ team.goalsFor | appNumber: '1.0-0' }}</td>
+              <td>{{ team.goalsAgainst | appNumber: '1.0-0' }}</td>
+              <td>@if (goalDifference(team) > 0) {+}{{ goalDifference(team) | appNumber: '1.0-0' }}</td>
+              <td>{{ team.points | appNumber: '1.0-0' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</main>

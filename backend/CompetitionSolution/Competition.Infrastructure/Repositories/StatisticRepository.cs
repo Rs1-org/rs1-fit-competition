@@ -47,6 +47,28 @@ public class StatisticRepository : Repository<Statistic>, IStatistic
                 x.AwaySelection!.PublicId, x.AwaySelection.Name, x.AwayScore!.Value))
             .ToListAsync(cancellationToken);
 
+    private IQueryable<Match> SeasonMatches(ChartFilter filter)
+    {
+        var query = _db.Matches.AsNoTracking().Where(x => x.HomeSelection != null && x.AwaySelection != null);
+        if (filter.SeasonPublicId is not null)
+            query = query.Where(x => x.Round != null && x.Round.Season!.PublicId == filter.SeasonPublicId);
+        if (filter.CompetitionPublicId is not null)
+            query = query.Where(x => x.Round != null && x.Round.Season!.Competition!.PublicId == filter.CompetitionPublicId);
+        return query;
+    }
+
+    public async Task<IReadOnlyList<ChartMatchRow>> GetScoredMatchesAsync(ChartFilter filter,
+        CancellationToken cancellationToken = default) =>
+        await SeasonMatches(filter).Where(x => x.HomeScore != null && x.AwayScore != null)
+            .Select(x => new ChartMatchRow(
+                x.Round != null ? x.Round.Number : null, x.Round != null ? x.Round.Name : null,
+                x.HomeSelection!.PublicId, x.HomeSelection.Name, x.HomeScore!.Value,
+                x.AwaySelection!.PublicId, x.AwaySelection.Name, x.AwayScore!.Value))
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<string>> GetMatchPublicIdsAsync(ChartFilter filter, CancellationToken cancellationToken = default) =>
+        await SeasonMatches(filter).Select(x => x.PublicId).ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<ChartTeamShotRow>> GetChartTeamShotsAsync(ChartFilter filter,
         CancellationToken cancellationToken = default)
     {

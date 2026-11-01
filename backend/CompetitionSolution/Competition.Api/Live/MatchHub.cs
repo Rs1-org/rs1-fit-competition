@@ -22,6 +22,18 @@ public class MatchHub(IPublicIdLookup lookup) : Hub
         await Groups.AddToGroupAsync(Context.ConnectionId, room, Context.ConnectionAborted);
         Context.Items[RoomKey] = room;
     }
+    public async Task WatchMatches(IReadOnlyList<string> matchPublicIds)
+    {
+        if (matchPublicIds is null || matchPublicIds.Count > 100)
+            throw new HubException("Choose up to 100 matches.");
+        foreach (var matchPublicId in matchPublicIds.Distinct())
+        {
+            if (!PublicIdRules.IsValidFormat(matchPublicId)) continue;
+            if (await lookup.GetIdByPublicIdAsync<Match>(matchPublicId, Context.ConnectionAborted) is null) continue;
+            await Groups.AddToGroupAsync(Context.ConnectionId, Room(matchPublicId), Context.ConnectionAborted);
+        }
+    }
+
     public async Task UnwatchMatch()
     {
         if (Context.Items.Remove(RoomKey, out var previous) && previous is string room)

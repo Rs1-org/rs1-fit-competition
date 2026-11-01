@@ -53,6 +53,18 @@ public class StatisticChartsTests
     }
 
     [Fact]
+    public void TeamResults_WithoutACap_OrdersEqualPointsByGoalDifference()
+    {
+        var result = GetStatisticChartsQueryHandler.TeamResults(
+        [
+            Row(1, "A", 1, "B", 0), Row(1, "C", 3, "D", 0),
+        ], null);
+
+        result.Select(x => x.SelectionName).Should().Equal("C", "A", "B", "D");
+        result.Should().HaveCount(4);
+    }
+
+    [Fact]
     public void TeamShots_AveragesPerTeam()
     {
         var result = GetStatisticChartsQueryHandler.TeamShots(

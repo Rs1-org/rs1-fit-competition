@@ -23,6 +23,7 @@ export interface TeamResults { selectionPublicId: string; selectionName: string;
 export interface TeamShots { selectionPublicId: string; selectionName: string; matches: number; averageShots: number;
   averageShotsOnTarget: number; averagePossession: number; }
 export interface StatisticCharts { goalsPerRound: RoundGoals[]; teamResults: TeamResults[]; teamShots: TeamShots[]; }
+export interface Standings { table: TeamResults[]; matchPublicIds: string[]; }
 export interface StatisticChartFilter { competitionPublicId?: string; seasonPublicId?: string; }
 export interface TeamFormMatch { date: string; opponentName: string; goalsFor: number; goalsAgainst: number; result: 'W' | 'D' | 'L'; }
 export interface TeamForm {
