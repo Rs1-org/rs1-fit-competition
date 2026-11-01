@@ -1,7 +1,7 @@
 <article class="live-card">
   <header>
     <span>{{ competition() || 'Match' }}</span>
-    <span class="pill"><span class="dot" aria-hidden="true"></span> LIVE @if (minute()) { {{ minute() }}' }</span>
+    <span class="pill" [class.steady]="!pulsing()"><span class="dot" aria-hidden="true"></span> {{ label() }}@if (minute()) { {{ minute() }}' }</span>
   </header>
   <div class="team">
     <app-crest [name]="homeName()" [abbreviation]="homeAbbreviation()" />

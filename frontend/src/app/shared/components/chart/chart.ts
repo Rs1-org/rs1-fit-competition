@@ -20,7 +20,7 @@ let nextId = 0;
   template: `<figure class="chart-box"><figcaption><span class="chart-title">{{ title() }}</span>
       @if (subtitle()) { <span class="chart-subtitle">{{ subtitle() }}</span> }</figcaption>
     @if (labels().length) {
-      <div class="chart-canvas"><canvas #canvas role="img" [attr.aria-label]="title()" [attr.aria-describedby]="descriptionId"></canvas></div>
+      <div class="chart-canvas" [style.height.px]="height()"><canvas #canvas role="img" [attr.aria-label]="title()" [attr.aria-describedby]="descriptionId"></canvas></div>
       <p class="visually-hidden" [id]="descriptionId">{{ description() }}</p>
     } @else { <app-empty-state icon="chart" [title]="emptyMessage()" /> }</figure>`,
   styles: [`.chart-box { margin: 0; padding: 1.25rem; background: var(--card); border: 1px solid var(--bd); border-radius: var(--r-card); box-shadow: var(--shadow); min-width: 0; }
@@ -39,6 +39,7 @@ export class Chart implements OnDestroy {
   readonly yTitle = input('');
   readonly subtitle = input('');
   readonly emptyMessage = input('No statistics recorded for this season yet.');
+  readonly height = input(320);
   readonly descriptionId = `chart-description-${nextId++}`;
   private readonly canvas = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
   private readonly theme = inject(ThemeService);

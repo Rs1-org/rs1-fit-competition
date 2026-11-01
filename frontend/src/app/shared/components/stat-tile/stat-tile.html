@@ -1,5 +1,5 @@
 @if (link()) {
-  <a class="tile" [routerLink]="link()">
+  <a class="tile" [routerLink]="link()" [fragment]="fragment() || undefined">
     <span class="value">{{ value() }}</span>
     <span class="label">{{ label() }}</span>
   </a>
