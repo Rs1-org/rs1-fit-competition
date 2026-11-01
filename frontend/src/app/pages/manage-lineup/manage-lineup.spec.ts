@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
+import { UserStateService } from '../../core/services/user-state.service';
 import { ManageLineup, lineupErrors, LineupDraft } from './manage-lineup';
 import { MatchService } from '../../core/services/match.service';
 import { LineupService } from '../../core/services/lineup.service';
@@ -72,14 +73,27 @@ describe('ManageLineup', () => {
             playerSelections: (id: string) => of(page(id === 'home' ? [{ playerPublicId: 'p1' }] : [])),
           },
         },
+        { provide: UserStateService, useValue: { roles$: of(['Moderator']), hasAnyRole: () => true } },
       ],
     });
     const fixture = TestBed.createComponent(ManageLineup);
     fixture.detectChanges();
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Edin Smailagic');
-    expect(text).toContain('Ana Kovac');
-    expect(text).toContain('4-3-3');
-    expect(text).toContain('No players are linked to this selection.');
+    const pageText = () => (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(pageText()).toContain('Add player');
+    expect(pageText()).toContain('Ana Kovac');
+    expect(pageText()).toContain('4-3-3');
+    expect(pageText()).toContain('Search for a player from this selection.');
+
+    fixture.componentInstance.addPlayer('home', { id: 'p1', label: 'Edin Smailagic' });
+    fixture.detectChanges();
+    expect(pageText()).toContain('Edin Smailagic');
+
+    fixture.componentInstance.addPlayer('home', { id: 'p1', label: 'Edin Smailagic' });
+    fixture.detectChanges();
+    expect(pageText()).toContain('only once');
+
+    fixture.componentInstance.addPlayer('away', { id: 'p1', label: 'Edin Smailagic' });
+    fixture.detectChanges();
+    expect(pageText()).toContain('Only players of that selection can be selected.');
   });
 });

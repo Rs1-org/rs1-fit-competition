@@ -20,10 +20,11 @@ import { SectionCard } from '../../shared/components/section-card/section-card';
 import { StatTile } from '../../shared/components/stat-tile/stat-tile';
 import { SectionTabs, SectionTab } from '../../shared/components/section-tabs/section-tabs';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { HasRoleDirective } from '../../shared/directives/has-role.directive';
 
 @Component({
   selector: 'app-match-detail',
-  imports: [NgTemplateOutlet, RouterLink, AppDateTimePipe, AppNumberPipe, Breadcrumb, Crest, ScoreDisplay, StatusBadge, LiveCard, SectionCard, StatTile, SectionTabs, EmptyState],
+  imports: [NgTemplateOutlet, RouterLink, AppDateTimePipe, AppNumberPipe, Breadcrumb, Crest, ScoreDisplay, StatusBadge, LiveCard, SectionCard, StatTile, SectionTabs, EmptyState, HasRoleDirective],
   templateUrl: './match-detail.html',
   styleUrls: ['../stadium-detail/stadium-detail.css', './match-detail.css'],
 })

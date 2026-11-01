@@ -106,7 +106,7 @@
 
       @if (canManage()) {
         <p class="match-links">
-          <a class="match-edit" [routerLink]="['/manage-lineup', data.publicId]">Set lineup</a>
+          <a class="match-edit" *appHasRole="'Admin,Moderator'" [routerLink]="['/manage-lineup', data.publicId]">Set lineup</a>
           <a class="match-edit" [routerLink]="['/manage-matches', data.slug]">Edit match</a>
         </p>
       }

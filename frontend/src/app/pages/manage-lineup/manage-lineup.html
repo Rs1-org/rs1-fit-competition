@@ -44,11 +44,12 @@
             }
           </select>
         </label>
+        <app-person-autocomplete label="Add player" inputId="home-player" [control]="homeSearch" [search]="searchHome" [focus]="false" (picked)="addPlayer('home', $event)" />
         @if (data.home.length === 0) {
-          <app-empty-state title="No players" message="No players are linked to this selection." />
+          <app-empty-state title="No players" message="Search for a player from this selection." />
         } @else {
           @for (row of data.home; track row.playerPublicId) {
-            <ng-container *ngTemplateOutlet="playerRow; context: { $implicit: row, positions: data.positions, subPositions: data.subPositions }" />
+            <ng-container *ngTemplateOutlet="playerRow; context: { $implicit: row, side: 'home', positions: data.positions, subPositions: data.subPositions }" />
           }
         }
       </app-section-card>
@@ -63,18 +64,19 @@
             }
           </select>
         </label>
+        <app-person-autocomplete label="Add player" inputId="away-player" [control]="awaySearch" [search]="searchAway" [focus]="false" (picked)="addPlayer('away', $event)" />
         @if (data.away.length === 0) {
-          <app-empty-state title="No players" message="No players are linked to this selection." />
+          <app-empty-state title="No players" message="Search for a player from this selection." />
         } @else {
           @for (row of data.away; track row.playerPublicId) {
-            <ng-container *ngTemplateOutlet="playerRow; context: { $implicit: row, positions: data.positions, subPositions: data.subPositions }" />
+            <ng-container *ngTemplateOutlet="playerRow; context: { $implicit: row, side: 'away', positions: data.positions, subPositions: data.subPositions }" />
           }
         }
       </app-section-card>
     </div>
 
     <div class="button-group">
-      <app-button text="Save lineup" [loading]="saving()" (click)="save()" />
+      <app-button *appHasRole="'Admin,Moderator'" text="Save lineup" [loading]="saving()" (click)="save()" />
       @if (data.match.slug) {
         <a [routerLink]="['/matches', data.match.slug]">Back to match</a>
       }
@@ -82,39 +84,35 @@
   }
 </div>
 
-<ng-template #playerRow let-row let-positions="positions" let-subPositions="subPositions">
+<ng-template #playerRow let-row let-side="side" let-positions="positions" let-subPositions="subPositions">
   <div class="player-row">
+    <span>{{ row.name }}</span>
     <label>
-      <input type="checkbox" [checked]="row.included" (change)="row.included = $any($event.target).checked" />
-      {{ row.name }}
+      Shirt
+      <input type="number" min="1" max="99" [value]="row.shirtNumber ?? ''" (input)="row.shirtNumber = $any($event.target).value === '' ? null : +$any($event.target).value" />
     </label>
-    @if (row.included) {
-      <label>
-        Shirt
-        <input type="number" min="1" max="99" [value]="row.shirtNumber ?? ''" (input)="row.shirtNumber = $any($event.target).value === '' ? null : +$any($event.target).value" />
-      </label>
-      <label>
-        <input type="checkbox" [checked]="row.isStarter" (change)="row.isStarter = $any($event.target).checked" />
-        Starter
-      </label>
-      <label>
-        Position
-        <select [value]="row.positionPublicId" (change)="row.positionPublicId = $any($event.target).value; row.subPositionPublicId = ''">
-          <option value="">No position</option>
-          @for (position of positions; track position.publicId) {
-            <option [value]="position.publicId">{{ position.name }}</option>
-          }
-        </select>
-      </label>
-      <label>
-        Subposition
-        <select [value]="row.subPositionPublicId" (change)="row.subPositionPublicId = $any($event.target).value">
-          <option value="">No subposition</option>
-          @for (sub of subsFor(row.positionPublicId, subPositions); track sub.publicId) {
-            <option [value]="sub.publicId">{{ sub.name }}</option>
-          }
-        </select>
-      </label>
-    }
+    <label>
+      <input type="checkbox" [checked]="row.isStarter" (change)="row.isStarter = $any($event.target).checked" />
+      Starter
+    </label>
+    <label>
+      Position
+      <select [value]="row.positionPublicId" (change)="row.positionPublicId = $any($event.target).value; row.subPositionPublicId = ''">
+        <option value="">No position</option>
+        @for (position of positions; track position.publicId) {
+          <option [value]="position.publicId">{{ position.name }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Subposition
+      <select [value]="row.subPositionPublicId" (change)="row.subPositionPublicId = $any($event.target).value">
+        <option value="">No subposition</option>
+        @for (sub of subsFor(row.positionPublicId, subPositions); track sub.publicId) {
+          <option [value]="sub.publicId">{{ sub.name }}</option>
+        }
+      </select>
+    </label>
+    <button type="button" (click)="removePlayer(side, row.playerPublicId)">Remove</button>
   </div>
 </ng-template>

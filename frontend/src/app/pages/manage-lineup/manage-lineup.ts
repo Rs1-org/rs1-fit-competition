@@ -1,5 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
@@ -25,6 +26,8 @@ import { Button } from '../../shared/components/button/button';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 import { SectionCard } from '../../shared/components/section-card/section-card';
+import { PersonAutocomplete, PersonSuggestion } from '../../shared/components/person-autocomplete/person-autocomplete';
+import { HasRoleDirective } from '../../shared/directives/has-role.directive';
 
 export interface LineupDraft {
   playerPublicId: string;
@@ -44,6 +47,8 @@ export interface LineupFormModel {
   awayFormationPublicId: string;
   home: LineupDraft[];
   away: LineupDraft[];
+  homeEligible: string[];
+  awayEligible: string[];
   referees: Referee[];
   formations: Formation[];
   positions: Position[];
@@ -78,7 +83,7 @@ export function lineupErrors(rows: LineupDraft[]): string[] {
 
 @Component({
   selector: 'app-manage-lineup',
-  imports: [NgTemplateOutlet, RouterLink, Breadcrumb, Button, EmptyState, ErrorBanner, SectionCard],
+  imports: [NgTemplateOutlet, ReactiveFormsModule, RouterLink, Breadcrumb, Button, EmptyState, ErrorBanner, SectionCard, PersonAutocomplete, HasRoleDirective],
   templateUrl: './manage-lineup.html',
   styleUrls: ['../staff-form.css', './manage-lineup.css'],
 })
@@ -93,6 +98,10 @@ export class ManageLineup {
   private referees = inject(RefereeService);
   private history = inject(HistoryService);
 
+  readonly homeSearch = new FormControl('', { nonNullable: true });
+  readonly awaySearch = new FormControl('', { nonNullable: true });
+  readonly searchHome = (term: string) => this.searchSide('home', term);
+  readonly searchAway = (term: string) => this.searchSide('away', term);
   saving = signal(false);
   error = signal<string | null>(null);
   saved = signal(false);
@@ -125,8 +134,10 @@ export class ManageLineup {
             refereePublicId: data.lineup.refereePublicId ?? '',
             homeFormationPublicId: data.lineup.homeFormationPublicId ?? '',
             awayFormationPublicId: data.lineup.awayFormationPublicId ?? '',
-            home: this.rows(data.homeHistory.items.map((item) => item.playerPublicId), data.match.homeSelectionPublicId, data.players, saved),
-            away: this.rows(data.awayHistory.items.map((item) => item.playerPublicId), data.match.awaySelectionPublicId, data.players, saved),
+            homeEligible: this.ids(data.homeHistory.items),
+            awayEligible: this.ids(data.awayHistory.items),
+            home: this.savedRows(data.match.homeSelectionPublicId, data.players, saved),
+            away: this.savedRows(data.match.awaySelectionPublicId, data.players, saved),
             referees: data.referees,
             formations: data.formations,
             positions: data.positions,
@@ -147,6 +158,45 @@ export class ManageLineup {
       { label: `${match.homeSelectionName ?? 'TBD'} vs ${match.awaySelectionName ?? 'TBD'}`, route: match.slug ? `/matches/${match.slug}` : undefined },
       { label: 'Lineup' },
     ];
+  }
+
+  addPlayer(side: 'home' | 'away', suggestion: PersonSuggestion): void {
+    const current = this.form();
+    if (!current) return;
+    const eligible = side === 'home' ? current.homeEligible : current.awayEligible;
+    const selectionPublicId = side === 'home' ? current.match.homeSelectionPublicId : current.match.awaySelectionPublicId;
+    if (!selectionPublicId || !eligible.includes(suggestion.id)) {
+      this.error.set('Only players of that selection can be selected.');
+      this.saved.set(false);
+      return;
+    }
+    if ([...current.home, ...current.away].some((row) => row.playerPublicId === suggestion.id)) {
+      this.error.set('A player can appear only once in the match.');
+      this.saved.set(false);
+      return;
+    }
+    const row: LineupDraft = {
+      playerPublicId: suggestion.id,
+      name: suggestion.label,
+      selectionPublicId,
+      included: true,
+      isStarter: false,
+      shirtNumber: null,
+      positionPublicId: '',
+      subPositionPublicId: '',
+    };
+    const home = side === 'home' ? [...current.home, row] : current.home;
+    const away = side === 'away' ? [...current.away, row] : current.away;
+    this.error.set(null);
+    this.form.set({ ...current, home, away });
+  }
+
+  removePlayer(side: 'home' | 'away', playerPublicId: string): void {
+    const current = this.form();
+    if (!current) return;
+    const home = side === 'home' ? current.home.filter((row) => row.playerPublicId !== playerPublicId) : current.home;
+    const away = side === 'away' ? current.away.filter((row) => row.playerPublicId !== playerPublicId) : current.away;
+    this.form.set({ ...current, home, away });
   }
 
   subsFor(positionPublicId: string, all: SubPosition[]): SubPosition[] {
@@ -184,22 +234,33 @@ export class ManageLineup {
     });
   }
 
-  private rows(playerIds: (string | undefined)[], selectionPublicId: string | null, players: Player[], saved: LineupPlayer[]): LineupDraft[] {
+  private ids(items: PlayerSelectionHistory[]): string[] {
+    return [...new Set(items.map((item) => item.playerPublicId).filter((id): id is string => !!id))];
+  }
+
+  private searchSide(side: 'home' | 'away', term: string) {
+    const eligible = new Set(side === 'home' ? this.form()?.homeEligible ?? [] : this.form()?.awayEligible ?? []);
+    return this.players.getAll(1, 8, { name: term }).pipe(
+      map((page) => page.items
+        .filter((player) => !!player.publicId && eligible.has(player.publicId))
+        .map((player) => ({ id: player.publicId!, label: `${player.firstName} ${player.lastName}`.trim() }))),
+    );
+  }
+
+  private savedRows(selectionPublicId: string | null, players: Player[], saved: LineupPlayer[]): LineupDraft[] {
     const names = new Map(players.filter((player) => player.publicId).map((player) => [player.publicId!, `${player.firstName} ${player.lastName}`]));
-    const unique = [...new Set(playerIds.filter((id): id is string => !!id))];
-    return unique.map((playerPublicId) => {
-      const existing = saved.find((row) => row.playerPublicId === playerPublicId);
-      return {
-        playerPublicId,
-        name: names.get(playerPublicId) ?? playerPublicId,
+    return saved
+      .filter((row) => row.selectionPublicId === selectionPublicId)
+      .map((row) => ({
+        playerPublicId: row.playerPublicId,
+        name: names.get(row.playerPublicId) ?? row.playerName,
         selectionPublicId: selectionPublicId ?? '',
-        included: !!existing,
-        isStarter: existing?.isStarter ?? false,
-        shirtNumber: existing?.shirtNumber ?? null,
-        positionPublicId: existing?.positionPublicId ?? '',
-        subPositionPublicId: existing?.subPositionPublicId ?? '',
-      };
-    });
+        included: true,
+        isStarter: row.isStarter,
+        shirtNumber: row.shirtNumber,
+        positionPublicId: row.positionPublicId ?? '',
+        subPositionPublicId: row.subPositionPublicId ?? '',
+      }));
   }
 
   private toSave(row: LineupDraft): SaveLineupPlayer {

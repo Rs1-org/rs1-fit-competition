@@ -37,7 +37,11 @@ async function render(getBySlug: () => unknown, canManage = false) {
         home: [{ publicId: 'l1', playerPublicId: 'p1', playerName: 'Edin Smailagic', selectionPublicId: 'h', positionPublicId: null, positionName: 'Midfielder', subPositionPublicId: null, subPositionName: null, isStarter: true, shirtNumber: 6 }],
         away: [],
       }) } },
-      { provide: UserStateService, useValue: { canManage: signal(canManage) } },
+      { provide: UserStateService, useValue: {
+        canManage: signal(canManage),
+        roles$: of(canManage ? ['Moderator'] : []),
+        hasAnyRole: () => canManage,
+      } },
     ],
   });
   const fixture = TestBed.createComponent(MatchDetail);
