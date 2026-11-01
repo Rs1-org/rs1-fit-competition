@@ -1,3 +1,5 @@
+import { registerLocaleData } from '@angular/common';
+import localeBs from '@angular/common/locales/bs-Latn';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
@@ -6,6 +8,8 @@ import { emptyPage } from '../../core/models/paged-result';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PlayerView } from './player-view';
+
+registerLocaleData(localeBs);
 
 describe('PlayerView', () => {
   let component: PlayerView;
@@ -35,5 +39,9 @@ describe('PlayerView', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('formats a million-euro value with one decimal', () => {
+    expect(component.money(1_200_000)).toBe('€ 1,2 M');
   });
 });

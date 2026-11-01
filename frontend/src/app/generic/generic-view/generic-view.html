@@ -4,7 +4,7 @@
   </div>
   <div class="detail-body">
     <div class="detail-picture-wrap" *ngIf="pictureSrc">
-      <img [src]="pictureSrc" alt="Slika" class="person-picture-preview" />
+      <img [src]="pictureSrc" alt="Photo" class="person-picture-preview" />
     </div>
     <div class="detail-row" *ngFor="let prop of displayProperties">
       <span class="label">{{ prop.key }}:</span>

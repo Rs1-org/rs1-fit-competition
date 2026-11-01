@@ -186,6 +186,10 @@ export class HistoryService {
     }
   }
 
+  loadTransfers(playerId: string): Promise<TransferValueHistory[]> {
+    return this.list<TransferValueHistory>('/api/transfer-value-history', { playerId });
+  }
+
   async loadAppearances(playerId: string): Promise<PlayerAppearance[]> {
     try {
       return await firstValueFrom(

@@ -1,56 +1,87 @@
-<div class="container">
-  <button class="btn-back" (click)="goBack()">⬅ Natrag na listu</button>
+<main class="profile">
+  <button type="button" class="back" (click)="goBack()">Back to players</button>
+  <app-breadcrumb [items]="[{ label: 'Players', route: '/player-list' }, { label: selectedPlayer ? (selectedPlayer['firstName'] + ' ' + selectedPlayer['lastName']) : 'Player' }]" />
 
-  <div class="detail-card" *ngIf="selectedPlayer">
-    <div class="detail-header">
-      <h2>Karton Igrača</h2>
-      <div class="card-tabs" *ngIf="showHistoryTab">
-        <button
-          type="button"
-          class="card-tab"
-          [class.active]="activeTab === 'info'"
-          (click)="activeTab = 'info'">
-          Podaci
-        </button>
-        <button
-          type="button"
-          class="card-tab"
-          [class.active]="activeTab === 'history'"
-          (click)="activeTab = 'history'">
-          Historija
-        </button>
+  @if (loading) {
+    <app-skeleton [rows]="5" />
+  } @else if (error) {
+    <app-error-banner [message]="error" (retry)="retry()" />
+  } @else if (selectedPlayer) {
+    <header class="hero">
+      <button type="button" class="photo" [disabled]="!pictureUrl" (click)="zoom = true">
+        @if (pictureUrl) { <img [src]="pictureUrl" alt="" /> }
+        @else { <span>[PLAYER PHOTO]</span> }
+      </button>
+      <div>
+        <p class="role">{{ selectedPlayer['positionName'] || 'Position not set' }}@if (selectedPlayer['subPositionName']) { · {{ selectedPlayer['subPositionName'] }} }</p>
+        <h1>{{ selectedPlayer['firstName'] }} {{ selectedPlayer['lastName'] }}</h1>
+        <p>Shirt {{ selectedPlayer['shirtNumber'] != null ? (selectedPlayer['shirtNumber'] | appNumber: '1.0-0') : '—' }}</p>
       </div>
+    </header>
+
+    <section class="tiles" aria-label="Player facts">
+      <app-stat-tile label="Age" [value]="age(selectedPlayer['dateOfBirth']) ?? '—'" />
+      <app-stat-tile label="Height" [value]="heightLabel(selectedPlayer['height'])" />
+      <app-stat-tile label="Shirt number" [value]="selectedPlayer['shirtNumber'] != null ? (selectedPlayer['shirtNumber'] | appNumber: '1.0-0') : '—'" />
+      <app-stat-tile label="Transfer value" [value]="money(selectedPlayer['transferValue'])" />
+      <app-stat-tile label="Appearances" [value]="(history?.selection?.matchPlayed ?? appearances.length) | appNumber: '1.0-0'" />
+      <app-stat-tile label="Goals" [value]="history?.selection?.goals ?? '—'" />
+      <app-stat-tile label="Assists" [value]="history?.selection?.assists ?? '—'" />
+      <app-stat-tile label="Minutes" value="—" />
+    </section>
+
+    <div class="tabs" role="tablist" aria-label="Player sections">
+      <button type="button" role="tab" [class.active]="activeTab === 'info'" [attr.aria-selected]="activeTab === 'info'" (click)="activeTab = 'info'">Profile</button>
+      @if (showHistoryTab) {
+        <button type="button" role="tab" [class.active]="activeTab === 'history'" [attr.aria-selected]="activeTab === 'history'" (click)="activeTab = 'history'">History</button>
+      }
     </div>
 
-    <div class="detail-body" [@fadeSwap]="activeTab">
-      <div class="detail-picture-wrap" *ngIf="pictureUrl && activeTab === 'info'">
-        <img [src]="pictureUrl" alt="Slika igrača" class="person-picture-preview" />
+    @if (activeTab === 'history') {
+      <section class="facts" [@fadeSwap]="activeTab">
+        @for (row of historyRows; track row.label) {
+          <p><strong>{{ row.label }}</strong> {{ row.value }}</p>
+        }
+        @for (appearance of appearances; track appearance.matchId) {
+          <p>{{ appearance.matchDate | appDate }} · {{ appearance.selectionName }} · {{ appearance.side === 'home' ? 'Home' : 'Away' }}@if (appearance.stadiumName) { · {{ appearance.stadiumName }} }</p>
+        }
+      </section>
+    } @else {
+      <section class="panel" aria-label="Transfer value history">
+        <app-chart title="Transfer value history" yTitle="Value" [height]="220" [labels]="chartLabels()" [series]="chartSeries()" emptyMessage="No transfer values have been recorded yet." />
+      </section>
+      <div class="split">
+        <section class="panel">
+          <h2>Career</h2>
+          @if (!career().length) {
+            <app-empty-state icon="player" title="No career records yet" message="Appearances show up here once the player is in a match." />
+          } @else {
+            <table>
+              <thead><tr><th scope="col">Team</th><th scope="col">Period</th><th class="num" scope="col">Apps</th></tr></thead>
+              <tbody>
+                @for (row of career(); track row.team) {
+                  <tr>
+                    <td>{{ row.team }}</td>
+                    <td>{{ row.from | appDate }}@if (row.to && row.to !== row.from) { – {{ row.to | appDate }} }</td>
+                    <td class="num">{{ row.apps | appNumber: '1.0-0' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </section>
+        <section class="panel">
+          <h2>Photos</h2>
+          <div class="photos">
+            @if (pictureUrl) {
+              <button type="button" class="photo-card" (click)="zoom = true"><img [src]="pictureUrl" alt="Player photo" /></button>
+            } @else {
+              <app-empty-state icon="player" title="No photos yet" message="A photo appears here once one is saved." />
+            }
+          </div>
+        </section>
       </div>
-
-      <ng-container *ngIf="activeTab === 'info'">
-        <div class="detail-row" *ngFor="let prop of displayProperties">
-          <span class="label">{{ prop.key }}:</span>
-          <span class="value">{{ prop.value }}</span>
-        </div>
-      </ng-container>
-
-      <ng-container *ngIf="activeTab === 'history'">
-        <div class="detail-row" *ngFor="let row of historyRows">
-          <span class="label">{{ row.label }}:</span>
-          <span class="value">{{ row.value }}</span>
-        </div>
-        <div class="detail-row" *ngFor="let appearance of appearances">
-          <span class="label">{{ appearance.matchDate | appDate }}</span>
-          <span class="value">
-            {{ appearance.selectionName }} · {{ appearance.side === 'home' ? 'domaćin' : 'gost' }}
-            <ng-container *ngIf="appearance.stadiumName"> · {{ appearance.stadiumName }}</ng-container>
-          </span>
-        </div>
-      </ng-container>
-    </div>
-  </div>
-
-  <div *ngIf="!selectedPlayer" class="loading">
-    Učitavanje podataka o igraču...
-  </div>
-</div>
+    }
+    <app-image-zoom [src]="pictureUrl" [open]="zoom" (closed)="zoom = false" />
+  }
+</main>
