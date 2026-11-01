@@ -1,0 +1,13 @@
+.drop {
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-start;
+  padding: 12px; border: 1px dashed var(--bd); border-radius: var(--r-card); background: var(--field); color: var(--tx);
+}
+.drop.over { border-color: var(--ac); background: var(--acs); }
+img { width: 100%; height: 140px; object-fit: cover; border-radius: var(--r-ctl); }
+button {
+  min-height: 44px; padding: 0 14px; border: 1px solid var(--bd); border-radius: var(--r-ctl);
+  background: var(--card); color: var(--tx); font-weight: 700; cursor: pointer;
+}
+.confirm-row { display: flex; gap: 8px; }
+.field-error { margin: 0; color: var(--dg); font-size: 13px; }
+button:focus-visible { outline: 2px solid var(--ac); outline-offset: 3px; }

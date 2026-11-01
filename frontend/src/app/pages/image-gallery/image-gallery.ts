@@ -5,12 +5,16 @@ import { catchError, map } from 'rxjs/operators';
 import { GalleryItem, GallerySection, GalleryService } from '../../core/services/gallery.service';
 import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
+import { FileDrop } from '../../shared/components/file-drop/file-drop';
+import { Skeleton } from '../../shared/components/skeleton/skeleton';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { listStagger, popIn } from '../../core/animations/motion';
 import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-image-gallery',
-  imports: [UploadProgress],
+  imports: [UploadProgress, FileDrop, Skeleton, ErrorBanner, EmptyState],
   templateUrl: './image-gallery.html',
   styleUrl: './image-gallery.css',
   animations: [popIn, listStagger],
@@ -44,11 +48,7 @@ export class ImageGallery implements OnDestroy {
     return this.progressKey() === this.key(item);
   }
 
-  async upload(item: GalleryItem, event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    input.value = '';
-    if (!file) return;
+  uploadFile(item: GalleryItem, file: File): void {
 
     const key = this.key(item);
     this.error.set('');
@@ -63,6 +63,7 @@ export class ImageGallery implements OnDestroy {
         }
         if (uploadEvent.type === HttpEventType.Response) {
           this.progress.set(100);
+          this.toast.success('Image saved');
           this.reload();
         }
       },
@@ -97,7 +98,7 @@ export class ImageGallery implements OnDestroy {
     this.viewer.set(null);
   }
 
-  private reload(): void {
+  reload(): void {
     this.loading.set(true);
     this.gallery.list().subscribe({
       next: (sections) => {

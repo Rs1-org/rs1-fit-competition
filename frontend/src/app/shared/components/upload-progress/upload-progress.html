@@ -1,5 +1,5 @@
 @if (percent !== null) {
-  <div class="progress" aria-label="Napredak uploada">
+  <div class="progress" role="progressbar" [attr.aria-valuenow]="percent" aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress">
     <div [style.width.%]="percent"></div>
   </div>
   <span class="progress-label">{{ percent }}%</span>

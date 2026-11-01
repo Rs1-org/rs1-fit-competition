@@ -22,6 +22,7 @@ import { Skeleton } from '../../shared/components/skeleton/skeleton';
 import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { InputBox } from '../../shared/components/input-box/input-box';
+import { FileDrop } from '../../shared/components/file-drop/file-drop';
 import { ToastService } from '../../core/services/toast.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
@@ -40,7 +41,7 @@ function positionWhenSubPosition(group: AbstractControl): ValidationErrors | nul
 
 @Component({
   selector: 'app-manage-players',
-  imports: [CommonModule, ReactiveFormsModule, UploadProgress, AppDatePipe, SectionCard, Button, Skeleton, ErrorBanner, EmptyState, InputBox],
+  imports: [CommonModule, ReactiveFormsModule, UploadProgress, AppDatePipe, SectionCard, Button, Skeleton, ErrorBanner, EmptyState, InputBox, FileDrop],
   templateUrl: './manage-players.html',
   styleUrl: '../staff-form.css',
   animations: [fadeSwap],
@@ -204,6 +205,11 @@ export class ManagePlayers implements OnInit {
     this.appearances = await this.historyService.loadAppearances(id);
     this.isLoading = false;
     this.cdr.detectChanges();
+  }
+
+  async onPictureFile(file: File): Promise<void> {
+    this.picture = await fileToBase64(file);
+    this.pictureChanged = true;
   }
 
   async onPictureSelected(event: Event): Promise<void> {
