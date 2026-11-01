@@ -11,4 +11,5 @@ export class StatTile {
   label = input.required<string>();
   value = input.required<string | number>();
   link = input<string | null>(null);
+  fragment = input<string | null>(null);
 }

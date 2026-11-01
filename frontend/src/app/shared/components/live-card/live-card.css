@@ -4,6 +4,8 @@
 }
 header { display: flex; justify-content: space-between; color: var(--mut); font-size: 13px; }
 .pill { display: inline-flex; align-items: center; gap: 6px; color: var(--livetx); font-family: var(--font-title); font-weight: 700; }
+.pill.steady { color: var(--amb); }
+.pill.steady .dot { display: none; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--live); animation: live-pulse 1.4s ease-in-out infinite; }
 .team { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; }
 .big { font-family: var(--font-title); font-size: 30px; }

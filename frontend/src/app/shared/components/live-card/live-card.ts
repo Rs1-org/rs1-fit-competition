@@ -19,4 +19,6 @@ export class LiveCard {
   lastEvent = input<string | null>(null);
   halfHome = input<number | null>(null);
   halfAway = input<number | null>(null);
+  label = input('LIVE');
+  pulsing = input(true);
 }
