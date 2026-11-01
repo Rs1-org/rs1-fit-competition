@@ -53,6 +53,26 @@ public class DemoDataSeedTests
     }
 
     [Fact]
+    public async Task PersonsFormationsAndHistory_AreSeededOnce()
+    {
+        await using var db = await SeededContext();
+
+        (await db.Players.CountAsync()).Should().Be(96);
+        (await db.Managers.CountAsync()).Should().Be(8);
+        (await db.Referees.CountAsync()).Should().Be(4);
+        (await db.Formations.CountAsync()).Should().Be(2);
+        (await db.PlayerSelectionHistories.CountAsync()).Should().Be(96);
+        (await db.SelectionManagerHistories.CountAsync()).Should().Be(8);
+
+        await DataSeeder.SeedDemoDataAsync(db, Now);
+        db.ChangeTracker.Clear();
+
+        (await db.Players.CountAsync()).Should().Be(96);
+        (await db.PlayerSelectionHistories.CountAsync()).Should().Be(96);
+        (await db.Formations.CountAsync()).Should().Be(2);
+    }
+
+    [Fact]
     public async Task CitiesAndStadiums_HaveMapCoordinates()
     {
         await using var db = await SeededContext();

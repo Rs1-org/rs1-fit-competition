@@ -38,8 +38,9 @@ public class DataSeeder(
         // 1. Geography + competitions/seasons/rounds (Muhamed, COMP-110 part 1)
         await DemoDataSeed.SeedGeographyAndCompetitionsAsync(context, cancellationToken);
         // 2. Clubs (Dino, COMP-112 part 1)
-        // 3. Persons, selections, formations (Edin, COMP-111). Demo teams below are reused by slug.
+        // 3. Persons, selections, formations (Edin, COMP-111). Selections come from the demo teams above.
         await DemoDataSeed.SeedDemoTeamsAsync(context, cancellationToken);
+        await PersonFormationSeed.SeedAsync(context, cancellationToken);
         // 4. Matches (Muhamed, COMP-110 part 2)
         await DemoDataSeed.SeedMatchesAsync(context, now, cancellationToken);
         // 5. Match events + statistics (Dino, COMP-112 part 2)
