@@ -1,6 +1,8 @@
 using NodaTime;
 using Competition.Domain.Entities;
 using Competition.Domain.Entities.CompetitionEntities;
+using Competition.Domain.Entities.FormationEntities;
+using Competition.Domain.Entities.Person;
 
 namespace Competition.Domain.Entities.MatchEntities;
 
@@ -30,5 +32,15 @@ public class Match : BaseEntity
     public Guid? RoundId { get; set; }
     public Round? Round { get; set; }
 
+    public Guid? RefereeId { get; set; }
+    public Referee? Referee { get; set; }
+
+    public Guid? HomeFormationId { get; set; }
+    public Formation? HomeFormation { get; set; }
+
+    public Guid? AwayFormationId { get; set; }
+    public Formation? AwayFormation { get; set; }
+
     public ICollection<Statistic> Statistics { get; set; } = [];
+    public ICollection<MatchLineup> Lineups { get; set; } = [];
 }

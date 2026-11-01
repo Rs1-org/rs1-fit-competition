@@ -84,6 +84,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/manage-match/manage-match').then((m) => m.ManageMatch),
   },
   {
+    path: 'manage-lineup/:publicId',
+    canActivate: [AdminModeratorGuard],
+    loadComponent: () => import('./pages/manage-lineup/manage-lineup').then((m) => m.ManageLineup),
+  },
+  {
     path: 'competitions',
     loadComponent: () =>
       import('./pages/competition-list/competition-list').then((m) => m.CompetitionList),

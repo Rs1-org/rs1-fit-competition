@@ -86,9 +86,61 @@
       </app-section-card>
 
       <app-section-tabs label="Match pages" [tabs]="tabs(data)" />
+      <app-section-card title="Lineups">
+        @if (lineup(); as sheet) {
+          <p class="info-item"><span class="info-label">Referee</span> <span class="info-value">{{ sheet.refereeName || '—' }}</span></p>
+          <div class="lineup-grid">
+            <section>
+              <h3>{{ data.homeSelectionName ?? 'Home' }} @if (sheet.homeFormationCode) { <small>{{ sheet.homeFormationCode }}</small> }</h3>
+              <ng-container *ngTemplateOutlet="side; context: { $implicit: sheet.home }" />
+            </section>
+            <section>
+              <h3>{{ data.awaySelectionName ?? 'Away' }} @if (sheet.awayFormationCode) { <small>{{ sheet.awayFormationCode }}</small> }</h3>
+              <ng-container *ngTemplateOutlet="side; context: { $implicit: sheet.away }" />
+            </section>
+          </div>
+        } @else {
+          <p>Loading lineup...</p>
+        }
+      </app-section-card>
+
       @if (canManage()) {
-        <p class="match-links"><a class="match-edit" [routerLink]="['/manage-matches', data.slug]">Edit match</a></p>
+        <p class="match-links">
+          <a class="match-edit" [routerLink]="['/manage-lineup', data.publicId]">Set lineup</a>
+          <a class="match-edit" [routerLink]="['/manage-matches', data.slug]">Edit match</a>
+        </p>
       }
     </div>
   }
 </div>
+
+<ng-template #side let-players>
+  <h4>Starters</h4>
+  @if (starters(players).length === 0) {
+    <app-empty-state title="No starters" message="The starting lineup has not been set." />
+  } @else {
+    <ul class="lineup-list">
+      @for (player of starters(players); track player.publicId) {
+        <li>
+          @if (player.shirtNumber != null) { <span>{{ player.shirtNumber | appNumber: '1.0-0' }}</span> }
+          {{ player.playerName }}
+          @if (player.positionName) { <small>{{ player.positionName }}</small> }
+        </li>
+      }
+    </ul>
+  }
+  <h4>Substitutes</h4>
+  @if (substitutes(players).length === 0) {
+    <app-empty-state title="No substitutes" message="No substitutes have been named." />
+  } @else {
+    <ul class="lineup-list">
+      @for (player of substitutes(players); track player.publicId) {
+        <li>
+          @if (player.shirtNumber != null) { <span>{{ player.shirtNumber | appNumber: '1.0-0' }}</span> }
+          {{ player.playerName }}
+          @if (player.positionName) { <small>{{ player.positionName }}</small> }
+        </li>
+      }
+    </ul>
+  }
+</ng-template>

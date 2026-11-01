@@ -1,0 +1,120 @@
+<div class="staff-page">
+  @if (state() === undefined) {
+    <p>Loading lineup...</p>
+  }
+
+  @if (state() === null) {
+    <p>Match not found.</p>
+  }
+
+  @if (form(); as data) {
+    <app-breadcrumb [items]="crumbs(data.match)" />
+    <header class="staff-header">
+      <h1>Lineup</h1>
+      <p>{{ data.match.homeSelectionName ?? 'TBD' }} vs {{ data.match.awaySelectionName ?? 'TBD' }}</p>
+    </header>
+
+    @if (error(); as message) {
+      <app-error-banner [message]="message" (retry)="save()" />
+    }
+    @if (saved()) {
+      <p class="saved">Lineup saved.</p>
+    }
+
+    <app-section-card title="Referee">
+      <label class="form-group">
+        Referee
+        <select [value]="data.refereePublicId" (change)="data.refereePublicId = $any($event.target).value">
+          <option value="">No referee</option>
+          @for (referee of data.referees; track referee.publicId) {
+            <option [value]="referee.publicId">{{ referee.firstName }} {{ referee.lastName }}</option>
+          }
+        </select>
+      </label>
+    </app-section-card>
+
+    <div class="lineup-sides">
+      <app-section-card [title]="data.match.homeSelectionName ?? 'Home'">
+        <label class="form-group">
+          Formation
+          <select [value]="data.homeFormationPublicId" (change)="data.homeFormationPublicId = $any($event.target).value">
+            <option value="">No formation</option>
+            @for (formation of data.formations; track formation.publicId) {
+              <option [value]="formation.publicId">{{ formation.code }}</option>
+            }
+          </select>
+        </label>
+        @if (data.home.length === 0) {
+          <app-empty-state title="No players" message="No players are linked to this selection." />
+        } @else {
+          @for (row of data.home; track row.playerPublicId) {
+            <ng-container *ngTemplateOutlet="playerRow; context: { $implicit: row, positions: data.positions, subPositions: data.subPositions }" />
+          }
+        }
+      </app-section-card>
+
+      <app-section-card [title]="data.match.awaySelectionName ?? 'Away'">
+        <label class="form-group">
+          Formation
+          <select [value]="data.awayFormationPublicId" (change)="data.awayFormationPublicId = $any($event.target).value">
+            <option value="">No formation</option>
+            @for (formation of data.formations; track formation.publicId) {
+              <option [value]="formation.publicId">{{ formation.code }}</option>
+            }
+          </select>
+        </label>
+        @if (data.away.length === 0) {
+          <app-empty-state title="No players" message="No players are linked to this selection." />
+        } @else {
+          @for (row of data.away; track row.playerPublicId) {
+            <ng-container *ngTemplateOutlet="playerRow; context: { $implicit: row, positions: data.positions, subPositions: data.subPositions }" />
+          }
+        }
+      </app-section-card>
+    </div>
+
+    <div class="button-group">
+      <app-button text="Save lineup" [loading]="saving()" (click)="save()" />
+      @if (data.match.slug) {
+        <a [routerLink]="['/matches', data.match.slug]">Back to match</a>
+      }
+    </div>
+  }
+</div>
+
+<ng-template #playerRow let-row let-positions="positions" let-subPositions="subPositions">
+  <div class="player-row">
+    <label>
+      <input type="checkbox" [checked]="row.included" (change)="row.included = $any($event.target).checked" />
+      {{ row.name }}
+    </label>
+    @if (row.included) {
+      <label>
+        Shirt
+        <input type="number" min="1" max="99" [value]="row.shirtNumber ?? ''" (input)="row.shirtNumber = $any($event.target).value === '' ? null : +$any($event.target).value" />
+      </label>
+      <label>
+        <input type="checkbox" [checked]="row.isStarter" (change)="row.isStarter = $any($event.target).checked" />
+        Starter
+      </label>
+      <label>
+        Position
+        <select [value]="row.positionPublicId" (change)="row.positionPublicId = $any($event.target).value; row.subPositionPublicId = ''">
+          <option value="">No position</option>
+          @for (position of positions; track position.publicId) {
+            <option [value]="position.publicId">{{ position.name }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        Subposition
+        <select [value]="row.subPositionPublicId" (change)="row.subPositionPublicId = $any($event.target).value">
+          <option value="">No subposition</option>
+          @for (sub of subsFor(row.positionPublicId, subPositions); track sub.publicId) {
+            <option [value]="sub.publicId">{{ sub.name }}</option>
+          }
+        </select>
+      </label>
+    }
+  </div>
+</ng-template>
