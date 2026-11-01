@@ -1,8 +1,6 @@
 /* Kontejner za gumb (opcionalno za pozicioniranje) */
 .container {
   max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
 }
 
 /* Stil za gumb "Natrag" */
@@ -11,25 +9,25 @@
   align-items: center;
   gap: 10px;
   padding: 12px 20px;
-  background-color: var(--bg-card);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
+  background-color: var(--card);
+  color: var(--tx);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-ctl);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow);
 }
 
 /* Efekt pri prelasku mišem */
 .btn-back:hover {
-  background-color: var(--field-bg);
-  border-color: var(--accent);
-  color: var(--accent);
+  background-color: var(--field);
+  border-color: var(--ac);
+  color: var(--actx);
   transform: translateX(-5px); /* Gumb se lagano pomakne ulijevo */
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  box-shadow: var(--shadow);
 }
 
 /* Efekt pri kliku */
@@ -41,7 +39,7 @@
 .loading {
   text-align: center;
   padding: 40px;
-  color: var(--text-muted);
+  color: var(--mut);
   font-style: italic;
   font-weight: 500;
 }

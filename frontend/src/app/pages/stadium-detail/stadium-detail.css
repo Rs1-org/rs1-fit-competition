@@ -1,7 +1,5 @@
 .container {
   max-width: 900px;
-  margin: 0 auto;
-  padding: 24px 20px;
 }
 
 .btn-back {
@@ -9,11 +7,10 @@
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  border: 1.5px solid var(--border-color);
-  border-radius: 8px;
-  font-family: 'Rajdhani', sans-serif;
+  background: var(--bg2);
+  color: var(--tx2);
+  border: 1.5px solid var(--bd);
+  border-radius: var(--r-ctl);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -22,22 +19,22 @@
 }
 
 .btn-back:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--ac);
+  color: var(--actx);
 }
 
 .loading,
 .not-found {
   text-align: center;
   padding: 60px 20px;
-  color: var(--text-muted);
+  color: var(--mut);
   font-size: 16px;
 }
 
 .detail-card {
-  background: var(--bg-secondary);
-  border: 1.5px solid var(--border-color);
-  border-radius: 12px;
+  background: var(--bg2);
+  border: 1.5px solid var(--bd);
+  border-radius: var(--r-card);
   overflow: hidden;
 }
 
@@ -45,7 +42,7 @@
 .detail-hero {
   position: relative;
   height: 280px;
-  background: var(--bg-card);
+  background: var(--card);
 }
 
 .hero-img {
@@ -61,9 +58,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
+  color: var(--mut);
   font-size: 18px;
-  background: var(--bg-card);
+  background: var(--card);
 }
 
 .hero-overlay {
@@ -72,18 +69,19 @@
   left: 0;
   right: 0;
   padding: 20px 24px;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.65));
+  background: linear-gradient(transparent, var(--overlay));
 }
 
 .hero-title {
-  color: #fff;
+  font-family: var(--font-title);
+  color: var(--on-img);
   font-size: 2rem;
   font-weight: 700;
   margin: 0;
 }
 
 .hero-sub {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--on-img);
   font-size: 15px;
   margin: 4px 0 0;
 }
@@ -93,7 +91,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0;
-  border-bottom: 1.5px solid var(--border-color);
+  border-bottom: 1.5px solid var(--bd);
 }
 
 .info-item {
@@ -101,8 +99,8 @@
   flex-direction: column;
   gap: 4px;
   padding: 18px 24px;
-  border-right: 1.5px solid var(--border-color);
-  border-bottom: 1.5px solid var(--border-color);
+  border-right: 1.5px solid var(--bd);
+  border-bottom: 1.5px solid var(--bd);
 }
 
 .info-item:nth-child(even) {
@@ -118,23 +116,23 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--mut);
 }
 
 .info-value {
   font-size: 16px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--tx);
 }
 
 /* Description */
 .description {
   padding: 20px 24px;
-  border-bottom: 1.5px solid var(--border-color);
+  border-bottom: 1.5px solid var(--bd);
 }
 
 .description p {
-  color: var(--text-secondary);
+  color: var(--tx2);
   font-size: 15px;
   line-height: 1.6;
   margin-top: 8px;
@@ -146,20 +144,21 @@
 }
 
 .section-title {
+  font-family: var(--font-title);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--mut);
   margin-bottom: 12px;
 }
 
 app-map {
   display: block;
   height: 320px;
-  border-radius: 8px;
+  border-radius: var(--r-card);
   overflow: hidden;
-  border: 1.5px solid var(--border-color);
+  border: 1.5px solid var(--bd);
 }
 
 .distance {
@@ -169,17 +168,17 @@ app-map {
   gap: 8px;
   margin-bottom: 12px;
   font-size: 15px;
-  color: var(--text-secondary);
+  color: var(--tx2);
 }
 
 .distance strong {
-  color: var(--accent);
+  color: var(--actx);
 }
 
 .legend-line {
   display: inline-block;
   width: 24px;
-  border-top: 3px dashed #2563eb;
+  border-top: 3px dashed var(--route-b);
 }
 
 /* Matches at this stadium */
@@ -197,16 +196,16 @@ app-map {
 }
 
 .section-header .section-title {
+  font-family: var(--font-title);
   margin-bottom: 0;
 }
 
 .btn-schedule {
   padding: 8px 16px;
-  background: var(--accent);
-  color: #06281f;
+  background: var(--btn);
+  color: var(--btn-tx);
   border: none;
-  border-radius: 8px;
-  font-family: 'Rajdhani', sans-serif;
+  border-radius: var(--r-ctl);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -231,23 +230,23 @@ app-map {
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: var(--bg-card);
-  border: 1.5px solid var(--border-color);
-  border-radius: 8px;
-  color: var(--text-primary);
+  background: var(--card);
+  border: 1.5px solid var(--bd);
+  border-radius: var(--r-card);
+  color: var(--tx);
   text-decoration: none;
   transition: border-color 0.2s ease;
 }
 
 .match-row:hover,
 .match-row:focus-visible {
-  border-color: var(--accent);
+  border-color: var(--ac);
 }
 
 .match-date,
 .match-meta {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--mut);
 }
 
 .match-teams {
@@ -256,7 +255,7 @@ app-map {
 
 .matches-empty,
 .matches-more {
-  color: var(--text-muted);
+  color: var(--mut);
   font-size: 14px;
 }
 
@@ -264,7 +263,7 @@ app-map {
   margin-top: 10px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .match-row {
     grid-template-columns: 1fr;
     gap: 4px;

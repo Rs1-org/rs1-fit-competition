@@ -90,23 +90,23 @@ export class AdvancedStatistics {
   readonly formChart = computed(() => {
     const matches = [...(this.form().data?.matches ?? [])].reverse();
     return { labels: matches.map(m => m.opponentName), series: [
-      { label: 'Goals scored', data: matches.map(m => m.goalsFor), color: '--accent' },
-      { label: 'Goals conceded', data: matches.map(m => m.goalsAgainst), color: '--danger' },
+      { label: 'Goals scored', data: matches.map(m => m.goalsFor), color: '--ac' },
+      { label: 'Goals conceded', data: matches.map(m => m.goalsAgainst), color: '--dg' },
     ] as ChartSeries[] };
   });
 
   readonly headToHeadChart = computed(() => {
     const data = this.headToHead().data;
     return { labels: data ? [data.firstName, 'Draws', data.secondName] : [],
-      series: [{ label: 'Results', data: data ? [data.firstWins, data.draws, data.secondWins] : [], color: '--accent' }] as ChartSeries[] };
+      series: [{ label: 'Results', data: data ? [data.firstWins, data.draws, data.secondWins] : [], color: '--ac' }] as ChartSeries[] };
   });
 
   readonly playersChart = computed(() => {
     const players = this.players().data?.items ?? [];
     return { labels: players.map(p => p.playerName), series: [
-      { label: 'Goals', data: players.map(p => p.goals), color: '--accent' },
-      { label: 'Yellow cards', data: players.map(p => p.yellowCards), color: '--text-muted' },
-      { label: 'Red cards', data: players.map(p => p.redCards), color: '--danger' },
+      { label: 'Goals', data: players.map(p => p.goals), color: '--ac' },
+      { label: 'Yellow cards', data: players.map(p => p.yellowCards), color: '--mut' },
+      { label: 'Red cards', data: players.map(p => p.redCards), color: '--dg' },
     ] as ChartSeries[] };
   });
 

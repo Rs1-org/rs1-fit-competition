@@ -1,3 +1,4 @@
+import { Icon } from '../../../shared/components/icon/icon';
 import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { AbstractControl, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -6,7 +7,7 @@ import { popIn } from 'src/app/core/animations/motion';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, Icon],
   templateUrl: './register.component.html',
   styleUrls: ['../auth-modal.component.css'],
   animations: [popIn],

@@ -10,7 +10,7 @@ form {
 
 .form-error {
   margin: 12px 0 0;
-  color: #e5484d;
+  color: var(--dg);
   font-size: 0.9rem;
 }
 
@@ -20,7 +20,7 @@ footer {
   margin-top: 12px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   form {
     grid-template-columns: 1fr;
   }

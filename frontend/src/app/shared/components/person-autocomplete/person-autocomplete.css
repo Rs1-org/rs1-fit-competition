@@ -14,8 +14,8 @@
   margin: 0.2rem 0 0;
   padding: 0.25rem 0;
   list-style: none;
-  background: var(--surface, #fff);
-  border: 1px solid var(--border, #ccc);
+  background: var(--card);
+  border: 1px solid var(--bd);
 }
 
 .person-autocomplete button {

@@ -14,8 +14,7 @@ label {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-muted);
-  font-family: 'Rajdhani', sans-serif;
+  color: var(--mut);
 }
 
 .custom-select {
@@ -23,14 +22,13 @@ label {
 }
 
 .selected {
-  background: var(--field-bg);
-  border: 1.5px solid var(--border-color);
-  border-radius: 8px;
+  background: var(--field);
+  border: 1.5px solid var(--bd);
+  border-radius: var(--r-ctl);
   padding: 10px 14px;
-  font-family: 'Rajdhani', sans-serif;
   font-size: 15px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--tx);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -38,18 +36,18 @@ label {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    border-color: var(--accent);
+    border-color: var(--ac);
   }
 
   &.open {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.15);
+    border-color: var(--ac);
+    box-shadow: 0 0 0 3px var(--acs);
   }
 }
 
 .arrow {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--mut);
   transition: transform 0.2s ease;
 
   &.open {
@@ -62,10 +60,10 @@ label {
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: var(--bg-card);
-  border: 1.5px solid var(--border-color);
-  border-radius: 8px;
-  box-shadow: var(--shadow-card);
+  background: var(--card);
+  border: 1.5px solid var(--bd);
+  border-radius: var(--r-ctl);
+  box-shadow: var(--shadow);
   z-index: 100;
   z-index: 999;
   overflow: hidden;
@@ -74,27 +72,26 @@ label {
 
 .option {
   padding: 10px 14px;
-  font-family: 'Rajdhani', sans-serif;
   font-size: 15px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--tx);
   cursor: pointer;
   transition: background 0.15s ease;
 
   &:hover {
-    background: var(--bg-card);
-    color: var(--accent);
+    background: var(--card);
+    color: var(--actx);
   }
 
   &.selected {
-    color: var(--accent);
+    color: var(--actx);
     font-weight: 600;
   }
 }
 
 .error-message {
   font-size: 12px;
-  color: var(--live-color);
+  color: var(--livetx);
   font-weight: 500;
 }
 

@@ -4,7 +4,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--overlay);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -15,13 +15,13 @@
 }
 
 .modal-container {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-card);
   width: 480px;
   max-width: 90vw;
   margin-top: 0.5rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
   flex-shrink: 0;
   animation: slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -37,15 +37,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 18px 24px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--bd);
 
   h1 {
-    font-family: 'Rajdhani', sans-serif;
     font-size: 18px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--text-primary);
+    color: var(--tx);
     margin: 0;
   }
 }
@@ -60,16 +59,16 @@
 .modal-close {
   width: 44px;
   height: 44px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: var(--field-bg);
-  color: var(--text-primary);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-ctl);
+  background: var(--field);
+  color: var(--tx);
   font-size: 1.5rem;
   cursor: pointer;
 }
 
 .modal-close:focus-visible {
-  outline: 3px solid var(--accent);
+  outline: 3px solid var(--ac);
   outline-offset: 2px;
 }
 

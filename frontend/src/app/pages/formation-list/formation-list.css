@@ -19,15 +19,15 @@
 }
 
 .line-row span {
-  background: var(--field-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
+  background: var(--field);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-pill);
   padding: 0.4rem 0.9rem;
-  color: var(--text-secondary);
+  color: var(--tx2);
   font-size: 0.95rem;
 }
 
 .line-row strong {
-  color: var(--text-primary);
+  color: var(--tx);
   margin-left: 0.25rem;
 }

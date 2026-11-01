@@ -7,7 +7,7 @@
   align-items: center;
   margin-bottom: 12px;
   font-size: 0.9rem;
-  color: var(--text-muted, #8a8f98);
+  color: var(--mut);
 }
 
 .breadcrumb a {
@@ -17,12 +17,12 @@
 }
 
 .breadcrumb a:hover {
-  color: var(--accent);
+  color: var(--actx);
 }
 
 .page-subtitle {
   margin: -12px 0 16px;
-  color: var(--text-muted, #8a8f98);
+  color: var(--mut);
 }
 
 .page-description {
@@ -31,6 +31,7 @@
 }
 
 .section-title {
+  font-family: var(--font-title);
   margin: 24px 0 12px;
   font-size: 1.2rem;
 }
@@ -43,11 +44,12 @@
 }
 
 .card-badge {
+  font-family: var(--font-title);
   flex-shrink: 0;
   width: 56px;
   height: 56px;
-  border-radius: 12px;
-  background-color: var(--field-bg);
+  border-radius: var(--r-card);
+  background-color: var(--field);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,21 +61,23 @@
 }
 
 .card-title {
+  font-family: var(--font-title);
   font-weight: 700;
   overflow-wrap: anywhere;
 }
 
 .card-meta {
   font-size: 0.9rem;
-  color: var(--text-muted, #8a8f98);
+  color: var(--mut);
 }
 
 .badge-current {
+  font-family: var(--font-title);
   margin-left: 8px;
   padding: 2px 8px;
-  border-radius: 999px;
-  background-color: var(--accent);
-  color: #06281f;
+  border-radius: var(--r-pill);
+  background-color: var(--btn);
+  color: var(--btn-tx);
   font-size: 0.75rem;
   font-weight: 700;
 }
@@ -81,9 +85,9 @@
 .page-error {
   margin: 0 0 16px;
   padding: 10px 14px;
-  border-radius: 8px;
-  background: rgba(229, 72, 77, 0.12);
-  color: #e5484d;
+  border-radius: var(--r-ctl);
+  background: var(--dgs);
+  color: var(--dg);
 }
 
 .match-row {
@@ -99,12 +103,13 @@
 }
 
 .match-score {
+  font-family: var(--font-title);
   font-weight: 700;
   min-width: 56px;
   text-align: center;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .header-actions {
     flex-direction: column;
     align-items: flex-start;

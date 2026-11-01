@@ -12,10 +12,10 @@ export interface ChartSeries { label: string; data: number[]; color: string; typ
   selector: 'app-chart',
   template: `<figure class="chart-box"><figcaption>{{ title() }}</figcaption>
     <div class="chart-canvas"><canvas #canvas role="img" [attr.aria-label]="title() + ': ' + summary()"></canvas></div></figure>`,
-  styles: [`.chart-box { margin: 0; padding: 1rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; min-width: 0; }
-    figcaption { font-weight: 600; margin-bottom: .75rem; color: var(--text-primary); }
+  styles: [`.chart-box { margin: 0; padding: 1rem; background: var(--card); border: 1px solid var(--bd); border-radius: var(--r-card); min-width: 0; }
+    figcaption { font-weight: 600; margin-bottom: .75rem; color: var(--tx); }
     .chart-canvas { position: relative; height: 320px; }
-    @media (max-width: 480px) { .chart-canvas { height: 260px; } }`],
+    @media (max-width: 768px) { .chart-canvas { height: 260px; } }`],
 })
 export class Chart implements OnDestroy {
   readonly title = input.required<string>();
@@ -41,8 +41,8 @@ export class Chart implements OnDestroy {
   private render(labels: string[], series: ChartSeries[], stacked: boolean, yTitle: string): void {
     this.chart?.destroy();
     const css = getComputedStyle(document.documentElement);
-    const color = (name: string) => css.getPropertyValue(name).trim() || '#888';
-    const text = color('--text-secondary'), grid = color('--border-color');
+    const color = (name: string) => css.getPropertyValue(name).trim();
+    const text = color('--tx2'), grid = color('--bd');
     const datasets = series.map(s => ({
       type: s.type ?? 'bar', label: s.label, data: s.data, order: s.type === 'line' ? 0 : 1,
       backgroundColor: color(s.color), borderColor: color(s.color), borderWidth: s.type === 'line' ? 2 : 0,

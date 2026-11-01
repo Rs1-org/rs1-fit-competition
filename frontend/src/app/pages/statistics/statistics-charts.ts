@@ -46,25 +46,25 @@ export class StatisticsCharts {
   readonly goals = computed(() => {
     const rounds = this.state().data?.goalsPerRound ?? [];
     return { labels: rounds.map(r => r.roundName), series: [
-      { label: 'Goals', data: rounds.map(r => r.goals), color: '--accent' },
-      { label: 'Goals per match', data: rounds.map(r => +(r.goals / r.matches).toFixed(2)), color: '--danger', type: 'line' },
+      { label: 'Goals', data: rounds.map(r => r.goals), color: '--ac' },
+      { label: 'Goals per match', data: rounds.map(r => +(r.goals / r.matches).toFixed(2)), color: '--dg', type: 'line' },
     ] as ChartSeries[] };
   });
 
   readonly results = computed(() => {
     const teams = this.state().data?.teamResults ?? [];
     return { labels: teams.map(t => t.selectionName), series: [
-      { label: 'Wins', data: teams.map(t => t.wins), color: '--accent' },
-      { label: 'Draws', data: teams.map(t => t.draws), color: '--text-muted' },
-      { label: 'Losses', data: teams.map(t => t.losses), color: '--danger' },
+      { label: 'Wins', data: teams.map(t => t.wins), color: '--ac' },
+      { label: 'Draws', data: teams.map(t => t.draws), color: '--mut' },
+      { label: 'Losses', data: teams.map(t => t.losses), color: '--dg' },
     ] as ChartSeries[] };
   });
 
   readonly shots = computed(() => {
     const teams = this.state().data?.teamShots ?? [];
     return { labels: teams.map(t => t.selectionName), series: [
-      { label: 'Shots per match', data: teams.map(t => t.averageShots), color: '--text-secondary' },
-      { label: 'On target per match', data: teams.map(t => t.averageShotsOnTarget), color: '--accent' },
+      { label: 'Shots per match', data: teams.map(t => t.averageShots), color: '--tx2' },
+      { label: 'On target per match', data: teams.map(t => t.averageShotsOnTarget), color: '--ac' },
     ] as ChartSeries[] };
   });
 

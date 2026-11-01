@@ -12,16 +12,16 @@
   width: 100%;
   padding: 1rem 1.15rem;
   box-sizing: border-box;
-  background: var(--bg-card);
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-card);
+  background: var(--card);
+  border-radius: var(--r-card);
+  border: 1px solid var(--bd);
+  box-shadow: var(--shadow);
   cursor: pointer;
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .list-item:hover {
-  border-color: var(--accent);
+  border-color: var(--ac);
   transform: translateY(-1px);
 }
 
@@ -34,20 +34,21 @@
 }
 
 .list-wrapper .item-title {
+  font-family: var(--font-title);
   font-weight: 700;
   font-size: 1.15rem;
-  color: var(--text-primary);
+  color: var(--tx);
   letter-spacing: 0.01em;
 }
 
 .list-wrapper .item-subtitle {
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--tx2);
   font-size: 0.95rem;
 }
 
 .list-wrapper .item-meta {
-  color: var(--text-muted);
+  color: var(--mut);
   font-size: 0.88rem;
 }
 
@@ -67,7 +68,7 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 0.85rem;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   font-weight: 700;
   font-size: 0.92rem;
   cursor: pointer;
@@ -76,35 +77,35 @@
 }
 
 .btn-update {
-  color: var(--accent);
-  border: 1px solid var(--accent);
+  color: var(--actx);
+  border: 1px solid var(--ac);
 }
 
 .btn-update:hover {
-  background: var(--accent);
-  color: #06281f;
+  background: var(--btn);
+  color: var(--btn-tx);
 }
 
 .btn-delete {
-  color: var(--danger);
-  border: 1px solid var(--danger);
+  color: var(--dg);
+  border: 1px solid var(--dg);
 }
 
 .btn-delete:hover {
-  background: var(--danger);
-  color: #fff;
+  background: var(--dg);
+  color: var(--dg-tx);
 }
 
 .empty-state {
   padding: 2rem 1rem;
   text-align: center;
-  color: var(--text-muted);
-  background: var(--bg-card);
-  border: 1px dashed var(--border-color);
-  border-radius: 16px;
+  color: var(--mut);
+  background: var(--card);
+  border: 1px dashed var(--bd);
+  border-radius: var(--r-card);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .list-item {
     flex-direction: column;
     align-items: stretch;

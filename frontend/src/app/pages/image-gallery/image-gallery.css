@@ -1,31 +1,26 @@
-.container {
-  width: min(1180px, calc(100% - 2.5rem));
-  margin: 1.5rem auto 3rem;
-}
-
 .header-actions h1 {
   margin: 0 0 0.35rem;
 }
 
 .header-actions p,
 .gallery-note {
-  color: var(--text-secondary);
+  color: var(--tx2);
   margin: 0 0 1rem;
 }
 
 .gallery-error {
-  background: var(--danger-soft);
-  color: var(--danger);
-  border-radius: 12px;
+  background: var(--dgs);
+  color: var(--dg);
+  border-radius: var(--r-card);
   padding: 0.75rem 1rem;
 }
 
 .gallery-section {
   margin-top: 1.5rem;
   padding: 1.25rem;
-  border: 1px solid var(--border-color);
-  border-radius: 18px;
-  background: var(--bg-card);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-card);
+  background: var(--card);
 }
 
 .gallery-section h2 {
@@ -41,9 +36,9 @@
 }
 
 .gallery-section h3 span {
-  background: var(--accent-soft);
-  color: var(--accent);
-  border-radius: 999px;
+  background: var(--acs);
+  color: var(--actx);
+  border-radius: var(--r-pill);
   padding: 0.1rem 0.55rem;
   font-size: 0.85rem;
 }
@@ -59,19 +54,19 @@
   flex-direction: column;
   gap: 0.55rem;
   padding: 0.75rem;
-  border-radius: 16px;
-  background: var(--field-bg);
-  border: 1px solid var(--border-color);
+  border-radius: var(--r-card);
+  background: var(--field);
+  border: 1px solid var(--bd);
 }
 
 .thumb {
   height: 150px;
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--r-ctl);
   overflow: hidden;
   padding: 0;
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
+  background: var(--bg2);
+  color: var(--tx2);
   cursor: pointer;
 }
 
@@ -87,8 +82,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  border: 1px dashed var(--border-color);
+  border-radius: var(--r-card);
+  border: 1px dashed var(--bd);
 }
 
 .card-actions {
@@ -98,15 +93,15 @@
 
 .btn-add,
 .btn-quiet {
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   padding: 0.45rem 0.8rem;
   font-weight: 700;
   cursor: pointer;
 }
 
 .btn-add {
-  background: var(--accent);
-  color: #06281f;
+  background: var(--btn);
+  color: var(--btn-tx);
   position: relative;
   overflow: hidden;
 }
@@ -120,15 +115,15 @@
 
 .btn-quiet {
   background: transparent;
-  color: var(--danger);
-  border: 1px solid var(--danger);
+  color: var(--dg);
+  border: 1px solid var(--dg);
 }
 
 .viewer {
   position: fixed;
   inset: 0;
   z-index: 1400;
-  background: rgba(5, 8, 12, 0.82);
+  background: var(--overlay-strong);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -147,20 +142,20 @@
   max-height: 75vh;
   width: 100%;
   object-fit: contain;
-  border-radius: 16px;
-  background: #000;
+  border-radius: var(--r-card);
+  background: var(--overlay-strong);
 }
 
 .viewer figcaption,
 .viewer button {
-  color: #f3f7fb;
+  color: var(--on-img);
 }
 
 .viewer button {
   align-self: flex-end;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 999px;
+  border: 1px solid var(--on-img-bd);
+  border-radius: var(--r-pill);
   padding: 0.4rem 0.9rem;
   cursor: pointer;
 }

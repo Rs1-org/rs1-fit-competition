@@ -2,7 +2,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: var(--overlay);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,11 +13,11 @@
 .modal-container {
   max-height: calc(100dvh - 2rem);
   overflow-y: auto;
-  background: var(--bg-secondary);
+  background: var(--bg2);
   width: 380px;
   padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -31,19 +31,19 @@
   right: 16px;
   font-size: 1.8rem;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--mut);
   transition: all 0.2s ease;
 }
 
 .modal-close:hover {
-  color: var(--text-primary);
+  color: var(--tx);
   transform: scale(1.2);
 }
 
 /* Title */
 .modal-container h2 {
   text-align: center;
-  color: var(--text-primary);
+  color: var(--tx);
   margin-bottom: 0.5rem;
 }
 
@@ -57,18 +57,18 @@
 /* Inputs */
 .modal-container input {
   padding: 0.65rem 0.8rem;
-  border-radius: 6px;
-  border: 1px solid var(--bg-card);
-  background: var(--bg-card);
-  color: var(--text-primary);
+  border-radius: var(--r-ctl);
+  border: 1px solid var(--card);
+  background: var(--card);
+  color: var(--tx);
   font-size: 0.95rem;
   outline: none;
   transition: all 0.2s ease;
 }
 
 .modal-container input:focus {
-  border-color: var(--live-color);
-  box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+  border-color: var(--dg);
+  box-shadow: 0 0 0 3px var(--acs);
 }
 
 .password-field {
@@ -88,13 +88,13 @@
   margin-top: 0 !important;
   padding: 0.35rem 0.5rem !important;
   background: transparent !important;
-  color: var(--text-muted) !important;
+  color: var(--mut) !important;
   box-shadow: none !important;
   transform: none !important;
 }
 
 .password-toggle:hover {
-  color: var(--text-primary) !important;
+  color: var(--tx) !important;
   opacity: 1 !important;
 }
 
@@ -102,23 +102,23 @@
   margin-top: -0.35rem;
   font-size: 0.78rem;
   line-height: 1.35;
-  color: var(--text-muted);
+  color: var(--mut);
 }
 
 .field-invalid {
-  border-color: #e74c3c !important;
+  border-color: var(--dg) !important;
 }
 
 .error {
-  background: rgba(231, 76, 60, 0.12);
-  border: 1px solid rgba(231, 76, 60, 0.35);
-  border-radius: 6px;
+  background: var(--dgs);
+  border: 1px solid var(--dg);
+  border-radius: var(--r-ctl);
   padding: 0.65rem 0.8rem;
 }
 
 .error p {
   margin: 0;
-  color: #e74c3c;
+  color: var(--dg);
   font-size: 0.88rem;
 }
 
@@ -128,21 +128,21 @@
 
 .error h3 {
   margin: 0;
-  color: #e74c3c;
+  color: var(--dg);
   font-size: 0.88rem;
   font-weight: 600;
 }
 
 .success {
-  background: rgba(46, 204, 113, 0.12);
-  border: 1px solid rgba(46, 204, 113, 0.35);
-  border-radius: 6px;
+  background: var(--acs);
+  border: 1px solid var(--ac);
+  border-radius: var(--r-ctl);
   padding: 0.65rem 0.8rem;
 }
 
 .success p {
   margin: 0;
-  color: #27ae60;
+  color: var(--actx);
   font-size: 0.88rem;
 }
 
@@ -157,9 +157,9 @@
   margin-top: 0.4rem;
   padding: 0.7rem;
   border: none;
-  border-radius: 6px;
-  background: var(--live-color);
-  color: white;
+  border-radius: var(--r-ctl);
+  background: var(--btn);
+  color: var(--btn-tx);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s ease;
@@ -174,11 +174,11 @@
 .redirect-link {
   text-align: center;
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: var(--mut);
 }
 
 .redirect-link a {
-  color: var(--live-color);
+  color: var(--livetx);
   cursor: pointer;
   font-weight: 600;
   text-decoration: none;

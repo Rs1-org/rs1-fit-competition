@@ -122,13 +122,16 @@ export class Map implements AfterViewInit, OnDestroy {
     const from = L.latLng(mLat, mLng);
     const to = L.latLng(sLat, sLng);
 
-    this.secondMarker = L.circleMarker(to, { radius: 8, color: '#dc2626', fillColor: '#dc2626', fillOpacity: 0.8 })
+    const css = getComputedStyle(document.documentElement);
+    const marker = css.getPropertyValue('--route-a').trim();
+    const route = css.getPropertyValue('--route-b').trim();
+    this.secondMarker = L.circleMarker(to, { radius: 8, color: marker, fillColor: marker, fillOpacity: 0.8 })
       .addTo(this.map);
     if (this.secondMarkerLabel()) {
       this.secondMarker.bindTooltip(this.secondMarkerLabel());
     }
 
-    this.line = L.polyline([from, to], { color: '#2563eb', weight: 3, dashArray: '6 6' }).addTo(this.map);
+    this.line = L.polyline([from, to], { color: route, weight: 3, dashArray: '6 6' }).addTo(this.map);
     this.map.fitBounds(L.latLngBounds(from, to), { padding: [40, 40], maxZoom: 15 });
   }
 }

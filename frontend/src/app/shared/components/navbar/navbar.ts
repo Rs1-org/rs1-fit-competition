@@ -1,3 +1,4 @@
+import { Icon } from '../icon/icon';
 import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { ThemeService } from '../../../core/services/theme.service';
 import { AppLanguage, LanguageService } from '../../../core/services/language.service';
@@ -16,7 +17,7 @@ import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, RouterModule, AuthModalComponent, Modal, HasRoleDirective],
+  imports: [CommonModule, RouterModule, AuthModalComponent, Modal, HasRoleDirective, Icon],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
   animations: [popIn],

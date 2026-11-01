@@ -20,10 +20,10 @@
 }
 .club-heading p,
 .club-identity p {
-  color: var(--text-secondary);
+  color: var(--tx2);
 }
 .clubs-page a {
-  color: var(--text-primary);
+  color: var(--tx);
   text-underline-offset: 3px;
 }
 .clubs-page button,
@@ -31,22 +31,22 @@
 .club-actions a {
   min-height: 44px;
   padding: 10px 16px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--bg-card);
-  color: var(--text-primary);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-card);
+  background: var(--card);
+  color: var(--tx);
   cursor: pointer;
   font-size: 1rem;
   text-decoration: none;
 }
 .clubs-page .club-primary {
-  background: var(--accent);
-  color: #06281f;
+  background: var(--btn);
+  color: var(--btn-tx);
   font-weight: 700;
   white-space: nowrap;
 }
 .clubs-page :is(a, button, input, select):focus-visible {
-  outline: 3px solid var(--accent);
+  outline: 3px solid var(--ac);
   outline-offset: 3px;
 }
 .clubs-page button:disabled {
@@ -59,9 +59,9 @@
   align-items: end;
   gap: 16px;
   padding: 20px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-card);
   margin-bottom: 24px;
 }
 .club-field {
@@ -80,28 +80,29 @@
   min-height: 44px;
   padding: 8px 10px;
   font-size: 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: var(--field-bg);
-  color: var(--text-primary);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-ctl);
+  background: var(--field);
+  color: var(--tx);
 }
 .club-error {
-  color: var(--danger);
+  color: var(--dg);
   grid-column: 1 / -1;
   margin: 8px 0;
 }
 .club-state {
   padding: 32px 16px;
   text-align: center;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-card);
 }
 .club-state p {
   margin-bottom: 12px;
 }
 .club-count {
-  color: var(--text-secondary);
+  font-family: var(--font-title);
+  color: var(--tx2);
   margin-bottom: 12px;
 }
 .club-list {
@@ -113,7 +114,7 @@
   align-items: center;
   gap: 24px;
   padding: 20px 0;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--bd);
 }
 .club-identity {
   flex: 1;
@@ -127,7 +128,7 @@
   display: flex;
   flex-direction: column;
   min-width: 180px;
-  color: var(--text-secondary);
+  color: var(--tx2);
   overflow-wrap: anywhere;
 }
 .club-actions {
@@ -136,7 +137,7 @@
   align-items: center;
 }
 .clubs-page .club-delete {
-  color: var(--danger);
+  color: var(--dg);
 }
 .club-form {
   max-width: 720px;
@@ -156,12 +157,12 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
   padding: 24px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-card);
 }
 .club-details dt {
-  color: var(--text-secondary);
+  color: var(--tx2);
 }
 .club-details dd {
   margin: 4px 0 0;
@@ -172,7 +173,7 @@
   display: inline-block;
   margin-bottom: 20px;
 }
-@media (max-width: 800px) {
+@media (max-width: 768px) {
   .club-filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -184,7 +185,7 @@
     width: 100%;
   }
 }
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .clubs-page {
     padding: 16px;
   }
