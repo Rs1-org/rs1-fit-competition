@@ -1,8 +1,10 @@
 import { Component, computed, input, output } from '@angular/core';
+import { Icon } from '../icon/icon';
 
 @Component({
   selector: 'app-pagination',
   standalone: true,
+  imports: [Icon],
   templateUrl: './pagination.html',
   styleUrl: './pagination.css',
 })

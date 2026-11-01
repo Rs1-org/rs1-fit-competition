@@ -3,10 +3,13 @@
     [title]="opts.title ?? 'Confirm'"
     width="420px"
     (close)="svc.dismiss()">
+    @if (opts.destructive) {
+      <span class="confirm-icon"><app-icon name="trash" /></span>
+    }
     <p class="confirm-message">{{ opts.message }}</p>
     <div class="confirm-actions">
-      <button class="btn-cancel"  (click)="svc.dismiss()">{{ opts.cancelLabel  ?? 'Cancel' }}</button>
-      <button class="btn-confirm" (click)="svc.accept()">{{ opts.confirmLabel ?? 'OK' }}</button>
+      <app-button variant="secondary" [text]="opts.cancelLabel ?? 'Cancel'" (click)="svc.dismiss()"></app-button>
+      <app-button [variant]="opts.destructive ? 'danger' : 'primary'" [text]="opts.confirmLabel ?? 'OK'" (click)="svc.accept()"></app-button>
     </div>
   </app-modal>
 }

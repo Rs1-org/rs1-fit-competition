@@ -16,6 +16,11 @@ const ICONS = {
   'eye-off': '<path d="M4 4l16 16"/><path d="M10 5.2A10 10 0 0 1 12 5c6 0 10 7 10 7a18 18 0 0 1-3 3.7"/><path d="M6.5 7.5A18 18 0 0 0 2 12s4 7 10 7a10 10 0 0 0 4.5-1.1"/><path d="M10 10a3 3 0 0 0 4 4"/>',
   file: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6"/><path d="M9 17h6"/>',
   upload: '<path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/>',
+  check: '<path d="M5 12l5 5 9-10"/>',
+  x: '<path d="M6 6l12 12"/><path d="M18 6L6 18"/>',
+  inbox: '<path d="M3 13l3-9h12l3 9v7H3z"/><path d="M3 13h5l2 3h4l2-3h5"/>',
+  'chevron-left': '<path d="M15 5l-7 7 7 7"/>',
+  'chevron-right': '<path d="M9 5l7 7-7 7"/>',
 } as const;
 
 export type IconName = keyof typeof ICONS;

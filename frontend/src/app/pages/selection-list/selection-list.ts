@@ -11,7 +11,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { BehaviorSubject, combineLatest, debounceTime, filter, map, switchMap } from 'rxjs';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import {
   SelectionListFilter,
@@ -27,6 +27,7 @@ import { CountryService } from '../../core/services/country-service';
 import { CountryListDto } from '../../core/models/country';
 import { emptyPage } from '../../core/models/paged-result';
 import { AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
+import { ToastService } from '../../core/services/toast.service';
 
 function followersRangeValidator(group: AbstractControl): ValidationErrors | null {
   const { followersMin, followersMax } = group.value;
@@ -47,6 +48,7 @@ export class SelectionList {
   private countries = inject(CountryService);
   private clubs = inject(ClubService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private userState = inject(UserStateService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
@@ -140,11 +142,15 @@ export class SelectionList {
   }
 
   async onDelete(item: SelectionOption): Promise<void> {
-    const confirmed = await this.confirmDialog.confirm({
-      message: `Delete selection ${item.name}?`,
-    });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`selection ${item.name}`));
     if (!confirmed) return;
-    this.service.delete(item.id).subscribe({ next: () => this.refresh$.next() });
+    this.service.delete(item.id).subscribe({
+      next: () => {
+        this.toast.success('Selection deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The selection could not be deleted.')),
+    });
   }
 
   private toFilter(): SelectionListFilter {

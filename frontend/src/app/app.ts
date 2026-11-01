@@ -5,11 +5,12 @@ import { filter, map } from 'rxjs';
 import { Navbar } from './shared/components/navbar/navbar';
 import { SettingsService } from './core/services/settings.service';
 import { ConfirmDialog } from './shared/components/confirm-dialog/confirm-dialog';
+import { ToastHost } from './shared/components/toast/toast';
 import { routeAnimations } from './core/animations/motion';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Navbar, ConfirmDialog],
+  imports: [RouterOutlet, Navbar, ConfirmDialog, ToastHost],
   templateUrl: './app.html',
   styleUrl: './app.css',
   animations: [routeAnimations],

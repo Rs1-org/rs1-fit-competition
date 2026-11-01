@@ -11,10 +11,12 @@ import { UserStateService } from '../../core/services/user-state.service';
 import { PlayerListFilter, PlayerService } from '../../core/services/player.service';
 import { PositionService } from '../../core/services/position.service';
 import { SubPositionService } from '../../core/services/subposition.service';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { PersonAutocomplete } from '../../shared/components/person-autocomplete/person-autocomplete';
 import { HasRoleDirective } from '../../shared/directives/has-role.directive';
 import { BehaviorSubject, combineLatest, debounceTime, filter, map, switchMap } from 'rxjs';
+import { ToastService } from '../../core/services/toast.service';
+import { apiErrorMessage } from '../../core/utils/api-error';
 
 function ageRangeValidator(group: AbstractControl): ValidationErrors | null {
   const { ageMin, ageMax } = group.value;
@@ -40,6 +42,7 @@ export class PlayerList {
   private positionService = inject(PositionService);
   private subPositionService = inject(SubPositionService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private router = inject(Router);
   private userState = inject(UserStateService);
   private fb = inject(FormBuilder);
@@ -103,14 +106,15 @@ export class PlayerList {
   async delete(player: Player): Promise<void> {
     if (!player.id) return;
 
-    const confirmed = await this.confirmDialog.confirm({
-      message: `Delete player ${player.firstName} ${player.lastName}?`,
-    });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`player ${player.firstName} ${player.lastName}`));
     if (!confirmed) return;
 
     this.playerService.delete(player.id).subscribe({
-      next: () => this.refresh$.next(),
-      error: (err) => console.error('Could not delete the player:', err),
+      next: () => {
+        this.toast.success('Player deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The player could not be deleted.')),
     });
   }
 

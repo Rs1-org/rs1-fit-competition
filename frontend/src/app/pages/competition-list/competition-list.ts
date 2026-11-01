@@ -5,11 +5,12 @@ import { BehaviorSubject, combineLatest, switchMap } from 'rxjs';
 import { CompetitionService } from '../../core/services/competition.service';
 import { CompetitionDetailsDto, CompetitionListDto } from '../../core/models/competition';
 import { UserStateService } from '../../core/services/user-state.service';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
 import { CompetitionForm } from '../../components/competition-form/competition-form';
 import { apiErrorMessage } from '../../core/utils/api-error';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-competition-list',
@@ -21,6 +22,7 @@ import { apiErrorMessage } from '../../core/utils/api-error';
 export class CompetitionList {
   private competitionService = inject(CompetitionService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private userState = inject(UserStateService);
   private router = inject(Router);
 
@@ -72,14 +74,15 @@ export class CompetitionList {
   }
 
   async onDelete(competition: CompetitionListDto): Promise<void> {
-    const confirmed = await this.confirmDialog.confirm({
-      message: `Are you sure you want to delete ${competition.name}?`,
-    });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`${competition.name}`));
     if (!confirmed) return;
     this.errorMessage.set('');
     this.competitionService.delete(competition.publicId).subscribe({
-      next: () => this.refresh$.next(),
-      error: (err) => this.errorMessage.set(apiErrorMessage(err)),
+      next: () => {
+        this.toast.success('Competition deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The competition could not be deleted.')),
     });
   }
 

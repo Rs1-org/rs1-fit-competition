@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 8px 8px 14px;
+  border-radius: var(--r-ctl);
+  background: var(--dgs);
+  color: var(--dg);
+  font-weight: 600;
+}
+
+.retry {
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--dg);
+  border-radius: var(--r-ctl);
+  background: none;
+  color: var(--dg);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.retry:hover {
+  background: var(--dgs);
+}

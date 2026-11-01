@@ -5,7 +5,7 @@ import { BehaviorSubject, catchError, combineLatest, filter, map, of, startWith,
 import { MatchReviewService } from '../../core/services/match-review.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { MatchReviewPage, Review } from '../../core/models/match-review';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { AppDateTimePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { AuthModalComponent } from '../../features/auth/auth-modal/auth-modal.component';
@@ -79,7 +79,7 @@ export class MatchReviewPanel implements OnChanges {
     if (!this.viewer() || !id || this.busy()) return;
     this.busy.set(true);
     this.actionError.set('');
-    if (!await this.confirm.confirm({ title: 'Delete your review', message: 'Delete your rating and review for this match?', confirmLabel: 'Delete review' })) { this.busy.set(false); return; }
+    if (!await this.confirm.confirm(deleteConfirm('your review', 'This removes your rating and review for this match.'))) { this.busy.set(false); return; }
     this.service.delete(id).subscribe({
       next: () => { this.busy.set(false); this.form.reset(); this.ownId.set(null); this.page(1); }, error: err => this.failed(err),
     });

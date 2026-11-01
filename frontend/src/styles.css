@@ -47,6 +47,11 @@
   --shadow: 0 8px 24px rgba(23, 32, 42, 0.06);
   --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.4);
 
+  --toast-bg: #17202a;
+  --toast-bd: #17202a;
+  --toast-tx: #f3f7fb;
+  --toast-icon: #3ee0b4;
+
   --overlay: rgba(5, 8, 12, 0.6);
   --overlay-strong: rgba(5, 8, 12, 0.9);
   --on-img: #f3f7fb;
@@ -89,6 +94,8 @@
   --yc: #f2c230;
 
   --shadow: 0 12px 32px rgba(0, 0, 0, 0.32);
+  --toast-bg: #1a2430;
+  --toast-bd: rgba(255, 255, 255, 0.1);
   color-scheme: dark;
 }
 
@@ -170,6 +177,7 @@ select option {
 
 .card-tab {
   flex: 1;
+  min-height: 44px;
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--bd);
   border-radius: var(--r-ctl);
@@ -198,6 +206,7 @@ select option {
 
 .form-tab {
   flex: 1;
+  min-height: 44px;
   padding: 0.55rem 0.75rem;
   border: 1px solid var(--bd);
   border-radius: var(--r-ctl);
@@ -277,6 +286,7 @@ select option {
 .filter-field input,
 .filter-field select {
   width: 100%;
+  min-height: 44px;
   padding: 0.55rem 0.7rem;
   border: 1px solid var(--bd);
   border-radius: var(--r-ctl);
@@ -291,6 +301,7 @@ select option {
 }
 
 .filter-reset {
+  min-height: 44px;
   padding: 0.55rem 1rem;
   border: 1px solid var(--bd);
   border-radius: var(--r-ctl);
@@ -348,12 +359,11 @@ select option {
 }
 
 .data-table thead th {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--mut);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  background: var(--field);
+  letter-spacing: 0.06em;
 }
 
 .data-table tbody tr:last-child td {
@@ -372,6 +382,8 @@ select option {
 
 .data-table .num {
   text-align: right;
+  font-family: var(--font-title);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
@@ -426,6 +438,8 @@ th[aria-sort='descending'] .sort-btn {
 }
 
 .row-btn {
+  min-width: 44px;
+  min-height: 44px;
   margin-left: 0.35rem;
   padding: 0.35rem 0.7rem;
   border: 1px solid var(--bd);
@@ -464,6 +478,7 @@ th[aria-sort='descending'] .sort-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  min-height: 40px;
   padding: 0.5rem 0.9rem;
   border: 1px solid var(--bd);
   border-radius: var(--r-ctl);
@@ -526,6 +541,8 @@ th[aria-sort='descending'] .sort-btn {
 }
 
 .io-dismiss {
+  min-width: 44px;
+  min-height: 44px;
   border: none;
   background: none;
   color: inherit;

@@ -5,7 +5,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, catchError, combineLatest, debounceTime, filter, of, switchMap } from 'rxjs';
 import { AppDateTimePipe } from '../../shared/pipes/regional-format.pipes';
 import { Pagination } from '../../shared/components/pagination/pagination';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { MatchService } from '../../core/services/match.service';
 import { MatchStatusService } from '../../core/services/match-status.service';
 import { StadiumService } from '../../core/services/stadium.service';
@@ -14,6 +14,7 @@ import { MatchListDto, MatchListFilter } from '../../core/models/match';
 import { roundLabel } from '../../core/helpers/match.helper';
 import { fetchAllPages, MAX_PAGE_SIZE } from '../../core/helpers/paging.helper';
 import { apiErrorMessage } from '../../core/utils/api-error';
+import { ToastService } from '../../core/services/toast.service';
 
 /** "Date to" must not be before "date from". */
 export function dateRangeValidator(group: AbstractControl): ValidationErrors | null {
@@ -32,6 +33,7 @@ export class MatchList {
   private statusService = inject(MatchStatusService);
   private stadiumService = inject(StadiumService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private userState = inject(UserStateService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
@@ -113,13 +115,14 @@ export class MatchList {
 
   async delete(match: MatchListDto): Promise<void> {
     if (!this.canDelete()) return;
-    const confirmed = await this.confirmDialog.confirm({
-      message: `Are you sure you want to delete ${match.homeSelectionName ?? 'TBD'} vs ${match.awaySelectionName ?? 'TBD'}?`,
-    });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`${match.homeSelectionName ?? 'TBD'} vs ${match.awaySelectionName ?? 'TBD'}`));
     if (!confirmed) return;
     this.matchService.delete(match.publicId).subscribe({
-      next: () => this.refresh$.next(),
-      error: (err) => (this.error = apiErrorMessage(err, 'The match could not be deleted.')),
+      next: () => {
+        this.toast.success('Match deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The match could not be deleted.')),
     });
   }
 }

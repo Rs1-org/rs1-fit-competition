@@ -107,7 +107,7 @@ export class AdminUsers {
     this.setBusy(user.publicId);
     this.actionError.set('');
     this.actionMessage.set('');
-    if (!await this.confirm.confirm({ title: `${action} account`, message: `${action} ${user.email}'s account?`, confirmLabel: action })) {
+    if (!await this.confirm.confirm({ title: `${action} account`, message: `${action} ${user.email}'s account?`, confirmLabel: action, destructive: user.isActive })) {
       this.setBusy(null); return;
     }
     this.service.setActive(user.publicId, !user.isActive).subscribe({

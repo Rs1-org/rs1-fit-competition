@@ -9,10 +9,12 @@ import { emptyPage } from '../../core/models/paged-result';
 import { Manager } from '../../core/models/person.models';
 import { UserStateService } from '../../core/services/user-state.service';
 import { ManagerService, StaffListFilter } from '../../core/services/manager.service';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { PersonAutocomplete } from '../../shared/components/person-autocomplete/person-autocomplete';
 import { HasRoleDirective } from '../../shared/directives/has-role.directive';
 import { BehaviorSubject, combineLatest, debounceTime, filter, map, switchMap } from 'rxjs';
+import { ToastService } from '../../core/services/toast.service';
+import { apiErrorMessage } from '../../core/utils/api-error';
 
 function ageRangeValidator(group: AbstractControl): ValidationErrors | null {
   const { ageMin, ageMax } = group.value;
@@ -36,6 +38,7 @@ export class ManagerList {
       }))),
     );
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private router = inject(Router);
   private userState = inject(UserStateService);
   private fb = inject(FormBuilder);
@@ -87,14 +90,15 @@ export class ManagerList {
   async delete(manager: Manager): Promise<void> {
     if (!manager.id) return;
 
-    const confirmed = await this.confirmDialog.confirm({
-      message: `Delete manager ${manager.firstName} ${manager.lastName}?`,
-    });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`manager ${manager.firstName} ${manager.lastName}`));
     if (!confirmed) return;
 
     this.managerService.delete(manager.id).subscribe({
-      next: () => this.refresh$.next(),
-      error: (err) => console.error('Could not delete the manager:', err),
+      next: () => {
+        this.toast.success('Manager deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The manager could not be deleted.')),
     });
   }
 

@@ -5,6 +5,16 @@ export interface ConfirmOptions {
   title?: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  destructive?: boolean;
+}
+
+export function deleteConfirm(name: string, detail?: string): ConfirmOptions {
+  return {
+    title: `Delete ${name}?`,
+    message: detail ? `${detail} This cannot be undone.` : 'This cannot be undone.',
+    confirmLabel: 'Delete',
+    destructive: true,
+  };
 }
 
 @Injectable({ providedIn: 'root' })

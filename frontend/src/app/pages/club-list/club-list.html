@@ -88,9 +88,6 @@
       {{ optionsError() }} <button type="button" (click)="loadOptions()">Retry options</button>
     </p>
   }
-  @if (actionError()) {
-    <p class="club-error" role="alert">{{ actionError() }}</p>
-  }
   <section aria-label="Club results" [attr.aria-busy]="state().loading">
     @if (state().loading) {
       <p class="club-state" role="status">Loading clubs…</p>

@@ -1,3 +1,16 @@
-<button [type]="type()" [attr.form]="form() || null" class="btn">
-    {{text()}}
+<button
+  [type]="type()"
+  [attr.form]="form() || null"
+  [attr.aria-label]="label() || null"
+  [attr.aria-busy]="loading() || null"
+  [disabled]="disabled() || loading()"
+  [class]="'btn btn-' + variant()"
+>
+  @if (loading()) {
+    <span class="spinner" aria-hidden="true"></span>
+    {{ loadingText() }}
+  } @else {
+    <ng-content></ng-content>
+    {{ text() }}
+  }
 </button>

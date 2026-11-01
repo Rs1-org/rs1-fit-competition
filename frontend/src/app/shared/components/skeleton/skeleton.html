@@ -1,0 +1,13 @@
+<div class="skeleton" role="status" aria-label="Loading">
+  @for (row of rowList(); track row) {
+    <div class="skeleton-row" aria-hidden="true">
+      @if (avatar()) {
+        <span class="skeleton-avatar"></span>
+      }
+      <span class="skeleton-lines">
+        <span class="skeleton-line"></span>
+        <span class="skeleton-line short"></span>
+      </span>
+    </div>
+  }
+</div>

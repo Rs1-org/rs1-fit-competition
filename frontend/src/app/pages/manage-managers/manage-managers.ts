@@ -11,6 +11,8 @@ import { ManagerService, ManagerWriteDto } from '../../core/services/manager.ser
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { fadeSwap } from '../../core/animations/motion';
 import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
+import { ToastService } from '../../core/services/toast.service';
+import { apiErrorMessage } from '../../core/utils/api-error';
 
 function pastDate(control: AbstractControl): ValidationErrors | null {
   if (!control.value) return null;
@@ -33,6 +35,7 @@ export class ManageManagers implements OnInit {
   private managerService = inject(ManagerService);
   private selectionService = inject(SelectionService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
   private fb = inject(FormBuilder);
 
@@ -172,14 +175,15 @@ export class ManageManagers implements OnInit {
         try {
           await this.historyService.saveManagerHistory(managerId, this.historyPayload());
         } catch (err) {
-          console.error('Could not save manager history:', err);
+          this.toast.error(apiErrorMessage(err, 'Manager saved, but the history could not be saved.'));
         }
         this.managerService.notifyListRefresh();
+        this.toast.success('Manager saved');
         this.router.navigate(['/manager-list']);
       },
       error: (err) => {
         this.setUploadProgress(null);
-        console.error('Could not save the manager:', err);
+        this.toast.error(apiErrorMessage(err, 'Could not save the manager.'));
       },
     });
   }

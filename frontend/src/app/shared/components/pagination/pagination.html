@@ -1,7 +1,7 @@
 @if (totalItems() > 0) {
 <div class="pagination-wrapper">
   <span class="pagination-info">
-    Showing {{ rangeStart() }}&ndash;{{ rangeEnd() }} of {{ totalItems() }}
+    Showing <strong>{{ rangeStart() }}&ndash;{{ rangeEnd() }}</strong> of <strong>{{ totalItems() }}</strong>
   </span>
 
   @if (totalPages() > 1) {
@@ -11,7 +11,7 @@
       [disabled]="currentPage() === 1"
       (click)="prev()"
       aria-label="Previous page"
-    >&#8249;</button>
+    ><app-icon name="chevron-left" [size]="16" /></button>
 
     @for (page of pages(); track $index) {
       @if (page === '...') {
@@ -31,7 +31,7 @@
       [disabled]="currentPage() === totalPages()"
       (click)="next()"
       aria-label="Next page"
-    >&#8250;</button>
+    ><app-icon name="chevron-right" [size]="16" /></button>
   </nav>
   }
 </div>

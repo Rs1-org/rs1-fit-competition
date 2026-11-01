@@ -1,9 +1,10 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import { fadeIn } from '../../../core/animations/motion';
+import { Icon } from '../icon/icon';
 
 @Component({
   selector: 'app-modal',
-  imports: [],
+  imports: [Icon],
   templateUrl: './modal.html',
   styleUrl: './modal.css',
   animations: [fadeIn],

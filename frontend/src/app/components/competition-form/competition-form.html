@@ -23,7 +23,7 @@
     <p class="form-error" role="alert">{{ errorMessage }}</p>
   }
   <footer>
-    <app-button type="submit" form="competition-form" [text]="saving ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Submit')"></app-button>
+    <app-button type="submit" form="competition-form" [text]="isEditMode ? 'Save Changes' : 'Submit'" [loading]="saving"></app-button>
   </footer>
 </app-modal>
 }

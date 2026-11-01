@@ -13,19 +13,24 @@
   font-weight: 500;
 }
 
+.pagination-info strong {
+  color: var(--tx);
+}
+
 .pagination-nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 4px;
 }
 
 .page-btn {
-  min-width: 36px;
-  height: 36px;
+  min-width: 44px;
+  height: 44px;
   padding: 0 10px;
   border: 1px solid var(--bd);
   border-radius: var(--r-ctl);
-  background: var(--bg);
+  background: var(--card);
   color: var(--tx);
   font-size: 0.9rem;
   font-weight: 600;
@@ -54,15 +59,9 @@
   cursor: not-allowed;
 }
 
-.nav-btn {
-  font-size: 1.2rem;
-  font-weight: 700;
-  min-width: 36px;
-}
-
 .page-ellipsis {
-  min-width: 36px;
-  height: 36px;
+  min-width: 28px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;

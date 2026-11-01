@@ -12,11 +12,13 @@ import { CountryService } from '../../core/services/country-service';
 import { CityService } from '../../core/services/city-services';
 import { StadiumListDto, StadiumListFilter } from '../../core/models/stadium';
 import { StadiumForm } from '../../components/stadium-form/stadium-form';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, filter, startWith, switchMap } from 'rxjs';
 import { fetchAllPages, MAX_PAGE_SIZE } from '../../core/helpers/paging.helper';
+import { ToastService } from '../../core/services/toast.service';
+import { apiErrorMessage } from '../../core/utils/api-error';
 
 /** Mirrors the backend rule: max capacity must be >= min capacity. */
 function capacityRangeValidator(group: AbstractControl): ValidationErrors | null {
@@ -40,6 +42,7 @@ export class StadiumList {
   private countryService   = inject(CountryService);
   private cityService      = inject(CityService);
   private confirmDialog    = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private router           = inject(Router);
   private userStateService = inject(UserStateService);
   private fb               = inject(FormBuilder);
@@ -150,14 +153,15 @@ export class StadiumList {
 
   async delete(stadium: StadiumListDto) {
     if (!this.canDelete()) return;
-    const confirmed = await this.confirmDialog.confirm({
-      message: `Are you sure you want to delete ${stadium.name}?`
-    });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`${stadium.name}`));
     if (!confirmed) return;
 
     this.stadiumService.delete(stadium.publicId).subscribe({
-      next: () => this.refresh$.next(),
-      error: (err) => console.error('Error deleting stadium: ', err)
+      next: () => {
+        this.toast.success('Stadium deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The stadium could not be deleted.')),
     });
   }
 }
