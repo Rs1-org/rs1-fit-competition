@@ -7,6 +7,8 @@ import { pictureToDataUrl } from '../../core/models/person.models';
 import { RefereeService, RefereeWriteDto } from '../../core/services/referee.service';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
+import { ToastService } from '../../core/services/toast.service';
+import { apiErrorMessage } from '../../core/utils/api-error';
 
 function pastDate(control: AbstractControl): ValidationErrors | null {
   if (!control.value) return null;
@@ -26,6 +28,7 @@ export class ManageReferees implements OnInit {
   private route = inject(ActivatedRoute);
   private refereeService = inject(RefereeService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
   private fb = inject(FormBuilder);
 
@@ -122,11 +125,12 @@ export class ManageReferees implements OnInit {
     request$.subscribe({
       next: () => {
         this.refereeService.notifyListRefresh();
+        this.toast.success('Referee saved');
         this.router.navigate(['/referee-list']);
       },
       error: (err) => {
         this.setUploadProgress(null);
-        console.error('Could not save the referee:', err);
+        this.toast.error(apiErrorMessage(err, 'Could not save the referee.'));
       },
     });
   }

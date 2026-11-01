@@ -7,11 +7,12 @@ import { SeasonService } from '../../core/services/season.service';
 import { CompetitionDetailsDto } from '../../core/models/competition';
 import { SeasonDetailsDto, SeasonListDto } from '../../core/models/season';
 import { UserStateService } from '../../core/services/user-state.service';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { SeasonForm } from '../../components/season-form/season-form';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { AppDatePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-competition-detail',
@@ -26,6 +27,7 @@ export class CompetitionDetail {
   private competitionService = inject(CompetitionService);
   private seasonService = inject(SeasonService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private userState = inject(UserStateService);
 
   private refresh$ = new BehaviorSubject<void>(undefined);
@@ -86,14 +88,15 @@ export class CompetitionDetail {
   }
 
   async onDelete(season: SeasonListDto): Promise<void> {
-    const confirmed = await this.confirmDialog.confirm({
-      message: `Are you sure you want to delete season ${season.name}?`,
-    });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`season ${season.name}`));
     if (!confirmed) return;
     this.errorMessage.set('');
     this.seasonService.delete(season.publicId).subscribe({
-      next: () => this.refresh$.next(),
-      error: (err) => this.errorMessage.set(apiErrorMessage(err)),
+      next: () => {
+        this.toast.success('Season deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The season could not be deleted.')),
     });
   }
 

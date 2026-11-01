@@ -3,9 +3,10 @@ import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { GalleryItem, GallerySection, GalleryService } from '../../core/services/gallery.service';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
 import { listStagger, popIn } from '../../core/animations/motion';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-image-gallery',
@@ -17,6 +18,7 @@ import { listStagger, popIn } from '../../core/animations/motion';
 export class ImageGallery implements OnDestroy {
   private gallery = inject(GalleryService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
 
   sections = signal<GallerySection[]>([]);
   previews = signal<Record<string, string>>({});
@@ -72,15 +74,16 @@ export class ImageGallery implements OnDestroy {
   }
 
   async remove(item: GalleryItem): Promise<void> {
-    const confirmed = await this.confirmDialog.confirm({
-      message: `Delete the image for ${item.name}?`,
-    });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`the image for ${item.name}`));
     if (!confirmed) return;
 
     this.error.set('');
     this.gallery.remove(item.kind, item.id).subscribe({
-      next: () => this.reload(),
-      error: (err: HttpErrorResponse) => this.error.set(this.readError(err)),
+      next: () => {
+        this.toast.success('Image deleted');
+        this.reload();
+      },
+      error: (err: HttpErrorResponse) => this.toast.error(this.readError(err)),
     });
   }
 

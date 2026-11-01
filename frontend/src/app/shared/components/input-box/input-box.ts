@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
@@ -8,6 +8,10 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
   styleUrl: './input-box.css',
 })
 export class InputBox {
+  private static nextId = 0;
+  readonly inputId = `input-box-${InputBox.nextId++}`;
+  readonly errorId = `${this.inputId}-error`;
+
   label = input<string>('');
   placeholder = input<string>('');
   control = input<FormControl>(new FormControl());
@@ -15,7 +19,11 @@ export class InputBox {
   accept = input<string>('');
   fileChange = output<Event>();
 
-  errorMessage = computed(() => {
+  showError(): boolean {
+    return this.control().invalid && this.control().touched;
+  }
+
+  errorMessage(): string {
     const errors = this.control().errors;
     if (!errors) return '';
     if (errors['required']) return 'This field is required.';
@@ -25,5 +33,5 @@ export class InputBox {
     if (errors['minlength']) return `Minimum ${errors['minlength'].requiredLength} characters.`;
     if (errors['email']) return 'Enter a valid email address.';
     return 'Invalid value.';
-  });
+  }
 }

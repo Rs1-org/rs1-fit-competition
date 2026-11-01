@@ -7,11 +7,12 @@ import { RoundService } from '../../core/services/round.service';
 import { SeasonDetailsDto } from '../../core/models/season';
 import { RoundListDto } from '../../core/models/round';
 import { UserStateService } from '../../core/services/user-state.service';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { RoundForm } from '../../components/round-form/round-form';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-season-detail',
@@ -26,6 +27,7 @@ export class SeasonDetail {
   private seasonService = inject(SeasonService);
   private roundService = inject(RoundService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private userState = inject(UserStateService);
 
   private refresh$ = new BehaviorSubject<void>(undefined);
@@ -88,14 +90,15 @@ export class SeasonDetail {
   }
 
   async onDelete(round: RoundListDto): Promise<void> {
-    const confirmed = await this.confirmDialog.confirm({
-      message: `Are you sure you want to delete ${round.name}?`,
-    });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`${round.name}`));
     if (!confirmed) return;
     this.errorMessage.set('');
     this.roundService.delete(round.publicId).subscribe({
-      next: () => this.refresh$.next(),
-      error: (err) => this.errorMessage.set(apiErrorMessage(err)),
+      next: () => {
+        this.toast.success('Round deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The round could not be deleted.')),
     });
   }
 

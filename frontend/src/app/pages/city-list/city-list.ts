@@ -13,7 +13,9 @@ import { Pagination } from '../../shared/components/pagination/pagination';
 import { ImportExportBar } from '../../shared/components/import-export-bar/import-export-bar';
 import { ExportFormat, SortParams } from '../../core/models/import-export';
 import { ariaSort, nextSort, sortIndicator } from '../../core/helpers/sort-state.helper';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ToastService } from '../../core/services/toast.service';
+import { apiErrorMessage } from '../../core/utils/api-error';
 
 /** Mirrors the backend rule: max population must be >= min population. */
 function populationRangeValidator(group: AbstractControl): ValidationErrors | null {
@@ -34,6 +36,7 @@ export class CityList {
   private cityService = inject(CityService);
   private countryService = inject(CountryService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private userStateService = inject(UserStateService);
   private fb = inject(FormBuilder);
   private refresh$ = new BehaviorSubject<void>(undefined);
@@ -128,13 +131,14 @@ export class CityList {
 
   async onDelete(city: CityListDto): Promise<void> {
     if (!this.canDelete()) return;
-    const confirmed = await this.confirmDialog.confirm({
-      message: `Are you sure you want to delete ${city.name}?`
-    });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`${city.name}`));
     if (!confirmed) return;
     this.cityService.delete(city.publicId).subscribe({
-      next: () => this.refresh$.next(),
-      error: (err) => console.error(err)
+      next: () => {
+        this.toast.success('City deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The city could not be deleted.')),
     });
   }
 

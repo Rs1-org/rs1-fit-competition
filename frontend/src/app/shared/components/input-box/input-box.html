@@ -1,9 +1,10 @@
 <div [class.checkbox-wrapper]="type() === 'checkbox'">
-  <label>{{ label() }}</label>
+  <label [attr.for]="inputId">{{ label() }}</label>
 
   @if (type() === 'file') {
     <input
       type="file"
+      [id]="inputId"
       [accept]="accept()"
       class="input-value"
       (change)="fileChange.emit($event)"
@@ -12,29 +13,38 @@
   @else if (type() === 'checkbox') {
       <input
         type="checkbox"
+        [id]="inputId"
         [formControl]="control()"
       />
   }
   @else if (type() === 'textarea') {
       <textarea
+        [id]="inputId"
         [formControl]="control()"
         [placeholder]="placeholder()"
+        [class.invalid]="showError()"
+        [attr.aria-invalid]="showError() || null"
+        [attr.aria-describedby]="showError() ? errorId : null"
         class="input-value textarea"
       ></textarea>
-      @if (control().invalid && control().touched) {
-        <span>{{ errorMessage() }}</span>
+      @if (showError()) {
+        <span [id]="errorId">{{ errorMessage() }}</span>
       }
   }
    @else {
     <input
+      [id]="inputId"
       [formControl]="control()"
       [placeholder]="placeholder()"
       [type]="type()"
       [attr.lang]="type() === 'date' ? 'bs-Latn' : null"
+      [class.invalid]="showError()"
+      [attr.aria-invalid]="showError() || null"
+      [attr.aria-describedby]="showError() ? errorId : null"
       class="input-value"
     />
-    @if (control().invalid && control().touched) {
-      <span>{{ errorMessage() }}</span>
+    @if (showError()) {
+      <span [id]="errorId">{{ errorMessage() }}</span>
     }
   }
 </div>

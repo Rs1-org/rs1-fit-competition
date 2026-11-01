@@ -10,10 +10,11 @@ import { UserStateService } from '../../core/services/user-state.service';
 import { MatchEventTimeline } from '../../components/match-event-timeline/match-event-timeline';
 import { EventMatchPicker } from '../../components/event-match-picker/event-match-picker';
 import { Pagination } from '../../shared/components/pagination/pagination';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { MatchLiveSummary, MatchRefreshReason } from '../../components/match-live-summary/match-live-summary';
 import { MatchPolls } from '../../components/match-polls/match-polls';
+import { ToastService } from '../../core/services/toast.service';
 
 interface EventsState { loading: boolean; data: PagedResult<MatchEvent> | null; error: string; }
 @Component({ selector: 'app-match-events', imports: [ReactiveFormsModule, RouterLink, EventMatchPicker, MatchEventTimeline, Pagination, MatchLiveSummary, MatchPolls],
@@ -22,6 +23,7 @@ export class MatchEvents {
   private readonly service = inject(MatchEventService);
   private readonly route = inject(ActivatedRoute);
   private readonly confirm = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   readonly canManage = inject(UserStateService).canManage;
   private readonly fb = inject(FormBuilder);
   readonly filters = this.fb.nonNullable.group({ eventTypePublicId: [''], selectionPublicId: [''], playerPublicId: [''],
@@ -30,7 +32,6 @@ export class MatchEvents {
   });
   readonly matchId = signal('');
   readonly fixedMatch = signal(false);
-  readonly actionError = signal('');
   readonly busy = signal(false);
   readonly filterError = signal('');
   private readonly match$ = new BehaviorSubject('');
@@ -81,9 +82,9 @@ export class MatchEvents {
   reset(): void { this.filters.reset(); if (!this.fixedMatch()) this.chooseMatch(''); else this.apply(); }
   async remove(event: MatchEvent): Promise<void> {
     if (!this.canManage() || this.busy()) return;
-    this.busy.set(true); this.actionError.set('');
-    if (!await this.confirm.confirm({ title: 'Delete event', message: `Delete ${event.eventType.name} for ${event.selection.name} in ${event.matchPart.name}?`, confirmLabel: 'Delete event' })) { this.busy.set(false); return; }
-    this.service.delete(event.publicId).subscribe({ next: () => { this.busy.set(false); this.page(1); },
-      error: err => { this.busy.set(false); this.actionError.set(apiErrorMessage(err, 'The event could not be deleted.')); } });
+    this.busy.set(true);
+    if (!await this.confirm.confirm(deleteConfirm(`${event.eventType.name} for ${event.selection.name} in ${event.matchPart.name}`))) { this.busy.set(false); return; }
+    this.service.delete(event.publicId).subscribe({ next: () => { this.busy.set(false); this.toast.success('Event deleted'); this.page(1); },
+      error: err => { this.busy.set(false); this.toast.error(apiErrorMessage(err, 'The event could not be deleted.')); } });
   }
 }

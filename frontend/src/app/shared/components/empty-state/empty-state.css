@@ -1,0 +1,27 @@
+:host {
+  display: block;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 20px;
+  border: 1px dashed var(--bd);
+  border-radius: var(--r-card);
+  text-align: center;
+}
+
+.empty-icon {
+  color: var(--mut);
+}
+
+.empty-title {
+  font-size: 20px;
+  color: var(--tx);
+}
+
+.empty-message {
+  color: var(--mut);
+}

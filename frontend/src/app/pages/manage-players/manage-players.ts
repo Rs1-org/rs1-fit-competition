@@ -16,6 +16,8 @@ import { ConfirmDialogService } from '../../shared/components/confirm-dialog/con
 import { fadeSwap } from '../../core/animations/motion';
 import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
 import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
+import { ToastService } from '../../core/services/toast.service';
+import { apiErrorMessage } from '../../core/utils/api-error';
 
 function pastDate(control: AbstractControl): ValidationErrors | null {
   if (!control.value) return null;
@@ -46,6 +48,7 @@ export class ManagePlayers implements OnInit {
   private subPositionService = inject(SubPositionService);
   private selectionService = inject(SelectionService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
   private fb = inject(FormBuilder);
 
@@ -232,14 +235,15 @@ export class ManagePlayers implements OnInit {
         try {
           await this.historyService.savePlayerHistory(playerId, this.historyPayload());
         } catch (err) {
-          console.error('Could not save player history:', err);
+          this.toast.error(apiErrorMessage(err, 'Player saved, but the history could not be saved.'));
         }
         this.playerService.notifyListRefresh();
+        this.toast.success('Player saved');
         this.router.navigate(['/player-list']);
       },
       error: (err) => {
         this.setUploadProgress(null);
-        console.error('Could not save the player:', err);
+        this.toast.error(apiErrorMessage(err, 'Could not save the player.'));
       },
     });
   }

@@ -1,0 +1,24 @@
+<form class="filter-card" (submit)="onSubmit($event)">
+  <div class="filter-grid">
+    <ng-content></ng-content>
+  </div>
+  <div class="filter-footer">
+    @if (chips().length) {
+      <div class="filter-chips">
+        <span class="filter-chips-label">Active:</span>
+        @for (chip of chips(); track chip.key) {
+          <span class="chip">
+            {{ chip.label }}
+            <button class="chip-remove" type="button" [attr.aria-label]="'Remove filter ' + chip.label" (click)="chipRemove.emit(chip.key)">
+              <app-icon name="x" [size]="12" />
+            </button>
+          </span>
+        }
+      </div>
+    }
+    <div class="filter-actions">
+      <app-button variant="secondary" text="Reset" (click)="resetFilters.emit()"></app-button>
+      <app-button type="submit" text="Apply filters"></app-button>
+    </div>
+  </div>
+</form>

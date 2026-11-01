@@ -9,10 +9,12 @@ import { emptyPage } from '../../core/models/paged-result';
 import { Referee } from '../../core/models/person.models';
 import { UserStateService } from '../../core/services/user-state.service';
 import { RefereeListFilter, RefereeService } from '../../core/services/referee.service';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { PersonAutocomplete } from '../../shared/components/person-autocomplete/person-autocomplete';
 import { HasRoleDirective } from '../../shared/directives/has-role.directive';
 import { BehaviorSubject, combineLatest, debounceTime, filter, map, switchMap } from 'rxjs';
+import { ToastService } from '../../core/services/toast.service';
+import { apiErrorMessage } from '../../core/utils/api-error';
 
 function ageRangeValidator(group: AbstractControl): ValidationErrors | null {
   const { ageMin, ageMax } = group.value;
@@ -36,6 +38,7 @@ export class RefereeList {
       }))),
     );
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private router = inject(Router);
   private userState = inject(UserStateService);
   private fb = inject(FormBuilder);
@@ -87,14 +90,15 @@ export class RefereeList {
   async delete(referee: Referee): Promise<void> {
     if (!referee.id) return;
 
-    const confirmed = await this.confirmDialog.confirm({
-      message: `Delete referee ${referee.firstName} ${referee.lastName}?`,
-    });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`referee ${referee.firstName} ${referee.lastName}`));
     if (!confirmed) return;
 
     this.refereeService.delete(referee.id).subscribe({
-      next: () => this.refresh$.next(),
-      error: (err) => console.error('Could not delete the referee:', err),
+      next: () => {
+        this.toast.success('Referee deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The referee could not be deleted.')),
     });
   }
 

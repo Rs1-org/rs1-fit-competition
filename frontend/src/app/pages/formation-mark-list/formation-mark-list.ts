@@ -5,10 +5,12 @@ import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 import { Router } from '@angular/router';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { FormationMarkService } from '../../core/services/formation-mark.service';
 import { FormationMark } from '../../core/models/formation.models';
+import { ToastService } from '../../core/services/toast.service';
+import { apiErrorMessage } from '../../core/utils/api-error';
 @Component({
   selector: 'app-formation-mark-list',
   imports: [CommonModule, GenericListComponent, GenericSearch],
@@ -18,6 +20,7 @@ import { FormationMark } from '../../core/models/formation.models';
 export class FormationMarkList {
   private service = inject(FormationMarkService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private userState = inject(UserStateService);
   private router = inject(Router);
   private refresh$ = new BehaviorSubject<void>(undefined);
@@ -59,10 +62,14 @@ export class FormationMarkList {
   }
 
   async onDelete(item: FormationMark): Promise<void> {
-    const confirmed = await this.confirmDialog.confirm({
-      message: `Delete mark ${item.defenders}-${item.midfielders}-${item.attackers}?`,
-    });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`mark ${item.defenders}-${item.midfielders}-${item.attackers}`));
     if (!confirmed) return;
-    this.service.delete(item.id).subscribe({ next: () => this.refresh$.next() });
+    this.service.delete(item.id).subscribe({
+      next: () => {
+        this.toast.success('Formation mark deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The formation mark could not be deleted.')),
+    });
   }
 }

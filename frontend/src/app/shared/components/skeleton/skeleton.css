@@ -1,0 +1,61 @@
+:host {
+  display: block;
+}
+
+.skeleton {
+  border: 1px solid var(--bd);
+  border-radius: var(--r-card);
+  background: var(--card);
+}
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.skeleton-row + .skeleton-row {
+  border-top: 1px solid var(--bd);
+}
+
+.skeleton-lines {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-avatar,
+.skeleton-line {
+  display: block;
+  background: linear-gradient(90deg, var(--bd) 25%, var(--field) 50%, var(--bd) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.skeleton-line {
+  width: 70%;
+  height: 10px;
+  border-radius: var(--r-pill);
+}
+
+.skeleton-line.short {
+  width: 40%;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-avatar, .skeleton-line { animation: none; }
+}

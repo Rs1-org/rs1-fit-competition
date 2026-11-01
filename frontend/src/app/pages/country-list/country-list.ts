@@ -8,11 +8,13 @@ import { ExportFormat, SortParams } from '../../core/models/import-export';
 import { UserStateService } from '../../core/services/user-state.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, combineLatest, debounceTime, filter, switchMap } from 'rxjs';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { ImportExportBar } from '../../shared/components/import-export-bar/import-export-bar';
 import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
 import { ariaSort, nextSort, sortIndicator } from '../../core/helpers/sort-state.helper';
+import { ToastService } from '../../core/services/toast.service';
+import { apiErrorMessage } from '../../core/utils/api-error';
 
 /** Mirrors the backend rule: "Created to" must be on or after "Created from". */
 function createdRangeValidator(group: AbstractControl): ValidationErrors | null {
@@ -30,6 +32,7 @@ function createdRangeValidator(group: AbstractControl): ValidationErrors | null 
 export class CountryList {
   private countryService = inject(CountryService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private userStateService = inject(UserStateService);
   private fb = inject(FormBuilder);
   private refresh$ = new BehaviorSubject<void>(undefined);
@@ -117,13 +120,14 @@ export class CountryList {
 
   async onDelete(country: CountryListDto): Promise<void> {
     if (!this.canDelete()) return;
-    const confirmed = await this.confirmDialog.confirm({
-      message: `Are you sure you want to delete ${country.name}?`
-    });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`${country.name}`));
     if (!confirmed) return;
     this.countryService.delete(country.publicId).subscribe({
-      next: () => this.refresh$.next(),
-      error: (err) => console.error(err)
+      next: () => {
+        this.toast.success('Country deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The country could not be deleted.')),
     });
   }
 

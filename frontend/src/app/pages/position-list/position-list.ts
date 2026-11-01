@@ -4,11 +4,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, combineLatest, switchMap } from 'rxjs';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { PositionService } from '../../core/services/position.service';
 import { Position } from '../../core/models/formation.models';
 import { PositionForm } from '../../components/position-form/position-form';
+import { ToastService } from '../../core/services/toast.service';
+import { apiErrorMessage } from '../../core/utils/api-error';
 
 @Component({
   selector: 'app-position-list',
@@ -19,6 +21,7 @@ import { PositionForm } from '../../components/position-form/position-form';
 export class PositionList {
   private service = inject(PositionService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private userState = inject(UserStateService);
   private refresh$ = new BehaviorSubject<void>(undefined);
   private page$ = new BehaviorSubject<number>(1);
@@ -41,9 +44,15 @@ export class PositionList {
   onEdit(item: Position): void { this.selected = item; this.isFormOpen = true; }
 
   async onDelete(item: Position): Promise<void> {
-    const confirmed = await this.confirmDialog.confirm({ message: `Delete position ${item.name}?` });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`position ${item.name}`));
     if (!confirmed) return;
-    this.service.delete(item.id).subscribe({ next: () => this.refresh$.next() });
+    this.service.delete(item.id).subscribe({
+      next: () => {
+        this.toast.success('Position deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The position could not be deleted.')),
+    });
   }
 
   onFormSaved(): void { this.isFormOpen = false; this.selected = null; this.refresh$.next(); }

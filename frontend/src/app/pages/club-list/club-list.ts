@@ -22,10 +22,11 @@ import { UserStateService } from '../../core/services/user-state.service';
 import { PagedResult } from '../../core/models/paged-result';
 import { fetchAllPages } from '../../core/helpers/paging.helper';
 import { apiErrorMessage } from '../../core/utils/api-error';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { AppDatePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { clubDateRangeValidator } from '../../components/club-form/club-validation';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-club-list',
@@ -38,13 +39,13 @@ export class ClubList {
   private readonly countryService = inject(CountryService);
   private readonly cityService = inject(CityService);
   private readonly confirm = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private readonly fb = inject(FormBuilder);
   readonly user = inject(UserStateService);
   readonly ages = CLUB_AGES;
   readonly pageSize = 10;
   readonly countries = signal<CountryListDto[]>([]);
   readonly optionsError = signal('');
-  readonly actionError = signal('');
   readonly deleting = signal<string | null>(null);
   private readonly refresh$ = new BehaviorSubject<void>(undefined);
   private readonly optionsRefresh$ = new BehaviorSubject<void>(undefined);
@@ -139,24 +140,17 @@ export class ClubList {
 
   async onDelete(club: ClubListDto): Promise<void> {
     if (!this.user.isAdmin() || this.deleting()) return;
-    if (
-      !(await this.confirm.confirm({
-        title: 'Delete club',
-        message: `Delete ${club.name}?`,
-        confirmLabel: 'Delete club',
-      }))
-    )
-      return;
+    if (!(await this.confirm.confirm(deleteConfirm(club.name)))) return;
     this.deleting.set(club.publicId);
-    this.actionError.set('');
     this.service.delete(club.publicId).subscribe({
       next: () => {
         this.deleting.set(null);
+        this.toast.success('Club deleted');
         this.query$.next({ ...this.query$.value, page: 1 });
       },
       error: (err) => {
         this.deleting.set(null);
-        this.actionError.set(apiErrorMessage(err));
+        this.toast.error(apiErrorMessage(err, 'The club could not be deleted.'));
       },
     });
   }

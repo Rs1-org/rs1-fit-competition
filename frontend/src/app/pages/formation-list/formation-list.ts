@@ -4,11 +4,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
-import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
+import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { FormationService } from '../../core/services/formation.service';
 import { Formation } from '../../core/models/formation.models';
 import { Router } from '@angular/router';
+import { ToastService } from '../../core/services/toast.service';
+import { apiErrorMessage } from '../../core/utils/api-error';
 
 @Component({
   selector: 'app-formation-list',
@@ -19,6 +21,7 @@ import { Router } from '@angular/router';
 export class FormationList {
   private service = inject(FormationService);
   private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private userState = inject(UserStateService);
   private router = inject(Router);
   private refresh$ = new BehaviorSubject<void>(undefined);
@@ -48,9 +51,15 @@ export class FormationList {
   onEdit(item: Formation): void { this.router.navigate(['/manage-formations', item.slug]); }
 
   async onDelete(item: Formation): Promise<void> {
-    const confirmed = await this.confirmDialog.confirm({ message: `Delete formation ${item.code}?` });
+    const confirmed = await this.confirmDialog.confirm(deleteConfirm(`formation ${item.code}`));
     if (!confirmed) return;
-    this.service.delete(item.id).subscribe({ next: () => this.refresh$.next() });
+    this.service.delete(item.id).subscribe({
+      next: () => {
+        this.toast.success('Formation deleted');
+        this.refresh$.next();
+      },
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The formation could not be deleted.')),
+    });
   }
 
 }
