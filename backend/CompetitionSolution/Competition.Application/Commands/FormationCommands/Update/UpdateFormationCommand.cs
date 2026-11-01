@@ -1,7 +1,9 @@
 using Competition.Application.Commands.FormationCommands.Create;
+using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.FormationDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
+using Competition.Domain.Entities.FormationEntities;
 using FluentValidation;
 using MediatR;
 using System.Text.Json.Serialization;
@@ -13,12 +15,12 @@ public class UpdateFormationCommand : IRequest<FormationDto>
     [JsonIgnore]
     public string Slug { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
-    public Guid FormationMarkId { get; set; }
+    public string FormationMarkPublicId { get; set; } = string.Empty;
 }
 
 public class UpdateFormationCommandValidator : AbstractValidator<UpdateFormationCommand>
 {
-    public UpdateFormationCommandValidator()
+    public UpdateFormationCommandValidator(IPublicIdLookup lookup)
     {
         RuleFor(x => x.Slug).NotEmpty();
         RuleFor(x => x.Code)
@@ -26,7 +28,7 @@ public class UpdateFormationCommandValidator : AbstractValidator<UpdateFormation
             .MaximumLength(20)
             .Matches(@"^\d+-\d+-\d+$")
             .WithMessage("Code must look like 4-3-3.");
-        RuleFor(x => x.FormationMarkId).NotEmpty();
+        RuleFor(x => x.FormationMarkPublicId).MustReferenceExisting<UpdateFormationCommand, FormationMark>(lookup);
     }
 }
 
@@ -35,12 +37,14 @@ public class UpdateFormationCommandHandler : IRequestHandler<UpdateFormationComm
     private readonly IFormation _formations;
     private readonly IFormationMark _marks;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublicIdLookup _lookup;
 
-    public UpdateFormationCommandHandler(IFormation formations, IFormationMark marks, IUnitOfWork unitOfWork)
+    public UpdateFormationCommandHandler(IFormation formations, IFormationMark marks, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
     {
         _formations = formations;
         _marks = marks;
         _unitOfWork = unitOfWork;
+        _lookup = lookup;
     }
 
     public async Task<FormationDto> Handle(UpdateFormationCommand request, CancellationToken cancellationToken)
@@ -48,8 +52,9 @@ public class UpdateFormationCommandHandler : IRequestHandler<UpdateFormationComm
         var entity = await _formations.GetBySlugAsync(request.Slug, cancellationToken)
             ?? throw new KeyNotFoundException($"Formation '{request.Slug}' was not found.");
 
-        var mark = await _marks.GetByIdAsync(request.FormationMarkId, cancellationToken)
-            ?? throw new KeyNotFoundException($"Formation mark '{request.FormationMarkId}' was not found.");
+        var markId = await _lookup.GetRequiredIdAsync<FormationMark>(request.FormationMarkPublicId, cancellationToken);
+        var mark = await _marks.GetByIdAsync(markId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Formation mark '{request.FormationMarkPublicId}' was not found.");
 
         if (!FormationRules.CodeMatchesMark(request.Code, mark.Defenders, mark.Midfielders, mark.Attackers))
             throw new InvalidOperationException("Formation code must match the mark (defenders-midfielders-attackers).");

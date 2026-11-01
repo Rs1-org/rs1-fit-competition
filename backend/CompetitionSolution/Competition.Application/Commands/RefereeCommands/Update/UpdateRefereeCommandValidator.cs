@@ -1,4 +1,5 @@
 using Competition.Application.Commands.RefereeCommands.Update;
+using Competition.Application.Common.Validation;
 using Competition.Application.Helpers;
 using FluentValidation;
 
@@ -8,7 +9,7 @@ public class UpdateRefereeCommandValidator : AbstractValidator<UpdateRefereeComm
 {
     public UpdateRefereeCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.PublicId).MustBeValidPublicId();
         RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
         RuleFor(x => x.LastName).NotEmpty().MaximumLength(100);
         RuleFor(x => x.DateOfBirth)

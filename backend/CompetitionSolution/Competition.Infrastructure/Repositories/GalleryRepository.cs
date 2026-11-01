@@ -28,7 +28,7 @@ public class GalleryRepository : IGallery
             .Where(x => x.DeletedAt == null)
             .Select(x => new GalleryItemDto
             {
-                Id = x.Id,
+                PublicId = x.PublicId,
                 Name = x.FirstName + " " + x.LastName,
                 Kind = GalleryRules.Player,
                 HasPicture = x.Picture.Length > 0
@@ -39,7 +39,7 @@ public class GalleryRepository : IGallery
             .Where(x => x.DeletedAt == null)
             .Select(x => new GalleryItemDto
             {
-                Id = x.Id,
+                PublicId = x.PublicId,
                 Name = x.FirstName + " " + x.LastName,
                 Kind = GalleryRules.Referee,
                 HasPicture = x.Picture.Length > 0
@@ -50,7 +50,7 @@ public class GalleryRepository : IGallery
             .Where(x => x.DeletedAt == null)
             .Select(x => new GalleryItemDto
             {
-                Id = x.Id,
+                PublicId = x.PublicId,
                 Name = x.FirstName + " " + x.LastName,
                 Kind = GalleryRules.Manager,
                 HasPicture = x.Picture.Length > 0
@@ -61,7 +61,7 @@ public class GalleryRepository : IGallery
             .Where(x => x.DeletedAt == null)
             .Select(x => new GalleryItemDto
             {
-                Id = x.Id,
+                PublicId = x.PublicId,
                 Name = x.Name ?? "Untitled",
                 Kind = GalleryRules.Country,
                 PictureUrl = x.PictureUrl,
@@ -73,7 +73,7 @@ public class GalleryRepository : IGallery
             .Where(x => x.DeletedAt == null)
             .Select(x => new GalleryItemDto
             {
-                Id = x.Id,
+                PublicId = x.PublicId,
                 Name = x.Name ?? "Untitled",
                 Kind = GalleryRules.Stadium,
                 PictureUrl = x.PictureUrl,
@@ -84,7 +84,7 @@ public class GalleryRepository : IGallery
         var selections = await _db.Selections.AsNoTracking()
             .Select(x => new GalleryItemDto
             {
-                Id = x.Id,
+                PublicId = x.PublicId,
                 Name = x.Name,
                 Kind = GalleryRules.Selection,
                 PictureUrl = x.PictureUrl,
@@ -200,7 +200,7 @@ public class GalleryRepository : IGallery
 
         return new GalleryItemDto
         {
-            Id = entity.Id,
+            PublicId = entity.PublicId,
             Name = $"{entity.FirstName} {entity.LastName}".Trim(),
             Kind = kind,
             HasPicture = entity.Picture.Length > 0
@@ -220,7 +220,7 @@ public class GalleryRepository : IGallery
         var entity = await Find(_db.Countries, id, "Country", cancellationToken);
         entity.PictureUrl = await ReplaceUrl(entity.PictureUrl, picture);
         await _db.SaveChangesAsync(cancellationToken);
-        return Item(entity.Id, entity.Name ?? "Untitled", GalleryRules.Country, entity.PictureUrl);
+        return Item(entity.PublicId, entity.Name ?? "Untitled", GalleryRules.Country, entity.PictureUrl);
     }
 
     private async Task<GalleryItemDto> SaveStadium(Guid id, IFormFile picture, CancellationToken cancellationToken)
@@ -228,7 +228,7 @@ public class GalleryRepository : IGallery
         var entity = await Find(_db.Stadiums, id, "Stadium", cancellationToken);
         entity.PictureUrl = await ReplaceUrl(entity.PictureUrl, picture);
         await _db.SaveChangesAsync(cancellationToken);
-        return Item(entity.Id, entity.Name ?? "Untitled", GalleryRules.Stadium, entity.PictureUrl);
+        return Item(entity.PublicId, entity.Name ?? "Untitled", GalleryRules.Stadium, entity.PictureUrl);
     }
 
     private async Task<GalleryItemDto> SaveSelection(Guid id, IFormFile picture, CancellationToken cancellationToken)
@@ -236,7 +236,7 @@ public class GalleryRepository : IGallery
         var entity = await Find(_db.Selections, id, "Selection", cancellationToken);
         entity.PictureUrl = await ReplaceUrl(entity.PictureUrl, picture);
         await _db.SaveChangesAsync(cancellationToken);
-        return Item(entity.Id, entity.Name, GalleryRules.Selection, entity.PictureUrl);
+        return Item(entity.PublicId, entity.Name, GalleryRules.Selection, entity.PictureUrl);
     }
 
     private async Task ClearUrl<T>(T entity, Func<T, string?> read, Action<T, string?> write, CancellationToken cancellationToken) where T : BaseEntity
@@ -275,9 +275,9 @@ public class GalleryRepository : IGallery
             ?? throw new KeyNotFoundException($"{label} was not found.");
     }
 
-    private static GalleryItemDto Item(Guid id, string name, string kind, string? pictureUrl) => new()
+    private static GalleryItemDto Item(string publicId, string name, string kind, string? pictureUrl) => new()
     {
-        Id = id,
+        PublicId = publicId,
         Name = name,
         Kind = kind,
         PictureUrl = pictureUrl,

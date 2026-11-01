@@ -18,7 +18,7 @@ public class SubPositionController(IMediator mediator) : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? search = null,
-        [FromQuery] Guid? positionId = null,
+        [FromQuery] string? positionPublicId = null,
         CancellationToken cancellationToken = default)
     {
         var result = await mediator.Send(new GetAllSubPositionsQuery
@@ -26,7 +26,7 @@ public class SubPositionController(IMediator mediator) : ControllerBase
             Page = page,
             PageSize = pageSize,
             Search = search,
-            PositionId = positionId
+            PositionPublicId = positionPublicId
         }, cancellationToken);
         return Ok(result);
     }
@@ -56,10 +56,10 @@ public class SubPositionController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    [HttpDelete("{publicId}")]
+    public async Task<IActionResult> Delete(string publicId, CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new DeleteSubPositionCommand { Id = id }, cancellationToken);
+        var result = await mediator.Send(new DeleteSubPositionCommand { PublicId = publicId }, cancellationToken);
         return Ok(result);
     }
 }

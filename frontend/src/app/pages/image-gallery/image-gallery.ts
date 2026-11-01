@@ -55,7 +55,7 @@ export class ImageGallery implements OnDestroy {
     this.progressKey.set(key);
     this.progress.set(0);
 
-    this.gallery.upload(item.kind, item.id, file).subscribe({
+    this.gallery.upload(item.kind, item.publicId, file).subscribe({
       next: (uploadEvent) => {
         if (uploadEvent.type === HttpEventType.UploadProgress) {
           const total = uploadEvent.total ?? file.size;
@@ -79,7 +79,7 @@ export class ImageGallery implements OnDestroy {
     if (!confirmed) return;
 
     this.error.set('');
-    this.gallery.remove(item.kind, item.id).subscribe({
+    this.gallery.remove(item.kind, item.publicId).subscribe({
       next: () => {
         this.toast.success('Image deleted');
         this.reload();
@@ -127,7 +127,7 @@ export class ImageGallery implements OnDestroy {
           continue;
         }
         jobs.push(
-          this.gallery.image(item.kind, item.id).pipe(
+          this.gallery.image(item.kind, item.publicId).pipe(
             map((blob) => ({ key, url: URL.createObjectURL(blob) })),
             catchError(() => of(null)),
           ),
@@ -162,7 +162,7 @@ export class ImageGallery implements OnDestroy {
   }
 
   private key(item: GalleryItem): string {
-    return `${item.kind}:${item.id}`;
+    return `${item.kind}:${item.publicId}`;
   }
 
   private readError(err: HttpErrorResponse): string {

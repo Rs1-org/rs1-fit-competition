@@ -1,7 +1,10 @@
 using Competition.Application.Common.Models;
+using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.HistoryDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
+using Competition.Domain.Entities;
+using Competition.Domain.Entities.Person;
 using FluentValidation;
 using MediatR;
 
@@ -11,38 +14,38 @@ public record GetMandateDatesQuery : IRequest<PagedResult<MandateDateDto>>
 {
     public int Page { get; init; } = 1;
     public int PageSize { get; init; } = 10;
-    public Guid? PlayerId { get; init; }
-    public Guid? ManagerId { get; init; }
-    public Guid? SelectionId { get; init; }
-    public Guid? PlayerSelectionHistoryId { get; init; }
-    public Guid? SelectionManagerHistoryId { get; init; }
+    public string? PlayerPublicId { get; init; }
+    public string? ManagerPublicId { get; init; }
+    public string? SelectionPublicId { get; init; }
+    public string? PlayerSelectionHistoryPublicId { get; init; }
+    public string? SelectionManagerHistoryPublicId { get; init; }
 }
 
 public class GetMandateDatesQueryValidator : AbstractValidator<GetMandateDatesQuery>
 {
-    public GetMandateDatesQueryValidator()
+    public GetMandateDatesQueryValidator(IPublicIdLookup lookup)
     {
         RuleFor(x => x.Page).GreaterThanOrEqualTo(1);
         RuleFor(x => x.PageSize).InclusiveBetween(1, 100);
-        RuleFor(x => x.PlayerId).NotEqual(Guid.Empty).When(x => x.PlayerId.HasValue);
-        RuleFor(x => x.ManagerId).NotEqual(Guid.Empty).When(x => x.ManagerId.HasValue);
-        RuleFor(x => x.SelectionId).NotEqual(Guid.Empty).When(x => x.SelectionId.HasValue);
-        RuleFor(x => x.PlayerSelectionHistoryId).NotEqual(Guid.Empty).When(x => x.PlayerSelectionHistoryId.HasValue);
-        RuleFor(x => x.SelectionManagerHistoryId).NotEqual(Guid.Empty).When(x => x.SelectionManagerHistoryId.HasValue);
+        RuleFor(x => x.PlayerPublicId!).MustReferenceExisting<GetMandateDatesQuery, Player>(lookup).When(x => !string.IsNullOrWhiteSpace(x.PlayerPublicId));
+        RuleFor(x => x.ManagerPublicId!).MustReferenceExisting<GetMandateDatesQuery, Manager>(lookup).When(x => !string.IsNullOrWhiteSpace(x.ManagerPublicId));
+        RuleFor(x => x.SelectionPublicId!).MustReferenceExisting<GetMandateDatesQuery, Selection>(lookup).When(x => !string.IsNullOrWhiteSpace(x.SelectionPublicId));
+        RuleFor(x => x.PlayerSelectionHistoryPublicId!).MustReferenceExisting<GetMandateDatesQuery, PlayerSelectionHistory>(lookup).When(x => !string.IsNullOrWhiteSpace(x.PlayerSelectionHistoryPublicId));
+        RuleFor(x => x.SelectionManagerHistoryPublicId!).MustReferenceExisting<GetMandateDatesQuery, SelectionManagerHistory>(lookup).When(x => !string.IsNullOrWhiteSpace(x.SelectionManagerHistoryPublicId));
     }
 }
 
-public class GetMandateDatesQueryHandler(IHistoryStore history)
+public class GetMandateDatesQueryHandler(IHistoryStore history, IPublicIdLookup lookup)
     : IRequestHandler<GetMandateDatesQuery, PagedResult<MandateDateDto>>
 {
     public async Task<PagedResult<MandateDateDto>> Handle(GetMandateDatesQuery request, CancellationToken cancellationToken)
     {
         var page = await history.GetMandatesAsync(
-            request.PlayerId,
-            request.ManagerId,
-            request.SelectionId,
-            request.PlayerSelectionHistoryId,
-            request.SelectionManagerHistoryId,
+            await lookup.GetOptionalIdAsync<Player>(request.PlayerPublicId, cancellationToken),
+            await lookup.GetOptionalIdAsync<Manager>(request.ManagerPublicId, cancellationToken),
+            await lookup.GetOptionalIdAsync<Selection>(request.SelectionPublicId, cancellationToken),
+            await lookup.GetOptionalIdAsync<PlayerSelectionHistory>(request.PlayerSelectionHistoryPublicId, cancellationToken),
+            await lookup.GetOptionalIdAsync<SelectionManagerHistory>(request.SelectionManagerHistoryPublicId, cancellationToken),
             request.Page,
             request.PageSize,
             cancellationToken);
@@ -50,20 +53,21 @@ public class GetMandateDatesQueryHandler(IHistoryStore history)
     }
 }
 
-public record GetMandateDateByIdQuery(Guid Id) : IRequest<MandateDateDto>;
+public record GetMandateDateByIdQuery(string PublicId) : IRequest<MandateDateDto>;
 
 public class GetMandateDateByIdQueryValidator : AbstractValidator<GetMandateDateByIdQuery>
 {
-    public GetMandateDateByIdQueryValidator() => RuleFor(x => x.Id).NotEmpty();
+    public GetMandateDateByIdQueryValidator() => RuleFor(x => x.PublicId).MustBeValidPublicId();
 }
 
-public class GetMandateDateByIdQueryHandler(IHistoryStore history)
+public class GetMandateDateByIdQueryHandler(IHistoryStore history, IPublicIdLookup lookup)
     : IRequestHandler<GetMandateDateByIdQuery, MandateDateDto>
 {
     public async Task<MandateDateDto> Handle(GetMandateDateByIdQuery request, CancellationToken cancellationToken)
     {
-        var entity = await history.GetMandateAsync(request.Id, cancellationToken)
-            ?? throw new KeyNotFoundException($"MandateDate with id {request.Id} not found");
+        var id = await lookup.GetRequiredIdAsync<MandateDate>(request.PublicId, cancellationToken);
+        var entity = await history.GetMandateAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"MandateDate with public id {request.PublicId} not found");
         return HistoryMaps.ToDto(entity);
     }
 }

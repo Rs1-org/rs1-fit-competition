@@ -174,7 +174,7 @@ export class SelectionList {
   async onDelete(item: SelectionOption): Promise<void> {
     const confirmed = await this.confirmDialog.confirm(deleteConfirm(`selection ${item.name}`));
     if (!confirmed) return;
-    this.service.delete(item.id).subscribe({
+    this.service.delete(item.publicId).subscribe({
       next: () => {
         this.toast.success('Selection deleted');
         this.refresh$.next();

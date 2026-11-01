@@ -10,24 +10,24 @@ namespace Competition.Api.Controllers;
 [ApiController]
 public class TransferValueHistoryController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    [HttpGet("{publicId}")]
+    public async Task<IActionResult> GetById(string publicId, CancellationToken cancellationToken)
     {
-        return Ok(await mediator.Send(new GetTransferValueHistoryByIdQuery(id), cancellationToken));
+        return Ok(await mediator.Send(new GetTransferValueHistoryByIdQuery(publicId), cancellationToken));
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] Guid? playerId = null,
+        [FromQuery] string? playerPublicId = null,
         CancellationToken cancellationToken = default)
     {
         return Ok(await mediator.Send(new GetTransferValueHistoriesQuery
         {
             Page = page,
             PageSize = pageSize,
-            PlayerId = playerId
+            PlayerPublicId = playerPublicId
         }, cancellationToken));
     }
 
@@ -39,16 +39,16 @@ public class TransferValueHistoryController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Roles = "Admin,Moderator")]
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateTransferValueHistoryCommand command, CancellationToken cancellationToken)
+    [HttpPut("{publicId}")]
+    public async Task<IActionResult> Update(string publicId, [FromBody] UpdateTransferValueHistoryCommand command, CancellationToken cancellationToken)
     {
-        return Ok(await mediator.Send(command with { Id = id }, cancellationToken));
+        return Ok(await mediator.Send(command with { PublicId = publicId }, cancellationToken));
     }
 
     [Authorize(Roles = "Admin,Moderator")]
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    [HttpDelete("{publicId}")]
+    public async Task<IActionResult> Delete(string publicId, CancellationToken cancellationToken)
     {
-        return Ok(await mediator.Send(new DeleteTransferValueHistoryCommand(id), cancellationToken));
+        return Ok(await mediator.Send(new DeleteTransferValueHistoryCommand(publicId), cancellationToken));
     }
 }

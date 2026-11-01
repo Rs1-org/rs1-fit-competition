@@ -5,9 +5,9 @@ namespace Competition.Application.Commands.PlayerCommands.Update;
 
 public class UpdatePlayerCommand : IRequest<PlayerDto>
 {
-    public UpdatePlayerCommand(Guid id, PlayerDto dto)
+    public UpdatePlayerCommand(string publicId, PlayerDto dto)
     {
-        Id = id;
+        PublicId = publicId;
         FirstName = dto.FirstName;
         LastName = dto.LastName;
         DateOfBirth = dto.DateOfBirth;
@@ -15,11 +15,11 @@ public class UpdatePlayerCommand : IRequest<PlayerDto>
         Height = dto.Height;
         ShirtNumber = dto.ShirtNumber;
         TransferValue = dto.TransferValue;
-        PositionId = dto.PositionId;
-        SubPositionId = dto.SubPositionId;
+        PositionPublicId = dto.PositionPublicId;
+        SubPositionPublicId = dto.SubPositionPublicId;
     }
 
-    public Guid Id { get; }
+    public string PublicId { get; }
     public string FirstName { get; }
     public string LastName { get; }
     public string DateOfBirth { get; }
@@ -27,6 +27,6 @@ public class UpdatePlayerCommand : IRequest<PlayerDto>
     public decimal Height { get; }
     public int ShirtNumber { get; }
     public float TransferValue { get; }
-    public Guid? PositionId { get; }
-    public Guid? SubPositionId { get; }
+    public string? PositionPublicId { get; }
+    public string? SubPositionPublicId { get; }
 }

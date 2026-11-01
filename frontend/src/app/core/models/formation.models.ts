@@ -1,5 +1,5 @@
 export interface FormationMark {
-  id: string;
+  publicId: string;
   defenders: number;
   midfielders: number;
   attackers: number;
@@ -7,25 +7,25 @@ export interface FormationMark {
 }
 
 export interface Formation {
-  id: string;
+  publicId: string;
   code: string;
   slug: string;
-  formationMarkId: string;
+  formationMarkPublicId: string;
   defenders: number;
   midfielders: number;
   attackers: number;
 }
 
 export interface Position {
-  id: string;
+  publicId: string;
   name: string;
   slug: string;
 }
 
 export interface SubPosition {
-  id: string;
+  publicId: string;
   name: string;
   slug: string;
-  positionId: string;
+  positionPublicId: string;
   positionName?: string | null;
 }

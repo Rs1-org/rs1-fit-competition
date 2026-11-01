@@ -191,10 +191,10 @@ public class MappingProfile:Profile
     {
         CreateMap<PlayerDto, CreatePlayerCommand>().ConstructUsing(d => new CreatePlayerCommand(d));
         CreateMap<PlayerDto, UpdatePlayerCommand>()
-            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.PublicId, opt => opt.Ignore())
             .ConstructUsing((src, ctx) =>
             {
-                var id = ctx.Items.TryGetValue("Id", out var value) && value is Guid guid ? guid : Guid.Empty;
+                var id = ctx.Items.TryGetValue("PublicId", out var value) && value is string publicId ? publicId : string.Empty;
                 return new UpdatePlayerCommand(id, src);
             });
         CreateMap<CreatePlayerCommand, Player>()
@@ -214,15 +214,17 @@ public class MappingProfile:Profile
             .ForMember(d => d.SubPosition, opt => opt.Ignore())
             .ForMember(d => d.Picture, opt => opt.Condition(src => src.Picture != null));
         CreateMap<Player, PlayerDto>()
+            .ForMember(d => d.PositionPublicId, opt => opt.MapFrom(s => s.Position != null ? s.Position.PublicId : null))
+            .ForMember(d => d.SubPositionPublicId, opt => opt.MapFrom(s => s.SubPosition != null ? s.SubPosition.PublicId : null))
             .ForMember(d => d.PositionName, opt => opt.MapFrom(s => s.Position != null ? s.Position.Name : null))
             .ForMember(d => d.SubPositionName, opt => opt.MapFrom(s => s.SubPosition != null ? s.SubPosition.Name : null));
 
         CreateMap<RefereeDto, CreateRefereeCommand>().ConstructUsing(d => new CreateRefereeCommand(d));
         CreateMap<RefereeDto, UpdateRefereeCommand>()
-            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.PublicId, opt => opt.Ignore())
             .ConstructUsing((src, ctx) =>
             {
-                var id = ctx.Items.TryGetValue("Id", out var value) && value is Guid guid ? guid : Guid.Empty;
+                var id = ctx.Items.TryGetValue("PublicId", out var value) && value is string publicId ? publicId : string.Empty;
                 return new UpdateRefereeCommand(id, src);
             });
         CreateMap<CreateRefereeCommand, Referee>()
@@ -241,10 +243,10 @@ public class MappingProfile:Profile
 
         CreateMap<ManagerDto, CreateManagerCommand>().ConstructUsing(d => new CreateManagerCommand(d));
         CreateMap<ManagerDto, UpdateManagerCommand>()
-            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.PublicId, opt => opt.Ignore())
             .ConstructUsing((src, ctx) =>
             {
-                var id = ctx.Items.TryGetValue("Id", out var value) && value is Guid guid ? guid : Guid.Empty;
+                var id = ctx.Items.TryGetValue("PublicId", out var value) && value is string publicId ? publicId : string.Empty;
                 return new UpdateManagerCommand(id, src);
             });
         CreateMap<CreateManagerCommand, Manager>()

@@ -17,11 +17,11 @@ import { PagedResult } from '../models/paged-result';
 import { environment } from '../../../environments/environment';
 
 interface MandateDate {
-  id?: string;
+  publicId?: string;
   startDate: string | null;
   endDate: string | null;
-  playerSelectionHistoryId?: string | null;
-  selectionManagerHistoryId?: string | null;
+  playerSelectionHistoryPublicId?: string | null;
+  selectionManagerHistoryPublicId?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -30,19 +30,19 @@ export class HistoryService {
   private readonly baseUrl = environment.apiUrl;
 
   playerSelections(selectionId: string): Observable<PagedResult<PlayerSelectionHistory>> {
-    const params = new HttpParams().set('page', '1').set('pageSize', '100').set('selectionId', selectionId);
+    const params = new HttpParams().set('page', '1').set('pageSize', '100').set('selectionPublicId', selectionId);
     return this.http.get<PagedResult<PlayerSelectionHistory>>(`${this.baseUrl}/api/player-selection-history`, { params });
   }
 
   managerSelections(selectionId: string): Observable<PagedResult<SelectionManagerHistory>> {
-    const params = new HttpParams().set('page', '1').set('pageSize', '100').set('selectionId', selectionId);
+    const params = new HttpParams().set('page', '1').set('pageSize', '100').set('selectionPublicId', selectionId);
     return this.http.get<PagedResult<SelectionManagerHistory>>(`${this.baseUrl}/api/selection-manager-history`, { params });
   }
 
   async loadPlayerHistory(playerId: string): Promise<PlayerHistoryForm> {
     const [selections, transfers] = await Promise.all([
-      this.list<PlayerSelectionHistory>('/api/player-selection-history', { playerId }),
-      this.list<TransferValueHistory>('/api/transfer-value-history', { playerId }),
+      this.list<PlayerSelectionHistory>('/api/player-selection-history', { playerPublicId: playerId }),
+      this.list<TransferValueHistory>('/api/transfer-value-history', { playerPublicId: playerId }),
     ]);
 
     const form = emptyPlayerHistoryForm();
@@ -50,8 +50,8 @@ export class HistoryService {
     const transfer = transfers[0];
 
     if (selection) {
-      form.selectionId = selection.id;
-      form.teamSelectionId = selection.selectionId ?? '';
+      form.selectionId = selection.publicId;
+      form.teamSelectionId = selection.selectionPublicId ?? '';
       form.selection = {
         goals: selection.goals ?? null,
         matchPlayed: selection.matchPlayed ?? null,
@@ -59,11 +59,11 @@ export class HistoryService {
         shirtNumber: selection.shirtNumber ?? null,
       };
       const mandates = await this.list<MandateDate>('/api/mandate-date', {
-        playerSelectionHistoryId: selection.id,
+        playerSelectionHistoryPublicId: selection.publicId,
       });
       const mandate = mandates[0];
       if (mandate) {
-        form.mandatId = mandate.id;
+        form.mandatId = mandate.publicId;
         form.mandat = {
           startMandatDate: mandate.startDate ?? null,
           endMandatDate: mandate.endDate ?? null,
@@ -72,7 +72,7 @@ export class HistoryService {
     }
 
     if (transfer) {
-      form.transferId = transfer.id;
+      form.transferId = transfer.publicId;
       form.transfer = {
         date: transfer.date ?? null,
         value: transfer.value ?? null,
@@ -83,13 +83,13 @@ export class HistoryService {
   }
 
   async loadManagerHistory(managerId: string): Promise<ManagerHistoryForm> {
-    const selections = await this.list<SelectionManagerHistory>('/api/selection-manager-history', { managerId });
+    const selections = await this.list<SelectionManagerHistory>('/api/selection-manager-history', { managerPublicId: managerId });
     const form = emptyManagerHistoryForm();
     const selection = selections[0];
 
     if (selection) {
-      form.selectionId = selection.id;
-      form.teamSelectionId = selection.selectionId ?? '';
+      form.selectionId = selection.publicId;
+      form.teamSelectionId = selection.selectionPublicId ?? '';
       form.selection = {
         notes: selection.notes ?? null,
         wins: selection.wins ?? null,
@@ -97,11 +97,11 @@ export class HistoryService {
         draw: selection.draw ?? null,
       };
       const mandates = await this.list<MandateDate>('/api/mandate-date', {
-        selectionManagerHistoryId: selection.id,
+        selectionManagerHistoryPublicId: selection.publicId,
       });
       const mandate = mandates[0];
       if (mandate) {
-        form.mandatId = mandate.id;
+        form.mandatId = mandate.publicId;
         form.mandat = {
           startMandatDate: mandate.startDate ?? null,
           endMandatDate: mandate.endDate ?? null,
@@ -130,8 +130,8 @@ export class HistoryService {
         matchPlayed: form.selection.matchPlayed,
         assists: form.selection.assists,
         shirtNumber: form.selection.shirtNumber,
-        playerId,
-        selectionId: form.teamSelectionId || null,
+        playerPublicId: playerId,
+        selectionPublicId: form.teamSelectionId || null,
       });
     }
 
@@ -139,7 +139,7 @@ export class HistoryService {
       await this.upsert('/api/transfer-value-history', form.transferId, {
         date: form.transfer.date || null,
         value: form.transfer.value,
-        playerId,
+        playerPublicId: playerId,
       });
     }
 
@@ -147,8 +147,8 @@ export class HistoryService {
       await this.upsert('/api/mandate-date', form.mandatId, {
         startDate: form.mandat.startMandatDate || null,
         endDate: form.mandat.endMandatDate || null,
-        playerSelectionHistoryId: selectionHistoryId,
-        selectionManagerHistoryId: null,
+        playerSelectionHistoryPublicId: selectionHistoryId,
+        selectionManagerHistoryPublicId: null,
       });
     }
   }
@@ -171,8 +171,8 @@ export class HistoryService {
         wins: form.selection.wins,
         loses: form.selection.loses,
         draw: form.selection.draw,
-        managerId,
-        selectionId: form.teamSelectionId || null,
+        managerPublicId: managerId,
+        selectionPublicId: form.teamSelectionId || null,
       });
     }
 
@@ -180,14 +180,14 @@ export class HistoryService {
       await this.upsert('/api/mandate-date', form.mandatId, {
         startDate: form.mandat.startMandatDate || null,
         endDate: form.mandat.endMandatDate || null,
-        playerSelectionHistoryId: null,
-        selectionManagerHistoryId: selectionHistoryId,
+        playerSelectionHistoryPublicId: null,
+        selectionManagerHistoryPublicId: selectionHistoryId,
       });
     }
   }
 
   loadTransfers(playerId: string): Promise<TransferValueHistory[]> {
-    return this.list<TransferValueHistory>('/api/transfer-value-history', { playerId });
+    return this.list<TransferValueHistory>('/api/transfer-value-history', { playerPublicId: playerId });
   }
 
   async loadAppearances(playerId: string): Promise<PlayerAppearance[]> {
@@ -200,7 +200,7 @@ export class HistoryService {
     }
   }
 
-  private async list<T extends { id?: string }>(path: string, filter: Record<string, string | undefined>): Promise<T[]> {
+  private async list<T extends { publicId?: string }>(path: string, filter: Record<string, string | undefined>): Promise<T[]> {
     let params = new HttpParams().set('page', '1').set('pageSize', '20');
     for (const [key, value] of Object.entries(filter)) {
       if (value) params = params.set(key, value);
@@ -211,7 +211,7 @@ export class HistoryService {
     return page.items ?? [];
   }
 
-  private async upsert<T extends { id?: string }>(
+  private async upsert<T extends { publicId?: string }>(
     path: string,
     id: string | undefined,
     payload: Record<string, unknown>,
@@ -221,6 +221,6 @@ export class HistoryService {
       ? this.http.put<T>(url, payload)
       : this.http.post<T>(url, payload);
     const data = await firstValueFrom(request);
-    return data.id ?? id ?? '';
+    return data.publicId ?? id ?? '';
   }
 }

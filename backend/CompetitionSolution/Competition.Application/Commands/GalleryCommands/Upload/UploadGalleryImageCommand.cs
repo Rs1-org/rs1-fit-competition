@@ -1,3 +1,4 @@
+using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.GalleryDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
@@ -10,21 +11,27 @@ namespace Competition.Application.Commands.GalleryCommands.Upload;
 public class UploadGalleryImageCommand : IRequest<GalleryItemDto>
 {
     public string Kind { get; set; } = string.Empty;
-    public Guid Id { get; set; }
+    public string PublicId { get; set; } = string.Empty;
     public IFormFile? Picture { get; set; }
 }
 
 public class UploadGalleryImageCommandHandler : IRequestHandler<UploadGalleryImageCommand, GalleryItemDto>
 {
     private readonly IGallery _gallery;
+    private readonly IPublicIdLookup _lookup;
 
-    public UploadGalleryImageCommandHandler(IGallery gallery) => _gallery = gallery;
+    public UploadGalleryImageCommandHandler(IGallery gallery, IPublicIdLookup lookup)
+    {
+        _gallery = gallery;
+        _lookup = lookup;
+    }
 
-    public Task<GalleryItemDto> Handle(UploadGalleryImageCommand request, CancellationToken cancellationToken)
+    public async Task<GalleryItemDto> Handle(UploadGalleryImageCommand request, CancellationToken cancellationToken)
     {
         GalleryRules.EnsureKind(request.Kind);
         GalleryRules.EnsurePicture(request.Picture);
-        return _gallery.UploadAsync(request.Kind, request.Id, request.Picture!, cancellationToken);
+        var id = await GalleryIds.ResolveAsync(_lookup, request.Kind, request.PublicId, cancellationToken);
+        return await _gallery.UploadAsync(request.Kind, id, request.Picture!, cancellationToken);
     }
 }
 
@@ -36,7 +43,7 @@ public class UploadGalleryImageCommandValidator : AbstractValidator<UploadGaller
             .Must(GalleryRules.IsKnown)
             .WithMessage("Unknown image type.");
 
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.PublicId).MustBeValidPublicId();
 
         RuleFor(x => x.Picture).Custom((file, context) =>
         {

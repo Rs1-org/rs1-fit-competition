@@ -1,44 +1,44 @@
 export interface PlayerSelectionHistory {
-  id?: string;
+  publicId?: string;
   goals: number | null;
   matchPlayed: number | null;
   assists: number | null;
   shirtNumber: number | null;
-  playerId?: string;
-  selectionId?: string | null;
+  playerPublicId?: string;
+  selectionPublicId?: string | null;
 }
 
 export interface TransferValueHistory {
-  id?: string;
+  publicId?: string;
   date: string | null;
   value: number | null;
-  playerId?: string;
+  playerPublicId?: string;
 }
 
 export interface SelectionManagerHistory {
-  id?: string;
+  publicId?: string;
   notes: string | null;
   wins: number | null;
   loses: number | null;
   draw: number | null;
-  managerId?: string;
-  selectionId?: string | null;
+  managerPublicId?: string;
+  selectionPublicId?: string | null;
 }
 
 export interface MandatDate {
-  id?: string;
+  publicId?: string;
   startMandatDate: string | null;
   endMandatDate: string | null;
-  playerSelectionHistoryId?: string | null;
-  selectionManagerHistoryId?: string | null;
+  playerSelectionHistoryPublicId?: string | null;
+  selectionManagerHistoryPublicId?: string | null;
 }
 
 export interface PlayerAppearance {
-  matchId: string;
+  matchPublicId: string;
   matchSlug: string | null;
   matchDate: string;
   stadiumName: string | null;
-  selectionId: string;
+  selectionPublicId: string;
   selectionName: string;
   side: string;
   shirtNumber: number | null;

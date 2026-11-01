@@ -27,7 +27,7 @@ export class SubPositionForm implements OnChanges {
 
   form = this.fb.group({
     name: this.fb.control('', { validators: [Validators.required, Validators.maxLength(100)] }),
-    positionId: this.fb.control('', { validators: [Validators.required] }),
+    positionPublicId: this.fb.control('', { validators: [Validators.required] }),
   });
 
   get isEditMode(): boolean {
@@ -42,9 +42,9 @@ export class SubPositionForm implements OnChanges {
     }
     if (!changes['editItem'] && !changes['isOpen']) return;
     if (this.editItem) {
-      this.form.patchValue({ name: this.editItem.name, positionId: this.editItem.positionId });
+      this.form.patchValue({ name: this.editItem.name, positionPublicId: this.editItem.positionPublicId });
     } else {
-      this.form.reset({ name: '', positionId: '' });
+      this.form.reset({ name: '', positionPublicId: '' });
     }
   }
 

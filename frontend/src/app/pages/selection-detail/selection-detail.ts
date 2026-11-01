@@ -123,35 +123,35 @@ export class SelectionDetail {
   }
 
   private loadRelated(data: SelectionOption) {
-    if (!data.id) return of(emptyDetail(false, '', data));
+    if (!data.publicId) return of(emptyDetail(false, '', data));
     return forkJoin({
-      players: this.history.playerSelections(data.id).pipe(catchError(() => of(emptyPage<PlayerSelectionHistory>()))),
-      managers: this.history.managerSelections(data.id).pipe(catchError(() => of(emptyPage<SelectionManagerHistory>()))),
+      players: this.history.playerSelections(data.publicId).pipe(catchError(() => of(emptyPage<PlayerSelectionHistory>()))),
+      managers: this.history.managerSelections(data.publicId).pipe(catchError(() => of(emptyPage<SelectionManagerHistory>()))),
       matches: data.publicId
         ? this.matches.getAll(1, 100, { selectionPublicId: data.publicId }).pipe(catchError(() => of(emptyPage<MatchListDto>())))
         : of(emptyPage<MatchListDto>()),
     }).pipe(
       switchMap(({ players, managers, matches }) => {
-        const playerIds = [...new Set(players.items.map((row) => row.playerId).filter((id): id is string => !!id))];
-        const managerIds = [...new Set(managers.items.map((row) => row.managerId).filter((id): id is string => !!id))];
+        const playerIds = [...new Set(players.items.map((row) => row.playerPublicId).filter((id): id is string => !!id))];
+        const managerIds = [...new Set(managers.items.map((row) => row.managerPublicId).filter((id): id is string => !!id))];
         return forkJoin({
           people: playerIds.length
             ? forkJoin(playerIds.map((id) => this.players.getById(id).pipe(catchError(() => of(null)))))
             : of([] as (Player | null)[]),
           staff: managerIds.length
             ? forkJoin(managerIds.map((id) => this.managers.getById(id).pipe(catchError(() => of(null)))))
-            : of([] as ({ id?: string; firstName: string; lastName: string } | null)[]),
+            : of([] as ({ publicId?: string; firstName: string; lastName: string } | null)[]),
         }).pipe(
           map(({ people, staff }) => {
-            const byPlayer = new Map(people.filter((person): person is Player => !!person?.id).map((person) => [person.id!, person]));
+            const byPlayer = new Map(people.filter((person): person is Player => !!person?.publicId).map((person) => [person.publicId!, person]));
             const byManager = new Map(
-              staff.filter((person): person is { id?: string; firstName: string; lastName: string } => !!person?.id).map((person) => [person.id!, person]),
+              staff.filter((person): person is { publicId?: string; firstName: string; lastName: string } => !!person?.publicId).map((person) => [person.publicId!, person]),
             );
             const squadRows = players.items.flatMap((row) => {
-              const person = row.playerId ? byPlayer.get(row.playerId) : undefined;
-              if (!person?.id) return [];
+              const person = row.playerPublicId ? byPlayer.get(row.playerPublicId) : undefined;
+              if (!person?.publicId) return [];
               return [{
-                id: person.id,
+                id: person.publicId,
                 name: `${person.firstName} ${person.lastName}`.trim(),
                 position: person.positionName || 'Unassigned',
                 number: row.shirtNumber ?? person.shirtNumber ?? null,
@@ -179,10 +179,10 @@ export class SelectionDetail {
             }
             const knownGoals = players.items.map((row) => row.goals).filter((goals): goals is number => goals != null);
             const managerLines = managers.items.flatMap((row) => {
-              const person = row.managerId ? byManager.get(row.managerId) : undefined;
-              if (!person?.id) return [];
+              const person = row.managerPublicId ? byManager.get(row.managerPublicId) : undefined;
+              if (!person?.publicId) return [];
               return [{
-                id: person.id,
+                id: person.publicId,
                 name: `${person.firstName} ${person.lastName}`.trim(),
                 wins: row.wins,
                 draws: row.draw,

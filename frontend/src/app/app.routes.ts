@@ -109,7 +109,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/manage-players/manage-players').then((m) => m.ManagePlayers),
   },
   {
-    path: 'manage-players/:id',
+    path: 'manage-players/:publicId',
     canActivate: [AdminModeratorGuard],
     loadComponent: () => import('./pages/manage-players/manage-players').then((m) => m.ManagePlayers),
   },
@@ -119,7 +119,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/manage-referees/manage-referees').then((m) => m.ManageReferees),
   },
   {
-    path: 'manage-referees/:id',
+    path: 'manage-referees/:publicId',
     canActivate: [AdminModeratorGuard],
     loadComponent: () => import('./pages/manage-referees/manage-referees').then((m) => m.ManageReferees),
   },
@@ -129,7 +129,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/manage-managers/manage-managers').then((m) => m.ManageManagers),
   },
   {
-    path: 'manage-managers/:id',
+    path: 'manage-managers/:publicId',
     canActivate: [AdminModeratorGuard],
     loadComponent: () => import('./pages/manage-managers/manage-managers').then((m) => m.ManageManagers),
   },
@@ -163,7 +163,7 @@ export const routes: Routes = [
       import('./pages/player-list/player-list').then((m) => m.PlayerList),
   },
   {
-    path: 'player/:id',
+    path: 'player/:publicId',
     loadComponent: () =>
       import('./pages/player-view/player-view').then((m) => m.PlayerView),
   },
@@ -173,7 +173,7 @@ export const routes: Routes = [
       import('./pages/referee-list/referee-list').then((m) => m.RefereeList),
   },
   {
-    path: 'referee/:id',
+    path: 'referee/:publicId',
     loadComponent: () =>
       import('./pages/referee-view/referee-view').then((m) => m.RefereeView),
   },
@@ -183,7 +183,7 @@ export const routes: Routes = [
       import('./pages/manager-list/manager-list').then((m) => m.ManagerList),
   },
   {
-    path: 'manager/:id',
+    path: 'manager/:publicId',
     loadComponent: () =>
       import('./pages/manager-view/manager-view').then((m) => m.ManagerView),
   },

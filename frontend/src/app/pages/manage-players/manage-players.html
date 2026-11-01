@@ -28,14 +28,14 @@
               <label for="positionId">Position</label>
               <select id="positionId" formControlName="positionId">
                 <option value="">—</option>
-                @for (position of positions; track position.id) { <option [value]="position.id">{{ position.name }}</option> }
+                @for (position of positions; track position.publicId) { <option [value]="position.publicId">{{ position.name }}</option> }
               </select>
             </div>
             <div class="form-group">
               <label for="subPositionId">Subposition</label>
               <select id="subPositionId" formControlName="subPositionId">
                 <option value="">—</option>
-                @for (sub of filteredSubPositions; track sub.id) { <option [value]="sub.id">{{ sub.name }}</option> }
+                @for (sub of filteredSubPositions; track sub.publicId) { <option [value]="sub.publicId">{{ sub.name }}</option> }
               </select>
               @if (fieldError('subPositionId'); as error) { <p class="field-error">{{ error }}</p> }
             </div>
@@ -50,7 +50,7 @@
                 <label for="teamSelectionId">Selection</label>
                 <select id="teamSelectionId" formControlName="teamSelectionId">
                   <option value="">—</option>
-                  @for (selection of selections; track selection.id) { <option [value]="selection.id">{{ selection.name }} ({{ selection.abbreviation }})</option> }
+                  @for (selection of selections; track selection.publicId) { <option [value]="selection.publicId">{{ selection.name }} ({{ selection.abbreviation }})</option> }
                 </select>
               </div>
               <app-input-box label="Goals" type="number" [control]="form.controls.history.controls.goals" />
@@ -63,7 +63,7 @@
               @if (!appearances.length) {
                 <app-empty-state icon="player" title="No appearances yet" message="Appearances are counted when the mandate covers the match date and the match has this selection as home or away." />
               }
-              @for (appearance of appearances; track appearance.matchId) {
+              @for (appearance of appearances; track appearance.matchPublicId) {
                 <div class="appearance">
                   <strong>{{ appearance.matchDate | appDate }}</strong>
                   {{ appearance.selectionName }} · {{ appearance.side === 'home' ? 'Home' : 'Away' }}

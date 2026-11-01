@@ -1,36 +1,41 @@
+using Competition.Application.Common.Validation;
 using Competition.Application.Interfaces;
+using Competition.Domain.Entities.FormationEntities;
 using FluentValidation;
 using MediatR;
 
 namespace Competition.Application.Commands.FormationMarkCommands.Delete;
 
-public class DeleteFormationMarkCommand : IRequest<Guid>
+public class DeleteFormationMarkCommand : IRequest<string>
 {
-    public Guid Id { get; set; }
+    public string PublicId { get; set; } = string.Empty;
 }
 
 public class DeleteFormationMarkCommandValidator : AbstractValidator<DeleteFormationMarkCommand>
 {
-    public DeleteFormationMarkCommandValidator() => RuleFor(x => x.Id).NotEmpty();
+    public DeleteFormationMarkCommandValidator() => RuleFor(x => x.PublicId).MustBeValidPublicId();
 }
 
-public class DeleteFormationMarkCommandHandler : IRequestHandler<DeleteFormationMarkCommand, Guid>
+public class DeleteFormationMarkCommandHandler : IRequestHandler<DeleteFormationMarkCommand, string>
 {
     private readonly IFormationMark _marks;
     private readonly IFormation _formations;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublicIdLookup _lookup;
 
-    public DeleteFormationMarkCommandHandler(IFormationMark marks, IFormation formations, IUnitOfWork unitOfWork)
+    public DeleteFormationMarkCommandHandler(IFormationMark marks, IFormation formations, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
     {
         _marks = marks;
         _formations = formations;
         _unitOfWork = unitOfWork;
+        _lookup = lookup;
     }
 
-    public async Task<Guid> Handle(DeleteFormationMarkCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(DeleteFormationMarkCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _marks.GetByIdAsync(request.Id, cancellationToken)
-            ?? throw new KeyNotFoundException($"Formation mark '{request.Id}' was not found.");
+        var id = await _lookup.GetRequiredIdAsync<FormationMark>(request.PublicId, cancellationToken);
+        var entity = await _marks.GetByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Formation mark '{request.PublicId}' was not found.");
 
         var formation = await _formations.GetByMarkIdAsync(entity.Id, cancellationToken);
         if (formation != null)
@@ -38,6 +43,6 @@ public class DeleteFormationMarkCommandHandler : IRequestHandler<DeleteFormation
 
         await _marks.DeleteAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return request.Id;
+        return entity.PublicId;
     }
 }

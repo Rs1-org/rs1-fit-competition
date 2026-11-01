@@ -42,7 +42,7 @@
         @for (row of historyRows; track row.label) {
           <p><strong>{{ row.label }}</strong> {{ row.value }}</p>
         }
-        @for (appearance of appearances; track appearance.matchId) {
+        @for (appearance of appearances; track appearance.matchPublicId) {
           <p>{{ appearance.matchDate | appDate }} · {{ appearance.selectionName }} · {{ appearance.side === 'home' ? 'Home' : 'Away' }}@if (appearance.stadiumName) { · {{ appearance.stadiumName }} }</p>
         }
       </section>

@@ -104,11 +104,11 @@ public class PlayerAppearanceReader : IPlayerAppearances
 
                 result.Add(new PlayerAppearanceDto
                 {
-                    MatchId = match.Id,
+                    MatchPublicId = match.PublicId,
                     MatchSlug = match.Slug,
                     MatchDate = matchDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
                     StadiumName = match.Stadium?.Name,
-                    SelectionId = history.SelectionId.Value,
+                    SelectionPublicId = history.Selection?.PublicId ?? string.Empty,
                     SelectionName = history.Selection?.Name ?? string.Empty,
                     Side = side,
                     ShirtNumber = history.ShirtNumber

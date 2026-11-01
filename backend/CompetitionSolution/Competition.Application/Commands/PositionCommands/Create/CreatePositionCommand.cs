@@ -53,7 +53,7 @@ public class CreatePositionCommandHandler : IRequestHandler<CreatePositionComman
 
     internal static PositionDto Map(Position entity) => new()
     {
-        Id = entity.Id,
+        PublicId = entity.PublicId,
         Name = entity.Name,
         Slug = entity.Slug
     };

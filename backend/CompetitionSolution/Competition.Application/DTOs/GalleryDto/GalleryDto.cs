@@ -2,7 +2,7 @@ namespace Competition.Application.DTOs.GalleryDto;
 
 public class GalleryItemDto
 {
-    public Guid Id { get; set; }
+    public string PublicId { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Kind { get; set; } = string.Empty;
     public bool HasPicture { get; set; }

@@ -1,7 +1,9 @@
 using System.Net;
 using System.Text.Json;
 using Competition.Domain.Entities;
+using Competition.Domain.Entities.Person;
 using Competition.Infrastructure.Data;
+using NodaTime;
 using Competition.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -50,6 +52,35 @@ public class PublicIdApiTests : BaseIntegrationTest
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Player_ShouldExposePublicIdAndRejectUnknownOrMalformedIds()
+    {
+        var player = new Player
+        {
+            FirstName = "Edin",
+            LastName = "Public",
+            DateOfBirth = new LocalDate(2000, 1, 2),
+            Picture = [],
+            Height = 180,
+            ShirtNumber = 9
+        };
+        using (var scope = ServiceProvider.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Players.Add(player);
+            await db.SaveChangesAsync();
+        }
+
+        var response = await Client.GetAsync($"/api/player/{player.PublicId}");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        json.RootElement.GetProperty("publicId").GetString().Should().Be(player.PublicId);
+        json.RootElement.TryGetProperty("id", out _).Should().BeFalse();
+
+        (await Client.GetAsync("/api/player/not-a-public-id")).StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        (await Client.GetAsync("/api/player/ffffffffffffffffffffffffffffffff")).StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]

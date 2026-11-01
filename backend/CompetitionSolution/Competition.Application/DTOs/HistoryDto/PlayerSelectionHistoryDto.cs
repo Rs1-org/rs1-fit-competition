@@ -2,11 +2,11 @@ namespace Competition.Application.DTOs.HistoryDto;
 
 public class PlayerSelectionHistoryDto
 {
-    public Guid Id { get; set; }
+    public string PublicId { get; set; } = string.Empty;
     public int? Goals { get; set; }
     public int? MatchPlayed { get; set; }
     public int? Assists { get; set; }
     public int? ShirtNumber { get; set; }
-    public Guid PlayerId { get; set; }
-    public Guid? SelectionId { get; set; }
+    public string PlayerPublicId { get; set; } = string.Empty;
+    public string? SelectionPublicId { get; set; }
 }

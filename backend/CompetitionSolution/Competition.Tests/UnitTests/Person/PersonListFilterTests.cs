@@ -4,6 +4,7 @@ using Competition.Domain.Entities.FormationEntities;
 using Competition.Domain.Entities.Person;
 using Competition.Infrastructure.Data;
 using Competition.Infrastructure.Repositories;
+using Competition.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
@@ -69,7 +70,7 @@ public class PersonListFilterTests
     [Fact]
     public void Validator_AgeMinGreaterThanAgeMax_ShouldFail()
     {
-        var result = new GetAllPlayersQueryValidator().Validate(new GetAllPlayersQuery
+        var result = new GetAllPlayersQueryValidator(new AlwaysFoundLookup()).Validate(new GetAllPlayersQuery
         {
             Page = 0,
             PageSize = 200,

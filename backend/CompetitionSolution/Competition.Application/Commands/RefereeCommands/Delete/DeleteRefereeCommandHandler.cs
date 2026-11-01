@@ -1,18 +1,20 @@
 using Competition.Application.Interfaces;
+using Competition.Domain.Entities.Person;
 using MediatR;
 
 namespace Competition.Application.Commands.RefereeCommands.Delete;
 
-public class DeleteRefereeCommandHandler(IReferee refereeRepository, IUnitOfWork unitOfWork)
-    : IRequestHandler<DeleteRefereeCommand, Guid>
+public class DeleteRefereeCommandHandler(IReferee refereeRepository, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
+    : IRequestHandler<DeleteRefereeCommand, string>
 {
-    public async Task<Guid> Handle(DeleteRefereeCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(DeleteRefereeCommand request, CancellationToken cancellationToken)
     {
-        var referee = await refereeRepository.GetActiveByIdAsync(request.Id, cancellationToken)
-            ?? throw new KeyNotFoundException($"Referee with id {request.Id} not found");
+        var id = await lookup.GetRequiredIdAsync<Referee>(request.PublicId, cancellationToken);
+        var referee = await refereeRepository.GetActiveByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Referee with public id {request.PublicId} not found");
 
         refereeRepository.Remove(referee);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return request.Id;
+        return referee.PublicId;
     }
 }

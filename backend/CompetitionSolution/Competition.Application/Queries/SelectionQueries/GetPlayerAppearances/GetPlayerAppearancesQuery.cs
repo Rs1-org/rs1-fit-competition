@@ -1,20 +1,28 @@
+using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.SelectionDto;
 using Competition.Application.Interfaces;
+using Competition.Domain.Entities.Person;
+using FluentValidation;
 using MediatR;
 
 namespace Competition.Application.Queries.SelectionQueries.GetPlayerAppearances;
 
 public class GetPlayerAppearancesQuery : IRequest<IReadOnlyList<PlayerAppearanceDto>>
 {
-    public Guid PlayerId { get; set; }
+    public string PublicId { get; set; } = string.Empty;
 }
 
-public class GetPlayerAppearancesQueryHandler : IRequestHandler<GetPlayerAppearancesQuery, IReadOnlyList<PlayerAppearanceDto>>
+public class GetPlayerAppearancesQueryValidator : AbstractValidator<GetPlayerAppearancesQuery>
 {
-    private readonly IPlayerAppearances _appearances;
+    public GetPlayerAppearancesQueryValidator() => RuleFor(x => x.PublicId).MustBeValidPublicId();
+}
 
-    public GetPlayerAppearancesQueryHandler(IPlayerAppearances appearances) => _appearances = appearances;
-
-    public Task<IReadOnlyList<PlayerAppearanceDto>> Handle(GetPlayerAppearancesQuery request, CancellationToken cancellationToken) =>
-        _appearances.ForPlayerAsync(request.PlayerId, cancellationToken);
+public class GetPlayerAppearancesQueryHandler(IPlayerAppearances appearances, IPublicIdLookup lookup)
+    : IRequestHandler<GetPlayerAppearancesQuery, IReadOnlyList<PlayerAppearanceDto>>
+{
+    public async Task<IReadOnlyList<PlayerAppearanceDto>> Handle(GetPlayerAppearancesQuery request, CancellationToken cancellationToken)
+    {
+        var playerId = await lookup.GetRequiredIdAsync<Player>(request.PublicId, cancellationToken);
+        return await appearances.ForPlayerAsync(playerId, cancellationToken);
+    }
 }

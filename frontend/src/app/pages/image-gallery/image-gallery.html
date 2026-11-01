@@ -23,7 +23,7 @@
         <app-empty-state icon="inbox" title="No images yet" message="Nobody in this group has an image yet." />
       } @else {
         <div class="gallery-grid" [@listStagger]="section.withPicture.length">
-          @for (item of section.withPicture; track item.id) {
+          @for (item of section.withPicture; track item.publicId) {
             <article class="gallery-card">
               <button class="thumb" type="button" (click)="open(item)" [disabled]="!preview(item)">
                 @if (preview(item)) {
@@ -48,7 +48,7 @@
         <app-empty-state icon="inbox" title="All set" message="Everyone in this group already has an image." />
       } @else {
         <div class="gallery-grid" [@listStagger]="section.withoutPicture.length">
-          @for (item of section.withoutPicture; track item.id) {
+          @for (item of section.withoutPicture; track item.publicId) {
             <article class="gallery-card empty">
               <div class="thumb placeholder">No image</div>
               <strong>{{ item.name }}</strong>

@@ -45,10 +45,10 @@ public class PositionController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    [HttpDelete("{publicId}")]
+    public async Task<IActionResult> Delete(string publicId, CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new DeletePositionCommand { Id = id }, cancellationToken);
+        var result = await mediator.Send(new DeletePositionCommand { PublicId = publicId }, cancellationToken);
         return Ok(result);
     }
 }

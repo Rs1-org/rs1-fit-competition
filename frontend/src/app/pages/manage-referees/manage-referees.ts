@@ -56,7 +56,7 @@ export class ManageReferees implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
-      const id = params.get('id');
+      const id = params.get('publicId');
       if (id) {
         this.editingId = id;
         this.isEditMode = true;

@@ -35,7 +35,7 @@ export class PlayerList {
   searchPlayers = (term: string) =>
     this.playerService.getAll(1, 8, { name: term }).pipe(
       map((page) => page.items.map((player) => ({
-        id: player.id ?? '',
+        id: player.publicId ?? '',
         label: `${player.firstName} ${player.lastName}`.trim(),
       }))),
     );
@@ -88,7 +88,7 @@ export class PlayerList {
   get filteredSubPositions() {
     const positionId = this.filterForm.controls.positionId.value;
     const all = this.subPositions();
-    return positionId ? all.filter((item) => item.positionId === positionId) : all;
+    return positionId ? all.filter((item) => item.positionPublicId === positionId) : all;
   }
 
   add(): void {
@@ -96,20 +96,20 @@ export class PlayerList {
   }
 
   view(player: Player): void {
-    this.router.navigate(['/player', player.id]);
+    this.router.navigate(['/player', player.publicId]);
   }
 
   edit(player: Player): void {
-    this.router.navigate(['/manage-players', player.id]);
+    this.router.navigate(['/manage-players', player.publicId]);
   }
 
   async delete(player: Player): Promise<void> {
-    if (!player.id) return;
+    if (!player.publicId) return;
 
     const confirmed = await this.confirmDialog.confirm(deleteConfirm(`player ${player.firstName} ${player.lastName}`));
     if (!confirmed) return;
 
-    this.playerService.delete(player.id).subscribe({
+    this.playerService.delete(player.publicId).subscribe({
       next: () => {
         this.toast.success('Player deleted');
         this.refresh$.next();
@@ -130,8 +130,8 @@ export class PlayerList {
     const { name, positionId, subPositionId, ageMin, ageMax } = this.filterForm.getRawValue();
     return {
       name: name.trim() || undefined,
-      positionId: positionId || undefined,
-      subPositionId: subPositionId || undefined,
+      positionPublicId: positionId || undefined,
+      subPositionPublicId: subPositionId || undefined,
       ageMin: ageMin ?? undefined,
       ageMax: ageMax ?? undefined,
     };

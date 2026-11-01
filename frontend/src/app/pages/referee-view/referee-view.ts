@@ -31,7 +31,7 @@ export class RefereeView implements OnInit {
   private refereeId = '';
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('publicId');
     if (!id) {
       this.loading = false;
       this.error = 'Referee could not be loaded.';

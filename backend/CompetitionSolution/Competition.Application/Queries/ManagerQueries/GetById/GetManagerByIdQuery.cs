@@ -1,9 +1,16 @@
+using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.PersonDto;
+using FluentValidation;
 using MediatR;
 
 namespace Competition.Application.Queries.ManagerQueries.GetById;
 
-public class GetManagerByIdQuery(Guid id) : IRequest<ManagerDto?>
+public class GetManagerByIdQuery(string publicId) : IRequest<ManagerDto?>
 {
-    public Guid Id { get; } = id;
+    public string PublicId { get; } = publicId;
+}
+
+public class GetManagerByIdQueryValidator : AbstractValidator<GetManagerByIdQuery>
+{
+    public GetManagerByIdQueryValidator() => RuleFor(x => x.PublicId).MustBeValidPublicId();
 }

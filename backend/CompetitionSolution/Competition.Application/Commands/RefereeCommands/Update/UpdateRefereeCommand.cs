@@ -5,9 +5,9 @@ namespace Competition.Application.Commands.RefereeCommands.Update;
 
 public class UpdateRefereeCommand : IRequest<RefereeDto>
 {
-    public UpdateRefereeCommand(Guid id, RefereeDto dto)
+    public UpdateRefereeCommand(string publicId, RefereeDto dto)
     {
-        Id = id;
+        PublicId = publicId;
         FirstName = dto.FirstName;
         LastName = dto.LastName;
         DateOfBirth = dto.DateOfBirth;
@@ -15,7 +15,7 @@ public class UpdateRefereeCommand : IRequest<RefereeDto>
         CareerStart = dto.CareerStart;
     }
 
-    public Guid Id { get; }
+    public string PublicId { get; }
     public string FirstName { get; }
     public string LastName { get; }
     public string DateOfBirth { get; }

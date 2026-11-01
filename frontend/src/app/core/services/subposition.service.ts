@@ -13,15 +13,15 @@ export class SubPositionService {
   getAll(page = 1, pageSize = 10, search?: string, positionId?: string): Observable<PagedResult<SubPosition>> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize);
     if (search) params = params.set('search', search);
-    if (positionId) params = params.set('positionId', positionId);
+    if (positionId) params = params.set('positionPublicId', positionId);
     return this.http.get<PagedResult<SubPosition>>(this.apiUrl, { params });
   }
 
-  create(body: { name: string; positionId: string }): Observable<SubPosition> {
+  create(body: { name: string; positionPublicId: string }): Observable<SubPosition> {
     return this.http.post<SubPosition>(this.apiUrl, body);
   }
 
-  update(slug: string, body: { name: string; positionId: string }): Observable<SubPosition> {
+  update(slug: string, body: { name: string; positionPublicId: string }): Observable<SubPosition> {
     return this.http.put<SubPosition>(`${this.apiUrl}/${slug}`, body);
   }
 

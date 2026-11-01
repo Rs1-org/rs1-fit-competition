@@ -1,93 +1,92 @@
+using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.HistoryDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
 using Competition.Domain.Entities;
+using Competition.Domain.Entities.Person;
 using FluentValidation;
 using MediatR;
 
 namespace Competition.Application.Commands.TransferValueHistoryCommands;
 
-public record CreateTransferValueHistoryCommand(string? Date, decimal? Value, Guid PlayerId) : IRequest<TransferValueHistoryDto>;
+public record CreateTransferValueHistoryCommand(string? Date, decimal? Value, string PlayerPublicId) : IRequest<TransferValueHistoryDto>;
 
 public class CreateTransferValueHistoryCommandValidator : AbstractValidator<CreateTransferValueHistoryCommand>
 {
-    public CreateTransferValueHistoryCommandValidator()
+    public CreateTransferValueHistoryCommandValidator(IPublicIdLookup lookup)
     {
-        RuleFor(x => x.PlayerId).NotEmpty();
+        RuleFor(x => x.PlayerPublicId).MustReferenceExisting<CreateTransferValueHistoryCommand, Player>(lookup);
         RuleFor(x => x.Date).Must(PersonValidationHelper.BeValidOptionalDate).WithMessage("Date must be empty or yyyy-MM-dd.");
         RuleFor(x => x.Value).GreaterThanOrEqualTo(0).PrecisionScale(18, 2, true).When(x => x.Value.HasValue);
     }
 }
 
-public class CreateTransferValueHistoryCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork)
+public class CreateTransferValueHistoryCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
     : IRequestHandler<CreateTransferValueHistoryCommand, TransferValueHistoryDto>
 {
     public async Task<TransferValueHistoryDto> Handle(CreateTransferValueHistoryCommand request, CancellationToken cancellationToken)
     {
-        if (!await history.PlayerExistsAsync(request.PlayerId, cancellationToken))
-            throw new KeyNotFoundException($"Player with id {request.PlayerId} not found");
-
+        var playerId = await lookup.GetRequiredIdAsync<Player>(request.PlayerPublicId, cancellationToken);
         var entity = new TransferValueHistory
         {
             Date = NodaTimeMappingHelper.ParseNullableLocalDate(request.Date),
             Value = request.Value,
-            PlayerId = request.PlayerId
+            PlayerId = playerId
         };
         await history.AddAsync(entity, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return HistoryMaps.ToDto(entity);
+        return HistoryMaps.ToDto((await history.GetTransferAsync(entity.Id, cancellationToken))!);
     }
 }
 
-public record UpdateTransferValueHistoryCommand(Guid Id, string? Date, decimal? Value, Guid PlayerId) : IRequest<TransferValueHistoryDto>;
+public record UpdateTransferValueHistoryCommand(string PublicId, string? Date, decimal? Value, string PlayerPublicId) : IRequest<TransferValueHistoryDto>;
 
 public class UpdateTransferValueHistoryCommandValidator : AbstractValidator<UpdateTransferValueHistoryCommand>
 {
-    public UpdateTransferValueHistoryCommandValidator()
+    public UpdateTransferValueHistoryCommandValidator(IPublicIdLookup lookup)
     {
-        RuleFor(x => x.Id).NotEmpty();
-        RuleFor(x => x.PlayerId).NotEmpty();
+        RuleFor(x => x.PublicId).MustBeValidPublicId();
+        RuleFor(x => x.PlayerPublicId).MustReferenceExisting<UpdateTransferValueHistoryCommand, Player>(lookup);
         RuleFor(x => x.Date).Must(PersonValidationHelper.BeValidOptionalDate).WithMessage("Date must be empty or yyyy-MM-dd.");
         RuleFor(x => x.Value).GreaterThanOrEqualTo(0).PrecisionScale(18, 2, true).When(x => x.Value.HasValue);
     }
 }
 
-public class UpdateTransferValueHistoryCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork)
+public class UpdateTransferValueHistoryCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
     : IRequestHandler<UpdateTransferValueHistoryCommand, TransferValueHistoryDto>
 {
     public async Task<TransferValueHistoryDto> Handle(UpdateTransferValueHistoryCommand request, CancellationToken cancellationToken)
     {
-        if (!await history.PlayerExistsAsync(request.PlayerId, cancellationToken))
-            throw new KeyNotFoundException($"Player with id {request.PlayerId} not found");
-
-        var entity = await history.GetTransferAsync(request.Id, cancellationToken)
-            ?? throw new KeyNotFoundException($"TransferValueHistory with id {request.Id} not found");
+        var id = await lookup.GetRequiredIdAsync<TransferValueHistory>(request.PublicId, cancellationToken);
+        var playerId = await lookup.GetRequiredIdAsync<Player>(request.PlayerPublicId, cancellationToken);
+        var entity = await history.GetTransferAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"TransferValueHistory with public id {request.PublicId} not found");
 
         entity.Date = NodaTimeMappingHelper.ParseNullableLocalDate(request.Date);
         entity.Value = request.Value;
-        entity.PlayerId = request.PlayerId;
+        entity.PlayerId = playerId;
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return HistoryMaps.ToDto(entity);
+        return HistoryMaps.ToDto((await history.GetTransferAsync(entity.Id, cancellationToken))!);
     }
 }
 
-public record DeleteTransferValueHistoryCommand(Guid Id) : IRequest<Guid>;
+public record DeleteTransferValueHistoryCommand(string PublicId) : IRequest<string>;
 
 public class DeleteTransferValueHistoryCommandValidator : AbstractValidator<DeleteTransferValueHistoryCommand>
 {
-    public DeleteTransferValueHistoryCommandValidator() => RuleFor(x => x.Id).NotEmpty();
+    public DeleteTransferValueHistoryCommandValidator() => RuleFor(x => x.PublicId).MustBeValidPublicId();
 }
 
-public class DeleteTransferValueHistoryCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork)
-    : IRequestHandler<DeleteTransferValueHistoryCommand, Guid>
+public class DeleteTransferValueHistoryCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
+    : IRequestHandler<DeleteTransferValueHistoryCommand, string>
 {
-    public async Task<Guid> Handle(DeleteTransferValueHistoryCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(DeleteTransferValueHistoryCommand request, CancellationToken cancellationToken)
     {
-        var entity = await history.GetTransferAsync(request.Id, cancellationToken)
-            ?? throw new KeyNotFoundException($"TransferValueHistory with id {request.Id} not found");
-
+        var id = await lookup.GetRequiredIdAsync<TransferValueHistory>(request.PublicId, cancellationToken);
+        var entity = await history.GetTransferAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"TransferValueHistory with public id {request.PublicId} not found");
         history.Remove(entity);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return request.Id;
+        return entity.PublicId;
     }
 }

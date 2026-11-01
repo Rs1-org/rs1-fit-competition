@@ -1,40 +1,45 @@
+using Competition.Application.Common.Validation;
 using Competition.Application.Interfaces;
+using Competition.Domain.Entities.FormationEntities;
 using FluentValidation;
 using MediatR;
 
 namespace Competition.Application.Commands.SubPositionCommands.Delete;
 
-public class DeleteSubPositionCommand : IRequest<Guid>
+public class DeleteSubPositionCommand : IRequest<string>
 {
-    public Guid Id { get; set; }
+    public string PublicId { get; set; } = string.Empty;
 }
 
 public class DeleteSubPositionCommandValidator : AbstractValidator<DeleteSubPositionCommand>
 {
-    public DeleteSubPositionCommandValidator() => RuleFor(x => x.Id).NotEmpty();
+    public DeleteSubPositionCommandValidator() => RuleFor(x => x.PublicId).MustBeValidPublicId();
 }
 
-public class DeleteSubPositionCommandHandler : IRequestHandler<DeleteSubPositionCommand, Guid>
+public class DeleteSubPositionCommandHandler : IRequestHandler<DeleteSubPositionCommand, string>
 {
     private readonly ISubPosition _subPositions;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublicIdLookup _lookup;
 
-    public DeleteSubPositionCommandHandler(ISubPosition subPositions, IUnitOfWork unitOfWork)
+    public DeleteSubPositionCommandHandler(ISubPosition subPositions, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
     {
         _subPositions = subPositions;
         _unitOfWork = unitOfWork;
+        _lookup = lookup;
     }
 
-    public async Task<Guid> Handle(DeleteSubPositionCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(DeleteSubPositionCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _subPositions.GetByIdAsync(request.Id, cancellationToken)
-            ?? throw new KeyNotFoundException($"Subposition '{request.Id}' was not found.");
+        var id = await _lookup.GetRequiredIdAsync<SubPosition>(request.PublicId, cancellationToken);
+        var entity = await _subPositions.GetByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Subposition '{request.PublicId}' was not found.");
 
         if (await _subPositions.HasPlayersAsync(entity.Id, cancellationToken))
             throw new InvalidOperationException("Subposition is assigned to players and cannot be deleted.");
 
         await _subPositions.DeleteAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return request.Id;
+        return entity.PublicId;
     }
 }

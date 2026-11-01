@@ -99,7 +99,7 @@ export class ManagePlayers implements OnInit {
   constructor() {
     this.form.controls.positionId.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       const current = this.form.controls.subPositionId.value;
-      if (current && !this.filteredSubPositions.some((item) => item.id === current)) {
+      if (current && !this.filteredSubPositions.some((item) => item.publicId === current)) {
         this.form.controls.subPositionId.setValue('');
       }
     });
@@ -119,7 +119,7 @@ export class ManagePlayers implements OnInit {
       this.cdr.detectChanges();
     });
     this.route.paramMap.subscribe((params) => {
-      const id = params.get('id');
+      const id = params.get('publicId');
       if (id) {
         this.editingId = id;
         this.isEditMode = true;
@@ -141,7 +141,7 @@ export class ManagePlayers implements OnInit {
   get filteredSubPositions(): SubPosition[] {
     const positionId = this.form.controls.positionId.value;
     if (!positionId) return [];
-    return this.subPositions.filter((item) => item.positionId === positionId);
+    return this.subPositions.filter((item) => item.positionPublicId === positionId);
   }
 
   fieldError(name: 'firstName' | 'lastName' | 'dateOfBirth' | 'height' | 'shirtNumber' | 'transferValue' | 'subPositionId'): string | null {
@@ -169,8 +169,8 @@ export class ManagePlayers implements OnInit {
           height: data.height,
           shirtNumber: data.shirtNumber,
           transferValue: data.transferValue,
-          positionId: data.positionId ?? '',
-          subPositionId: data.subPositionId ?? '',
+          positionId: data.positionPublicId ?? '',
+          subPositionId: data.subPositionPublicId ?? '',
         });
         this.picture = data.picture ?? null;
         this.pictureChanged = false;
@@ -248,7 +248,7 @@ export class ManagePlayers implements OnInit {
     this.isSaving = true;
     request$.subscribe({
       next: async (saved) => {
-        const playerId = this.isEditMode ? this.editingId! : saved.id!;
+        const playerId = this.isEditMode ? this.editingId! : saved.publicId!;
         try {
           await this.historyService.savePlayerHistory(playerId, this.historyPayload());
         } catch (err) {
@@ -295,8 +295,8 @@ export class ManagePlayers implements OnInit {
       height: Number(value.height),
       shirtNumber: Number(value.shirtNumber),
       transferValue: Number(value.transferValue),
-      positionId: value.positionId || null,
-      subPositionId: value.subPositionId || null,
+      positionPublicId: value.positionId || null,
+      subPositionPublicId: value.subPositionId || null,
     };
 
     if (this.isEditMode && !this.pictureChanged) {
