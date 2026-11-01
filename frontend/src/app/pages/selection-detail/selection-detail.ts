@@ -6,10 +6,11 @@ import { SelectionOption, SelectionService } from '../../core/services/selection
 import { UserStateService } from '../../core/services/user-state.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
+import { FormChips } from '../../shared/components/form-chips/form-chips';
 
 @Component({
   selector: 'app-selection-detail',
-  imports: [RouterLink, AppNumberPipe],
+  imports: [RouterLink, AppNumberPipe, FormChips],
   templateUrl: './selection-detail.html',
   styleUrl: '../club-list/club-pages.css',
 })

@@ -2,8 +2,9 @@ import { Component, computed, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatchEvent } from '../../core/models/match-event';
 import { AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
+import { EventIcon } from '../../shared/components/event-icon/event-icon';
 
-@Component({ selector: 'app-match-event-timeline', imports: [RouterLink, AppNumberPipe],
+@Component({ selector: 'app-match-event-timeline', imports: [RouterLink, AppNumberPipe, EventIcon],
   templateUrl: './match-event-timeline.html', styleUrl: '../../pages/match-events/events.css' })
 export class MatchEventTimeline {
   readonly events = input.required<MatchEvent[]>();

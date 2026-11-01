@@ -24,6 +24,11 @@ const ICONS = {
   lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
   chart: '<path d="M4 20h16"/><path d="M7 20v-7"/><path d="M12 20V5"/><path d="M17 20v-10"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  ball: '<circle cx="12" cy="12" r="8"/><path d="M12 8.2l2.1 1.6-.8 2.5h-2.6l-.8-2.5z"/>',
+  'penalty-missed': '<circle cx="12" cy="12" r="8"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/>',
+  card: '<rect x="8" y="3" width="8" height="16" rx="1.5" transform="rotate(8 12 12)"/>',
+  'sub-in': '<path d="M12 19V7"/><path d="M7 12l5-5 5 5"/>',
+  'sub-out': '<path d="M12 5v12"/><path d="M7 12l5 5 5-5"/>',
 } as const;
 
 export type IconName = keyof typeof ICONS;

@@ -1,0 +1,9 @@
+.chips { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.chips li {
+  display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px;
+  border-radius: var(--r-pill); font-family: var(--font-title); font-weight: 700;
+}
+.W { background: var(--acs); color: var(--actx); }
+.D { background: var(--field); color: var(--tx2); }
+.L { background: var(--dgs); color: var(--dg); }
+.empty { margin: 0; color: var(--mut); font-size: 13px; }

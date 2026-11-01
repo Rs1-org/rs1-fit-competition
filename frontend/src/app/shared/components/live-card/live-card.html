@@ -1,0 +1,20 @@
+<article class="live-card">
+  <header>
+    <span>{{ competition() || 'Match' }}</span>
+    <span class="pill"><span class="dot" aria-hidden="true"></span> LIVE @if (minute()) { {{ minute() }}' }</span>
+  </header>
+  <div class="team">
+    <app-crest [name]="homeName()" [abbreviation]="homeAbbreviation()" />
+    <span>{{ homeName() || 'TBD' }}</span>
+    <strong class="big">{{ homeScore() ?? '–' }}</strong>
+  </div>
+  <div class="team">
+    <app-crest [name]="awayName()" [abbreviation]="awayAbbreviation()" />
+    <span>{{ awayName() || 'TBD' }}</span>
+    <strong class="big">{{ awayScore() ?? '–' }}</strong>
+  </div>
+  @if (lastEvent()) { <p class="event">{{ lastEvent() }}</p> }
+  @if (halfHome() !== null && halfAway() !== null) {
+    <p class="ht">HT {{ halfHome() }} – {{ halfAway() }}</p>
+  }
+</article>

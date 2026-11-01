@@ -1,0 +1,17 @@
+<article class="row" [class.expanded]="variant() === 'expanded'" [class.mobile]="variant() === 'mobile'">
+  <app-status-badge [status]="status()" [postponed]="postponed()" [minute]="minute()" />
+  <div class="side">
+    @if (variant() !== 'mobile') { <span class="name" [class.winner]="homeWins()">{{ homeName() || 'TBD' }}</span> }
+    <app-crest [name]="homeName()" [abbreviation]="homeAbbreviation()" />
+  </div>
+  <app-score-display [home]="homeScore()" [away]="awayScore()" />
+  <div class="side away">
+    <app-crest [name]="awayName()" [abbreviation]="awayAbbreviation()" />
+    @if (variant() !== 'mobile') { <span class="name" [class.winner]="awayWins()">{{ awayName() || 'TBD' }}</span> }
+    @if (variant() === 'mobile') { <span class="sr-only">{{ awayName() }}</span> }
+  </div>
+  @if (showFollow()) {
+    <button type="button" class="follow" aria-label="Follow match" disabled>♡</button>
+  }
+  @if (variant() === 'expanded' && meta()) { <p class="meta">{{ meta() }}</p> }
+</article>

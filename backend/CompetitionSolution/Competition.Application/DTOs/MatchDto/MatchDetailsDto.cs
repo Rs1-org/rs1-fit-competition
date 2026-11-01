@@ -17,8 +17,10 @@ public class MatchDetailsDto
     public string? StadiumName { get; set; }
     public string? HomeSelectionPublicId { get; set; }
     public string? HomeSelectionName { get; set; }
+    public string? HomeSelectionAbbreviation { get; set; }
     public string? AwaySelectionPublicId { get; set; }
     public string? AwaySelectionName { get; set; }
+    public string? AwaySelectionAbbreviation { get; set; }
     public string? RoundPublicId { get; set; }
     public string? RoundName { get; set; }
     public string? RoundSlug { get; set; }

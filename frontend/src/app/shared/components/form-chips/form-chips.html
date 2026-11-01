@@ -1,0 +1,9 @@
+@if (results().length === 0) {
+  <p class="empty">No recent results yet.</p>
+} @else {
+  <ol class="chips" aria-label="Recent form">
+    @for (result of results(); track $index) {
+      <li [class]="result">{{ result }}</li>
+    }
+  </ol>
+}

@@ -39,8 +39,9 @@ function render(getBySlug: () => unknown, canManage = false) {
 describe('MatchDetail', () => {
   it('shows the score and links to stadium, teams, round and match pages', () => {
     const page = render(() => of(derby));
-    expect(page.textContent).toContain('2 : 1');
-    expect(page.textContent).toContain('Half-time 1 : 0');
+    expect(page.textContent).toContain('2 – 1');
+    expect(page.textContent).toContain('Half-time');
+    expect(page.textContent).toContain('1 – 0');
     expect(page.querySelector('a[href="/stadium/grbavica"]')?.textContent).toContain('Grbavica');
     expect(page.querySelector('a[href="/selection/zeljeznicar"]')).not.toBeNull();
     expect(page.querySelector('a[href="/rounds/round-1"]')?.textContent).toContain('Premijer liga · 2026/27 · Round 1');

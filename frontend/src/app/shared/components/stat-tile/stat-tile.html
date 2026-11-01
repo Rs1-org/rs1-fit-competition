@@ -1,0 +1,11 @@
+@if (link()) {
+  <a class="tile" [routerLink]="link()">
+    <span class="value">{{ value() }}</span>
+    <span class="label">{{ label() }}</span>
+  </a>
+} @else {
+  <div class="tile">
+    <span class="value">{{ value() }}</span>
+    <span class="label">{{ label() }}</span>
+  </div>
+}

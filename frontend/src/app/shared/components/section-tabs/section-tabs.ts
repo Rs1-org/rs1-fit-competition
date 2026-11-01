@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Icon } from '../icon/icon';
 
-export interface SectionTab { label: string; route: string; locked?: boolean; }
+export interface SectionTab { label: string; route: string; locked?: boolean; count?: number; }
 
 @Component({
   selector: 'app-section-tabs',
