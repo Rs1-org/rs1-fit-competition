@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using Competition.Domain.Entities.FormationEntities;
 using Competition.Domain.Entities.MatchEntities;
 using Competition.Domain.Entities.CompetitionEntities;
+using Competition.Domain.Entities.Payments;
 using CompetitionEntity = Competition.Domain.Entities.CompetitionEntities.Competition;
 
 namespace Competition.Infrastructure.Data;
@@ -81,6 +82,19 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             e.Property(x => x.PublicId).IsRequired().HasMaxLength(BaseEntity.PublicIdLength)
                 .HasDefaultValueSql("replace(gen_random_uuid()::text, '-', '')");
             e.HasIndex(x => x.PublicId).IsUnique();
+        });
+
+        modelBuilder.Entity<PaymentTransaction>(e =>
+        {
+            e.Property(x => x.Currency).IsRequired().HasMaxLength(3);
+            e.Property(x => x.StripeSessionId).IsRequired().HasMaxLength(255);
+            e.Property(x => x.StripePaymentIntentId).HasMaxLength(255);
+            // Concurrency token: two simultaneous webhook deliveries cannot both extend premium.
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20).IsConcurrencyToken();
+            e.HasIndex(x => x.StripeSessionId).IsUnique();
+            e.HasIndex(x => new { x.UserId, x.CreatedAt });
+            e.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
         });
 
         modelBuilder.Entity<Person>().ToTable("Persons");
@@ -531,5 +545,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<Season> Seasons { get; set; } = null!;
     public DbSet<Round> Rounds { get; set; } = null!;
     public DbSet<UserPreference> UserPreferences { get; set; } = null!;
+    public DbSet<PaymentTransaction> PaymentTransactions { get; set; } = null!;
 
 }

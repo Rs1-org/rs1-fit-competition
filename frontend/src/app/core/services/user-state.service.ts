@@ -21,6 +21,14 @@ export class UserStateService {
   readonly canManage = computed(() => this.roles().some((role) => MANAGE_ROLES.includes(role)));
   readonly isAdmin = computed(() => this.roles().includes('Admin'));
 
+  // Display only: the backend checks premium itself and answers 403 once it has expired.
+  private currentUser = toSignal(this.user$, { requireSync: true });
+  readonly isSignedIn = computed(() => this.currentUser() !== null);
+  readonly isPremium = computed(() => {
+    const until = this.currentUser()?.premiumUntil;
+    return !!until && new Date(until).getTime() > Date.now();
+  });
+
   setUser(user: UserDto, roles: string[] = []) {
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem(ROLES_KEY, JSON.stringify(roles));

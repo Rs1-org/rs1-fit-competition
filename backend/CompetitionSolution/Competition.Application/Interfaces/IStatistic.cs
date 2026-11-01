@@ -17,8 +17,21 @@ public record ChartMatchRow(int? RoundNumber, string? RoundName,
 public record ChartTeamShotRow(string SelectionPublicId, string SelectionName,
     int TotalShots, int ShotsOnTarget, int Possession);
 
+/// <summary>One finished match with both scores set, newest first in advanced statistics.</summary>
+public record AdvancedMatchRow(Instant Date, string HomePublicId, string HomeName, int HomeScore,
+    string AwayPublicId, string AwayName, int AwayScore);
+
+public record PlayerStatsRow(string PlayerPublicId, string PlayerName, string SelectionName,
+    int Goals, int YellowCards, int RedCards);
+
 public interface IStatistic : IRepository<Statistic>
 {
+    Task<IReadOnlyList<AdvancedMatchRow>> GetTeamMatchesAsync(string selectionPublicId, int last, ChartFilter filter,
+        CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AdvancedMatchRow>> GetHeadToHeadMatchesAsync(string firstPublicId, string secondPublicId, ChartFilter filter,
+        CancellationToken cancellationToken = default);
+    Task<PagedResult<PlayerStatsRow>> GetPlayerStatsAsync(string? selectionPublicId, ChartFilter filter, int page, int pageSize,
+        CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ChartMatchRow>> GetChartMatchesAsync(ChartFilter filter, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ChartTeamShotRow>> GetChartTeamShotsAsync(ChartFilter filter, CancellationToken cancellationToken = default);
     Task<Statistic?> GetDetailsAsync(string publicId, CancellationToken cancellationToken = default);

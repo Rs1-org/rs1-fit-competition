@@ -18,6 +18,7 @@ export interface UserDto {
   firstName: string;
   lastName: string;
   phoneNumber: string;
+  premiumUntil?: string | null;
 }
 
 export interface RegisterResponse {

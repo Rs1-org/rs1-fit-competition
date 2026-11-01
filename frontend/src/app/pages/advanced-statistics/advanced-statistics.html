@@ -1,0 +1,68 @@
+<main class="statistics-page"><h1>Advanced statistics</h1>
+  <a routerLink="/statistics">Back to team statistics</a>
+  @if (!unlocked()) { <app-paywall /> }
+  @else {
+    <form [formGroup]="filters"><fieldset><legend>Filter statistics</legend><div class="stat-fields">
+      <label>Competition<select formControlName="competitionPublicId"><option value="">All competitions</option>
+        @for (competition of competitions(); track competition.publicId) { <option [value]="competition.publicId">{{ competition.name }}</option> }
+      </select></label>
+      <label>Season<select formControlName="seasonPublicId"><option value="">All seasons</option>
+        @for (season of seasons(); track season.publicId) { <option [value]="season.publicId">{{ season.name }}{{ season.isCurrent ? ' (current)' : '' }}</option> }
+      </select></label>
+      <label>Team<select formControlName="firstSelectionPublicId"><option value="">Choose a team</option>
+        @for (selection of selections(); track selection.publicId) { <option [value]="selection.publicId">{{ selection.name }}</option> }
+      </select></label>
+      <label>Compare with<select formControlName="secondSelectionPublicId"><option value="">Choose a team</option>
+        @for (selection of selections(); track selection.publicId) { <option [value]="selection.publicId">{{ selection.name }}</option> }
+      </select></label>
+      <label>Form over last<select formControlName="last">
+        @for (option of lastOptions; track option) { <option [ngValue]="option">{{ option }} matches</option> }
+      </select></label>
+    </div><p>Only finished matches with a recorded score are counted.</p></fieldset></form>
+
+    <h2>Team form</h2>
+    @if (form().loading) { <p role="status">Loading team form…</p> }
+    @else if (form().error) { <p role="alert" class="stat-error">{{ form().error }}</p> }
+    @else if (form().data; as data) {
+      @if (data.matches.length) {
+        <p>{{ data.selectionName }}: {{ data.wins }} wins, {{ data.draws }} draws, {{ data.losses }} losses, {{ data.points }} points.</p>
+        <div class="chart-grid"><app-chart class="chart-wide" title="Goals in recent matches" yTitle="Goals" [labels]="formChart().labels" [series]="formChart().series" /></div>
+        <div class="stat-table-wrap" tabindex="0"><table class="stat-table"><caption>Recent matches</caption>
+          <thead><tr><th scope="col">Date</th><th scope="col">Opponent</th><th scope="col">Score</th><th scope="col">Result</th></tr></thead>
+          <tbody>@for (match of data.matches; track $index) {
+            <tr><td>{{ match.date | appDate }}</td><td>{{ match.opponentName }}</td><td>{{ match.goalsFor }}–{{ match.goalsAgainst }}</td><td>{{ match.result }}</td></tr>
+          }</tbody></table></div>
+      } @else { <p class="chart-empty">No finished matches for this team and these filters.</p> }
+    } @else { <p class="chart-empty">Choose a team to see its form.</p> }
+
+    <h2>Head-to-head</h2>
+    @if (headToHead().loading) { <p role="status">Loading head-to-head…</p> }
+    @else if (headToHead().error) { <p role="alert" class="stat-error">{{ headToHead().error }}</p> }
+    @else if (headToHead().data; as data) {
+      @if (data.matches.length) {
+        <p>Goals: {{ data.firstName }} {{ data.firstGoals }}, {{ data.secondName }} {{ data.secondGoals }}.</p>
+        <div class="chart-grid"><app-chart class="chart-wide" title="Head-to-head results" yTitle="Matches" [labels]="headToHeadChart().labels" [series]="headToHeadChart().series" /></div>
+        <div class="stat-table-wrap" tabindex="0"><table class="stat-table"><caption>Latest meetings</caption>
+          <thead><tr><th scope="col">Date</th><th scope="col">Home</th><th scope="col">Score</th><th scope="col">Away</th></tr></thead>
+          <tbody>@for (match of data.matches; track $index) {
+            <tr><td>{{ match.date | appDate }}</td><td>{{ match.homeName }}</td><td>{{ match.homeScore }}–{{ match.awayScore }}</td><td>{{ match.awayName }}</td></tr>
+          }</tbody></table></div>
+      } @else { <p class="chart-empty">These teams have no finished matches against each other for these filters.</p> }
+    } @else { <p class="chart-empty">Choose two different teams to compare them.</p> }
+
+    <h2>Player statistics</h2>
+    @if (players().loading) { <p role="status">Loading player statistics…</p> }
+    @else if (players().error) { <p role="alert" class="stat-error">{{ players().error }}</p> }
+    @else if (players().data; as data) {
+      @if (data.items.length) {
+        <div class="chart-grid"><app-chart class="chart-wide" title="Goals and cards per player" yTitle="Count" [labels]="playersChart().labels" [series]="playersChart().series" /></div>
+        <div class="stat-table-wrap" tabindex="0"><table class="stat-table"><caption>Players</caption>
+          <thead><tr><th scope="col">Player</th><th scope="col">Team</th><th scope="col">Goals</th><th scope="col">Yellow</th><th scope="col">Red</th></tr></thead>
+          <tbody>@for (player of data.items; track player.playerPublicId + player.selectionName) {
+            <tr><td>{{ player.playerName }}</td><td>{{ player.selectionName }}</td><td>{{ player.goals }}</td><td>{{ player.yellowCards }}</td><td>{{ player.redCards }}</td></tr>
+          }</tbody></table></div>
+        <app-pagination [totalItems]="data.totalCount" [currentPage]="data.page" [pageSize]="data.pageSize" (pageChange)="page($event)" />
+      } @else { <p class="chart-empty">No player events recorded for finished matches yet.</p> }
+    }
+  }
+</main>

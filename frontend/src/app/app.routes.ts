@@ -6,6 +6,8 @@ import { adminGuard } from './core/guards/admin.guard';
 export const routes: Routes = [
   { path: 'manage-polls/:matchPublicId', canActivate: [AdminModeratorGuard], loadComponent: () => import('./components/poll-form/poll-form').then(m => m.PollForm) },
   { path: 'live-matches/:publicId', loadComponent: () => import('./pages/match-events/match-events').then(m => m.MatchEvents) },
+  { path: 'statistics/advanced', loadComponent: () => import('./pages/advanced-statistics/advanced-statistics').then(m => m.AdvancedStatistics) },
+  { path: 'premium/result', canActivate: [AuthGuard], loadComponent: () => import('./pages/premium-result/premium-result').then(m => m.PremiumResult) },
   { path: 'statistics/charts', loadComponent: () => import('./pages/statistics/statistics-charts').then(m => m.StatisticsCharts) },
   { path: 'statistics', loadComponent: () => import('./pages/statistics/statistics').then(m => m.Statistics) },
   { path: 'match-statistics/:publicId', loadComponent: () => import('./pages/statistics/match-statistics').then(m => m.MatchStatistics) },

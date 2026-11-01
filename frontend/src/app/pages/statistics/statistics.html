@@ -1,5 +1,5 @@
 <main class="statistics-page"><h1>Team statistics</h1>
-  <div class="stat-actions"><a routerLink="/match-reviews">Browse matches</a><a routerLink="/statistics/charts">View charts</a></div>
+  <div class="stat-actions"><a routerLink="/match-reviews">Browse matches</a><a routerLink="/statistics/charts">View charts</a><a routerLink="/statistics/advanced">Advanced statistics</a></div>
   <app-event-match-picker [selected]="matchId()" [selectedName]="context().data ? context().data!.homeSelectionName + ' vs ' + context().data!.awaySelectionName : 'Selected match'" (changeMatch)="chooseMatch($event)" />
   @if (matchId()) { <div class="stat-actions"><a [routerLink]="['/match-statistics', matchId()]">Match statistics</a>@if (canManage()) { <a [routerLink]="['/manage-statistics', matchId()]">Enter or edit statistics</a> }</div> }
   @if (context().error) { <p role="alert" class="stat-error">{{ context().error }}</p><button type="button" (click)="retry()">Retry teams</button> }

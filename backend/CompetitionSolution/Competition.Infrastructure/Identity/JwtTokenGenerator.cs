@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using Competition.Application.Auth.Interfaces;
+using Competition.Application.Payments;
 using Competition.Domain.Entities;
 using Competition.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
@@ -26,7 +27,9 @@ public class JwtTokenGenerator(IOptions<JwtSettings> options) : IJwtTokenGenerat
         claims.AddRange(roles.Select(it => new Claim(ClaimTypes.Role, it)));
         if (!string.IsNullOrWhiteSpace(user.SecurityStamp))
             claims.Add(new Claim("security_stamp", user.SecurityStamp));
-        
+        if (user.PremiumUntil.HasValue)
+            claims.Add(new Claim("premium_until", PremiumPlan.Format(user.PremiumUntil)!));
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

@@ -1,0 +1,16 @@
+<section class="paywall" aria-labelledby="paywall-title">
+  <h2 id="paywall-title">Unlock advanced statistics</h2>
+  <p>Premium adds team form, head-to-head comparisons and player statistics.</p>
+  <fieldset><legend>Choose a plan</legend>
+    @for (plan of plans; track plan) {
+      <label class="paywall-plan"><input type="radio" name="premium-plan" [value]="plan" [checked]="months() === plan" (change)="months.set(plan)" />
+        {{ plan }} {{ plan === 1 ? 'month' : 'months' }}
+        @if (price(plan); as amount) { <span>{{ amount | appNumber }} {{ pricing()?.currency?.toUpperCase() }}</span> }
+      </label>
+    }
+  </fieldset>
+  @if (error()) { <p role="alert" class="stat-error">{{ error() }}</p> }
+  <button type="button" [disabled]="starting()" (click)="goPremium()">{{ starting() ? 'Opening checkout…' : 'Go premium' }}</button>
+  @if (!userState.isSignedIn()) { <p>You will be asked to sign in first.</p> }
+  <app-auth-modal />
+</section>
