@@ -19,6 +19,10 @@ public class StatisticController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> GetCharts([FromQuery] GetStatisticChartsQuery query, CancellationToken cancellationToken) =>
         Ok(await mediator.Send(query, cancellationToken));
 
+    [HttpGet("standings")]
+    public async Task<IActionResult> GetStandings([FromQuery] GetStandingsQuery query, CancellationToken cancellationToken) =>
+        Ok(await mediator.Send(query, cancellationToken));
+
     [Authorize]
     [HttpGet("advanced/team-form")]
     public async Task<IActionResult> GetTeamForm([FromQuery] GetTeamFormQuery query, CancellationToken cancellationToken) =>

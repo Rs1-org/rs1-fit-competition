@@ -26,7 +26,7 @@
 
     <section class="figures" aria-label="Key figures">
       <app-stat-tile label="Matches today" [value]="matchesToday().length | appNumber: '1.0-0'" link="/matches" />
-      <app-stat-tile label="Live now" [value]="liveMatches().length | appNumber: '1.0-0'" link="/" fragment="live-now" />
+      <app-stat-tile label="Live now" [value]="liveMatches().length | appNumber: '1.0-0'" link="/live" />
       <app-stat-tile label="Upcoming this week" [value]="upcomingWeek().length | appNumber: '1.0-0'" link="/matches" />
       <app-stat-tile label="Goals this round" [value]="currentRound() ? (currentRound()!.goals | appNumber: '1.0-0') : '—'" link="/statistics/charts" />
     </section>
@@ -35,7 +35,7 @@
       <div class="section-head">
         <h2 id="live-heading"><span class="live-dot" aria-hidden="true"></span> Live now</h2>
         <p>{{ liveMatches().length | appNumber: '1.0-0' }} {{ liveMatches().length === 1 ? 'match' : 'matches' }}</p>
-        <a routerLink="/" fragment="live-now">All live matches</a>
+        <a routerLink="/live">All live matches</a>
       </div>
       @if (!liveMatches().length) {
         <app-empty-state icon="clock" title="No matches are live right now" message="Live scores appear here while a match is being played." />
@@ -159,7 +159,7 @@
 
     <nav class="bottom-tabs" aria-label="Primary">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
-      <a routerLink="/" fragment="live-now">Live @if (liveMatches().length) { <span>{{ liveMatches().length | appNumber: '1.0-0' }}</span> }</a>
+      <a routerLink="/live">Live @if (liveMatches().length) { <span>{{ liveMatches().length | appNumber: '1.0-0' }}</span> }</a>
       <a routerLink="/matches">Matches</a>
       <a routerLink="/competitions">Competitions</a>
       <details>
