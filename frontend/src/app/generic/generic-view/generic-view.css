@@ -2,19 +2,18 @@
 .detail-card {
   max-width: 600px;
   margin: 20px auto;
-  background: var(--bg-card);
-  border-radius: 12px;
-  box-shadow: var(--shadow-card);
+  background: var(--card);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
   overflow: hidden;
-  border: 1px solid var(--border-color);
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  border: 1px solid var(--bd);
 }
 
 /* Zaglavlje kartice */
 .detail-header {
-  background: linear-gradient(135deg, #0c3b32 0%, var(--accent-dark) 100%);
+  background: var(--hero);
   padding: 20px 25px;
-  color: white;
+  color: var(--on-img);
 }
 
 .detail-header h2 {
@@ -34,7 +33,7 @@
   display: flex;
   justify-content: space-between;
   padding: 15px 25px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--bd);
   transition: background 0.2s ease;
 }
 
@@ -43,13 +42,13 @@
 }
 
 .detail-row:hover {
-  background-color: var(--field-bg);
+  background-color: var(--field);
 }
 
 /* Naziv polja (Label) */
 .label {
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--mut);
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 0.3px;
@@ -57,13 +56,13 @@
 
 /* Vrijednost polja (Value) */
 .value {
-  color: var(--text-primary);
+  color: var(--tx);
   font-weight: 500;
   font-size: 1rem;
 }
 
 /* Responzivnost za manje ekrane */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .detail-row {
     flex-direction: column;
     gap: 5px;

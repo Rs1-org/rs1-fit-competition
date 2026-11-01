@@ -1,21 +1,21 @@
 <div class="io-bar">
   <div class="io-actions">
     <button type="button" class="io-btn" (click)="export('csv')" [disabled]="busy() !== null">
-      <i class="fa-solid fa-file-csv" aria-hidden="true"></i>
+      <app-icon name="file"></app-icon>
       {{ busy() === 'csv' ? 'Exporting…' : 'Export CSV' }}
     </button>
     <button type="button" class="io-btn" (click)="export('xlsx')" [disabled]="busy() !== null">
-      <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+      <app-icon name="file"></app-icon>
       {{ busy() === 'xlsx' ? 'Exporting…' : 'Export Excel' }}
     </button>
     <button type="button" class="io-btn" (click)="export('json')" [disabled]="busy() !== null">
-      <i class="fa-solid fa-file-code" aria-hidden="true"></i>
+      <app-icon name="file"></app-icon>
       {{ busy() === 'json' ? 'Exporting…' : 'Export JSON' }}
     </button>
 
     @if (canImport && importFn) {
       <button type="button" class="io-btn io-btn-import" (click)="chooseFile()" [disabled]="busy() !== null">
-        <i class="fa-solid fa-file-import" aria-hidden="true"></i>
+        <app-icon name="upload"></app-icon>
         {{ busy() === 'import' ? 'Importing…' : 'Import' }}
       </button>
       <input #fileInput type="file" hidden

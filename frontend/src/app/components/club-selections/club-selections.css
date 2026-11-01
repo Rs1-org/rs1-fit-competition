@@ -14,16 +14,16 @@ li {
   justify-content: space-between;
   gap: 16px;
   padding: 16px 0;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--bd);
 }
 a {
-  color: var(--text-primary);
+  color: var(--tx);
   overflow-wrap: anywhere;
   text-underline-offset: 3px;
 }
 span,
 p {
-  color: var(--text-secondary);
+  color: var(--tx2);
 }
 nav {
   display: flex;
@@ -35,10 +35,10 @@ nav {
 button {
   min-height: 44px;
   padding: 8px 16px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  color: var(--text-primary);
-  background: var(--bg-card);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-ctl);
+  color: var(--tx);
+  background: var(--card);
   cursor: pointer;
 }
 button:disabled {
@@ -46,6 +46,6 @@ button:disabled {
   cursor: default;
 }
 :is(a, button):focus-visible {
-  outline: 3px solid var(--accent);
+  outline: 3px solid var(--ac);
   outline-offset: 3px;
 }

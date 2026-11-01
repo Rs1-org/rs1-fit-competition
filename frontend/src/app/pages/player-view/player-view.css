@@ -1,8 +1,6 @@
 /* Kontejner za gumb (opcionalno za pozicioniranje) */
 .container {
   max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
 }
 
 /* Stil za gumb "Natrag" */
@@ -11,25 +9,25 @@
   align-items: center;
   gap: 10px;
   padding: 12px 20px;
-  background-color: var(--bg-card);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
+  background-color: var(--card);
+  color: var(--tx);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-ctl);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow);
 }
 
 /* Efekt pri prelasku mišem */
 .btn-back:hover {
-  background-color: var(--field-bg);
-  border-color: var(--accent);
-  color: var(--accent);
+  background-color: var(--field);
+  border-color: var(--ac);
+  color: var(--actx);
   transform: translateX(-5px); /* Gumb se lagano pomakne ulijevo */
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  box-shadow: var(--shadow);
 }
 
 /* Efekt pri kliku */
@@ -41,7 +39,7 @@
 .loading {
   text-align: center;
   padding: 40px;
-  color: var(--text-muted);
+  color: var(--mut);
   font-style: italic;
   font-weight: 500;
 }
@@ -49,17 +47,17 @@
 .detail-card {
   max-width: 600px;
   margin: 20px auto;
-  background: var(--bg-card);
-  border-radius: 12px;
-  box-shadow: var(--shadow-card);
+  background: var(--card);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
   overflow: hidden;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--bd);
 }
 
 .detail-header {
-  background: linear-gradient(135deg, #0c3b32 0%, var(--accent-dark) 100%);
+  background: var(--hero);
   padding: 20px 25px;
-  color: white;
+  color: var(--on-img);
 }
 
 .detail-header h2 {
@@ -77,7 +75,7 @@
   display: flex;
   justify-content: space-between;
   padding: 15px 25px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--bd);
   transition: background 0.2s ease;
 }
 
@@ -86,19 +84,19 @@
 }
 
 .detail-row:hover {
-  background-color: var(--field-bg);
+  background-color: var(--field);
 }
 
 .label {
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--mut);
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 0.3px;
 }
 
 .value {
-  color: var(--text-primary);
+  color: var(--tx);
   font-weight: 500;
   font-size: 1rem;
 }

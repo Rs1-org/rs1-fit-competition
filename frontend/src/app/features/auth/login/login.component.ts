@@ -1,3 +1,4 @@
+import { Icon } from '../../../shared/components/icon/icon';
 import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,7 +11,7 @@ import { SettingsService } from 'src/app/core/services/settings.service';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, AutofocusDirective],
+  imports: [ReactiveFormsModule, AutofocusDirective, Icon],
   templateUrl: './login.component.html',
   styleUrls: ['../auth-modal.component.css'],
   animations: [popIn],

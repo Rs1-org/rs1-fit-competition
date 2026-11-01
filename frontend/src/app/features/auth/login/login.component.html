@@ -25,7 +25,7 @@
           (click)="togglePasswordVisibility()"
           [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
         >
-          <i class="fa-solid" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
+          <app-icon [name]="showPassword ? 'eye-off' : 'eye'"></app-icon>
         </button>
       </div>
 

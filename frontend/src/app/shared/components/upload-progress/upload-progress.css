@@ -4,19 +4,19 @@
 
 .progress {
   height: 8px;
-  border-radius: 999px;
-  background: var(--bg-secondary);
+  border-radius: var(--r-pill);
+  background: var(--bg2);
   overflow: hidden;
 }
 
 .progress div {
   height: 100%;
-  background: var(--accent);
+  background: var(--btn);
 }
 
 .progress-label {
   display: block;
   margin-top: 0.25rem;
-  color: var(--text-secondary);
+  color: var(--tx2);
   font-size: 0.85rem;
 }

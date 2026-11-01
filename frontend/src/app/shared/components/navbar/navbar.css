@@ -12,11 +12,11 @@
   position: absolute;
   top: calc(100% + 8px); /* mali razmak ispod */
   left: 0;
-  background: var(--bg-card);
-  border-radius: 8px;
+  background: var(--card);
+  border-radius: var(--r-ctl);
   padding: 0.5rem 0;
   min-width: 200px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
   z-index: 1000;
@@ -26,7 +26,7 @@
 .manage-dropdown button {
   background: none;
   border: none;
-  color: var(--text-primary);
+  color: var(--tx);
   padding: 0.7rem 1rem;
   text-align: left;
   cursor: pointer;
@@ -36,56 +36,59 @@
 }
 
 .manage-dropdown button:hover {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg2);
 }
 
 .navbar {
   position: sticky;
   top: 0;
   z-index: 1300;
-  background: var(--bg-secondary);
-  padding: 1rem 2rem;
+  background: var(--bg2);
+  padding: 0.5rem var(--page-pad);
   display: flex;
   flex-direction: row;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .navbar-section {
-  width: 90%;
+  width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.25rem;
   align-items: center;
 }
 
 .navbar-text {
   display: flex;
-  height: 100%;
   align-items: center;
   gap: 0.5rem;
-  color: var(--text-primary);
+  color: var(--tx);
   cursor: pointer;
-  padding: 0.5rem 1rem;  
-  font-size: 1.4rem;
+  padding: 0.5rem;
+  font-size: 15px;
   font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
   transition: all 0.3s ease;
   transform: scale(1);
 
-  i {
-    color: var(--text-muted);
+  app-icon {
+    color: var(--mut);
   }
 }
 
 .navbar-text:hover{
-  background-color: var(--bg-card);
-  border-radius: 5px;
+  background-color: var(--card);
+  border-radius: var(--r-ctl);
   transform: scale(1.08);
 }
 
 .account-choices button.active {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--acs);
+  color: var(--actx);
 }
 
 .account-profile {
@@ -101,12 +104,12 @@
   gap: 0.1rem;
   margin: 0;
   max-width: none;
-  color: var(--text-primary);
+  color: var(--tx);
 }
 
 .account-profile span,
 .account-label {
-  color: var(--text-secondary);
+  color: var(--tx2);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -125,10 +128,10 @@
 
 .account-choices button {
   text-align: center;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--field-bg);
-  color: var(--text-primary);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-ctl);
+  background: var(--field);
+  color: var(--tx);
   padding: 0.65rem 0.4rem;
   cursor: pointer;
   font-weight: 650;
@@ -137,7 +140,7 @@
 .live-dot {
   width: 8px;
   height: 8px;
-  background: var(--live-color);
+  background: var(--live);
   border-radius: 50%;
   display: block;
   animation: pulse 1.5s infinite;

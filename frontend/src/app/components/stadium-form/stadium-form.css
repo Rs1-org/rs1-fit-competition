@@ -11,14 +11,14 @@ footer {
 
 .btn {
     padding: 10px 20px;
-    background-color: #3498db;
-    color: white;
+    background-color: var(--btn);
+    color: var(--btn-tx);
     border: none;
-    border-radius: 4px;
+    border-radius: var(--r-ctl);
     cursor: pointer;
     margin: 10px;
 }
 
 .btn:hover {
-    background-color: #2980b9;
+    background-color: var(--btn-hover);
 }

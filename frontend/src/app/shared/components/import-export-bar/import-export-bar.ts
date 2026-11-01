@@ -1,3 +1,4 @@
+import { Icon } from '../icon/icon';
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,6 +11,7 @@ import { exportFileName, saveBlob } from '../../../core/helpers/download.helper'
  */
 @Component({
   selector: 'app-import-export-bar',
+  imports: [Icon],
   standalone: true,
   templateUrl: './import-export-bar.html',
 })
