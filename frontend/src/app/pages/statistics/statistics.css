@@ -1,6 +1,17 @@
-.statistics-page { max-width: 1050px; padding: 0 1rem; margin: 2rem auto; color: var(--tx); }
-.statistics-page h1 { margin: .75rem 0; font-size: 2rem; }
+.statistics-page { max-width: var(--container); padding: var(--page-pad); margin: 0 auto; color: var(--tx); }
+.statistics-page h1 { margin: .75rem 0; font-size: 40px; line-height: 1.1; }
 .statistics-page h2, .stat-panel h2 { margin: 1.25rem 0 .75rem; }
+.stat-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem 1.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.stat-heading { flex: 1 1 320px; min-width: 0; }
+.stat-title { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.stat-selects { display: flex; align-items: flex-end; gap: .75rem; flex-wrap: wrap; }
+.stat-selects label { display: grid; gap: .35rem; font-size: 13px; font-weight: 600; }
+.stat-selects select { min-width: 180px; }
+.stat-pill { padding: .2rem .7rem; font-family: var(--font-title); font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--amb); background: var(--ambs); border-radius: var(--r-pill); }
+.stat-hint { font-size: 13px; color: var(--mut); }
+.stat-section { margin-top: var(--section-gap); }
+.stat-section-title { margin: 0 0 .75rem; }
+.stat-filters { margin: 1rem 0; }
 .statistics-page p, .stat-panel p { margin: .5rem 0; }
 .stat-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
 .stat-fields { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; margin: 1rem 0; }
@@ -27,4 +38,5 @@
 .stat-entry-form .stat-full { grid-column: 1 / -1; }
 .stat-panel { margin: 1.5rem 0; }
 @media (max-width: 768px) { .stat-fields { grid-template-columns: repeat(2,minmax(0,1fr)); } }
-@media (max-width: 768px) { .stat-fields, .stat-entry-form { grid-template-columns: 1fr; } .stat-table :is(th,td) { padding: .5rem; } }
+@media (max-width: 768px) { .stat-fields, .stat-entry-form { grid-template-columns: 1fr; } .stat-table :is(th,td) { padding: .5rem; }
+  .statistics-page { padding: 16px; } .statistics-page h1 { font-size: 32px; } .stat-selects, .stat-selects label, .stat-selects select { width: 100%; } }

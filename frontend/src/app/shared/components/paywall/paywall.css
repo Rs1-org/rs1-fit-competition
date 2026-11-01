@@ -1,10 +1,23 @@
-.paywall { max-width: 520px; margin: 1.5rem auto; padding: 1.5rem; background: var(--card); border: 1px solid var(--bd); border-radius: var(--r-card); color: var(--tx); }
-.paywall h2 { margin: 0 0 .5rem; }
-.paywall fieldset { margin: 1rem 0; padding: .75rem 1rem; border: 1px solid var(--bd); border-radius: var(--r-ctl); }
-.paywall legend { font-weight: 600; padding: 0 .35rem; }
-.paywall-plan { display: flex; align-items: center; gap: .5rem; min-height: 44px; cursor: pointer; }
-.paywall-plan span { margin-left: auto; font-weight: 600; }
-.paywall button { font: inherit; font-weight: 600; width: 100%; min-height: 44px; padding: .5rem .75rem; color: var(--tx); background: var(--field); border: 1px solid var(--ac); border-radius: var(--r-ctl); cursor: pointer; }
-.paywall button:disabled { opacity: .55; cursor: default; }
-.paywall button:focus-visible, .paywall input:focus-visible { outline: 2px solid var(--ac); outline-offset: 3px; }
-.stat-error { color: var(--dg); }
+.paywall { display: grid; place-items: center; position: relative; min-height: 620px; margin: 1.5rem 0; overflow: hidden; }
+.paywall > * { grid-area: 1 / 1; }
+.paywall-preview { display: grid; grid-template-columns: 2fr 1fr; grid-auto-rows: 180px; gap: 1.25rem; align-self: stretch; justify-self: stretch; filter: blur(8px); opacity: .7; pointer-events: none; user-select: none; }
+.paywall-preview > div { background: var(--card); border-radius: var(--r-card); }
+.preview-chart { display: flex; align-items: flex-end; gap: 1rem; padding: 1.5rem; grid-row: span 2; }
+.preview-chart span { flex: 1; background: var(--ac); opacity: .45; border-radius: 4px; height: 60%; }
+.preview-chart span:nth-child(2n) { height: 85%; }
+.preview-chart span:nth-child(4) { height: 100%; }
+.preview-row { grid-column: 1 / -1; }
+.paywall-card { position: relative; margin: 1.5rem 0; }
+.paywall-benefits { display: grid; gap: .5rem; list-style: none; color: var(--tx2); }
+.paywall-benefits li { display: flex; align-items: center; gap: .6rem; }
+.paywall-benefits app-icon { flex: none; color: var(--actx); }
+.paywall-plans { display: flex; flex-wrap: wrap; gap: .5rem; border: 0; }
+.paywall-plan { display: inline-flex; align-items: center; min-height: 44px; padding: 0 1rem; font-weight: 600; color: var(--tx2); background: var(--field); border: 1px solid var(--bd); border-radius: var(--r-pill); cursor: pointer; }
+.paywall-plan.selected { color: var(--actx); background: var(--acs); border-color: var(--ac); }
+.paywall-plan:has(input:focus-visible) { outline: 2px solid var(--ac); outline-offset: 2px; }
+.paywall-price { color: var(--mut); }
+.paywall-price strong { font-family: var(--font-title); font-size: 36px; font-weight: 700; color: var(--tx); }
+.paywall-action { display: block; }
+.paywall-action ::ng-deep .btn { width: 100%; }
+.paywall-error { color: var(--dg); }
+.paywall-note { font-size: 13px; color: var(--mut); }

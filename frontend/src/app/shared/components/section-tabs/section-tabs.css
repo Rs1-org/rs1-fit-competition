@@ -1,0 +1,37 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.section-tabs {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--bd);
+}
+
+.section-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  white-space: nowrap;
+  color: var(--mut);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+}
+
+.section-tab:hover {
+  color: var(--tx);
+}
+
+.section-tab.active {
+  color: var(--tx);
+  border-bottom-color: var(--ac);
+}
+
+.section-tab:focus-visible {
+  outline: 2px solid var(--ac);
+  outline-offset: -2px;
+}
