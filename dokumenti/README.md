@@ -13,8 +13,8 @@ Project documentation required by RS1 (diagrams, later also the ER diagram).
 
 | Colour | Meaning |
 |---|---|
-| Grey | Entities from Sprints 1–3 |
-| Green | New in Sprint 4 |
+| Grey | Entities from Sprints 1–4 |
+| Orange | New in Sprint 5 |
 | Purple | ASP.NET Identity framework base classes |
 
 Each sprint, recolour the previous sprint's entities grey and give the new ones the highlight colour (RS1: new entities in a different colour).

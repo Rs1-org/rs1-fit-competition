@@ -1,5 +1,5 @@
 ---
-title: CompetitionSolution - class diagram (up to Sprint 4)
+title: CompetitionSolution - class diagram (up to Sprint 5)
 config:
   layout: elk
   class:
@@ -105,22 +105,18 @@ classDiagram
         +Guid? HomeSelectionId
         +Guid? AwaySelectionId
         +Guid? RoundId
+        +Guid? RefereeId
+        +Guid? HomeFormationId
+        +Guid? AwayFormationId
     }
-    class Poll {
-        Guid MatchId
-        string Question
-        Instant OpensAt
-        Instant ClosesAt
-    }
-    class PollOption {
-        Guid PollId
-        string Label
-        int SortOrder
-    }
-    class PollVote {
-        Guid PollId
-        Guid OptionId
-        Guid UserId
+    class MatchLineup {
+        +Guid MatchId
+        +Guid SelectionId
+        +Guid PlayerId
+        +Guid? PositionId
+        +Guid? SubPositionId
+        +bool IsStarter
+        +int? ShirtNumber
     }
     class Event {
         Guid MatchId
@@ -157,6 +153,7 @@ classDiagram
         +string? Slug
         +Guid CountryId
         +Guid? ClubId
+        +Guid? HomeStadiumId
     }
     class Person {
         +string FirstName
@@ -285,11 +282,9 @@ classDiagram
     BaseEntity <|-- Stadium
     BaseEntity <|-- Club
     BaseEntity <|-- Match
+    BaseEntity <|-- MatchLineup
     BaseEntity <|-- MatchStatus
     BaseEntity <|-- Event
-    BaseEntity <|-- Poll
-    BaseEntity <|-- PollOption
-    BaseEntity <|-- PollVote
     BaseEntity <|-- EventType
     BaseEntity <|-- MatchPart
     BaseEntity <|-- Statistic
@@ -332,11 +327,6 @@ classDiagram
     TeamStatistic "0..*" --> "1" Selection : Selection
     MatchReview "0..*" --> "1" Match : Match
     Event "0..*" --> "1" Match : Match
-    Poll "0..*" --> "1" Match : Match
-    Poll "1" <--> "0..*" PollOption : Options / Poll
-    Poll "1" <--> "0..*" PollVote : Votes / Poll
-    PollOption "1" <--> "0..*" PollVote : Votes / Option (same poll)
-    PollVote "0..*" --> "1" ApplicationUser : User
     Event "0..*" --> "1" EventType : EventType
     Event "0..*" --> "1" MatchPart : MatchPart
     Event "0..*" --> "1" Selection : Selection
@@ -367,28 +357,32 @@ classDiagram
     Competition "1" <--> "0..*" Season : Seasons / Competition
     Season "1" <--> "0..*" Round : Rounds / Season
     Match "0..*" <--> "0..1" Round : Round / Matches
+    Match "0..*" --> "0..1" Referee : Referee
+    Match "0..*" --> "0..1" Formation : HomeFormation
+    Match "0..*" --> "0..1" Formation : AwayFormation
+    Match "1" <--> "0..*" MatchLineup : Lineups / Match
+    MatchLineup "0..*" --> "1" Selection : Selection
+    MatchLineup "0..*" --> "1" Player : Player
+    MatchLineup "0..*" --> "0..1" Position : Position
+    MatchLineup "0..*" --> "0..1" SubPosition : SubPosition
+    Selection "0..*" --> "0..1" Stadium : HomeStadium
 
     %% ---------- Legend (colour swatches) ----------
-    class LegendSprint1to3["Legend: Sprints 1-3"] {
+    class LegendEarlier["Legend: Sprints 1-4"] {
         <<legend>>
     }
-    class LegendSprint4["Legend: new in Sprint 4"] {
+    class LegendSprint5["Legend: new in Sprint 5"] {
         <<legend>>
     }
     class LegendIdentity["Legend: ASP.NET Identity"] {
         <<legend>>
     }
-    class LegendSprint6["Legend: Sprint 6 polls"] {
-        <<legend>>
-    }
-    LegendSprint1to3 .. LegendSprint4
-    LegendSprint4 .. LegendIdentity
-    LegendSprint4 .. LegendSprint6
+    LegendEarlier .. LegendSprint5
+    LegendSprint5 .. LegendIdentity
 
     %% ---------- Notes ----------
-    note for BaseEntity "All domain classes inherit BaseEntity (soft delete via DeletedAt). ApplicationUser, ApplicationRole and RefreshToken do not."
-    note for LegendSprint4 "Sprint 4 also added Match.RoundId (Match -> Round).
-COMP-41 added Event, EventType and MatchPart. Selection.HomeStadiumId remains planned under COMP-75."
+    note for BaseEntity "All domain classes inherit BaseEntity, including PublicId (the external id) and soft delete via DeletedAt. ApplicationUser has its own PublicId. ApplicationRole and RefreshToken do not inherit BaseEntity."
+    note for LegendSprint5 "Sprint 5 added MatchLineup, Match.RefereeId and the home and away formation ids. User management uses ApplicationUser.PublicId, RegisteredAt and IsActive."
 
     %% ---------- Colours ----------
 
@@ -400,17 +394,14 @@ COMP-41 added Event, EventType and MatchPart. Selection.HomeStadiumId remains pl
     style City fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style GeoData fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Stadium fill:#eceff1,stroke:#546e7a,color:#1f2a30
-    style Club fill:#e8f5e9,stroke:#2e7d32,color:#1b3a1f
-    style ClubAge fill:#e8f5e9,stroke:#2e7d32,color:#1b3a1f
+    style Club fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style ClubAge fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Match fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style MatchStatus fill:#eceff1,stroke:#546e7a,color:#1f2a30
-    style Poll fill:#e3f2fd,stroke:#1565c0,color:#102b4e
-    style PollOption fill:#e3f2fd,stroke:#1565c0,color:#102b4e
-    style PollVote fill:#e3f2fd,stroke:#1565c0,color:#102b4e
-    style LegendSprint6 fill:#e3f2fd,stroke:#1565c0,color:#102b4e
-    style Event fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
-    style EventType fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
-    style MatchPart fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
+    style MatchLineup fill:#fff3e0,stroke:#e65100,stroke-width:3px,color:#4e2600
+    style Event fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style EventType fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style MatchPart fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Selection fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Person fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Player fill:#eceff1,stroke:#546e7a,color:#1f2a30
@@ -424,11 +415,13 @@ COMP-41 added Event, EventType and MatchPart. Selection.HomeStadiumId remains pl
     style FormationMark fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Position fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style SubPosition fill:#eceff1,stroke:#546e7a,color:#1f2a30
-    style Competition fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
-    style Season fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
-    style Round fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
-    style Statistic fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
-    style TeamStatistic fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
-    style LegendSprint1to3 fill:#eceff1,stroke:#546e7a,color:#1f2a30
-    style LegendSprint4 fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#123d16
+    style Competition fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Season fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Round fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Statistic fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style MatchReview fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style ReviewReaction fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style TeamStatistic fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style LegendEarlier fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style LegendSprint5 fill:#fff3e0,stroke:#e65100,stroke-width:3px,color:#4e2600
     style LegendIdentity fill:#ECECFF,stroke:#9370DB,color:#333
