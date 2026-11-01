@@ -863,6 +863,9 @@ namespace Competition.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasDefaultValueSql("gen_random_uuid()");
 
+                    b.Property<Guid?>("AwayFormationId")
+                        .HasColumnType("uuid");
+
                     b.Property<int?>("AwayScore")
                         .HasColumnType("integer");
 
@@ -887,6 +890,9 @@ namespace Competition.Infrastructure.Migrations
                     b.Property<int?>("HalfHomeScore")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("HomeFormationId")
+                        .HasColumnType("uuid");
+
                     b.Property<int?>("HomeScore")
                         .HasColumnType("integer");
 
@@ -904,6 +910,9 @@ namespace Competition.Infrastructure.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
 
+                    b.Property<Guid?>("RefereeId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("RoundId")
                         .HasColumnType("uuid");
 
@@ -918,12 +927,18 @@ namespace Competition.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AwayFormationId");
+
                     b.HasIndex("AwaySelectionId");
+
+                    b.HasIndex("HomeFormationId");
 
                     b.HasIndex("HomeSelectionId");
 
                     b.HasIndex("PublicId")
                         .IsUnique();
+
+                    b.HasIndex("RefereeId");
 
                     b.HasIndex("RoundId");
 
@@ -936,6 +951,72 @@ namespace Competition.Infrastructure.Migrations
                     b.HasIndex("StatusId");
 
                     b.ToTable("Matches", (string)null);
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchLineup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsStarter")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("MatchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Instant>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("PositionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("SelectionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("ShirtNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("SubPositionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
+
+                    b.HasIndex("PositionId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("SelectionId");
+
+                    b.HasIndex("SubPositionId");
+
+                    b.HasIndex("MatchId", "PlayerId")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL");
+
+                    b.HasIndex("MatchId", "SelectionId", "ShirtNumber")
+                        .IsUnique()
+                        .HasFilter("\"DeletedAt\" IS NULL AND \"ShirtNumber\" IS NOT NULL");
+
+                    b.ToTable("MatchLineups", (string)null);
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchPart", b =>
@@ -2113,14 +2194,29 @@ namespace Competition.Infrastructure.Migrations
 
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Match", b =>
                 {
+                    b.HasOne("Competition.Domain.Entities.FormationEntities.Formation", "AwayFormation")
+                        .WithMany()
+                        .HasForeignKey("AwayFormationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Competition.Domain.Entities.Selection", "AwaySelection")
                         .WithMany("AwayMatches")
                         .HasForeignKey("AwaySelectionId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("Competition.Domain.Entities.FormationEntities.Formation", "HomeFormation")
+                        .WithMany()
+                        .HasForeignKey("HomeFormationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Competition.Domain.Entities.Selection", "HomeSelection")
                         .WithMany("HomeMatches")
                         .HasForeignKey("HomeSelectionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Competition.Domain.Entities.Person.Referee", "Referee")
+                        .WithMany()
+                        .HasForeignKey("RefereeId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Competition.Domain.Entities.CompetitionEntities.Round", "Round")
@@ -2140,15 +2236,62 @@ namespace Competition.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("AwayFormation");
+
                     b.Navigation("AwaySelection");
 
+                    b.Navigation("HomeFormation");
+
                     b.Navigation("HomeSelection");
+
+                    b.Navigation("Referee");
 
                     b.Navigation("Round");
 
                     b.Navigation("Stadium");
 
                     b.Navigation("Status");
+                });
+
+            modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchLineup", b =>
+                {
+                    b.HasOne("Competition.Domain.Entities.MatchEntities.Match", "Match")
+                        .WithMany("Lineups")
+                        .HasForeignKey("MatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Competition.Domain.Entities.Person.Player", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Competition.Domain.Entities.FormationEntities.Position", "Position")
+                        .WithMany()
+                        .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Competition.Domain.Entities.Selection", "Selection")
+                        .WithMany()
+                        .HasForeignKey("SelectionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Competition.Domain.Entities.FormationEntities.SubPosition", "SubPosition")
+                        .WithMany()
+                        .HasForeignKey("SubPositionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Match");
+
+                    b.Navigation("Player");
+
+                    b.Navigation("Position");
+
+                    b.Navigation("Selection");
+
+                    b.Navigation("SubPosition");
                 });
 
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.MatchReview", b =>
@@ -2527,6 +2670,8 @@ namespace Competition.Infrastructure.Migrations
 
             modelBuilder.Entity("Competition.Domain.Entities.MatchEntities.Match", b =>
                 {
+                    b.Navigation("Lineups");
+
                     b.Navigation("Statistics");
                 });
 

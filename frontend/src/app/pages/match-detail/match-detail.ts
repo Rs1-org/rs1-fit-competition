@@ -1,9 +1,12 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, map, of, switchMap } from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { AppDateTimePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { MatchService } from '../../core/services/match.service';
+import { LineupService } from '../../core/services/lineup.service';
+import { emptyLineup, LineupPlayer, MatchLineup } from '../../core/models/lineup';
 import { UserStateService } from '../../core/services/user-state.service';
 import { MatchDetailsDto } from '../../core/models/match';
 import { roundLabel } from '../../core/helpers/match.helper';
@@ -16,16 +19,18 @@ import { LiveCard } from '../../shared/components/live-card/live-card';
 import { SectionCard } from '../../shared/components/section-card/section-card';
 import { StatTile } from '../../shared/components/stat-tile/stat-tile';
 import { SectionTabs, SectionTab } from '../../shared/components/section-tabs/section-tabs';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
 
 @Component({
   selector: 'app-match-detail',
-  imports: [RouterLink, AppDateTimePipe, AppNumberPipe, Breadcrumb, Crest, ScoreDisplay, StatusBadge, LiveCard, SectionCard, StatTile, SectionTabs],
+  imports: [NgTemplateOutlet, RouterLink, AppDateTimePipe, AppNumberPipe, Breadcrumb, Crest, ScoreDisplay, StatusBadge, LiveCard, SectionCard, StatTile, SectionTabs, EmptyState],
   templateUrl: './match-detail.html',
   styleUrls: ['../stadium-detail/stadium-detail.css', './match-detail.css'],
 })
 export class MatchDetail {
   private route = inject(ActivatedRoute);
   private matchService = inject(MatchService);
+  private lineupService = inject(LineupService);
   canManage = inject(UserStateService).canManage;
   roundLabel = roundLabel;
 
@@ -38,6 +43,16 @@ export class MatchDetail {
       ),
     ),
     { initialValue: undefined },
+  );
+
+  lineup = toSignal(
+    toObservable(this.match).pipe(
+      switchMap((match) => {
+        if (!match) return of(null as MatchLineup | null);
+        return this.lineupService.get(match.publicId).pipe(catchError(() => of(emptyLineup(match.publicId))));
+      }),
+      startWith(undefined as MatchLineup | null | undefined),
+    ),
   );
 
   hasScore(match: MatchDetailsDto): boolean {
@@ -59,6 +74,14 @@ export class MatchDetail {
       { label: match.competitionName || 'Competition' },
       { label: `${match.homeSelectionName ?? 'TBD'} vs ${match.awaySelectionName ?? 'TBD'}` },
     ];
+  }
+
+  starters(players: LineupPlayer[]): LineupPlayer[] {
+    return players.filter((player) => player.isStarter);
+  }
+
+  substitutes(players: LineupPlayer[]): LineupPlayer[] {
+    return players.filter((player) => !player.isStarter);
   }
 
   tabs(match: MatchDetailsDto): SectionTab[] {

@@ -207,6 +207,31 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 .WithMany(r => r.Matches)
                 .HasForeignKey(x => x.RoundId)
                 .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Referee)
+                .WithMany()
+                .HasForeignKey(x => x.RefereeId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.HomeFormation)
+                .WithMany()
+                .HasForeignKey(x => x.HomeFormationId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.AwayFormation)
+                .WithMany()
+                .HasForeignKey(x => x.AwayFormationId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(x => x.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<MatchLineup>(e =>
+        {
+            e.ToTable("MatchLineups");
+            e.HasOne(x => x.Match).WithMany(m => m.Lineups).HasForeignKey(x => x.MatchId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Selection).WithMany().HasForeignKey(x => x.SelectionId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Player).WithMany().HasForeignKey(x => x.PlayerId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Position).WithMany().HasForeignKey(x => x.PositionId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.SubPosition).WithMany().HasForeignKey(x => x.SubPositionId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.MatchId, x.PlayerId }).IsUnique().HasFilter("\"DeletedAt\" IS NULL");
+            e.HasIndex(x => new { x.MatchId, x.SelectionId, x.ShirtNumber }).IsUnique().HasFilter("\"DeletedAt\" IS NULL AND \"ShirtNumber\" IS NOT NULL");
             e.HasQueryFilter(x => x.DeletedAt == null);
         });
 
@@ -521,6 +546,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<Stadium> Stadiums { get; set; }
     public DbSet<MatchStatus> MatchStatuses { get; set; } = null!;
     public DbSet<Match> Matches { get; set; } = null!;
+    public DbSet<MatchLineup> Lineups { get; set; } = null!;
     public DbSet<Poll> Polls { get; set; } = null!;
     public DbSet<PollOption> PollOptions { get; set; } = null!;
     public DbSet<PollVote> PollVotes { get; set; } = null!;

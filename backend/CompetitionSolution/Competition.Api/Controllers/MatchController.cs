@@ -1,9 +1,11 @@
 using Competition.Application.Commands.MatchCommands.Create;
 using Competition.Application.Commands.MatchCommands.Delete;
 using Competition.Application.Commands.MatchCommands.Update;
+using Competition.Application.Commands.MatchLineupCommands;
 using Competition.Application.Queries.Match.GetAll;
 using Competition.Application.Queries.Match.GetById;
 using Competition.Application.Queries.Match.GetBySlug;
+using Competition.Application.Lineups;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -76,6 +78,31 @@ public class MatchController : ControllerBase
     public async Task<IActionResult> Update(string slug, [FromBody] UpdateMatchCommand request, CancellationToken cancellationToken)
     {
         request.Slug = slug;
+        var result = await _mediator.Send(request, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("{publicId}/lineup")]
+    public async Task<IActionResult> GetLineup(string publicId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetMatchLineupQuery(publicId), cancellationToken);
+        return Ok(result);
+    }
+
+    [Authorize(Roles = "Admin,Moderator")]
+    [HttpPut("{publicId}/lineup")]
+    public async Task<IActionResult> SaveLineup(string publicId, [FromBody] SaveMatchLineupCommand request, CancellationToken cancellationToken)
+    {
+        request.PublicId = publicId;
+        var result = await _mediator.Send(request, cancellationToken);
+        return Ok(result);
+    }
+
+    [Authorize(Roles = "Admin,Moderator")]
+    [HttpPut("{publicId}/referee")]
+    public async Task<IActionResult> AssignReferee(string publicId, [FromBody] AssignMatchRefereeCommand request, CancellationToken cancellationToken)
+    {
+        request.PublicId = publicId;
         var result = await _mediator.Send(request, cancellationToken);
         return Ok(result);
     }

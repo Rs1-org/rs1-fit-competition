@@ -1,0 +1,9 @@
+.lineup-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.player-row {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  padding: 10px 0; border-top: 1px solid var(--bd);
+}
+.player-row label { display: flex; align-items: center; gap: 6px; }
+.player-row input[type='number'], .player-row select { min-height: 44px; }
+.saved { color: var(--ok, var(--tx)); font-weight: 700; }
+@media (max-width: 768px) { .lineup-sides { grid-template-columns: 1fr; } }

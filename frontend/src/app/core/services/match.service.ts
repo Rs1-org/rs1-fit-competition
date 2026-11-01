@@ -21,6 +21,10 @@ export class MatchService {
     return this.http.get<MatchDetailsDto>(`${this.apiUrl}/get/${encodeURIComponent(slug)}`);
   }
 
+  getByPublicId(publicId: string): Observable<MatchDetailsDto> {
+    return this.http.get<MatchDetailsDto>(`${this.apiUrl}/getByPublicId/${encodeURIComponent(publicId)}`);
+  }
+
   /** The backend generates the slug from the teams and date. */
   create(body: SaveMatchDto): Observable<MatchDetailsDto> {
     return this.http.post<MatchDetailsDto>(`${this.apiUrl}/create`, body);

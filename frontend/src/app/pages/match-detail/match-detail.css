@@ -41,11 +41,17 @@
   padding: 16px;
 }
 
+.lineup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.lineup-grid h3, .lineup-grid h4 { font-family: var(--font-title); }
+.lineup-list { list-style: none; margin: 0; padding: 0; }
+.lineup-list li { display: flex; gap: 8px; padding: 6px 0; border-top: 1px solid var(--bd); }
+
 .match-edit {
   margin-left: auto;
 }
 
 @media (max-width: 768px) {
+  .lineup-grid { grid-template-columns: 1fr; }
   .scoreboard {
     font-family: var(--font-title);
     grid-template-columns: 1fr;
