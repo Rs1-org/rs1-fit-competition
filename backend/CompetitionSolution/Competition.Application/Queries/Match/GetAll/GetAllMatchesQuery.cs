@@ -14,4 +14,5 @@ public class GetAllMatchesQuery : IRequest<PagedResult<MatchListDto>>
     public bool? IsPostponed { get; init; }
     public DateTime? DateFrom { get; init; }
     public DateTime? DateTo { get; init; }
+    public string? SelectionPublicId { get; init; }
 }

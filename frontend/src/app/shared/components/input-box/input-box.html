@@ -42,6 +42,7 @@
       [attr.aria-invalid]="showError() || null"
       [attr.aria-describedby]="showError() ? errorId : null"
       class="input-value"
+      #field
     />
     @if (showError()) {
       <span [id]="errorId">{{ errorMessage() }}</span>

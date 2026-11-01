@@ -1,12 +1,13 @@
 <div class="container">
   <div class="header-actions">
-    <h1>Selections</h1>
+    <h1>Teams</h1>
     @if (canManage()) {
-      <button class="btn-add" type="button" (click)="onAdd()">+ Add selection</button>
+      <button class="btn-add" type="button" (click)="onAdd()">Add team</button>
     }
   </div>
 
-  <form class="filter-bar" [formGroup]="filterForm">
+  <div [formGroup]="filterForm">
+  <app-filter-card [chips]="chips()" (chipRemove)="clearChip($event)" (resetFilters)="resetFilters()" (applyFilters)="apply()">
     <div class="filter-field">
       <label for="filter-name">Name</label>
       <input id="filter-name" type="text" formControlName="name" />
@@ -44,19 +45,18 @@
         <p role="alert">{{ clubOptions().error }}</p>
       }
     </div>
-    <button type="button" class="filter-reset" (click)="resetFilters()">Reset</button>
     @if (filterForm.hasError('followersRange')) {
       <p class="filter-error">Followers to must be greater than or equal to followers from.</p>
     }
-  </form>
+  </app-filter-card>
+  </div>
 
   @if (state().loading) {
-    <p role="status">Loading selections...</p>
+    <app-skeleton [rows]="5" />
   } @else if (state().error) {
-    <div role="alert">
-      <p>{{ state().error }}</p>
-      <button type="button" (click)="retry()">Try again</button>
-    </div>
+    <app-error-banner [message]="state().error" (retry)="retry()" />
+  } @else if (!state().data.totalCount) {
+    <app-empty-state icon="trophy" title="No teams match these filters" message="Try another name, country or club." />
   } @else {
     <app-generic-list
       [items]="state().data.items"
@@ -72,6 +72,7 @@
     >
       <ng-template #itemTemplate let-item>
         <div class="item-title">
+          <app-crest [name]="item.name" [abbreviation]="item.abbreviation" />
           <a [routerLink]="['/selection', item.slug]">{{ item.name }} · {{ item.abbreviation }}</a>
         </div>
         @if (item.clubSlug) {

@@ -45,6 +45,7 @@ public class MatchRepository : Repository<Match>, IMatch
         Guid? statusId, Guid? stadiumId, Guid? roundId,
         bool? isPostponed,
         DateTime? dateFrom, DateTime? dateTo,
+        Guid? selectionId,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Matches
@@ -75,6 +76,9 @@ public class MatchRepository : Repository<Match>, IMatch
         if (dateTo.HasValue)
             query = query.Where(m => m.Date <= Instant.FromDateTimeUtc(
                 DateTime.SpecifyKind(dateTo.Value, DateTimeKind.Utc)));
+
+        if (selectionId.HasValue)
+            query = query.Where(m => m.HomeSelectionId == selectionId.Value || m.AwaySelectionId == selectionId.Value);
 
         return await query
             .OrderBy(m => m.Date)

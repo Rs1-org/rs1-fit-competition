@@ -57,6 +57,7 @@ export interface MatchListFilter {
   isPostponed?: boolean;
   dateFrom?: string;
   dateTo?: string;
+  selectionPublicId?: string;
 }
 
 export interface SaveMatchDto {

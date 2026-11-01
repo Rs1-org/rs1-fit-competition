@@ -14,5 +14,6 @@ public interface IMatch : IRepository<Match>
         Guid? statusId, Guid? stadiumId, Guid? roundId,
         bool? isPostponed,
         DateTime? dateFrom, DateTime? dateTo,
+        Guid? selectionId,
         CancellationToken cancellationToken = default);
 }

@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { registerLocaleData } from '@angular/common';
 import bs from '@angular/common/locales/bs-Latn';
@@ -13,6 +15,8 @@ describe('SelectionDetail club navigation', () => {
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         {
           provide: ActivatedRoute,
           useValue: { paramMap: of(convertToParamMap({ slug: 'youth' })) },
