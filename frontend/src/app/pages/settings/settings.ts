@@ -1,6 +1,14 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { SettingsService } from '../../core/services/settings.service';
+import { UserStateService } from '../../core/services/user-state.service';
+import { ToastService } from '../../core/services/toast.service';
+import { SectionCard } from '../../shared/components/section-card/section-card';
+import { Button } from '../../shared/components/button/button';
+import { InputBox } from '../../shared/components/input-box/input-box';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
+import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
 
 function passwordsMatch(group: AbstractControl): ValidationErrors | null {
   const { newPassword, confirmPassword } = group.value;
@@ -9,13 +17,17 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-settings',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, SectionCard, Button, InputBox, ErrorBanner, AppDatePipe],
   templateUrl: './settings.html',
-  styleUrl: './settings.css',
+  styleUrls: ['../staff-form.css', './settings.css'],
 })
 export class Settings implements OnInit {
   private settings = inject(SettingsService);
+  private userState = inject(UserStateService);
+  private toast = inject(ToastService);
   private fb = inject(FormBuilder);
+  readonly account = toSignal(this.userState.user$, { initialValue: null });
+  readonly premium = this.userState.isPremium;
 
   profileMessage = '';
   profileError = '';
@@ -23,6 +35,10 @@ export class Settings implements OnInit {
   passwordError = '';
   preferenceMessage = '';
   preferenceError = '';
+  loadError = '';
+  savingProfile = false;
+  savingPassword = false;
+  savingPreferences = false;
 
   profileForm = this.fb.nonNullable.group({
     firstName: ['', [Validators.required, Validators.maxLength(100)]],
@@ -69,7 +85,7 @@ export class Settings implements OnInit {
         this.preferenceSnapshot = this.preferenceForm.getRawValue();
       },
       error: () => {
-        this.profileError = 'Could not load settings.';
+        this.loadError = 'Could not load settings.';
       },
     });
   }
@@ -95,12 +111,16 @@ export class Settings implements OnInit {
       this.profileForm.markAllAsTouched();
       return;
     }
+    this.savingProfile = true;
     this.settings.updateProfile(this.profileForm.getRawValue()).subscribe({
       next: () => {
+        this.savingProfile = false;
         this.profileSnapshot = this.profileForm.getRawValue();
         this.profileMessage = 'Profile saved.';
+        this.toast.success('Profile saved.');
       },
       error: (err) => {
+        this.savingProfile = false;
         this.profileError = err?.error?.errors?.[0]?.errorMessage || err?.error?.message || 'Could not save the profile.';
       },
     });
@@ -119,12 +139,16 @@ export class Settings implements OnInit {
       this.passwordForm.markAllAsTouched();
       return;
     }
+    this.savingPassword = true;
     this.settings.changePassword(this.passwordForm.getRawValue()).subscribe({
       next: () => {
+        this.savingPassword = false;
         this.passwordForm.reset();
         this.passwordMessage = 'Password changed.';
+        this.toast.success('Password changed.');
       },
       error: (err) => {
+        this.savingPassword = false;
         this.passwordError = err?.error?.errors?.[0]?.errorMessage || err?.error?.message || 'Could not change the password.';
       },
     });
@@ -143,12 +167,16 @@ export class Settings implements OnInit {
       this.preferenceForm.markAllAsTouched();
       return;
     }
+    this.savingPreferences = true;
     this.settings.updatePreferences(this.preferenceForm.getRawValue()).subscribe({
       next: () => {
+        this.savingPreferences = false;
         this.preferenceSnapshot = this.preferenceForm.getRawValue();
         this.preferenceMessage = 'Preferences saved.';
+        this.toast.success('Preferences saved.');
       },
       error: (err) => {
+        this.savingPreferences = false;
         this.preferenceError = err?.error?.errors?.[0]?.errorMessage || err?.error?.message || 'Could not save preferences.';
       },
     });

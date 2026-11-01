@@ -49,7 +49,7 @@
       <app-icon name="user"></app-icon>
       {{ user?.email || 'Guest' }}
       <div class="manage-dropdown" *ngIf="user && accountOpen" @popIn>
-        <button type="button" (click)="openProfilePopup($event)">{{ language.language() === 'en' ? 'My profile' : 'Moj profil' }}</button>
+        <button type="button" (click)="openProfile($event)">{{ language.language() === 'en' ? 'My profile' : 'Moj profil' }}</button>
         <button type="button" (click)="openSettingsPopup($event)">Settings</button>
         <button type="button" (click)="logout($event)">{{ language.language() === 'en' ? 'Log out' : 'Odjavi se' }}</button>
       </div>
@@ -59,16 +59,5 @@
       <button type="button" class="nav-login" (click)="openAuth()">Log in</button>
     }
     </div>
-    @if (profileOpen && user) {
-      <app-modal [title]="language.language() === 'en' ? 'My profile' : 'Moj profil'" width="420px" (close)="profileOpen = false">
-        <div class="account-profile">
-          <p><span>{{ language.language() === 'en' ? 'First name' : 'Ime' }}</span>{{ user.firstName || '—' }}</p>
-          <p><span>{{ language.language() === 'en' ? 'Last name' : 'Prezime' }}</span>{{ user.lastName || '—' }}</p>
-          <p><span>Email</span>{{ user.email || '—' }}</p>
-          <p><span>{{ language.language() === 'en' ? 'Phone' : 'Broj' }}</span>{{ user.phoneNumber || '—' }}</p>
-          <p><span>{{ language.language() === 'en' ? 'Role' : 'Uloga' }}</span>{{ roles.length ? roles.join(', ') : '—' }}</p>
-        </div>
-      </app-modal>
-    }
   </div>
 </div>
