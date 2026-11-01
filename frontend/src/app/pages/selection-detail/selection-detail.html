@@ -1,54 +1,119 @@
-<main class="clubs-page" [attr.aria-busy]="state().loading">
-  <a class="club-back" routerLink="/selection-list">Back to selections</a>
+<main class="team-page" [attr.aria-busy]="state().loading">
   @if (state().loading) {
-    <p class="club-state" role="status">Loading selection…</p>
+    <app-skeleton [rows]="6" />
   } @else if (state().error) {
-    <div class="club-state" role="alert">
-      <p>{{ state().error }}</p>
-      <button type="button" (click)="retry()">Try again</button>
-    </div>
+    <app-error-banner [message]="state().error" (retry)="retry()" />
   } @else if (state().data; as selection) {
-    <header class="club-heading">
-      <div>
+    <app-breadcrumb [items]="[{ label: 'Teams', route: '/selection-list' }, { label: selection.name }]" />
+    <header class="hero" [style.background]="heroColour(selection)">
+      <app-crest [name]="selection.name" [abbreviation]="selection.abbreviation" [size]="72" />
+      <div class="identity">
         <h1>{{ selection.name }}</h1>
-        <p>{{ selection.abbreviation }}</p>
-        <app-form-chips [results]="[]" />
-      </div>
-      @if (user.canManagePersons()) {
-        <a class="club-primary" [routerLink]="['/manage-selections', selection.slug]"
-          >Edit selection</a
-        >
-      }
-    </header>
-    <dl class="club-details">
-      <div>
-        <dt>Club</dt>
-        <dd>
+        <p class="facts">
           @if (selection.clubSlug) {
             <a [routerLink]="['/clubs', selection.clubSlug]">{{ selection.clubName }}</a>
           } @else {
-            Club not assigned
+            <span>Club not assigned</span>
           }
-        </dd>
-      </div>
-      <div>
-        <dt>Home stadium</dt>
-        <dd>
+          <span>{{ selection.countryName || 'Country not set' }}</span>
           @if (selection.stadiumSlug) {
             <a [routerLink]="['/stadium', selection.stadiumSlug]">{{ selection.stadiumName }}</a>
           } @else {
-            No home stadium
+            <span>No home stadium</span>
           }
-        </dd>
+          <span>{{ selection.followersCount | appNumber: '1.0-0' }} followers</span>
+        </p>
       </div>
-      <div>
-        <dt>Country</dt>
-        <dd>{{ selection.countryName || 'Not set' }}</dd>
+      @if (user.canManagePersons()) {
+        <a class="edit" [routerLink]="['/manage-selections', selection.slug]">Edit selection</a>
+      }
+    </header>
+
+    <div class="stats">
+      <app-stat-tile label="League position" value="—" />
+      <app-stat-tile label="Points" value="—" />
+      <app-stat-tile label="Goals" [value]="state().goals === null ? '—' : (state().goals | appNumber: '1.0-0')" />
+      <div class="form-tile">
+        <span class="form-label">Form</span>
+        <app-form-chips [results]="state().form" />
       </div>
-      <div>
-        <dt>Followers</dt>
-        <dd>{{ selection.followersCount | appNumber: '1.0-0' }}</dd>
-      </div>
-    </dl>
+    </div>
+    <p class="note">League position and points are not recorded for this team yet.</p>
+
+    <div class="layout">
+      <app-section-card title="Squad">
+        @if (!state().squad.length) {
+          <app-empty-state icon="player" title="No squad listed yet" message="Players appear here once they are linked to this team." />
+        } @else {
+          @for (group of state().squad; track group.position) {
+            <h3>{{ group.position }}</h3>
+            <div class="squad">
+              @for (player of group.players; track player.id) {
+                <app-player-card
+                  [name]="player.name"
+                  [position]="player.position"
+                  [number]="player.number"
+                  [age]="player.age"
+                  [value]="player.value === null ? null : (player.value | appNumber: '1.0-0')"
+                  [picture]="player.picture"
+                  [link]="'/player/' + player.id"
+                />
+              }
+            </div>
+          }
+        }
+      </app-section-card>
+
+      <aside class="side">
+        <app-section-card title="Manager">
+          @if (!state().managers.length) {
+            <app-empty-state icon="manager" title="No manager recorded" message="Wins, draws and losses appear when a manager is linked to this team." />
+          } @else {
+            @if (state().managers[0]; as current) {
+              <a class="manager" [routerLink]="['/manager', current.id]">{{ current.name }}</a>
+              <dl class="record">
+                <div><dt>Wins</dt><dd>{{ current.wins === null ? 'Not recorded' : (current.wins | appNumber: '1.0-0') }}</dd></div>
+                <div><dt>Draws</dt><dd>{{ current.draws === null ? 'Not recorded' : (current.draws | appNumber: '1.0-0') }}</dd></div>
+                <div><dt>Losses</dt><dd>{{ current.losses === null ? 'Not recorded' : (current.losses | appNumber: '1.0-0') }}</dd></div>
+              </dl>
+            }
+            @if (state().managers.length > 1) {
+              <h3>Previous managers</h3>
+              <ul>
+                @for (manager of state().managers.slice(1); track manager.id) {
+                  <li><a [routerLink]="['/manager', manager.id]">{{ manager.name }}</a></li>
+                }
+              </ul>
+            }
+          }
+        </app-section-card>
+
+        <app-section-card title="Matches">
+          @if (!state().matches.length) {
+            <app-empty-state icon="ball" title="No matches yet" message="Fixtures and results for this team will show up here." />
+          } @else {
+            <ul class="matches">
+              @for (match of state().matches; track match.publicId) {
+                <li>
+                  <a [routerLink]="['/matches', match.slug]">
+                    <app-match-row
+                      variant="compact"
+                      [status]="match.statusName"
+                      [postponed]="match.isPostponed"
+                      [homeName]="match.homeSelectionName"
+                      [awayName]="match.awaySelectionName"
+                      [homeAbbreviation]="match.homeSelectionAbbreviation"
+                      [awayAbbreviation]="match.awaySelectionAbbreviation"
+                      [homeScore]="match.homeScore"
+                      [awayScore]="match.awayScore"
+                    />
+                  </a>
+                </li>
+              }
+            </ul>
+          }
+        </app-section-card>
+      </aside>
+    </div>
   }
 </main>

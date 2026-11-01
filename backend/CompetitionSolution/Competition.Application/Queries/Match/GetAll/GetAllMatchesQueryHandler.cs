@@ -2,6 +2,7 @@ using AutoMapper;
 using Competition.Application.Common.Models;
 using Competition.Application.DTOs.MatchDto;
 using Competition.Application.Interfaces;
+using Competition.Domain.Entities;
 using Competition.Domain.Entities.CompetitionEntities;
 using Competition.Domain.Entities.MatchEntities;
 using StadiumEntity = Competition.Domain.Entities.MatchEntities.Stadium;
@@ -28,9 +29,11 @@ public class GetAllMatchesQueryHandler : IRequestHandler<GetAllMatchesQuery, Pag
         var statusId = await _lookup.GetIdByPublicIdAsync<MatchStatus>(request.StatusPublicId, cancellationToken);
         var stadiumId = await _lookup.GetIdByPublicIdAsync<StadiumEntity>(request.StadiumPublicId, cancellationToken);
         var roundId = await _lookup.GetIdByPublicIdAsync<Round>(request.RoundPublicId, cancellationToken);
+        var selectionId = await _lookup.GetIdByPublicIdAsync<Selection>(request.SelectionPublicId, cancellationToken);
         if ((request.StatusPublicId is not null && statusId is null)
             || (request.StadiumPublicId is not null && stadiumId is null)
-            || (request.RoundPublicId is not null && roundId is null))
+            || (request.RoundPublicId is not null && roundId is null)
+            || (request.SelectionPublicId is not null && selectionId is null))
             return new PagedResult<MatchListDto>(Array.Empty<MatchListDto>(), 0, request.Page, request.PageSize);
 
         var paged = await _match.GetPagedWithFiltersAsync(
@@ -38,6 +41,7 @@ public class GetAllMatchesQueryHandler : IRequestHandler<GetAllMatchesQuery, Pag
             statusId, stadiumId, roundId,
             request.IsPostponed,
             request.DateFrom, request.DateTo,
+            selectionId,
             cancellationToken);
 
         var items = _mapper.Map<IReadOnlyList<MatchListDto>>(paged.Items);

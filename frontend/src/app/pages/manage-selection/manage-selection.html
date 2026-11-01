@@ -6,20 +6,8 @@
     }
 
     <form class="formation-form" [formGroup]="form" (ngSubmit)="save()">
-      <div class="form-group">
-        <label for="name">Name</label>
-        <input type="text" id="name" formControlName="name" appAutofocus />
-        @if (fieldError('name'); as message) {
-          <p class="field-error">{{ message }}</p>
-        }
-      </div>
-      <div class="form-group">
-        <label for="abbreviation">Abbreviation</label>
-        <input type="text" id="abbreviation" formControlName="abbreviation" maxlength="10" />
-        @if (fieldError('abbreviation'); as message) {
-          <p class="field-error">{{ message }}</p>
-        }
-      </div>
+      <app-input-box label="Name" [control]="form.controls.name" [autofocus]="true" />
+      <app-input-box label="Abbreviation" [control]="form.controls.abbreviation" />
       <div class="form-group">
         <label for="countryPublicId">Country</label>
         <select id="countryPublicId" formControlName="countryPublicId">
@@ -32,13 +20,7 @@
           <p class="field-error">{{ message }}</p>
         }
       </div>
-      <div class="form-group">
-        <label for="followersCount">Followers</label>
-        <input type="number" id="followersCount" formControlName="followersCount" min="0" />
-        @if (fieldError('followersCount'); as message) {
-          <p class="field-error">{{ message }}</p>
-        }
-      </div>
+      <app-input-box label="Followers" type="number" [control]="form.controls.followersCount" />
       <div class="form-group">
         <label for="clubPublicId">Club</label>
         <select
@@ -89,15 +71,13 @@
         <p role="status">Loading selection...</p>
       }
       <div class="button-group">
-        <button
+        <app-button
           type="submit"
-          [disabled]="
-            form.invalid || saving || loading || loadFailed || clubsLoading || !!clubsError
-          "
-        >
-          {{ saving ? 'Saving...' : 'Save' }}
-        </button>
-        <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+          text="Save"
+          [loading]="saving"
+          [disabled]="form.invalid || loading || loadFailed || clubsLoading || !!clubsError"
+        />
+        <app-button variant="secondary" text="Cancel" (click)="cancel()" />
       </div>
     </form>
   </div>

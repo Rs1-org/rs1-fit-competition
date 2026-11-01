@@ -28,6 +28,11 @@ import { CountryListDto } from '../../core/models/country';
 import { emptyPage } from '../../core/models/paged-result';
 import { AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { ToastService } from '../../core/services/toast.service';
+import { FilterCard, FilterChip } from '../../shared/components/filter-card/filter-card';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { Skeleton } from '../../shared/components/skeleton/skeleton';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
+import { Crest } from '../../shared/components/crest/crest';
 
 function followersRangeValidator(group: AbstractControl): ValidationErrors | null {
   const { followersMin, followersMax } = group.value;
@@ -38,9 +43,9 @@ function followersRangeValidator(group: AbstractControl): ValidationErrors | nul
 
 @Component({
   selector: 'app-selection-list',
-  imports: [CommonModule, GenericListComponent, ReactiveFormsModule, AppNumberPipe, RouterLink],
+  imports: [CommonModule, GenericListComponent, ReactiveFormsModule, AppNumberPipe, RouterLink, FilterCard, EmptyState, Skeleton, ErrorBanner, Crest],
   templateUrl: './selection-list.html',
-  styleUrl: '../catalog.css',
+  styleUrls: ['../catalog.css', './selection-list.css'],
 })
 export class SelectionList {
   readonly isAdmin = inject(UserStateService).isAdmin;
@@ -132,6 +137,31 @@ export class SelectionList {
 
   resetFilters(): void {
     this.filterForm.reset({ name: '', countryPublicId: '', clubPublicId: '', abbreviation: '' });
+  }
+
+  apply(): void {
+    if (this.filterForm.invalid) return;
+    this.query$.next({ page: 1, filter: this.toFilter() });
+  }
+
+  chips(): FilterChip[] {
+    const { name, abbreviation, countryPublicId, clubPublicId, followersMin, followersMax } = this.filterForm.getRawValue();
+    const chips: FilterChip[] = [];
+    if (name.trim()) chips.push({ key: 'name', label: name.trim() });
+    if (abbreviation.trim()) chips.push({ key: 'abbreviation', label: abbreviation.trim() });
+    const country = this.countryOptions().items.find((item) => item.publicId === countryPublicId);
+    if (country) chips.push({ key: 'countryPublicId', label: country.name });
+    const club = this.clubOptions().items.find((item) => item.publicId === clubPublicId);
+    if (club) chips.push({ key: 'clubPublicId', label: club.name });
+    if (followersMin != null) chips.push({ key: 'followersMin', label: `From ${followersMin}` });
+    if (followersMax != null) chips.push({ key: 'followersMax', label: `To ${followersMax}` });
+    return chips;
+  }
+
+  clearChip(key: string): void {
+    const control = this.filterForm.get(key);
+    if (!control) return;
+    control.setValue(key === 'followersMin' || key === 'followersMax' ? null : '');
   }
 
   onAdd(): void {

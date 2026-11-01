@@ -1,0 +1,22 @@
+@if (link()) {
+  <a class="player" [routerLink]="link()">
+    <ng-container *ngTemplateOutlet="body" />
+  </a>
+} @else {
+  <article class="player">
+    <ng-container *ngTemplateOutlet="body" />
+  </article>
+}
+
+<ng-template #body>
+  @if (picture()) {
+    <img class="avatar" [src]="picture()" [alt]="name()" />
+  } @else {
+    <span class="avatar fallback" aria-hidden="true">{{ initials() }}</span>
+  }
+  <span class="number">{{ number() ?? '–' }}</span>
+  <span class="name">{{ name() }}</span>
+  <span class="meta">{{ position() || 'Position not recorded' }}</span>
+  <span class="meta">{{ age() === null ? 'Age not recorded' : age() + ' years' }}</span>
+  <span class="meta">{{ value() || 'Value not recorded' }}</span>
+</ng-template>

@@ -31,6 +31,7 @@ public class MatchController : ControllerBase
         [FromQuery] bool? isPostponed = null,
         [FromQuery] DateTime? dateFrom = null,
         [FromQuery] DateTime? dateTo = null,
+        [FromQuery] string? selectionPublicId = null,
         CancellationToken cancellationToken = default)
     {
         var result = await _mediator.Send(new GetAllMatchesQuery
@@ -42,7 +43,8 @@ public class MatchController : ControllerBase
             RoundPublicId = roundPublicId,
             IsPostponed = isPostponed,
             DateFrom = dateFrom,
-            DateTo = dateTo
+            DateTo = dateTo,
+            SelectionPublicId = selectionPublicId
         }, cancellationToken);
         return Ok(result);
     }

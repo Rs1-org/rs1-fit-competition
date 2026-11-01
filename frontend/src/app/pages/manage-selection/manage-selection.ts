@@ -13,11 +13,13 @@ import { StadiumService } from '../../core/services/stadium.service';
 import { StadiumListDto } from '../../core/models/stadium';
 import { fetchAllPages } from '../../core/helpers/paging.helper';
 import { apiErrorMessage } from '../../core/utils/api-error';
-import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
+import { InputBox } from '../../shared/components/input-box/input-box';
+import { Button } from '../../shared/components/button/button';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-manage-selection',
-  imports: [ReactiveFormsModule, AutofocusDirective],
+  imports: [ReactiveFormsModule, InputBox, Button],
   templateUrl: './manage-selection.html',
   styleUrls: ['../manage-players/manage-players.css', '../manage-formation/manage-formation.css'],
 })
@@ -30,6 +32,7 @@ export class ManageSelection implements OnInit {
   private clubs = inject(ClubService);
   private stadiums = inject(StadiumService);
   private destroyRef = inject(DestroyRef);
+  private toast = inject(ToastService);
 
   form = this.fb.group({
     name: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(120)]),
@@ -191,7 +194,10 @@ export class ManageSelection implements OnInit {
         finalize(() => (this.saving = false)),
       )
       .subscribe({
-        next: () => this.router.navigate(['/selection-list']),
+        next: () => {
+          this.toast.success('Selection saved');
+          this.router.navigate(['/selection-list']);
+        },
         error: (err) => {
           this.error = apiErrorMessage(err, 'Could not save the selection.');
           if (err instanceof HttpErrorResponse) {

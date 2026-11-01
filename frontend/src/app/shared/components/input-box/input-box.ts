@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, input, output, viewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
@@ -7,7 +7,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
   templateUrl: './input-box.html',
   styleUrl: './input-box.css',
 })
-export class InputBox {
+export class InputBox implements AfterViewInit {
   private static nextId = 0;
   readonly inputId = `input-box-${InputBox.nextId++}`;
   readonly errorId = `${this.inputId}-error`;
@@ -17,7 +17,13 @@ export class InputBox {
   control = input<FormControl>(new FormControl());
   type = input<string>('text');
   accept = input<string>('');
+  autofocus = input(false);
   fileChange = output<Event>();
+  private field = viewChild<ElementRef<HTMLElement>>('field');
+
+  ngAfterViewInit(): void {
+    if (this.autofocus()) queueMicrotask(() => this.field()?.nativeElement.focus());
+  }
 
   showError(): boolean {
     return this.control().invalid && this.control().touched;

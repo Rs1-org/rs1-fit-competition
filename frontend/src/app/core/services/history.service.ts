@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import {
   emptyManagerHistoryForm,
   emptyPlayerHistoryForm,
@@ -28,6 +28,16 @@ interface MandateDate {
 export class HistoryService {
   private http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
+
+  playerSelections(selectionId: string): Observable<PagedResult<PlayerSelectionHistory>> {
+    const params = new HttpParams().set('page', '1').set('pageSize', '100').set('selectionId', selectionId);
+    return this.http.get<PagedResult<PlayerSelectionHistory>>(`${this.baseUrl}/api/player-selection-history`, { params });
+  }
+
+  managerSelections(selectionId: string): Observable<PagedResult<SelectionManagerHistory>> {
+    const params = new HttpParams().set('page', '1').set('pageSize', '100').set('selectionId', selectionId);
+    return this.http.get<PagedResult<SelectionManagerHistory>>(`${this.baseUrl}/api/selection-manager-history`, { params });
+  }
 
   async loadPlayerHistory(playerId: string): Promise<PlayerHistoryForm> {
     const [selections, transfers] = await Promise.all([
