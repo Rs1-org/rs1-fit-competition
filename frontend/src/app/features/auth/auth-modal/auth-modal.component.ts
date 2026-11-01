@@ -1,34 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { LoginComponent } from '../login/login.component';
 import { RegisterComponent } from '../register/register.component';
+import { AuthModalService } from '../../../core/services/auth-modal.service';
 
 @Component({
-  imports: [LoginComponent,RegisterComponent],
+  imports: [LoginComponent, RegisterComponent],
   selector: 'app-auth-modal',
   templateUrl: './auth-modal.component.html',
   styleUrls: ['../auth-modal.component.css'],
 })
 export class AuthModalComponent {
+  readonly modal = inject(AuthModalService);
 
-  showLogin = false;
-  showRegister = false;
-
-  redirectAfterLogin: string | null = null;
-
-  openLogin(route?: string){
-    this.showLogin = true;
-    this.showRegister = false;
-    this.redirectAfterLogin = route ?? null;
+  openLogin(): void {
+    this.modal.openLogin();
   }
 
-  openRegister(){
-    this.showLogin = false;
-    this.showRegister = true;
+  openRegister(): void {
+    this.modal.openRegister();
   }
 
-  close(){
-    this.showLogin = false;
-    this.showRegister = false;
+  close(): void {
+    this.modal.close();
   }
-
 }

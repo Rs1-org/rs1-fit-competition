@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnChanges, signal, ViewChild } from '@angular/core';
+import { Component, inject, Input, OnChanges, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, catchError, combineLatest, filter, map, of, startWith, switchMap, tap } from 'rxjs';
@@ -8,19 +8,19 @@ import { MatchReviewPage, Review } from '../../core/models/match-review';
 import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { AppDateTimePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
-import { AuthModalComponent } from '../../features/auth/auth-modal/auth-modal.component';
+import { AuthModalService } from '../../core/services/auth-modal.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
 interface ReviewState { loading: boolean; data: MatchReviewPage | null; error: string; }
 
 @Component({
   selector: 'app-match-review-panel',
-  imports: [ReactiveFormsModule, Pagination, AppDateTimePipe, AppNumberPipe, AuthModalComponent],
+  imports: [ReactiveFormsModule, Pagination, AppDateTimePipe, AppNumberPipe],
   templateUrl: './match-review-panel.html', styleUrl: '../../pages/match-reviews/reviews.css',
 })
 export class MatchReviewPanel implements OnChanges {
   @Input({ required: true }) matchPublicId = '';
-  @ViewChild(AuthModalComponent) authModal?: AuthModalComponent;
+  private readonly authModal = inject(AuthModalService);
   private readonly service = inject(MatchReviewService);
   private readonly user = inject(UserStateService);
   private readonly confirm = inject(ConfirmDialogService);
@@ -56,7 +56,7 @@ export class MatchReviewPanel implements OnChanges {
   ngOnChanges(): void { this.form.reset(); this.ownId.set(null); this.actionError.set(''); this.query$.next({ id: this.matchPublicId, page: 1 }); }
   page(page: number): void { this.query$.next({ id: this.matchPublicId, page }); }
   retry(): void { this.query$.next({ ...this.query$.value }); }
-  login(): void { this.authModal?.openLogin(); }
+  login(): void { this.authModal.openLogin(); }
   save(): void {
     if (!this.viewer() || this.busy() || this.state().loading || this.state().error) return;
     this.form.markAllAsTouched();

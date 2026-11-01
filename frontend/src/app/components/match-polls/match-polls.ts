@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, Input, OnChanges, signal, ViewChild } from '@angular/core';
+import { Component, DestroyRef, inject, Input, OnChanges, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -9,17 +9,17 @@ import { PollService } from '../../core/services/poll.service';
 import { MatchLiveService } from '../../core/services/match-live.service';
 import { RealtimeState } from '../../core/services/signalr.service';
 import { UserStateService } from '../../core/services/user-state.service';
-import { AuthModalComponent } from '../../features/auth/auth-modal/auth-modal.component';
+import { AuthModalService } from '../../core/services/auth-modal.service';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { AppDateTimePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
 interface PollState { loading: boolean; data: PagedResult<Poll> | null; error: string; }
-@Component({ selector: 'app-match-polls', imports: [ReactiveFormsModule, RouterLink, AuthModalComponent, Pagination, AppDateTimePipe, AppNumberPipe],
+@Component({ selector: 'app-match-polls', imports: [ReactiveFormsModule, RouterLink, Pagination, AppDateTimePipe, AppNumberPipe],
   templateUrl: './match-polls.html', styleUrl: './polls.css' })
 export class MatchPolls implements OnChanges {
   @Input({ required: true }) matchPublicId = '';
-  @ViewChild(AuthModalComponent) authModal?: AuthModalComponent;
+  private readonly authModal = inject(AuthModalService);
   private readonly service = inject(PollService);
   private readonly live = inject(MatchLiveService);
   private readonly user = inject(UserStateService);
@@ -63,7 +63,7 @@ export class MatchPolls implements OnChanges {
   choice(poll: Poll): string | null { return poll.myOptionPublicId || this.confirmedChoices()[poll.publicId] || null; }
   page(page: number): void { this.displayed.set(null); this.query$.next({ id: this.matchPublicId, page }); }
   retry(): void { this.query$.next({ ...this.query$.value }); }
-  login(): void { this.authModal?.openLogin(); }
+  login(): void { this.authModal.openLogin(); }
   vote(poll: Poll): void {
     if (!this.viewer() || !poll.isOpen || this.choice(poll) || this.busy() || this.state().error) return;
     const form = this.voteForm(poll); form.markAllAsTouched();

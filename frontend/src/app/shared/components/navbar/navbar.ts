@@ -1,9 +1,9 @@
 import { Icon } from '../icon/icon';
-import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
 import { ThemeService } from '../../../core/services/theme.service';
 import { AppLanguage, LanguageService } from '../../../core/services/language.service';
-import { AuthModalComponent } from 'src/app/features/auth/auth-modal/auth-modal.component';
 import { Modal } from '../modal/modal';
+import { AuthModalService } from 'src/app/core/services/auth-modal.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { Router } from '@angular/router';
 import { AuthRedirectService } from 'src/app/core/services/auth-redirect.service';
@@ -17,7 +17,7 @@ import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, RouterModule, AuthModalComponent, Modal, HasRoleDirective, Icon],
+  imports: [CommonModule, RouterModule, Modal, HasRoleDirective, Icon],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
   animations: [popIn],
@@ -26,7 +26,7 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
   private host = inject(ElementRef<HTMLElement>);
   private navbarSize?: ResizeObserver;
 
-  constructor(private tokenService:TokenService, private router:Router, private redirectSerive:AuthRedirectService, private userStateService:UserStateService, private authService:AuthService, public themeService: ThemeService, public language: LanguageService) {}
+  constructor(private tokenService:TokenService, private router:Router, private redirectSerive:AuthRedirectService, private userStateService:UserStateService, private authService:AuthService, private authModal: AuthModalService, public themeService: ThemeService, public language: LanguageService) {}
   openManageTab = false;
   accountOpen = false;
   profileOpen = false;
@@ -130,9 +130,6 @@ export class Navbar implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/image-gallery']);
     this.openManageTab = false;
   }
-
-  @ViewChild(AuthModalComponent)
-  authModal!: AuthModalComponent;
 
   user: UserDto | null = null;
   canManagePersons = false;

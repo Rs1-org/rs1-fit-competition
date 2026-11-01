@@ -28,5 +28,4 @@
     @if (!viewer() && data.totalCount) { <p>Sign in to vote. Results are public.</p><button type="button" (click)="login()">Sign in</button> }
     <app-pagination [totalItems]="data.totalCount" [currentPage]="data.page" [pageSize]="data.pageSize" (pageChange)="page($event)" />
   }
-  <app-auth-modal />
 </section>

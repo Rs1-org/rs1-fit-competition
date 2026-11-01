@@ -56,9 +56,16 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0 0.25rem;
   align-items: center;
+}
+
+.navbar-end {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
 }
 
 .navbar-text {
@@ -84,6 +91,29 @@
   background-color: var(--card);
   border-radius: var(--r-ctl);
   transform: scale(1.08);
+}
+
+.navbar-text.is-static,
+.navbar-text.is-static:hover {
+  cursor: default;
+  background: none;
+  transform: none;
+}
+
+.nav-login {
+  margin-left: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: none;
+  border-radius: var(--r-ctl);
+  background: var(--btn);
+  color: var(--btn-tx);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nav-login:hover {
+  background: var(--btn-hover);
 }
 
 .account-choices button.active {

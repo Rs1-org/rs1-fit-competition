@@ -76,7 +76,7 @@
         <option value="age">Age group</option>
       </select>
     </div>
-    <button type="button" (click)="resetFilters()">Reset filters</button>
+    <button type="button" class="filter-reset" (click)="resetFilters()">Reset filters</button>
     @if (filterForm.hasError('dateRange')) {
       <p id="club-range-error" class="club-error" role="alert">
         Founded to must be on or after founded from.

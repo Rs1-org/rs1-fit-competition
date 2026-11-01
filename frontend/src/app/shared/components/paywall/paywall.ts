@@ -1,22 +1,22 @@
-import { Component, DOCUMENT, ViewChild, computed, inject, signal } from '@angular/core';
+import { Component, DOCUMENT, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
 import { premiumPlans, PremiumPlanMonths } from '../../../core/models/payment';
 import { PaymentService } from '../../../core/services/payment.service';
 import { UserStateService } from '../../../core/services/user-state.service';
 import { apiErrorMessage } from '../../../core/utils/api-error';
-import { AuthModalComponent } from '../../../features/auth/auth-modal/auth-modal.component';
+import { AuthModalService } from '../../../core/services/auth-modal.service';
 import { AppNumberPipe } from '../../pipes/regional-format.pipes';
 import { Button } from '../button/button';
 import { Icon } from '../icon/icon';
 import { PremiumCard } from '../premium-card/premium-card';
 
-@Component({ selector: 'app-paywall', imports: [AuthModalComponent, AppNumberPipe, Button, Icon, PremiumCard], templateUrl: './paywall.html', styleUrl: './paywall.css' })
+@Component({ selector: 'app-paywall', imports: [AppNumberPipe, Button, Icon, PremiumCard], templateUrl: './paywall.html', styleUrl: './paywall.css' })
 export class Paywall {
   private readonly payments = inject(PaymentService);
   private readonly document = inject(DOCUMENT);
+  private readonly authModal = inject(AuthModalService);
   readonly userState = inject(UserStateService);
-  @ViewChild(AuthModalComponent) authModal?: AuthModalComponent;
 
   readonly plans = premiumPlans;
   readonly benefits = ['Team form over recent matches', 'Head-to-head history between teams', 'Player stats: goals and cards'];
@@ -32,7 +32,7 @@ export class Paywall {
   }
 
   goPremium(): void {
-    if (!this.userState.isSignedIn()) { this.authModal?.openLogin(); return; }
+    if (!this.userState.isSignedIn()) { this.authModal.openLogin(); return; }
     this.starting.set(true); this.error.set('');
     this.payments.checkout(this.months()).subscribe({
       next: session => this.document.location.assign(session.url),

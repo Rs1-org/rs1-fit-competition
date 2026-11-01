@@ -56,18 +56,18 @@
 
 /* Inputs */
 .modal-container input {
+  min-height: 44px;
   padding: 0.65rem 0.8rem;
   border-radius: var(--r-ctl);
-  border: 1px solid var(--card);
-  background: var(--card);
+  border: 1px solid var(--bd);
+  background: var(--field);
   color: var(--tx);
   font-size: 0.95rem;
   outline: none;
-  transition: all 0.2s ease;
 }
 
 .modal-container input:focus {
-  border-color: var(--dg);
+  border-color: var(--ac);
   box-shadow: 0 0 0 3px var(--acs);
 }
 
