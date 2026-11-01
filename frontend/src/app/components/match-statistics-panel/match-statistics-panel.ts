@@ -8,9 +8,10 @@ import { StatisticService } from '../../core/services/statistic.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { StatisticComparison } from '../statistic-comparison/statistic-comparison';
 import { apiErrorMessage } from '../../core/utils/api-error';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 
 interface StatisticState { loading: boolean; data: Statistic | null; error: string; }
-@Component({ selector: 'app-match-statistics-panel', imports: [RouterLink, StatisticComparison],
+@Component({ selector: 'app-match-statistics-panel', imports: [RouterLink, StatisticComparison, ErrorBanner],
   templateUrl: './match-statistics-panel.html', styleUrl: '../../pages/statistics/statistics.css' })
 export class MatchStatisticsPanel implements OnChanges {
   @Input({ required: true }) matchPublicId = '';

@@ -15,9 +15,10 @@ import { apiErrorMessage } from '../../core/utils/api-error';
 import { MatchLiveSummary, MatchRefreshReason } from '../../components/match-live-summary/match-live-summary';
 import { MatchPolls } from '../../components/match-polls/match-polls';
 import { ToastService } from '../../core/services/toast.service';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 
 interface EventsState { loading: boolean; data: PagedResult<MatchEvent> | null; error: string; }
-@Component({ selector: 'app-match-events', imports: [ReactiveFormsModule, RouterLink, EventMatchPicker, MatchEventTimeline, Pagination, MatchLiveSummary, MatchPolls],
+@Component({ selector: 'app-match-events', imports: [ReactiveFormsModule, RouterLink, EventMatchPicker, MatchEventTimeline, Pagination, MatchLiveSummary, MatchPolls, ErrorBanner],
   templateUrl: './match-events.html', styleUrl: './events.css' })
 export class MatchEvents {
   private readonly service = inject(MatchEventService);

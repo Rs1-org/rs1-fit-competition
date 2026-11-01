@@ -82,7 +82,7 @@
         @if (matches() === undefined) {
           <p class="matches-empty" role="status">Loading matches...</p>
         } @else if (matches() === null) {
-          <p class="matches-empty" role="alert">Matches could not be loaded.</p>
+          <app-error-banner message="Matches could not be loaded." (retry)="retryMatches()" />
         } @else {
           <ul class="match-rows">
             @for (match of matches()!.items; track match.publicId) {

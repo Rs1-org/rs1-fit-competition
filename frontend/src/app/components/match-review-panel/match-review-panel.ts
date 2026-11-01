@@ -9,13 +9,14 @@ import { ConfirmDialogService, deleteConfirm } from '../../shared/components/con
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { AppDateTimePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { AuthModalService } from '../../core/services/auth-modal.service';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
 interface ReviewState { loading: boolean; data: MatchReviewPage | null; error: string; }
 
 @Component({
   selector: 'app-match-review-panel',
-  imports: [ReactiveFormsModule, Pagination, AppDateTimePipe, AppNumberPipe],
+  imports: [ReactiveFormsModule, Pagination, AppDateTimePipe, AppNumberPipe, ErrorBanner],
   templateUrl: './match-review-panel.html', styleUrl: '../../pages/match-reviews/reviews.css',
 })
 export class MatchReviewPanel implements OnChanges {

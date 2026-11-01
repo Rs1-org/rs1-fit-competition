@@ -3,7 +3,7 @@
 </div>
   @if (connection() !== 'connected') { <p role="status">{{ connection() === 'unavailable' ? 'Live results unavailable. Reload to reconnect.' : 'Connecting to live results; counts may be out of date.' }}</p> }
   @if (state().loading && !state().data) { <p role="status">Loading polls…</p> }
-  @if (state().error) { <p role="alert" class="poll-error">{{ state().error }}</p><button type="button" (click)="retry()">Retry polls</button> }
+  @if (state().error) { <app-error-banner [message]="state().error" (retry)="retry()" /> }
   @if (state().data; as data) {
     @if (!data.totalCount) { <p>No polls have been created for this match.</p> }
     @for (poll of data.items; track poll.publicId) {

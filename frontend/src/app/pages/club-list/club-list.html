@@ -84,18 +84,13 @@
     }
   </form>
   @if (optionsError()) {
-    <p class="club-error" role="alert">
-      {{ optionsError() }} <button type="button" (click)="loadOptions()">Retry options</button>
-    </p>
+    <app-error-banner [message]="optionsError()" (retry)="loadOptions()" />
   }
   <section aria-label="Club results" [attr.aria-busy]="state().loading">
     @if (state().loading) {
       <p class="club-state" role="status">Loading clubs…</p>
     } @else if (state().error) {
-      <div class="club-state" role="alert">
-        <p>{{ state().error }}</p>
-        <button type="button" (click)="retry()">Try again</button>
-      </div>
+      <app-error-banner [message]="state().error" (retry)="retry()" />
     } @else if (state().data; as result) {
       <p class="club-count" role="status">
         {{ result.totalCount | appNumber: '1.0-0' }} clubs found

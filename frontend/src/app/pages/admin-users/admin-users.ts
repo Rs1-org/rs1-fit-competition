@@ -8,6 +8,7 @@ import { PagedResult } from '../../core/models/paged-result';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { Pagination } from '../../shared/components/pagination/pagination';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 import { AppDatePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { userDateBoundary, userDateRangeValidator } from './user-date-filter';
 
@@ -15,7 +16,7 @@ interface UserPageState { loading: boolean; data: PagedResult<AdminUser> | null;
 
 @Component({
   selector: 'app-admin-users',
-  imports: [ReactiveFormsModule, Pagination, AppDatePipe, AppNumberPipe],
+  imports: [ReactiveFormsModule, Pagination, AppDatePipe, AppNumberPipe, ErrorBanner],
   templateUrl: './admin-users.html',
   styleUrl: './admin-users.css',
 })

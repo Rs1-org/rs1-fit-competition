@@ -13,10 +13,11 @@ import { StadiumListDto } from '../../core/models/stadium';
 import { fetchAllPages } from '../../core/helpers/paging.helper';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { clubNameValidator, foundingDateValidator, todayIso } from './club-validation';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 
 @Component({
   selector: 'app-club-form',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, ErrorBanner],
   templateUrl: './club-form.html',
   styleUrl: '../../pages/club-list/club-pages.css',
 })

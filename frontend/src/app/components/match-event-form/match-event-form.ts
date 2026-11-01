@@ -7,9 +7,10 @@ import { MatchEventService } from '../../core/services/match-event.service';
 import { EventContext, EventInput, MatchEvent } from '../../core/models/match-event';
 import { EventMatchPicker } from '../event-match-picker/event-match-picker';
 import { apiErrorMessage } from '../../core/utils/api-error';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 
 const publicId = [Validators.required, Validators.pattern(/^[0-9a-f]{32}$/)];
-@Component({ selector: 'app-match-event-form', imports: [ReactiveFormsModule, RouterLink, EventMatchPicker],
+@Component({ selector: 'app-match-event-form', imports: [ReactiveFormsModule, RouterLink, EventMatchPicker, ErrorBanner],
   templateUrl: './match-event-form.html', styleUrl: '../../pages/match-events/events.css' })
 export class MatchEventForm {
   private readonly service = inject(MatchEventService);

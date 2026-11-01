@@ -10,8 +10,9 @@ import { StatisticService } from '../../core/services/statistic.service';
 import { MatchReviewService } from '../../core/services/match-review.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { completeTeam, possessionTotal, statisticTeamForm } from './statistic-validators';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 
-@Component({ selector: 'app-statistic-form', imports: [ReactiveFormsModule, RouterLink],
+@Component({ selector: 'app-statistic-form', imports: [ReactiveFormsModule, RouterLink, ErrorBanner],
   templateUrl: './statistic-form.html', styleUrl: '../../pages/statistics/statistics.css' })
 export class StatisticForm {
   private readonly service = inject(StatisticService);

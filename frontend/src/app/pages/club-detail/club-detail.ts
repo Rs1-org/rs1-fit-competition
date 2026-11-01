@@ -8,10 +8,11 @@ import { UserStateService } from '../../core/services/user-state.service';
 import { CLUB_AGES, ClubDetailsDto } from '../../core/models/club';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 
 @Component({
   selector: 'app-club-detail',
-  imports: [RouterLink, AppDatePipe, ClubSelections],
+  imports: [RouterLink, AppDatePipe, ClubSelections, ErrorBanner],
   templateUrl: './club-detail.html',
   styleUrl: '../club-list/club-pages.css',
 })

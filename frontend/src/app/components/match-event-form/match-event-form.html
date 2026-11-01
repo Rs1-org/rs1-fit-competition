@@ -1,11 +1,11 @@
 <main class="events-page"><a routerLink="/match-events">Back to events</a>
   <h1>{{ editId() ? 'Edit event' : 'Add event' }}</h1>
   @if (loading()) { <p role="status">Loading form…</p> }
-  @else if (loadError()) { <p role="alert" class="event-error">{{ loadError() }}</p><button type="button" (click)="retry()">Try again</button> }
+  @else if (loadError()) { <app-error-banner [message]="loadError()" (retry)="retry()" /> }
   @else {
     @if (!editId()) { <app-event-match-picker [selected]="form.controls.matchPublicId.value" [selectedName]="context() ? context()!.homeName + ' vs ' + context()!.awayName : 'Selected match'" [disabled]="busy()" (changeMatch)="chooseMatch($event)" /> }
     @if (contextLoading()) { <p role="status">Loading teams and players…</p> }
-    @if (contextError()) { <p role="alert" class="event-error">{{ contextError() }}</p><button type="button" (click)="retryContext()">Retry teams and players</button> }
+    @if (contextError()) { <app-error-banner [message]="contextError()" (retry)="retryContext()" /> }
     @if (context(); as match) {
       <h2>{{ match.homeName }} vs {{ match.awayName }}</h2>
       <form [formGroup]="form" (ngSubmit)="save()"><fieldset [disabled]="busy()"><legend>Event details</legend>

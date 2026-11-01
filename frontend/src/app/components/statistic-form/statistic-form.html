@@ -1,6 +1,6 @@
 <main class="statistics-page"><a routerLink="/statistics">Back to statistics</a><h1>{{ existing() ? 'Edit statistics' : 'Enter statistics' }}</h1>
   @if (loading()) { <p role="status">Loading statistics form…</p> }
-  @else if (loadError()) { <p role="alert" class="stat-error">{{ loadError() }}</p><button type="button" (click)="retry()">Try again</button> }
+  @else if (loadError()) { <app-error-banner [message]="loadError()" (retry)="retry()" /> }
   @else if (match(); as match) {
     <h2>{{ match.homeSelectionName || 'Home selection not assigned' }} vs {{ match.awaySelectionName || 'Away selection not assigned' }}</h2>
     @if (!hasTeams()) { <p role="alert">Assign two distinct active teams to the match before entering statistics.</p> }

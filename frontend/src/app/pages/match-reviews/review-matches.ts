@@ -8,9 +8,10 @@ import { PagedResult } from '../../core/models/paged-result';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { AppDateTimePipe } from '../../shared/pipes/regional-format.pipes';
 import { apiErrorMessage } from '../../core/utils/api-error';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 
 interface MatchesState { loading: boolean; data: PagedResult<ReviewMatch> | null; error: string; }
-@Component({ selector: 'app-review-matches', imports: [RouterLink, Pagination, AppDateTimePipe],
+@Component({ selector: 'app-review-matches', imports: [RouterLink, Pagination, AppDateTimePipe, ErrorBanner],
   templateUrl: './review-matches.html', styleUrl: './reviews.css' })
 export class ReviewMatches {
   private readonly service = inject(MatchReviewService);

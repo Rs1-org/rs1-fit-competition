@@ -3,10 +3,7 @@
   @if (state().loading) {
     <p class="club-state" role="status">Loading club…</p>
   } @else if (state().error) {
-    <div class="club-state" role="alert">
-      <p>{{ state().error }}</p>
-      <button type="button" (click)="retry()">Try again</button>
-    </div>
+    <app-error-banner [message]="state().error" (retry)="retry()" />
   } @else if (state().data; as club) {
     <header class="club-heading">
       <div>

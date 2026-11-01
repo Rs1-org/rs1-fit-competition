@@ -7,6 +7,7 @@ import { ReviewMatchDetails } from '../../core/models/match-review';
 import { MatchReviewService } from '../../core/services/match-review.service';
 import { PollService } from '../../core/services/poll.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 
 export const distinctPollOptions: ValidatorFn = (control: AbstractControl) => {
   const options: string[] = control.value;
@@ -18,7 +19,7 @@ export const pollWindow: ValidatorFn = (control: AbstractControl) => {
   const from = new Date(opens).getTime(), to = new Date(closes).getTime();
   return !Number.isFinite(from) || !Number.isFinite(to) || to <= from || to <= Date.now() ? { pollWindow: true } : null;
 };
-@Component({ selector: 'app-poll-form', imports: [ReactiveFormsModule, RouterLink], templateUrl: './poll-form.html', styleUrl: '../match-polls/polls.css' })
+@Component({ selector: 'app-poll-form', imports: [ReactiveFormsModule, RouterLink, ErrorBanner], templateUrl: './poll-form.html', styleUrl: '../match-polls/polls.css' })
 export class PollForm {
   private readonly service = inject(PollService);
   private readonly matches = inject(MatchReviewService);

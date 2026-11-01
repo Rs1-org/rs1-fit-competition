@@ -6,11 +6,12 @@ import { ReviewMatch } from '../../core/models/match-review';
 import { PagedResult } from '../../core/models/paged-result';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { AppDateTimePipe } from '../../shared/pipes/regional-format.pipes';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
 interface PickerState { loading: boolean; data: PagedResult<ReviewMatch> | null; error: string; }
-@Component({ selector: 'app-event-match-picker', imports: [Pagination, AppDateTimePipe],
-  templateUrl: './event-match-picker.html', styleUrl: '../../pages/match-events/events.css' })
+@Component({ selector: 'app-event-match-picker', imports: [Pagination, AppDateTimePipe, ErrorBanner],
+  templateUrl: './event-match-picker.html', styleUrl: './event-match-picker.css' })
 export class EventMatchPicker {
   readonly selected = input('');
   readonly selectedName = input('Selected match');

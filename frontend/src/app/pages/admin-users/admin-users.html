@@ -15,7 +15,7 @@
   @if (actionMessage()) { <p role="status">{{ actionMessage() }}</p> }
   <section [attr.aria-busy]="state().loading" aria-label="User results">
     @if (state().loading) { <p role="status">Loading users…</p> }
-    @else if (state().error) { <p class="user-error" role="alert">{{ state().error }}</p><button type="button" (click)="retry()">Try again</button> }
+    @else if (state().error) { <app-error-banner [message]="state().error" (retry)="retry()" /> }
     @else if (state().data; as page) {
       <p>{{ page.totalCount | appNumber:'1.0-0' }} accounts</p>
       @if (!page.items.length) { <p>No users match these filters.</p> }

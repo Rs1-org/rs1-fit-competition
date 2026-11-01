@@ -24,13 +24,14 @@ import { fetchAllPages } from '../../core/helpers/paging.helper';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { Pagination } from '../../shared/components/pagination/pagination';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 import { AppDatePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { clubDateRangeValidator } from '../../components/club-form/club-validation';
 import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-club-list',
-  imports: [ReactiveFormsModule, RouterLink, Pagination, AppDatePipe, AppNumberPipe],
+  imports: [ReactiveFormsModule, RouterLink, Pagination, AppDatePipe, AppNumberPipe, ErrorBanner],
   templateUrl: './club-list.html',
   styleUrl: './club-pages.css',
 })

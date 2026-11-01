@@ -16,6 +16,7 @@ import { roundLabel } from '../../core/helpers/match.helper';
 import { fetchAllPages, MAX_PAGE_SIZE } from '../../core/helpers/paging.helper';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { ToastService } from '../../core/services/toast.service';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 
 /** "Date to" must not be before "date from". */
 export function dateRangeValidator(group: AbstractControl): ValidationErrors | null {
@@ -25,7 +26,7 @@ export function dateRangeValidator(group: AbstractControl): ValidationErrors | n
 
 @Component({
   selector: 'app-match-list',
-  imports: [ReactiveFormsModule, RouterLink, Pagination, AppDateTimePipe, MatchRow],
+  imports: [ReactiveFormsModule, RouterLink, Pagination, AppDateTimePipe, MatchRow, ErrorBanner],
   templateUrl: './match-list.html',
   styleUrl: '../stadium-list/stadium-list.css',
 })
@@ -100,6 +101,11 @@ export class MatchList {
 
   resetFilters(): void {
     this.filterForm.reset();
+  }
+
+  retry(): void {
+    this.error = '';
+    this.refresh$.next();
   }
 
   onPageChange(page: number): void {

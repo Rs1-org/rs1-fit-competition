@@ -9,10 +9,7 @@
   @if (loading()) {
     <p class="club-state" role="status">Loading club form…</p>
   } @else if (loadError()) {
-    <div class="club-state" role="alert">
-      <p>{{ loadError() }}</p>
-      <button type="button" (click)="load()">Try again</button>
-    </div>
+    <app-error-banner [message]="loadError()" (retry)="load()" />
   } @else {
     <form [formGroup]="form" (ngSubmit)="onSubmit()" [attr.aria-busy]="saving()">
       <div class="club-field">

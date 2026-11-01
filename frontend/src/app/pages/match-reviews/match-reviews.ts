@@ -8,9 +8,10 @@ import { MatchLiveSummary } from '../../components/match-live-summary/match-live
 import { MatchReviewPanel } from '../../components/match-review-panel/match-review-panel';
 import { MatchStatisticsPanel } from '../../components/match-statistics-panel/match-statistics-panel';
 import { apiErrorMessage } from '../../core/utils/api-error';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 
 interface MatchState { loading: boolean; data: ReviewMatch | null; error: string; }
-@Component({ selector: 'app-match-reviews', imports: [RouterLink, MatchLiveSummary, MatchReviewPanel, MatchStatisticsPanel],
+@Component({ selector: 'app-match-reviews', imports: [RouterLink, MatchLiveSummary, MatchReviewPanel, MatchStatisticsPanel, ErrorBanner],
   templateUrl: './match-reviews.html', styleUrl: './reviews.css' })
 export class MatchReviews {
   private readonly service = inject(MatchReviewService);

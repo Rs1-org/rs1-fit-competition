@@ -49,8 +49,8 @@
   </form>
 
   @if (error) {
-    <p class="filter-error" role="alert">{{ error }}</p>
-  }
+    <app-error-banner [message]="error" (retry)="retry()" />
+  } @else {
 
   <div class="table-scroll">
     <table class="data-table">
@@ -106,4 +106,5 @@
     [currentPage]="pagedResult()?.page ?? 1"
     (pageChange)="onPageChange($event)">
   </app-pagination>
+  }
 </div>

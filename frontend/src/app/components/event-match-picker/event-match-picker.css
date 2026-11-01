@@ -1,0 +1,32 @@
+:host { display: block; }
+
+fieldset {
+  min-width: 0;
+  margin: 0 0 16px;
+  padding: 16px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-card);
+  background: var(--card);
+}
+
+legend {
+  padding: 0 6px;
+  font-weight: 700;
+  color: var(--tx2);
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+}
+
+select {
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-ctl);
+  background: var(--field);
+  color: var(--tx);
+}

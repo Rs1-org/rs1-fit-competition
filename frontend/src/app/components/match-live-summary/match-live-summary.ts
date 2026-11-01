@@ -7,10 +7,11 @@ import { MatchLiveService } from '../../core/services/match-live.service';
 import { RealtimeState } from '../../core/services/signalr.service';
 import { AppDateTimePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { apiErrorMessage } from '../../core/utils/api-error';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 
 export type MatchRefreshReason = 'match' | 'events' | 'deleted' | 'resync';
 interface SummaryState { loading: boolean; data: ReviewMatchDetails | null; error: string; }
-@Component({ selector: 'app-match-live-summary', imports: [AppDateTimePipe, AppNumberPipe],
+@Component({ selector: 'app-match-live-summary', imports: [AppDateTimePipe, AppNumberPipe, ErrorBanner],
   templateUrl: './match-live-summary.html', styleUrl: './match-live-summary.css' })
 export class MatchLiveSummary implements OnChanges {
   @Input({ required: true }) matchPublicId = '';

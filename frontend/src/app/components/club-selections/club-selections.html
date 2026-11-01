@@ -3,10 +3,7 @@
   @if (state().loading) {
     <p role="status">Loading selections…</p>
   } @else if (state().error) {
-    <div role="alert">
-      <p>{{ state().error }}</p>
-      <button type="button" (click)="retry()">Try again</button>
-    </div>
+    <app-error-banner [message]="state().error" (retry)="retry()" />
   } @else if (!state().data.totalCount) {
     <p>This club has no selections yet.</p>
   } @else {

@@ -6,10 +6,11 @@ import { SelectionOption, SelectionService } from '../../core/services/selection
 import { emptyPage } from '../../core/models/paged-result';
 import { AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { apiErrorMessage } from '../../core/utils/api-error';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 
 @Component({
   selector: 'app-club-selections',
-  imports: [RouterLink, AppNumberPipe],
+  imports: [RouterLink, AppNumberPipe, ErrorBanner],
   templateUrl: './club-selections.html',
   styleUrl: './club-selections.css',
 })

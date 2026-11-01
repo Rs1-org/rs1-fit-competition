@@ -7,7 +7,8 @@ import { UserStateService } from '../../core/services/user-state.service';
 import { roundLabel } from '../../core/helpers/match.helper';
 import { Map } from '../../shared/components/map/map';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, map, switchMap, of } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, map, switchMap, of } from 'rxjs';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 import * as L from 'leaflet';
 
 /** How many matches the stadium page shows; the full list is one click away. */
@@ -15,7 +16,7 @@ const STADIUM_MATCHES_PAGE_SIZE = 10;
 
 @Component({
   selector: 'app-stadium-detail',
-  imports: [AppDatePipe, AppDateTimePipe, AppNumberPipe, Map, RouterLink],
+  imports: [AppDatePipe, AppDateTimePipe, AppNumberPipe, Map, RouterLink, ErrorBanner],
   templateUrl: './stadium-detail.html',
   styleUrl: './stadium-detail.css',
 })
@@ -34,14 +35,20 @@ export class StadiumDetail {
     )
   );
 
+  private readonly matchesRefresh$ = new BehaviorSubject<void>(undefined);
+
   /** Matches played at this stadium, soonest first (the backend sorts by date). null = could not load. */
   matches = toSignal(
-    toObservable(this.stadium).pipe(
-      switchMap(s => s
+    combineLatest([toObservable(this.stadium), this.matchesRefresh$]).pipe(
+      switchMap(([s]) => s
         ? this.matchService.getAll(1, STADIUM_MATCHES_PAGE_SIZE, { stadiumPublicId: s.publicId }).pipe(catchError(() => of(null)))
         : of(undefined))
     )
   );
+
+  retryMatches(): void {
+    this.matchesRefresh$.next();
+  }
 
   // Straight-line (Haversine) distance from the stadium to its city centre, in km.
   distanceToCityKm = computed(() => {
