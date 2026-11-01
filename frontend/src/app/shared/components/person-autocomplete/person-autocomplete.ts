@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { catchError, debounceTime, distinctUntilChanged, Observable, of, switchMap } from 'rxjs';
@@ -20,6 +20,8 @@ export class PersonAutocomplete implements OnInit {
   inputId = input('person-search');
   control = input.required<FormControl<string>>();
   search = input.required<(term: string) => Observable<PersonSuggestion[]>>();
+  focus = input(true);
+  picked = output<PersonSuggestion>();
   private destroyRef = inject(DestroyRef);
 
   suggestions = signal<PersonSuggestion[]>([]);
@@ -49,6 +51,7 @@ export class PersonAutocomplete implements OnInit {
   pick(item: PersonSuggestion): void {
     this.skipNext = true;
     this.control().setValue(item.label);
+    this.picked.emit(item);
     this.suggestions.set([]);
     this.open.set(false);
   }

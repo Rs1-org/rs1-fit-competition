@@ -3,7 +3,7 @@
   <input
     [id]="inputId()"
     type="text"
-    appAutofocus
+    [appAutofocus]="focus()"
     [formControl]="control()"
     (blur)="close()"
     autocomplete="off" />
