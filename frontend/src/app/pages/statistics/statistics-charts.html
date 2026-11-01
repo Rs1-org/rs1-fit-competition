@@ -1,26 +1,28 @@
-<main class="statistics-page"><h1>Statistics charts</h1>
-  <a routerLink="/statistics">Back to team statistics</a>
-  <form [formGroup]="filters"><fieldset><legend>Filter charts</legend><div class="stat-fields">
-    <label>Competition<select formControlName="competitionPublicId"><option value="">All competitions</option>
-      @for (competition of competitions(); track competition.publicId) { <option [value]="competition.publicId">{{ competition.name }}</option> }
-    </select></label>
-    <label>Season<select formControlName="seasonPublicId">
-      <option value="">All seasons</option>
-      @for (season of seasons(); track season.publicId) { <option [value]="season.publicId">{{ season.name }}{{ season.isCurrent ? ' (current)' : '' }}</option> }
-    </select></label>
-  </div><p>Only finished matches with a recorded score are counted. Team charts show up to 10 teams.</p>
-    <div class="stat-actions"><button type="button" (click)="reset()">Reset filters</button></div>
-  </fieldset></form>
-  @if (state().loading) { <p role="status">Loading charts…</p> }
-  @else if (state().error) { <p role="alert" class="stat-error">{{ state().error }}</p><button type="button" (click)="retry()">Try again</button> }
-  @else if (state().data; as data) {
+<main class="statistics-page">
+  <form [formGroup]="filters" class="stat-header">
+    <div class="stat-heading">
+      <app-section-tabs label="Statistics sections" [tabs]="tabs()" />
+      <h1>Season in charts</h1>
+    </div>
+    <div class="stat-selects">
+      <label>Competition<select formControlName="competitionPublicId"><option value="">All competitions</option>
+        @for (competition of competitions(); track competition.publicId) { <option [value]="competition.publicId">{{ competition.name }}</option> }
+      </select></label>
+      <label>Season<select formControlName="seasonPublicId">
+        <option value="">All seasons</option>
+        @for (season of seasons(); track season.publicId) { <option [value]="season.publicId">{{ season.name }}{{ season.isCurrent ? ' (current)' : '' }}</option> }
+      </select></label>
+      <app-button variant="secondary" text="Reset" (click)="reset()" />
+    </div>
+  </form>
+  <p class="stat-hint">Only finished matches with a recorded score are counted.</p>
+  @if (state().loading) { <app-skeleton [rows]="6" /> }
+  @else if (state().error) { <app-error-banner [message]="state().error" (retry)="retry()" /> }
+  @else if (state().data) {
     <div class="chart-grid">
-      @if (data.goalsPerRound.length) { <app-chart class="chart-wide" title="Goals per round" yTitle="Goals" [labels]="goals().labels" [series]="goals().series" /> }
-      @else { <p class="chart-empty">No finished matches in a round yet, so there are no goals per round to show.</p> }
-      @if (data.teamResults.length) { <app-chart title="Wins, draws and losses per team" yTitle="Matches" [stacked]="true" [labels]="results().labels" [series]="results().series" /> }
-      @else { <p class="chart-empty">No finished matches for these filters.</p> }
-      @if (data.teamShots.length) { <app-chart title="Average shots per match" yTitle="Shots" [labels]="shots().labels" [series]="shots().series" /> }
-      @else { <p class="chart-empty">No team statistics recorded for finished matches yet.</p> }
+      <app-chart class="chart-wide" title="Goals per round" yTitle="Goals" [subtitle]="goalsSummary()" [labels]="goals().labels" [series]="goals().series" />
+      <app-chart title="Wins, draws and losses · top 10" [stacked]="true" [horizontal]="true" [labels]="results().labels" [series]="results().series" />
+      <app-chart title="Average shots per match · top 10" [horizontal]="true" [labels]="shots().labels" [series]="shots().series" />
     </div>
   }
 </main>

@@ -1,16 +1,30 @@
-<section class="paywall" aria-labelledby="paywall-title">
-  <h2 id="paywall-title">Unlock advanced statistics</h2>
-  <p>Premium adds team form, head-to-head comparisons and player statistics.</p>
-  <fieldset><legend>Choose a plan</legend>
-    @for (plan of plans; track plan) {
-      <label class="paywall-plan"><input type="radio" name="premium-plan" [value]="plan" [checked]="months() === plan" (change)="months.set(plan)" />
-        {{ plan }} {{ plan === 1 ? 'month' : 'months' }}
-        @if (price(plan); as amount) { <span>{{ amount | appNumber }} {{ pricing()?.currency?.toUpperCase() }}</span> }
-      </label>
+<section class="paywall" aria-label="Premium">
+  <div class="paywall-preview" aria-hidden="true">
+    <div class="preview-chart"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="preview-side"></div>
+    <div class="preview-row"></div>
+    <div class="preview-row"></div>
+  </div>
+  <app-premium-card class="paywall-card" icon="lock" heading="Unlock Advanced statistics">
+    <ul class="paywall-benefits">
+      @for (benefit of benefits; track benefit) { <li><app-icon name="check" [size]="16" />{{ benefit }}</li> }
+    </ul>
+    <fieldset class="paywall-plans"><legend class="visually-hidden">Choose a plan</legend>
+      @for (plan of plans; track plan) {
+        <label class="paywall-plan" [class.selected]="months() === plan">
+          <input class="visually-hidden" type="radio" name="premium-plan" [value]="plan" [checked]="months() === plan" (change)="months.set(plan)" />
+          {{ plan }} {{ plan === 1 ? 'month' : 'months' }}
+        </label>
+      }
+    </fieldset>
+    @if (price(1); as monthly) {
+      <p class="paywall-price"><strong>{{ monthly | appNumber }} {{ currency() }}</strong> / month
+        @if (months() > 1) { · {{ price(months()) | appNumber }} {{ currency() }} for {{ months() }} months }
+      </p>
     }
-  </fieldset>
-  @if (error()) { <p role="alert" class="stat-error">{{ error() }}</p> }
-  <button type="button" [disabled]="starting()" (click)="goPremium()">{{ starting() ? 'Opening checkout…' : 'Go premium' }}</button>
-  @if (!userState.isSignedIn()) { <p>You will be asked to sign in first.</p> }
+    @if (error()) { <p role="alert" class="paywall-error">{{ error() }}</p> }
+    <app-button class="paywall-action" text="Continue to payment" loadingText="Opening checkout…" [loading]="starting()" (click)="goPremium()" />
+    @if (!userState.isSignedIn()) { <p class="paywall-note">You will be asked to sign in first.</p> }
+  </app-premium-card>
   <app-auth-modal />
 </section>

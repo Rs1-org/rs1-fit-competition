@@ -1,17 +1,30 @@
-<main class="statistics-page"><h1>Premium payment</h1>
-  @switch (state()) {
-    @case ('waiting') { <p role="status">Confirming your payment…</p> }
-    @case ('paid') {
-      <p role="status">Payment received. Premium is active until {{ premiumUntil() | appDate }}.</p>
-      <a routerLink="/statistics/advanced">Open advanced statistics</a>
+<main class="statistics-page">
+  <h1>Premium payment</h1>
+  <div class="premium-result">
+    @switch (state()) {
+      @case ('waiting') {
+        <app-premium-card icon="clock" heading="Confirming your payment">
+          <p role="status">This usually takes a few seconds.</p>
+        </app-premium-card>
+      }
+      @case ('paid') {
+        <app-premium-card icon="check" tone="success" heading="Payment received">
+          <p role="status">Premium is active until {{ premiumUntil() | appDate }}.</p>
+          <a class="premium-link" routerLink="/statistics/advanced">Open advanced statistics</a>
+        </app-premium-card>
+      }
+      @case ('timeout') {
+        <app-premium-card icon="clock" heading="Still confirming">
+          <p role="alert">Your payment is still being confirmed. Premium will activate shortly; check again in a minute.</p>
+          <a class="premium-link" routerLink="/statistics/advanced">Back to advanced statistics</a>
+        </app-premium-card>
+      }
+      @case ('failed') {
+        <app-premium-card icon="x" tone="danger" heading="Payment not completed">
+          <p role="alert">This payment was not completed, so you have not been charged.</p>
+          <a class="premium-link" routerLink="/statistics/advanced">Back to advanced statistics</a>
+        </app-premium-card>
+      }
     }
-    @case ('timeout') {
-      <p role="alert" class="stat-error">Your payment is still being confirmed. Premium will activate shortly; check again in a minute.</p>
-      <a routerLink="/statistics/advanced">Back to advanced statistics</a>
-    }
-    @case ('failed') {
-      <p role="alert" class="stat-error">This payment was not completed, so you have not been charged.</p>
-      <a routerLink="/statistics/advanced">Back to advanced statistics</a>
-    }
-  }
+  </div>
 </main>

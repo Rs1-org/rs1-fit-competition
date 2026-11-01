@@ -52,6 +52,14 @@ describe('Advanced statistics access', () => {
     expect(component.unlocked()).toBe(false);
   });
 
+  it('reloads the sections on retry', () => {
+    getPlayerStats.mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 500 })));
+    const component = create();
+    expect(component.players().error).toBeTruthy();
+    component.retry();
+    expect(component.players().error).toBe('');
+  });
+
   it('only requests head-to-head for two different teams', () => {
     getTeamForm.mockReturnValue(of({ matches: [] }));
     getHeadToHead.mockReturnValue(of({ matches: [] }));

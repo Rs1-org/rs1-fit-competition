@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -10,18 +10,26 @@ import { StatisticService } from '../../core/services/statistic.service';
 import { MatchReviewService } from '../../core/services/match-review.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { EventMatchPicker } from '../../components/event-match-picker/event-match-picker';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
+import { FilterCard } from '../../shared/components/filter-card/filter-card';
 import { Pagination } from '../../shared/components/pagination/pagination';
+import { SectionTabs } from '../../shared/components/section-tabs/section-tabs';
+import { Skeleton } from '../../shared/components/skeleton/skeleton';
 import { AppDateTimePipe } from '../../shared/pipes/regional-format.pipes';
 import { apiErrorMessage } from '../../core/utils/api-error';
+import { statisticsTabs } from './statistics-tabs';
 
 interface StatisticsState { loading: boolean; data: PagedResult<Statistic> | null; error: string; }
-@Component({ selector: 'app-statistics', imports: [ReactiveFormsModule, RouterLink, EventMatchPicker, Pagination, AppDateTimePipe],
+@Component({ selector: 'app-statistics', imports: [ReactiveFormsModule, RouterLink, EventMatchPicker, Pagination, AppDateTimePipe, EmptyState, ErrorBanner, FilterCard, SectionTabs, Skeleton],
   templateUrl: './statistics.html', styleUrl: './statistics.css' })
 export class Statistics {
   private readonly service = inject(StatisticService);
   private readonly matches = inject(MatchReviewService);
   private readonly fb = inject(FormBuilder);
-  readonly canManage = inject(UserStateService).canManage;
+  private readonly userState = inject(UserStateService);
+  readonly canManage = this.userState.canManage;
+  readonly tabs = computed(() => statisticsTabs(this.userState.isPremium()));
   readonly matchId = signal('');
   readonly filterError = signal('');
   readonly filters = this.fb.nonNullable.group({ selectionPublicId: [''], dateFrom: [''], dateTo: [''],

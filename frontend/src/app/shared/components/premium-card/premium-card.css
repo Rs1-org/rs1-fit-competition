@@ -1,0 +1,50 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+}
+
+.premium-card {
+  display: grid;
+  gap: 14px;
+  padding: 28px;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
+  color: var(--tx);
+}
+
+.premium-card h2 {
+  font-size: 28px;
+}
+
+.premium-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-card);
+}
+
+.tone-premium {
+  color: var(--amb);
+  background: var(--ambs);
+}
+
+.tone-success {
+  color: var(--actx);
+  background: var(--acs);
+}
+
+.tone-danger {
+  color: var(--dg);
+  background: var(--dgs);
+}
+
+@media (max-width: 768px) {
+  .premium-card {
+    padding: 20px;
+  }
+}

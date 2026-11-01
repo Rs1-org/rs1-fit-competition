@@ -1,7 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Observable, Subject, catchError, distinctUntilChanged, map, merge, of, startWith, switchMap, tap } from 'rxjs';
 import { HeadToHead, PlayerStats, StatisticChartFilter, TeamForm } from '../../core/models/statistic';
@@ -15,14 +14,19 @@ import { UserStateService } from '../../core/services/user-state.service';
 import { fetchAllPages, MAX_PAGE_SIZE } from '../../core/helpers/paging.helper';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { Chart, ChartSeries } from '../../shared/components/chart/chart';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { Paywall } from '../../shared/components/paywall/paywall';
+import { SectionTabs } from '../../shared/components/section-tabs/section-tabs';
+import { Skeleton } from '../../shared/components/skeleton/skeleton';
 import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
+import { statisticsTabs } from '../statistics/statistics-tabs';
 
 interface LoadState<T> { loading: boolean; data: T | null; error: string; }
 const IDLE = { loading: false, data: null, error: '' };
 
-@Component({ selector: 'app-advanced-statistics', imports: [ReactiveFormsModule, RouterLink, Chart, Pagination, Paywall, AppDatePipe],
+@Component({ selector: 'app-advanced-statistics', imports: [ReactiveFormsModule, Chart, EmptyState, ErrorBanner, Pagination, Paywall, SectionTabs, Skeleton, AppDatePipe],
   templateUrl: './advanced-statistics.html', styleUrls: ['../statistics/statistics.css', '../statistics/statistics-charts.css'] })
 export class AdvancedStatistics {
   private readonly service = inject(StatisticService);
@@ -38,6 +42,7 @@ export class AdvancedStatistics {
   /** The stored user can be out of date, so a 403 from the API also shows the paywall. */
   private readonly forbidden = signal(false);
   readonly unlocked = computed(() => this.userState.isPremium() && !this.forbidden());
+  readonly tabs = computed(() => statisticsTabs(this.unlocked()));
 
   readonly competitions = toSignal(fetchAllPages(page => this.competitionService.getAll(page, MAX_PAGE_SIZE)).pipe(
     catchError(() => of([]))), { initialValue: [] });
@@ -111,4 +116,6 @@ export class AdvancedStatistics {
   });
 
   page(page: number): void { this.page$.next(page); }
+  /** Re-emits the current filters, which reloads all three sections. */
+  retry(): void { this.filters.updateValueAndValidity(); }
 }

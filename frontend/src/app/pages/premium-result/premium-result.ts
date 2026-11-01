@@ -5,6 +5,7 @@ import { catchError, concatMap, first, of, switchMap, take, throwError, timer } 
 import { PremiumStatus } from '../../core/models/payment';
 import { AuthService } from '../../core/services/auth.service';
 import { PaymentService } from '../../core/services/payment.service';
+import { PremiumCard } from '../../shared/components/premium-card/premium-card';
 import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
 
 export const POLL_INTERVAL_MS = 2000;
@@ -13,7 +14,7 @@ export const POLL_ATTEMPTS = 15;
 type ResultState = 'waiting' | 'paid' | 'failed' | 'timeout';
 
 /** Stripe redirects here before the webhook may have landed, so wait for it. */
-@Component({ selector: 'app-premium-result', imports: [RouterLink, AppDatePipe], templateUrl: './premium-result.html', styleUrl: '../statistics/statistics.css' })
+@Component({ selector: 'app-premium-result', imports: [RouterLink, AppDatePipe, PremiumCard], templateUrl: './premium-result.html', styleUrls: ['../statistics/statistics.css', './premium-result.css'] })
 export class PremiumResult {
   private readonly payments = inject(PaymentService);
   private readonly auth = inject(AuthService);
