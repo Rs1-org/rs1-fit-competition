@@ -1,52 +1,29 @@
-<div class="referee-card-wrapper">
-  <div class="referee-card">
-    <h2>{{ isEditMode ? 'Edit Referee' : 'Add Referee' }}</h2>
-
+<main class="staff-page">
+  <header class="staff-header">
+    <h1>{{ isEditMode ? 'Edit referee' : 'Add referee' }}</h1>
+  </header>
+  @if (isLoading) {
+    <app-skeleton [rows]="4" />
+  } @else if (loadError) {
+    <app-error-banner [message]="loadError" (retry)="loadReferee(editingId!)" />
+  } @else {
     <form [formGroup]="form" (ngSubmit)="saveReferee()">
-      <div class="form-group">
-        <label for="firstName">First Name</label>
-        <input type="text" id="firstName" formControlName="firstName" />
-        @if (fieldError('firstName'); as error) {
-          <p class="field-error">{{ error }}</p>
-        }
-      </div>
-
-      <div class="form-group">
-        <label for="lastName">Last Name</label>
-        <input type="text" id="lastName" formControlName="lastName" />
-        @if (fieldError('lastName'); as error) {
-          <p class="field-error">{{ error }}</p>
-        }
-      </div>
-
-      <div class="form-group">
-        <label for="dateOfBirth">Date of Birth</label>
-        <input type="date" lang="bs-Latn" id="dateOfBirth" formControlName="dateOfBirth" />
-        @if (fieldError('dateOfBirth'); as error) {
-          <p class="field-error">{{ error }}</p>
-        }
-      </div>
-
-      <div class="form-group">
-        <label for="picture">Picture</label>
-        <input type="file" id="picture" accept="image/*" (change)="onPictureSelected($event)" />
-        <app-upload-progress [percent]="uploadProgress"></app-upload-progress>
-        @if (picturePreview) {
-          <img [src]="picturePreview" alt="Picture preview" class="person-picture-preview" />
-        }
-      </div>
-
-      <div class="form-group">
-        <label for="careerStart">Career Start</label>
-        <input type="date" lang="bs-Latn" id="careerStart" formControlName="careerStart" />
-      </div>
-
+      <app-section-card title="Details">
+        <app-input-box label="First name" [control]="form.controls.firstName" />
+        <app-input-box label="Last name" [control]="form.controls.lastName" />
+        <app-input-box label="Date of birth" type="date" [control]="form.controls.dateOfBirth" />
+        <div class="form-group">
+          <label for="picture">Picture</label>
+          <input type="file" id="picture" accept="image/*" (change)="onPictureSelected($event)" />
+          <app-upload-progress [percent]="uploadProgress" />
+          @if (picturePreview) { <img [src]="picturePreview" alt="Picture preview" class="person-picture-preview" /> }
+        </div>
+        <app-input-box label="Career start" type="date" [control]="form.controls.careerStart" />
+      </app-section-card>
       <div class="button-group">
-        <button type="submit" [disabled]="form.invalid">
-          {{ isEditMode ? 'Update Referee' : 'Save Referee' }}
-        </button>
-        <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+        <app-button type="submit" [text]="isEditMode ? 'Update referee' : 'Save referee'" [loading]="isSaving" [disabled]="form.invalid" />
+        <app-button type="button" variant="secondary" text="Cancel" (click)="cancel()" />
       </div>
     </form>
-  </div>
-</div>
+  }
+</main>

@@ -2,12 +2,13 @@ import { Icon } from '../../shared/components/icon/icon';
 import { Component, Input, ContentChild, TemplateRef, Output, EventEmitter, ViewEncapsulation, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Pagination } from '../../shared/components/pagination/pagination';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { listStagger } from '../../core/animations/motion';
 
 @Component({
   selector: 'app-generic-list',
   standalone: true,
-  imports: [CommonModule, Pagination, Icon],
+  imports: [CommonModule, Pagination, Icon, EmptyState],
   templateUrl: './generic-list.component.html',
   styleUrl: './generic-list.component.css',
   encapsulation: ViewEncapsulation.None,

@@ -7,6 +7,11 @@ import { pictureToDataUrl } from '../../core/models/person.models';
 import { RefereeService, RefereeWriteDto } from '../../core/services/referee.service';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
+import { SectionCard } from '../../shared/components/section-card/section-card';
+import { Button } from '../../shared/components/button/button';
+import { Skeleton } from '../../shared/components/skeleton/skeleton';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
+import { InputBox } from '../../shared/components/input-box/input-box';
 import { ToastService } from '../../core/services/toast.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
@@ -19,9 +24,9 @@ function pastDate(control: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-manage-referees',
-  imports: [CommonModule, ReactiveFormsModule, UploadProgress],
+  imports: [CommonModule, ReactiveFormsModule, UploadProgress, SectionCard, Button, Skeleton, ErrorBanner, InputBox],
   templateUrl: './manage-referees.html',
-  styleUrl: './manage-referees.css',
+  styleUrl: '../staff-form.css',
 })
 export class ManageReferees implements OnInit {
   private router = inject(Router);
@@ -41,6 +46,9 @@ export class ManageReferees implements OnInit {
 
   editingId: string | null = null;
   isEditMode = false;
+  isLoading = false;
+  isSaving = false;
+  loadError = '';
   picture: string | null = null;
   pictureChanged = false;
   uploadProgress: number | null = null;
@@ -76,6 +84,8 @@ export class ManageReferees implements OnInit {
   }
 
   loadReferee(id: string): void {
+    this.isLoading = true;
+    this.loadError = '';
     this.refereeService.getById(id).subscribe({
       next: (data) => {
         this.form.patchValue({
@@ -86,9 +96,14 @@ export class ManageReferees implements OnInit {
         });
         this.picture = data.picture ?? null;
         this.pictureChanged = false;
+        this.isLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Could not load the referee:', err),
+      error: (err) => {
+        this.isLoading = false;
+        this.loadError = apiErrorMessage(err, 'Referee could not be loaded.');
+        this.cdr.detectChanges();
+      },
     });
   }
 
@@ -122,13 +137,16 @@ export class ManageReferees implements OnInit {
       ? this.refereeService.update(this.editingId!, payload, onProgress)
       : this.refereeService.create(payload, onProgress);
 
+    this.isSaving = true;
     request$.subscribe({
       next: () => {
+        this.isSaving = false;
         this.refereeService.notifyListRefresh();
         this.toast.success('Referee saved');
         this.router.navigate(['/referee-list']);
       },
       error: (err) => {
+        this.isSaving = false;
         this.setUploadProgress(null);
         this.toast.error(apiErrorMessage(err, 'Could not save the referee.'));
       },

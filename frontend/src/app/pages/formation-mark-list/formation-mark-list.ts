@@ -1,7 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
+import { signal } from '@angular/core';
+import { BehaviorSubject, catchError, combineLatest, map, of, switchMap, tap } from 'rxjs';
+import { emptyPage } from '../../core/models/paged-result';
+import { Skeleton } from '../../shared/components/skeleton/skeleton';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 import { Router } from '@angular/router';
 import { GenericListComponent } from '../../generic/generic-list/generic-list.component';
 import { GenericSearch } from '../../generic/generic-search/generic-search';
@@ -13,7 +17,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 @Component({
   selector: 'app-formation-mark-list',
-  imports: [CommonModule, GenericListComponent, GenericSearch],
+  imports: [CommonModule, GenericListComponent, GenericSearch, Skeleton, ErrorBanner],
   templateUrl: './formation-mark-list.html',
   styleUrls: ['../catalog.css', '../formation-list/formation-list.css'],
 })
@@ -28,11 +32,21 @@ export class FormationMarkList {
   private search$ = new BehaviorSubject<string>('');
   readonly pageSize = 10;
 
+  loadError = signal('');
+
   result = toSignal(
     combineLatest([this.page$, this.search$, this.refresh$]).pipe(
-      switchMap(([page, term]) => this.service.getAll(page, this.pageSize, term || undefined)),
+      switchMap(([page, term]) => this.service.getAll(page, this.pageSize, term || undefined).pipe(
+        tap(() => this.loadError.set('')),
+        catchError((err) => {
+          this.loadError.set(apiErrorMessage(err, 'Formation marks could not be loaded.'));
+          return of(emptyPage<FormationMark>());
+        }),
+      )),
     ),
   );
+
+  retry(): void { this.refresh$.next(); }
 
   canManage = toSignal(
     this.userState.roles$.pipe(map(() => this.userState.canManagePersons())),

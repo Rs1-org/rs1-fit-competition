@@ -11,6 +11,11 @@ import { ManagerService, ManagerWriteDto } from '../../core/services/manager.ser
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { fadeSwap } from '../../core/animations/motion';
 import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
+import { SectionCard } from '../../shared/components/section-card/section-card';
+import { Button } from '../../shared/components/button/button';
+import { Skeleton } from '../../shared/components/skeleton/skeleton';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
+import { InputBox } from '../../shared/components/input-box/input-box';
 import { ToastService } from '../../core/services/toast.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
@@ -23,9 +28,9 @@ function pastDate(control: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-manage-managers',
-  imports: [CommonModule, ReactiveFormsModule, UploadProgress],
+  imports: [CommonModule, ReactiveFormsModule, UploadProgress, SectionCard, Button, Skeleton, ErrorBanner, InputBox],
   templateUrl: './manage-managers.html',
-  styleUrl: './manage-managers.css',
+  styleUrl: '../staff-form.css',
   animations: [fadeSwap],
 })
 export class ManageManagers implements OnInit {
@@ -60,6 +65,8 @@ export class ManageManagers implements OnInit {
   editingId: string | null = null;
   isEditMode = false;
   isLoading = false;
+  isSaving = false;
+  loadError = '';
   picture: string | null = null;
   pictureChanged = false;
   uploadProgress: number | null = null;
@@ -101,6 +108,7 @@ export class ManageManagers implements OnInit {
 
   loadManager(id: string): void {
     this.isLoading = true;
+    this.loadError = '';
     this.managerService.getById(id).subscribe({
       next: (data) => {
         this.form.patchValue({
@@ -113,8 +121,9 @@ export class ManageManagers implements OnInit {
         this.pictureChanged = false;
         void this.loadHistory(id);
       },
-      error: () => {
+      error: (err) => {
         this.isLoading = false;
+        this.loadError = apiErrorMessage(err, 'Manager could not be loaded.');
         this.cdr.detectChanges();
       },
     });
@@ -169,6 +178,7 @@ export class ManageManagers implements OnInit {
       ? this.managerService.update(this.editingId!, payload, onProgress)
       : this.managerService.create(payload, onProgress);
 
+    this.isSaving = true;
     request$.subscribe({
       next: async (saved) => {
         const managerId = this.isEditMode ? this.editingId! : saved.id!;
@@ -178,10 +188,12 @@ export class ManageManagers implements OnInit {
           this.toast.error(apiErrorMessage(err, 'Manager saved, but the history could not be saved.'));
         }
         this.managerService.notifyListRefresh();
+        this.isSaving = false;
         this.toast.success('Manager saved');
         this.router.navigate(['/manager-list']);
       },
       error: (err) => {
+        this.isSaving = false;
         this.setUploadProgress(null);
         this.toast.error(apiErrorMessage(err, 'Could not save the manager.'));
       },

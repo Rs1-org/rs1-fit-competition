@@ -1,107 +1,56 @@
-<div class="manager-card-wrapper">
-  <div class="manager-card">
-    <h2>{{ isEditMode ? 'Edit Manager' : 'Add Manager' }}</h2>
-
-    <div class="form-tabs">
-      <button type="button" class="form-tab" [class.active]="activeTab === 'info'" (click)="activeTab = 'info'">
-        Details
-      </button>
-      <button type="button" class="form-tab" [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
-        History
-      </button>
-    </div>
-
-    @if (isLoading) {
-      <p class="loading-text">Loading...</p>
-    }
-
-    @if (!isLoading) {
-      <form [formGroup]="form" (ngSubmit)="saveManager()">
-        <div [@fadeSwap]="activeTab">
-          @if (activeTab === 'info') {
-            <div class="form-group">
-              <label for="firstName">First Name</label>
-              <input type="text" id="firstName" formControlName="firstName" />
-              @if (fieldError('firstName'); as error) {
-                <p class="field-error">{{ error }}</p>
-              }
-            </div>
-            <div class="form-group">
-              <label for="lastName">Last Name</label>
-              <input type="text" id="lastName" formControlName="lastName" />
-              @if (fieldError('lastName'); as error) {
-                <p class="field-error">{{ error }}</p>
-              }
-            </div>
-            <div class="form-group">
-              <label for="dateOfBirth">Date of Birth</label>
-              <input type="date" lang="bs-Latn" id="dateOfBirth" formControlName="dateOfBirth" />
-              @if (fieldError('dateOfBirth'); as error) {
-                <p class="field-error">{{ error }}</p>
-              }
-            </div>
+<main class="staff-page">
+  <header class="staff-header">
+    <h1>{{ isEditMode ? 'Edit manager' : 'Add manager' }}</h1>
+  </header>
+  <div class="form-tabs" role="tablist" aria-label="Manager form">
+    <button type="button" class="form-tab" role="tab" [class.active]="activeTab === 'info'" [attr.aria-selected]="activeTab === 'info'" (click)="activeTab = 'info'">Details</button>
+    <button type="button" class="form-tab" role="tab" [class.active]="activeTab === 'history'" [attr.aria-selected]="activeTab === 'history'" (click)="activeTab = 'history'">History</button>
+  </div>
+  @if (isLoading) {
+    <app-skeleton [rows]="5" />
+  } @else if (loadError) {
+    <app-error-banner [message]="loadError" (retry)="loadManager(editingId!)" />
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="saveManager()">
+      <div [@fadeSwap]="activeTab">
+        @if (activeTab === 'info') {
+          <app-section-card title="Details">
+            <app-input-box label="First name" [control]="form.controls.firstName" />
+            <app-input-box label="Last name" [control]="form.controls.lastName" />
+            <app-input-box label="Date of birth" type="date" [control]="form.controls.dateOfBirth" />
             <div class="form-group">
               <label for="picture">Picture</label>
               <input type="file" id="picture" accept="image/*" (change)="onPictureSelected($event)" />
-              <app-upload-progress [percent]="uploadProgress"></app-upload-progress>
-              @if (picturePreview) {
-                <img [src]="picturePreview" alt="Picture preview" class="person-picture-preview" />
-              }
+              <app-upload-progress [percent]="uploadProgress" />
+              @if (picturePreview) { <img [src]="picturePreview" alt="Picture preview" class="person-picture-preview" /> }
             </div>
-            <div class="form-group">
-              <label for="careerStart">Career Start</label>
-              <input type="date" lang="bs-Latn" id="careerStart" formControlName="careerStart" />
-            </div>
-          }
-
-          @if (activeTab === 'history') {
-            <div class="history-tab-content" formGroupName="history">
-              <p class="history-section-title">Selection</p>
+            <app-input-box label="Career start" type="date" [control]="form.controls.careerStart" />
+          </app-section-card>
+        }
+        @if (activeTab === 'history') {
+          <app-section-card title="History">
+            <div formGroupName="history">
               <div class="form-group">
                 <label for="teamSelectionId">Selection</label>
                 <select id="teamSelectionId" formControlName="teamSelectionId">
                   <option value="">—</option>
-                  @for (selection of selections; track selection.id) {
-                    <option [value]="selection.id">{{ selection.name }} ({{ selection.abbreviation }})</option>
-                  }
+                  @for (selection of selections; track selection.id) { <option [value]="selection.id">{{ selection.name }} ({{ selection.abbreviation }})</option> }
                 </select>
               </div>
-              <div class="form-group">
-                <label for="notes">Notes</label>
-                <input type="text" id="notes" formControlName="notes" />
-              </div>
-              <div class="form-group">
-                <label for="wins">Wins</label>
-                <input type="number" id="wins" formControlName="wins" />
-              </div>
-              <div class="form-group">
-                <label for="loses">Losses</label>
-                <input type="number" id="loses" formControlName="loses" />
-              </div>
-              <div class="form-group">
-                <label for="draw">Draws</label>
-                <input type="number" id="draw" formControlName="draw" />
-              </div>
-              <p class="history-section-title">Mandate</p>
-              <div class="form-group">
-                <label for="startMandatDate">Mandate start</label>
-                <input type="date" lang="bs-Latn" id="startMandatDate" formControlName="startMandatDate" />
-              </div>
-              <div class="form-group">
-                <label for="endMandatDate">Mandate end</label>
-                <input type="date" lang="bs-Latn" id="endMandatDate" formControlName="endMandatDate" />
-              </div>
+              <app-input-box label="Notes" [control]="form.controls.history.controls.notes" />
+              <app-input-box label="Wins" type="number" [control]="form.controls.history.controls.wins" />
+              <app-input-box label="Losses" type="number" [control]="form.controls.history.controls.loses" />
+              <app-input-box label="Draws" type="number" [control]="form.controls.history.controls.draw" />
+              <app-input-box label="Mandate start" type="date" [control]="form.controls.history.controls.startMandatDate" />
+              <app-input-box label="Mandate end" type="date" [control]="form.controls.history.controls.endMandatDate" />
             </div>
-          }
-        </div>
-
-        <div class="button-group">
-          <button type="submit" [disabled]="form.invalid">
-            {{ isEditMode ? 'Update Manager' : 'Save Manager' }}
-          </button>
-          <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
-        </div>
-      </form>
-    }
-  </div>
-</div>
+          </app-section-card>
+        }
+      </div>
+      <div class="button-group">
+        <app-button type="submit" [text]="isEditMode ? 'Update manager' : 'Save manager'" [loading]="isSaving" [disabled]="form.invalid" />
+        <app-button type="button" variant="secondary" text="Cancel" (click)="cancel()" />
+      </div>
+    </form>
+  }
+</main>
