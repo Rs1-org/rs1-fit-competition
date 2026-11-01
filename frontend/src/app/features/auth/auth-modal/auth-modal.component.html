@@ -1,11 +1,11 @@
 <app-login
-  [show]="showLogin"
+  [show]="modal.mode() === 'login'"
   (closeModal)="close()"
   (switchToRegister)="openRegister()">
 </app-login>
 
 <app-register
-  [show]="showRegister"
+  [show]="modal.mode() === 'register'"
   (closeModal)="close()"
   (switchToLogin)="openLogin()">
 </app-register>

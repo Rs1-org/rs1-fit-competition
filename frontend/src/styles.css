@@ -300,6 +300,14 @@ select option {
   box-shadow: 0 0 0 3px var(--acs);
 }
 
+.filter-bar > .filter-reset,
+.club-filters > .filter-reset {
+  grid-column: 1 / -1;
+  justify-self: end;
+  width: auto;
+  align-self: end;
+}
+
 .filter-reset {
   min-height: 44px;
   padding: 0.55rem 1rem;

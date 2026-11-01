@@ -73,6 +73,10 @@
 .club-field label {
   font-weight: 600;
 }
+.club-filters > .filter-reset {
+  grid-column: 1 / -1;
+}
+
 .club-field input,
 .club-field select {
   width: 100%;

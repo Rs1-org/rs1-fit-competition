@@ -1,9 +1,9 @@
 <div class="navbar">
   <div class="navbar-section">
-    <div class="navbar-text">
+    <a class="navbar-text" routerLink="/">
       <app-icon name="home"></app-icon> Home
-    </div>
-    <div class="navbar-text">
+    </a>
+    <div class="navbar-text is-static">
       <span class="live-dot"></span> Live
     </div>
     <div class="navbar-text" (click)="openCompetitions()">
@@ -14,9 +14,6 @@
     <a class="navbar-text" routerLink="/match-reviews">Match reviews</a>
     <a class="navbar-text" routerLink="/match-events">Match events</a>
     <a class="navbar-text" routerLink="/statistics">Statistics</a>
-    <div class="navbar-text">
-      <app-icon name="heart"></app-icon> Favourites
-    </div>
     <div class="navbar-text" (click)="openListPlayers()">
       <app-icon name="player"></app-icon> Players
     </div>
@@ -47,6 +44,7 @@
         <button type="button" *appHasRole="'Admin'" routerLink="/admin/users" (click)="$event.stopPropagation(); openManageTab = false">Users</button>
       </div>
     </div>
+    <div class="navbar-end">
     <div class="navbar-text manage-wrapper" (click)="toggleAccount($event)">
       <app-icon name="user"></app-icon>
       {{ user?.email || 'Guest' }}
@@ -58,9 +56,9 @@
     </div>
 
     @if (!user) {
-    <button (click)="openAuth()">login</button>
+      <button type="button" class="nav-login" (click)="openAuth()">Log in</button>
     }
-    <app-auth-modal></app-auth-modal>
+    </div>
     @if (profileOpen && user) {
       <app-modal [title]="language.language() === 'en' ? 'My profile' : 'Moj profil'" width="420px" (close)="profileOpen = false">
         <div class="account-profile">

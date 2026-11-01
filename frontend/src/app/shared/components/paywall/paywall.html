@@ -26,5 +26,4 @@
     <app-button class="paywall-action" text="Continue to payment" loadingText="Opening checkout…" [loading]="starting()" (click)="goPremium()" />
     @if (!userState.isSignedIn()) { <p class="paywall-note">You will be asked to sign in first.</p> }
   </app-premium-card>
-  <app-auth-modal />
 </section>
