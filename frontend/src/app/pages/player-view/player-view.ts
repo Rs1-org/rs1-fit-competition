@@ -1,23 +1,31 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, formatNumber } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
   hasPlayerHistoryData,
-  playerHistoryViewLabels,
   PlayerAppearance,
   PlayerHistoryForm,
+  TransferValueHistory,
 } from '../../core/models/history.models';
 import { pictureToDataUrl } from '../../core/models/person.models';
 import { HistoryService } from '../../core/services/history.service';
 import { PlayerService } from '../../core/services/player.service';
 import { fadeSwap } from '../../core/animations/motion';
-import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
+import { AppDatePipe, AppNumberPipe, REGIONAL_LOCALE } from '../../shared/pipes/regional-format.pipes';
+import { Breadcrumb } from '../../shared/components/breadcrumb/breadcrumb';
+import { StatTile } from '../../shared/components/stat-tile/stat-tile';
+import { Chart, ChartSeries } from '../../shared/components/chart/chart';
+import { Skeleton } from '../../shared/components/skeleton/skeleton';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
+import { ImageZoom } from '../../shared/components/image-zoom/image-zoom';
+import { apiErrorMessage } from '../../core/utils/api-error';
 
 @Component({
   selector: 'app-player-view',
-  imports: [CommonModule, RouterModule, AppDatePipe],
+  imports: [CommonModule, RouterModule, AppDatePipe, AppNumberPipe, Breadcrumb, StatTile, Chart, Skeleton, EmptyState, ErrorBanner, ImageZoom],
   templateUrl: './player-view.html',
-  styleUrl: './player-view.css',
+  styleUrls: ['./player-view.css', './person-profile.css'],
   animations: [fadeSwap],
 })
 export class PlayerView implements OnInit {
@@ -34,14 +42,76 @@ export class PlayerView implements OnInit {
   appearances: PlayerAppearance[] = [];
   activeTab: 'info' | 'history' = 'info';
   showHistoryTab = false;
-
-  private readonly labels = playerHistoryViewLabels();
+  loading = true;
+  error = '';
+  zoom = false;
+  transfers: TransferValueHistory[] = [];
+  private playerId = '';
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if (!id) return;
-
+    if (!id) {
+      this.loading = false;
+      this.error = 'Player could not be loaded.';
+      return;
+    }
+    this.playerId = id;
     this.loadPlayer(id);
+  }
+
+  retry(): void {
+    if (this.playerId) this.loadPlayer(this.playerId);
+  }
+
+  money(value: unknown): string {
+    const amount = Number(value);
+    if (value == null || value === '' || Number.isNaN(amount)) return '—';
+    return amount >= 1_000_000
+      ? `€ ${formatNumber(amount / 1_000_000, REGIONAL_LOCALE, '1.1-1')} M`
+      : `€ ${formatNumber(amount, REGIONAL_LOCALE, '1.0-0')}`;
+  }
+
+  heightLabel(value: unknown): string {
+    const amount = Number(value);
+    if (value == null || value === '' || Number.isNaN(amount)) return '—';
+    return amount >= 3
+      ? `${formatNumber(amount, REGIONAL_LOCALE, '1.0-0')} cm`
+      : `${formatNumber(amount, REGIONAL_LOCALE, '1.2-2')} m`;
+  }
+
+  career(): { team: string; from: string | null; to: string | null; apps: number }[] {
+    const groups = new Map<string, PlayerAppearance[]>();
+    for (const appearance of this.appearances) {
+      const team = appearance.selectionName || 'Team not recorded';
+      groups.set(team, [...(groups.get(team) ?? []), appearance]);
+    }
+    return [...groups.entries()].map(([team, rows]) => {
+      const dates = rows.map((row) => row.matchDate).filter(Boolean).sort();
+      return { team, from: dates[0] ?? null, to: dates.at(-1) ?? null, apps: rows.length };
+    });
+  }
+
+  age(value: unknown): number | null {
+    const date = new Date(String(value ?? ''));
+    if (Number.isNaN(date.getTime())) return null;
+    const today = new Date();
+    let years = today.getFullYear() - date.getFullYear();
+    if (today.getMonth() < date.getMonth() || (today.getMonth() === date.getMonth() && today.getDate() < date.getDate())) years--;
+    return years;
+  }
+
+  chartLabels(): string[] {
+    return this.chartPoints().map((point) => point.date ?? '');
+  }
+
+  chartSeries(): ChartSeries[] {
+    return [{ label: 'Value', data: this.chartPoints().map((point) => point.value ?? 0), color: '--ac', type: 'line' }];
+  }
+
+  private chartPoints(): TransferValueHistory[] {
+    return this.transfers
+      .filter((point) => point.date && point.value != null)
+      .sort((left, right) => String(left.date).localeCompare(String(right.date)));
   }
 
   get displayProperties(): { key: string; value: unknown }[] {
@@ -60,6 +130,8 @@ export class PlayerView implements OnInit {
   }
 
   private loadPlayer(id: string): void {
+    this.loading = true;
+    this.error = '';
     this.playerService.getById(id).subscribe({
       next: async (data) => {
         this.selectedPlayer = {
@@ -69,16 +141,28 @@ export class PlayerView implements OnInit {
           height: data.height,
           shirtNumber: data.shirtNumber,
           transferValue: data.transferValue,
+          positionName: data.positionName,
+          subPositionName: data.subPositionName,
         };
         this.pictureUrl = pictureToDataUrl(data.picture);
-
-        this.history = await this.historyService.loadPlayerHistory(id);
-        this.appearances = await this.historyService.loadAppearances(id);
-        this.showHistoryTab = hasPlayerHistoryData(this.history) || this.appearances.length > 0;
-        this.historyRows = this.buildHistoryRows(this.history);
+        const [history, appearances, transfers] = await Promise.all([
+          this.historyService.loadPlayerHistory(id),
+          this.historyService.loadAppearances(id),
+          this.historyService.loadTransfers(id),
+        ]);
+        this.history = history;
+        this.appearances = appearances;
+        this.transfers = transfers;
+        this.showHistoryTab = hasPlayerHistoryData(history) || appearances.length > 0;
+        this.historyRows = this.buildHistoryRows(history);
+        this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Greška pri dohvaćanju:', err),
+      error: (err) => {
+        this.loading = false;
+        this.error = apiErrorMessage(err, 'Player could not be loaded.');
+        this.cdr.detectChanges();
+      },
     });
   }
 
@@ -89,44 +173,44 @@ export class PlayerView implements OnInit {
     const { selection, transfer, mandat } = form;
 
     if (selection.goals != null) {
-      rows.push({ label: this.labels['goals'], value: selection.goals });
+      rows.push({ label: 'Goals', value: selection.goals });
     }
     if (selection.matchPlayed != null) {
       rows.push({
-        label: this.labels['matchPlayed'],
+        label: 'Appearances',
         value: selection.matchPlayed,
       });
     }
     if (selection.assists != null) {
-      rows.push({ label: this.labels['assists'], value: selection.assists });
+      rows.push({ label: 'Assists', value: selection.assists });
     }
     if (selection.shirtNumber != null) {
       rows.push({
-        label: this.labels['shirtNumber'],
+        label: 'Shirt number',
         value: selection.shirtNumber,
       });
     }
     if (transfer.date) {
       rows.push({
-        label: this.labels['transferDate'],
+        label: 'Transfer date',
         value: transfer.date,
       });
     }
     if (transfer.value != null) {
       rows.push({
-        label: this.labels['transferValue'],
+        label: 'Transfer value',
         value: transfer.value,
       });
     }
     if (mandat.startMandatDate) {
       rows.push({
-        label: this.labels['startMandatDate'],
+        label: 'From',
         value: mandat.startMandatDate,
       });
     }
     if (mandat.endMandatDate) {
       rows.push({
-        label: this.labels['endMandatDate'],
+        label: 'To',
         value: mandat.endMandatDate,
       });
     }

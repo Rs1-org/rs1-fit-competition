@@ -1,49 +1,45 @@
-<div class="container">
-  <button class="btn-back" (click)="goBack()">⬅ Natrag na listu</button>
+<main class="profile">
+  <button type="button" class="back" (click)="goBack()">Back to managers</button>
+  <app-breadcrumb [items]="[{ label: 'Managers', route: '/manager-list' }, { label: selectedManager ? (selectedManager['firstName'] + ' ' + selectedManager['lastName']) : 'Manager' }]" />
 
-  <div class="detail-card" *ngIf="selectedManager">
-    <div class="detail-header">
-      <h2>Karton Menadžera</h2>
-      <div class="card-tabs" *ngIf="showHistoryTab">
-        <button
-          type="button"
-          class="card-tab"
-          [class.active]="activeTab === 'info'"
-          (click)="activeTab = 'info'">
-          Podaci
-        </button>
-        <button
-          type="button"
-          class="card-tab"
-          [class.active]="activeTab === 'history'"
-          (click)="activeTab = 'history'">
-          Historija
-        </button>
+  @if (loading) {
+    <app-skeleton [rows]="4" />
+  } @else if (error) {
+    <app-error-banner [message]="error" (retry)="retry()" />
+  } @else if (selectedManager) {
+    <header class="hero">
+      <button type="button" class="photo" [disabled]="!pictureUrl" (click)="zoom = true">
+        @if (pictureUrl) { <img [src]="pictureUrl" alt="" /> }
+        @else { <span>[PHOTO]</span> }
+      </button>
+      <div>
+        <p class="role">Manager</p>
+        <h1>{{ selectedManager['firstName'] }} {{ selectedManager['lastName'] }}</h1>
       </div>
-    </div>
+    </header>
 
-    <div class="detail-body" [@fadeSwap]="activeTab">
-      <div class="detail-picture-wrap" *ngIf="pictureUrl && activeTab === 'info'">
-        <img [src]="pictureUrl" alt="Slika menadžera" class="person-picture-preview" />
+    <section class="tiles" aria-label="Manager facts">
+      <app-stat-tile label="Age" [value]="age(selectedManager['dateOfBirth']) ?? '—'" />
+      <app-stat-tile label="Career start" [value]="selectedManager['careerStart'] ? (selectedManager['careerStart'] | appDate) : '—'" />
+      <app-stat-tile label="Wins" [value]="history?.selection?.wins ?? '—'" />
+      <app-stat-tile label="Draws" [value]="history?.selection?.draw ?? '—'" />
+      <app-stat-tile label="Losses" [value]="history?.selection?.loses ?? '—'" />
+    </section>
+
+    @if (showHistoryTab) {
+      <div class="tabs" role="tablist" aria-label="Manager sections">
+        <button type="button" role="tab" [class.active]="activeTab === 'info'" [attr.aria-selected]="activeTab === 'info'" (click)="activeTab = 'info'">Profile</button>
+        <button type="button" role="tab" [class.active]="activeTab === 'history'" [attr.aria-selected]="activeTab === 'history'" (click)="activeTab = 'history'">History</button>
       </div>
+    }
 
-      <ng-container *ngIf="activeTab === 'info'">
-        <div class="detail-row" *ngFor="let prop of displayProperties">
-          <span class="label">{{ prop.key }}:</span>
-          <span class="value">{{ prop.value }}</span>
-        </div>
-      </ng-container>
-
-      <ng-container *ngIf="activeTab === 'history'">
-        <div class="detail-row" *ngFor="let row of historyRows">
-          <span class="label">{{ row.label }}:</span>
-          <span class="value">{{ row.value }}</span>
-        </div>
-      </ng-container>
-    </div>
-  </div>
-
-  <div *ngIf="!selectedManager" class="loading">
-    Učitavanje podataka o menadžeru...
-  </div>
-</div>
+    @if (activeTab === 'history') {
+      <section class="facts" [@fadeSwap]="activeTab">
+        @for (row of historyRows; track row.label) {
+          <p><strong>{{ row.label }}</strong> {{ row.value }}</p>
+        }
+      </section>
+    }
+    <app-image-zoom [src]="pictureUrl" [open]="zoom" (closed)="zoom = false" />
+  }
+</main>

@@ -1,0 +1,10 @@
+@if (open() && src()) {
+  <div class="zoom-layer" role="dialog" aria-modal="true" aria-label="Photo" tabindex="-1" #dialog (click)="closed.emit()">
+    <img [src]="src()" [style.transform]="'scale(' + scale() + ')'" alt="Enlarged photo" (click)="$event.stopPropagation()" />
+    <div class="zoom-actions" (click)="$event.stopPropagation()">
+      <button type="button" (click)="zoom(0.25)">Zoom in</button>
+      <button type="button" (click)="zoom(-0.25)">Zoom out</button>
+      <button type="button" (click)="closed.emit()">Close</button>
+    </div>
+  </div>
+}

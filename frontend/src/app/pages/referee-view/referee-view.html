@@ -1,14 +1,26 @@
-<div class="container">
-  <button class="btn-back" (click)="goBack()">⬅ Natrag na listu</button>
+<main class="profile">
+  <button type="button" class="back" (click)="goBack()">Back to referees</button>
+  <app-breadcrumb [items]="[{ label: 'Referees', route: '/referee-list' }, { label: selectedReferee ? (selectedReferee['firstName'] + ' ' + selectedReferee['lastName']) : 'Referee' }]" />
 
-  <app-generic-view
-    *ngIf="selectedReferee" 
-    [data]="selectedReferee"
-    [pictureSrc]="pictureUrl"
-    title="Karton Sudije">
-  </app-generic-view>
-
-  <div *ngIf="!selectedReferee" class="loading">
-    Učitavanje podataka o sudiji...
-  </div>
-</div>
+  @if (loading) {
+    <app-skeleton [rows]="4" />
+  } @else if (error) {
+    <app-error-banner [message]="error" (retry)="retry()" />
+  } @else if (selectedReferee) {
+    <header class="hero">
+      <button type="button" class="photo" [disabled]="!pictureUrl" (click)="zoom = true">
+        @if (pictureUrl) { <img [src]="pictureUrl" alt="" /> }
+        @else { <span>[PHOTO]</span> }
+      </button>
+      <div>
+        <p class="role">Referee</p>
+        <h1>{{ selectedReferee['firstName'] }} {{ selectedReferee['lastName'] }}</h1>
+      </div>
+    </header>
+    <section class="tiles" aria-label="Referee facts">
+      <app-stat-tile label="Age" [value]="age(selectedReferee['dateOfBirth']) ?? '—'" />
+      <app-stat-tile label="Career start" [value]="selectedReferee['careerStart'] ? (selectedReferee['careerStart'] | appDate) : '—'" />
+    </section>
+    <app-image-zoom [src]="pictureUrl" [open]="zoom" (closed)="zoom = false" />
+  }
+</main>
