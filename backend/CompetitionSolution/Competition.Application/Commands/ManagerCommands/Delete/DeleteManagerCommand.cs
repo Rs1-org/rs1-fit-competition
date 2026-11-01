@@ -1,14 +1,15 @@
+using Competition.Application.Common.Validation;
 using FluentValidation;
 using MediatR;
 
 namespace Competition.Application.Commands.ManagerCommands.Delete;
 
-public class DeleteManagerCommand(Guid id) : IRequest<Guid>
+public class DeleteManagerCommand(string publicId) : IRequest<string>
 {
-    public Guid Id { get; } = id;
+    public string PublicId { get; } = publicId;
 }
 
 public class DeleteManagerCommandValidator : AbstractValidator<DeleteManagerCommand>
 {
-    public DeleteManagerCommandValidator() => RuleFor(x => x.Id).NotEmpty();
+    public DeleteManagerCommandValidator() => RuleFor(x => x.PublicId).MustBeValidPublicId();
 }

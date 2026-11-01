@@ -2,6 +2,7 @@ using Competition.Application.Commands.MandateDateCommands;
 using Competition.Application.Commands.PlayerSelectionHistoryCommands;
 using Competition.Application.Commands.SelectionManagerHistoryCommands;
 using Competition.Application.Commands.TransferValueHistoryCommands;
+using Competition.Tests.Infrastructure;
 using FluentAssertions;
 using Xunit;
 
@@ -9,50 +10,52 @@ namespace Competition.Tests.UnitTests.History;
 
 public class HistoryCommandValidatorTests
 {
+    private static string PublicId() => Guid.NewGuid().ToString("N");
+
     [Fact]
-    public void Transfer_RejectsANegativeValue()
+    public async Task Transfer_RejectsANegativeValue()
     {
-        var result = new CreateTransferValueHistoryCommandValidator()
-            .Validate(new CreateTransferValueHistoryCommand("2026-10-15", -1, Guid.NewGuid()));
+        var result = await new CreateTransferValueHistoryCommandValidator(new AlwaysFoundLookup())
+            .ValidateAsync(new CreateTransferValueHistoryCommand("2026-10-15", -1, PublicId()));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(error => error.PropertyName == "Value");
     }
 
     [Fact]
-    public void Transfer_AcceptsAnEmptyDateAndANonNegativeValue()
+    public async Task Transfer_AcceptsAnEmptyDateAndANonNegativeValue()
     {
-        var result = new CreateTransferValueHistoryCommandValidator()
-            .Validate(new CreateTransferValueHistoryCommand(null, 12.50m, Guid.NewGuid()));
+        var result = await new CreateTransferValueHistoryCommandValidator(new AlwaysFoundLookup())
+            .ValidateAsync(new CreateTransferValueHistoryCommand(null, 12.50m, PublicId()));
 
         result.IsValid.Should().BeTrue();
     }
 
     [Fact]
-    public void PlayerSelection_RejectsAShirtNumberOutsideTheSquad()
+    public async Task PlayerSelection_RejectsAShirtNumberOutsideTheSquad()
     {
-        var result = new CreatePlayerSelectionHistoryCommandValidator()
-            .Validate(new CreatePlayerSelectionHistoryCommand(1, 1, 0, 100, Guid.NewGuid(), null));
+        var result = await new CreatePlayerSelectionHistoryCommandValidator(new AlwaysFoundLookup())
+            .ValidateAsync(new CreatePlayerSelectionHistoryCommand(1, 1, 0, 100, PublicId(), null));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(error => error.PropertyName == "ShirtNumber");
     }
 
     [Fact]
-    public void ManagerHistory_RejectsNotesThatAreTooLong()
+    public async Task ManagerHistory_RejectsNotesThatAreTooLong()
     {
-        var result = new CreateSelectionManagerHistoryCommandValidator()
-            .Validate(new CreateSelectionManagerHistoryCommand(new string('a', 2001), 1, 0, 0, Guid.NewGuid(), null));
+        var result = await new CreateSelectionManagerHistoryCommandValidator(new AlwaysFoundLookup())
+            .ValidateAsync(new CreateSelectionManagerHistoryCommand(new string('a', 2001), 1, 0, 0, PublicId(), null));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(error => error.PropertyName == "Notes");
     }
 
     [Fact]
-    public void Mandate_RejectsAnEndDateBeforeTheStart()
+    public async Task Mandate_RejectsAnEndDateBeforeTheStart()
     {
-        var result = new CreateMandateDateCommandValidator()
-            .Validate(new CreateMandateDateCommand("2026-10-15", "2026-01-01", null, null));
+        var result = await new CreateMandateDateCommandValidator(new AlwaysFoundLookup())
+            .ValidateAsync(new CreateMandateDateCommand("2026-10-15", "2026-01-01", null, null));
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(error => error.ErrorMessage == "End date must be on or after the start date.");
@@ -62,7 +65,7 @@ public class HistoryCommandValidatorTests
     public void Delete_RejectsAnEmptyId()
     {
         var result = new DeleteTransferValueHistoryCommandValidator()
-            .Validate(new DeleteTransferValueHistoryCommand(Guid.Empty));
+            .Validate(new DeleteTransferValueHistoryCommand(""));
 
         result.IsValid.Should().BeFalse();
     }

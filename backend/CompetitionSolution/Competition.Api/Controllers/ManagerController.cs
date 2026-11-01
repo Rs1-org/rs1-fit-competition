@@ -14,12 +14,12 @@ namespace Competition.Api.Controllers;
 [ApiController]
 public class ManagerController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
+    [HttpGet("{publicId}")]
+    public async Task<IActionResult> GetById(string publicId, CancellationToken ct)
     {
-        var manager = await mediator.Send(new GetManagerByIdQuery(id), ct);
+        var manager = await mediator.Send(new GetManagerByIdQuery(publicId), ct);
         if (manager == null)
-            throw new KeyNotFoundException($"Manager with id {id} not found");
+            throw new KeyNotFoundException($"Manager with public id {publicId} not found");
 
         return Ok(manager);
     }
@@ -56,18 +56,18 @@ public class ManagerController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Roles = "Admin,Moderator")]
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateManager(Guid id, [FromBody] ManagerDto dto, CancellationToken ct)
+    [HttpPut("{publicId}")]
+    public async Task<IActionResult> UpdateManager(string publicId, [FromBody] ManagerDto dto, CancellationToken ct)
     {
-        var updated = await mediator.Send(new UpdateManagerCommand(id, dto), ct);
+        var updated = await mediator.Send(new UpdateManagerCommand(publicId, dto), ct);
         return Ok(updated);
     }
 
     [Authorize(Roles = "Admin,Moderator")]
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteManager(Guid id, CancellationToken ct)
+    [HttpDelete("{publicId}")]
+    public async Task<IActionResult> DeleteManager(string publicId, CancellationToken ct)
     {
-        var deletedId = await mediator.Send(new DeleteManagerCommand(id), ct);
+        var deletedId = await mediator.Send(new DeleteManagerCommand(publicId), ct);
         return Ok(deletedId);
     }
 

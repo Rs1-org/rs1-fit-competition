@@ -9,7 +9,7 @@
   } @else {
     <p>{{ state().data.totalCount | appNumber: '1.0-0' }} selections</p>
     <ul>
-      @for (selection of state().data.items; track selection.id) {
+      @for (selection of state().data.items; track selection.publicId) {
         <li>
           <a [routerLink]="['/selection', selection.slug]">{{ selection.name }}</a
           ><span>{{ selection.abbreviation }}</span>

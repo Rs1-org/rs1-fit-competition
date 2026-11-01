@@ -49,7 +49,7 @@ export class PlayerView implements OnInit {
   private playerId = '';
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('publicId');
     if (!id) {
       this.loading = false;
       this.error = 'Player could not be loaded.';
@@ -116,7 +116,7 @@ export class PlayerView implements OnInit {
 
   get displayProperties(): { key: string; value: unknown }[] {
     if (!this.selectedPlayer) return [];
-    const hiddenFields = ['id', 'deletedAt', 'id_key', 'picture'];
+    const hiddenFields = ['publicId', 'id', 'deletedAt', 'id_key', 'picture'];
     return Object.keys(this.selectedPlayer)
       .filter((key) => !hiddenFields.includes(key))
       .map((key) => ({

@@ -7,40 +7,40 @@ public static class HistoryMaps
 {
     public static TransferValueHistoryDto ToDto(TransferValueHistory entity) => new()
     {
-        Id = entity.Id,
+        PublicId = entity.PublicId,
         Date = NodaTimeMappingHelper.FormatNullableLocalDate(entity.Date),
         Value = entity.Value,
-        PlayerId = entity.PlayerId
+        PlayerPublicId = entity.Player?.PublicId ?? string.Empty
     };
 
     public static PlayerSelectionHistoryDto ToDto(PlayerSelectionHistory entity) => new()
     {
-        Id = entity.Id,
+        PublicId = entity.PublicId,
         Goals = entity.Goals,
         MatchPlayed = entity.MatchPlayed,
         Assists = entity.Assists,
         ShirtNumber = entity.ShirtNumber,
-        PlayerId = entity.PlayerId,
-        SelectionId = entity.SelectionId
+        PlayerPublicId = entity.Player?.PublicId ?? string.Empty,
+        SelectionPublicId = entity.Selection?.PublicId
     };
 
     public static SelectionManagerHistoryDto ToDto(SelectionManagerHistory entity) => new()
     {
-        Id = entity.Id,
+        PublicId = entity.PublicId,
         Notes = entity.Notes,
         Wins = entity.Wins,
         Loses = entity.Loses,
         Draw = entity.Draw,
-        ManagerId = entity.ManagerId,
-        SelectionId = entity.SelectionId
+        ManagerPublicId = entity.Manager?.PublicId ?? string.Empty,
+        SelectionPublicId = entity.Selection?.PublicId
     };
 
     public static MandateDateDto ToDto(MandateDate entity) => new()
     {
-        Id = entity.Id,
+        PublicId = entity.PublicId,
         StartDate = NodaTimeMappingHelper.FormatNullableLocalDate(entity.StartDate),
         EndDate = NodaTimeMappingHelper.FormatNullableLocalDate(entity.EndDate),
-        PlayerSelectionHistoryId = entity.PlayerSelectionHistoryId,
-        SelectionManagerHistoryId = entity.SelectionManagerHistoryId
+        PlayerSelectionHistoryPublicId = entity.PlayerSelectionHistory?.PublicId,
+        SelectionManagerHistoryPublicId = entity.SelectionManagerHistory?.PublicId
     };
 }

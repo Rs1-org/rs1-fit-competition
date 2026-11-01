@@ -79,7 +79,7 @@ export class ManageManagers implements OnInit {
       this.cdr.detectChanges();
     });
     this.route.paramMap.subscribe((params) => {
-      const id = params.get('id');
+      const id = params.get('publicId');
       if (id) {
         this.editingId = id;
         this.isEditMode = true;
@@ -187,7 +187,7 @@ export class ManageManagers implements OnInit {
     this.isSaving = true;
     request$.subscribe({
       next: async (saved) => {
-        const managerId = this.isEditMode ? this.editingId! : saved.id!;
+        const managerId = this.isEditMode ? this.editingId! : saved.publicId!;
         try {
           await this.historyService.saveManagerHistory(managerId, this.historyPayload());
         } catch (err) {

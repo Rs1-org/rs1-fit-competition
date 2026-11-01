@@ -61,7 +61,7 @@ public class CreateFormationMarkCommandHandler : IRequestHandler<CreateFormation
 
     internal static FormationMarkDto Map(FormationMark entity) => new()
     {
-        Id = entity.Id,
+        PublicId = entity.PublicId,
         Defenders = entity.Defenders,
         Midfielders = entity.Midfielders,
         Attackers = entity.Attackers,

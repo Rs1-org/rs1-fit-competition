@@ -30,7 +30,7 @@
                 <label for="teamSelectionId">Selection</label>
                 <select id="teamSelectionId" formControlName="teamSelectionId">
                   <option value="">—</option>
-                  @for (selection of selections; track selection.id) { <option [value]="selection.id">{{ selection.name }} ({{ selection.abbreviation }})</option> }
+                  @for (selection of selections; track selection.publicId) { <option [value]="selection.publicId">{{ selection.name }} ({{ selection.abbreviation }})</option> }
                 </select>
               </div>
               <app-input-box label="Notes" [control]="form.controls.history.controls.notes" />

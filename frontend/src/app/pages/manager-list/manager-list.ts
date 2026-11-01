@@ -33,7 +33,7 @@ export class ManagerList {
   searchManagers = (term: string) =>
     this.managerService.getAll(1, 8, { name: term }).pipe(
       map((page) => page.items.map((manager) => ({
-        id: manager.id ?? '',
+        id: manager.publicId ?? '',
         label: `${manager.firstName} ${manager.lastName}`.trim(),
       }))),
     );
@@ -80,20 +80,20 @@ export class ManagerList {
   }
 
   view(manager: Manager): void {
-    this.router.navigate(['/manager', manager.id]);
+    this.router.navigate(['/manager', manager.publicId]);
   }
 
   edit(manager: Manager): void {
-    this.router.navigate(['/manage-managers', manager.id]);
+    this.router.navigate(['/manage-managers', manager.publicId]);
   }
 
   async delete(manager: Manager): Promise<void> {
-    if (!manager.id) return;
+    if (!manager.publicId) return;
 
     const confirmed = await this.confirmDialog.confirm(deleteConfirm(`manager ${manager.firstName} ${manager.lastName}`));
     if (!confirmed) return;
 
-    this.managerService.delete(manager.id).subscribe({
+    this.managerService.delete(manager.publicId).subscribe({
       next: () => {
         this.toast.success('Manager deleted');
         this.refresh$.next();

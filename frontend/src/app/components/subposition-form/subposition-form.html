@@ -6,8 +6,8 @@
         label="Position"
         [options]="positionOptions"
         optionLabel="name"
-        optionValue="id"
-        [control]="form.controls.positionId">
+        optionValue="publicId"
+        [control]="form.controls.positionPublicId">
       </app-dropdown>
       <footer>
         <app-button type="submit" [text]="isEditMode ? 'Save' : 'Create'"></app-button>

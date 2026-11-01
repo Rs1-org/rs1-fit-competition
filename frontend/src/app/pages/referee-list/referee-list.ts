@@ -33,7 +33,7 @@ export class RefereeList {
   searchReferees = (term: string) =>
     this.refereeService.getAll(1, 8, { name: term }).pipe(
       map((page) => page.items.map((referee) => ({
-        id: referee.id ?? '',
+        id: referee.publicId ?? '',
         label: `${referee.firstName} ${referee.lastName}`.trim(),
       }))),
     );
@@ -80,20 +80,20 @@ export class RefereeList {
   }
 
   view(referee: Referee): void {
-    this.router.navigate(['/referee', referee.id]);
+    this.router.navigate(['/referee', referee.publicId]);
   }
 
   edit(referee: Referee): void {
-    this.router.navigate(['/manage-referees', referee.id]);
+    this.router.navigate(['/manage-referees', referee.publicId]);
   }
 
   async delete(referee: Referee): Promise<void> {
-    if (!referee.id) return;
+    if (!referee.publicId) return;
 
     const confirmed = await this.confirmDialog.confirm(deleteConfirm(`referee ${referee.firstName} ${referee.lastName}`));
     if (!confirmed) return;
 
-    this.refereeService.delete(referee.id).subscribe({
+    this.refereeService.delete(referee.publicId).subscribe({
       next: () => {
         this.toast.success('Referee deleted');
         this.refresh$.next();

@@ -43,7 +43,7 @@ export class ManagerView implements OnInit {
   private managerId = '';
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('publicId');
     if (!id) {
       this.loading = false;
       this.error = 'Manager could not be loaded.';

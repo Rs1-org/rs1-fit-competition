@@ -1,3 +1,4 @@
+using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.FormationDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
@@ -10,19 +11,19 @@ namespace Competition.Application.Commands.FormationCommands.Create;
 public class CreateFormationCommand : IRequest<FormationDto>
 {
     public string Code { get; set; } = string.Empty;
-    public Guid FormationMarkId { get; set; }
+    public string FormationMarkPublicId { get; set; } = string.Empty;
 }
 
 public class CreateFormationCommandValidator : AbstractValidator<CreateFormationCommand>
 {
-    public CreateFormationCommandValidator()
+    public CreateFormationCommandValidator(IPublicIdLookup lookup)
     {
         RuleFor(x => x.Code)
             .NotEmpty()
             .MaximumLength(20)
             .Matches(@"^\d+-\d+-\d+$")
             .WithMessage("Code must look like 4-3-3.");
-        RuleFor(x => x.FormationMarkId).NotEmpty();
+        RuleFor(x => x.FormationMarkPublicId).MustReferenceExisting<CreateFormationCommand, FormationMark>(lookup);
     }
 }
 
@@ -31,18 +32,21 @@ public class CreateFormationCommandHandler : IRequestHandler<CreateFormationComm
     private readonly IFormation _formations;
     private readonly IFormationMark _marks;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublicIdLookup _lookup;
 
-    public CreateFormationCommandHandler(IFormation formations, IFormationMark marks, IUnitOfWork unitOfWork)
+    public CreateFormationCommandHandler(IFormation formations, IFormationMark marks, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
     {
         _formations = formations;
         _marks = marks;
         _unitOfWork = unitOfWork;
+        _lookup = lookup;
     }
 
     public async Task<FormationDto> Handle(CreateFormationCommand request, CancellationToken cancellationToken)
     {
-        var mark = await _marks.GetByIdAsync(request.FormationMarkId, cancellationToken)
-            ?? throw new KeyNotFoundException($"Formation mark '{request.FormationMarkId}' was not found.");
+        var markId = await _lookup.GetRequiredIdAsync<FormationMark>(request.FormationMarkPublicId, cancellationToken);
+        var mark = await _marks.GetByIdAsync(markId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Formation mark '{request.FormationMarkPublicId}' was not found.");
 
         if (!FormationRules.CodeMatchesMark(request.Code, mark.Defenders, mark.Midfielders, mark.Attackers))
             throw new InvalidOperationException("Formation code must match the mark (defenders-midfielders-attackers).");
@@ -72,10 +76,10 @@ public class CreateFormationCommandHandler : IRequestHandler<CreateFormationComm
 
     internal static FormationDto Map(Formation entity) => new()
     {
-        Id = entity.Id,
+        PublicId = entity.PublicId,
         Code = entity.Code,
         Slug = entity.Slug,
-        FormationMarkId = entity.FormationMarkId,
+        FormationMarkPublicId = entity.FormationMark?.PublicId ?? string.Empty,
         Defenders = entity.FormationMark?.Defenders ?? 0,
         Midfielders = entity.FormationMark?.Midfielders ?? 0,
         Attackers = entity.FormationMark?.Attackers ?? 0

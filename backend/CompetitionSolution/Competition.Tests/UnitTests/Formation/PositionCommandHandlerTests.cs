@@ -50,10 +50,13 @@ public class CreateSubPositionCommandHandlerTests : BaseUnitTest
         var subPositions = new Mock<ISubPosition>();
         var unitOfWork = new Mock<IUnitOfWork>();
         var positionId = Guid.NewGuid();
+        var publicId = Guid.NewGuid().ToString("N");
+        var lookup = new Mock<IPublicIdLookup>();
+        lookup.Setup(x => x.GetRequiredIdAsync<Position>(publicId, It.IsAny<CancellationToken>())).ReturnsAsync(positionId);
         positions.Setup(x => x.GetByIdAsync(positionId, It.IsAny<CancellationToken>())).ReturnsAsync((Position?)null);
-        var handler = new CreateSubPositionCommandHandler(subPositions.Object, positions.Object, unitOfWork.Object);
+        var handler = new CreateSubPositionCommandHandler(subPositions.Object, positions.Object, unitOfWork.Object, lookup.Object);
 
-        var act = () => handler.Handle(new CreateSubPositionCommand { Name = "Left back", PositionId = positionId }, CancellationToken.None);
+        var act = () => handler.Handle(new CreateSubPositionCommand { Name = "Left back", PositionPublicId = publicId }, CancellationToken.None);
 
         await act.Should().ThrowAsync<KeyNotFoundException>();
     }
@@ -61,18 +64,20 @@ public class CreateSubPositionCommandHandlerTests : BaseUnitTest
     [Fact]
     public async Task Handle_ValidPosition_SlugsWithParentName()
     {
-        var position = new Position { Id = Guid.NewGuid(), Name = "Defender", Slug = "defender" };
+        var position = new Position { Id = Guid.NewGuid(), PublicId = Guid.NewGuid().ToString("N"), Name = "Defender", Slug = "defender" };
         var positions = new Mock<IPosition>();
         var subPositions = new Mock<ISubPosition>();
         var unitOfWork = new Mock<IUnitOfWork>();
+        var lookup = new Mock<IPublicIdLookup>();
+        lookup.Setup(x => x.GetRequiredIdAsync<Position>(position.PublicId, It.IsAny<CancellationToken>())).ReturnsAsync(position.Id);
         positions.Setup(x => x.GetByIdAsync(position.Id, It.IsAny<CancellationToken>())).ReturnsAsync(position);
         subPositions.Setup(x => x.GetBySlugAsync("defender-left-back", It.IsAny<CancellationToken>())).ReturnsAsync((SubPosition?)null);
-        var handler = new CreateSubPositionCommandHandler(subPositions.Object, positions.Object, unitOfWork.Object);
+        var handler = new CreateSubPositionCommandHandler(subPositions.Object, positions.Object, unitOfWork.Object, lookup.Object);
 
-        var result = await handler.Handle(new CreateSubPositionCommand { Name = "Left back", PositionId = position.Id }, CancellationToken.None);
+        var result = await handler.Handle(new CreateSubPositionCommand { Name = "Left back", PositionPublicId = position.PublicId }, CancellationToken.None);
 
         result.Slug.Should().Be("defender-left-back");
-        result.PositionId.Should().Be(position.Id);
+        result.PositionPublicId.Should().Be(position.PublicId);
         result.PositionName.Should().Be("Defender");
     }
 }

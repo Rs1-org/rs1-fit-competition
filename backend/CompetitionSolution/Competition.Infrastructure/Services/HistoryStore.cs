@@ -10,43 +10,43 @@ namespace Competition.Infrastructure.Services;
 public class HistoryStore(AppDbContext db) : IHistoryStore
 {
     public Task<TransferValueHistory?> GetTransferAsync(Guid id, CancellationToken cancellationToken) =>
-        db.TransferValueHistories.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        db.TransferValueHistories.Include(x => x.Player).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public Task<PagedResult<TransferValueHistory>> GetTransfersAsync(Guid? playerId, int page, int pageSize, CancellationToken cancellationToken)
     {
-        var query = db.TransferValueHistories.AsQueryable();
+        var query = db.TransferValueHistories.Include(x => x.Player).AsQueryable();
         if (playerId is not null) query = query.Where(x => x.PlayerId == playerId);
         return query.OrderByDescending(x => x.CreatedAt).ToPagedResultAsync(page, pageSize, cancellationToken);
     }
 
     public Task<PlayerSelectionHistory?> GetPlayerSelectionAsync(Guid id, CancellationToken cancellationToken) =>
-        db.PlayerSelectionHistories.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        db.PlayerSelectionHistories.Include(x => x.Player).Include(x => x.Selection).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public Task<PagedResult<PlayerSelectionHistory>> GetPlayerSelectionsAsync(Guid? playerId, Guid? selectionId, int page, int pageSize, CancellationToken cancellationToken)
     {
-        var query = db.PlayerSelectionHistories.AsQueryable();
+        var query = db.PlayerSelectionHistories.Include(x => x.Player).Include(x => x.Selection).AsQueryable();
         if (playerId is not null) query = query.Where(x => x.PlayerId == playerId);
         if (selectionId is not null) query = query.Where(x => x.SelectionId == selectionId);
         return query.OrderByDescending(x => x.CreatedAt).ToPagedResultAsync(page, pageSize, cancellationToken);
     }
 
     public Task<SelectionManagerHistory?> GetManagerSelectionAsync(Guid id, CancellationToken cancellationToken) =>
-        db.SelectionManagerHistories.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        db.SelectionManagerHistories.Include(x => x.Manager).Include(x => x.Selection).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public Task<PagedResult<SelectionManagerHistory>> GetManagerSelectionsAsync(Guid? managerId, Guid? selectionId, int page, int pageSize, CancellationToken cancellationToken)
     {
-        var query = db.SelectionManagerHistories.AsQueryable();
+        var query = db.SelectionManagerHistories.Include(x => x.Manager).Include(x => x.Selection).AsQueryable();
         if (managerId is not null) query = query.Where(x => x.ManagerId == managerId);
         if (selectionId is not null) query = query.Where(x => x.SelectionId == selectionId);
         return query.OrderByDescending(x => x.CreatedAt).ToPagedResultAsync(page, pageSize, cancellationToken);
     }
 
     public Task<MandateDate?> GetMandateAsync(Guid id, CancellationToken cancellationToken) =>
-        db.MandateDates.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        db.MandateDates.Include(x => x.PlayerSelectionHistory).Include(x => x.SelectionManagerHistory).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public Task<PagedResult<MandateDate>> GetMandatesAsync(Guid? playerId, Guid? managerId, Guid? selectionId, Guid? playerSelectionHistoryId, Guid? selectionManagerHistoryId, int page, int pageSize, CancellationToken cancellationToken)
     {
-        var query = db.MandateDates.AsQueryable();
+        var query = db.MandateDates.Include(x => x.PlayerSelectionHistory).Include(x => x.SelectionManagerHistory).AsQueryable();
         if (playerId is not null)
             query = query.Where(x => x.PlayerSelectionHistory != null && x.PlayerSelectionHistory.PlayerId == playerId);
         if (managerId is not null)

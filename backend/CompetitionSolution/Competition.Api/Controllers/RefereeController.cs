@@ -14,12 +14,12 @@ namespace Competition.Api.Controllers;
 [ApiController]
 public class RefereeController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
+    [HttpGet("{publicId}")]
+    public async Task<IActionResult> GetById(string publicId, CancellationToken ct)
     {
-        var referee = await mediator.Send(new GetRefereeByIdQuery(id), ct);
+        var referee = await mediator.Send(new GetRefereeByIdQuery(publicId), ct);
         if (referee == null)
-            throw new KeyNotFoundException($"Referee with id {id} not found");
+            throw new KeyNotFoundException($"Referee with public id {publicId} not found");
 
         return Ok(referee);
     }
@@ -56,18 +56,18 @@ public class RefereeController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Roles = "Admin,Moderator")]
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateReferee(Guid id, [FromBody] RefereeDto dto, CancellationToken ct)
+    [HttpPut("{publicId}")]
+    public async Task<IActionResult> UpdateReferee(string publicId, [FromBody] RefereeDto dto, CancellationToken ct)
     {
-        var updated = await mediator.Send(new UpdateRefereeCommand(id, dto), ct);
+        var updated = await mediator.Send(new UpdateRefereeCommand(publicId, dto), ct);
         return Ok(updated);
     }
 
     [Authorize(Roles = "Admin,Moderator")]
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteReferee(Guid id, CancellationToken ct)
+    [HttpDelete("{publicId}")]
+    public async Task<IActionResult> DeleteReferee(string publicId, CancellationToken ct)
     {
-        var deletedId = await mediator.Send(new DeleteRefereeCommand(id), ct);
+        var deletedId = await mediator.Send(new DeleteRefereeCommand(publicId), ct);
         return Ok(deletedId);
     }
 

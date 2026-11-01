@@ -2,25 +2,26 @@ using AutoMapper;
 using Competition.Application.DTOs.PersonDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
+using Competition.Domain.Entities.FormationEntities;
 using Competition.Domain.Entities.Person;
 using MediatR;
 
 namespace Competition.Application.Commands.PlayerCommands.Create;
 
-public class CreatePlayerCommandHandler(IPlayer playerRepository, IPosition positions, ISubPosition subPositions, IUnitOfWork unitOfWork, IMapper mapper)
+public class CreatePlayerCommandHandler(IPlayer playerRepository, IPosition positions, ISubPosition subPositions, IUnitOfWork unitOfWork, IMapper mapper, IPublicIdLookup lookup)
     : IRequestHandler<CreatePlayerCommand, PlayerDto>
 {
     public async Task<PlayerDto> Handle(CreatePlayerCommand request, CancellationToken cancellationToken)
     {
-        var position = request.PositionId.HasValue
-            ? await positions.GetByIdAsync(request.PositionId.Value, cancellationToken)
-            : null;
-        var subPosition = request.SubPositionId.HasValue
-            ? await subPositions.GetWithPositionAsync(request.SubPositionId.Value, cancellationToken)
-            : null;
-        PlayerPositionRules.EnsureConsistent(request.PositionId, position, request.SubPositionId, subPosition);
+        var positionId = await lookup.GetOptionalIdAsync<Position>(request.PositionPublicId, cancellationToken);
+        var subPositionId = await lookup.GetOptionalIdAsync<SubPosition>(request.SubPositionPublicId, cancellationToken);
+        var position = positionId.HasValue ? await positions.GetByIdAsync(positionId.Value, cancellationToken) : null;
+        var subPosition = subPositionId.HasValue ? await subPositions.GetWithPositionAsync(subPositionId.Value, cancellationToken) : null;
+        PlayerPositionRules.EnsureConsistent(positionId, position, subPositionId, subPosition);
 
         var entity = mapper.Map<Player>(request);
+        entity.PositionId = positionId;
+        entity.SubPositionId = subPositionId;
         if (entity.Id == Guid.Empty)
             entity.Id = Guid.NewGuid();
         await playerRepository.AddAsync(entity, cancellationToken);

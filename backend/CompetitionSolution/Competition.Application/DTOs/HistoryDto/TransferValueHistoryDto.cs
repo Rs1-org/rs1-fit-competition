@@ -2,8 +2,8 @@ namespace Competition.Application.DTOs.HistoryDto;
 
 public class TransferValueHistoryDto
 {
-    public Guid Id { get; set; }
+    public string PublicId { get; set; } = string.Empty;
     public string? Date { get; set; }
     public decimal? Value { get; set; }
-    public Guid PlayerId { get; set; }
+    public string PlayerPublicId { get; set; } = string.Empty;
 }

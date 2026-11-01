@@ -1,21 +1,24 @@
+using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.HistoryDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
 using Competition.Domain.Entities;
+using Competition.Domain.Entities.Person;
 using FluentValidation;
 using MediatR;
 
 namespace Competition.Application.Commands.SelectionManagerHistoryCommands;
 
-public record CreateSelectionManagerHistoryCommand(string? Notes, int? Wins, int? Loses, int? Draw, Guid ManagerId, Guid? SelectionId)
+public record CreateSelectionManagerHistoryCommand(string? Notes, int? Wins, int? Loses, int? Draw, string ManagerPublicId, string? SelectionPublicId)
     : IRequest<SelectionManagerHistoryDto>;
 
 public class CreateSelectionManagerHistoryCommandValidator : AbstractValidator<CreateSelectionManagerHistoryCommand>
 {
-    public CreateSelectionManagerHistoryCommandValidator()
+    public CreateSelectionManagerHistoryCommandValidator(IPublicIdLookup lookup)
     {
-        RuleFor(x => x.ManagerId).NotEmpty();
-        RuleFor(x => x.SelectionId).NotEqual(Guid.Empty).When(x => x.SelectionId.HasValue);
+        RuleFor(x => x.ManagerPublicId).MustReferenceExisting<CreateSelectionManagerHistoryCommand, Manager>(lookup);
+        RuleFor(x => x.SelectionPublicId!).MustReferenceExisting<CreateSelectionManagerHistoryCommand, Selection>(lookup)
+            .When(x => !string.IsNullOrWhiteSpace(x.SelectionPublicId));
         RuleFor(x => x.Notes).MaximumLength(2000);
         RuleFor(x => x.Wins).GreaterThanOrEqualTo(0).When(x => x.Wins.HasValue);
         RuleFor(x => x.Loses).GreaterThanOrEqualTo(0).When(x => x.Loses.HasValue);
@@ -23,45 +26,37 @@ public class CreateSelectionManagerHistoryCommandValidator : AbstractValidator<C
     }
 }
 
-public class CreateSelectionManagerHistoryCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork)
+public class CreateSelectionManagerHistoryCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
     : IRequestHandler<CreateSelectionManagerHistoryCommand, SelectionManagerHistoryDto>
 {
     public async Task<SelectionManagerHistoryDto> Handle(CreateSelectionManagerHistoryCommand request, CancellationToken cancellationToken)
     {
-        await RequireManagerAndSelection(request.ManagerId, request.SelectionId, cancellationToken);
         var entity = new SelectionManagerHistory
         {
             Notes = request.Notes,
             Wins = request.Wins,
             Loses = request.Loses,
             Draw = request.Draw,
-            ManagerId = request.ManagerId,
-            SelectionId = request.SelectionId
+            ManagerId = await lookup.GetRequiredIdAsync<Manager>(request.ManagerPublicId, cancellationToken),
+            SelectionId = await lookup.GetOptionalIdAsync<Selection>(request.SelectionPublicId, cancellationToken)
         };
         await history.AddAsync(entity, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return HistoryMaps.ToDto(entity);
-    }
-
-    private async Task RequireManagerAndSelection(Guid managerId, Guid? selectionId, CancellationToken cancellationToken)
-    {
-        if (!await history.ManagerExistsAsync(managerId, cancellationToken))
-            throw new KeyNotFoundException($"Manager with id {managerId} not found");
-        if (selectionId is not null && !await history.SelectionExistsAsync(selectionId.Value, cancellationToken))
-            throw new KeyNotFoundException($"Selection with id {selectionId} not found");
+        return HistoryMaps.ToDto((await history.GetManagerSelectionAsync(entity.Id, cancellationToken))!);
     }
 }
 
-public record UpdateSelectionManagerHistoryCommand(Guid Id, string? Notes, int? Wins, int? Loses, int? Draw, Guid ManagerId, Guid? SelectionId)
+public record UpdateSelectionManagerHistoryCommand(string PublicId, string? Notes, int? Wins, int? Loses, int? Draw, string ManagerPublicId, string? SelectionPublicId)
     : IRequest<SelectionManagerHistoryDto>;
 
 public class UpdateSelectionManagerHistoryCommandValidator : AbstractValidator<UpdateSelectionManagerHistoryCommand>
 {
-    public UpdateSelectionManagerHistoryCommandValidator()
+    public UpdateSelectionManagerHistoryCommandValidator(IPublicIdLookup lookup)
     {
-        RuleFor(x => x.Id).NotEmpty();
-        RuleFor(x => x.ManagerId).NotEmpty();
-        RuleFor(x => x.SelectionId).NotEqual(Guid.Empty).When(x => x.SelectionId.HasValue);
+        RuleFor(x => x.PublicId).MustBeValidPublicId();
+        RuleFor(x => x.ManagerPublicId).MustReferenceExisting<UpdateSelectionManagerHistoryCommand, Manager>(lookup);
+        RuleFor(x => x.SelectionPublicId!).MustReferenceExisting<UpdateSelectionManagerHistoryCommand, Selection>(lookup)
+            .When(x => !string.IsNullOrWhiteSpace(x.SelectionPublicId));
         RuleFor(x => x.Notes).MaximumLength(2000);
         RuleFor(x => x.Wins).GreaterThanOrEqualTo(0).When(x => x.Wins.HasValue);
         RuleFor(x => x.Loses).GreaterThanOrEqualTo(0).When(x => x.Loses.HasValue);
@@ -69,47 +64,42 @@ public class UpdateSelectionManagerHistoryCommandValidator : AbstractValidator<U
     }
 }
 
-public class UpdateSelectionManagerHistoryCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork)
+public class UpdateSelectionManagerHistoryCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
     : IRequestHandler<UpdateSelectionManagerHistoryCommand, SelectionManagerHistoryDto>
 {
     public async Task<SelectionManagerHistoryDto> Handle(UpdateSelectionManagerHistoryCommand request, CancellationToken cancellationToken)
     {
-        if (!await history.ManagerExistsAsync(request.ManagerId, cancellationToken))
-            throw new KeyNotFoundException($"Manager with id {request.ManagerId} not found");
-        if (request.SelectionId is not null && !await history.SelectionExistsAsync(request.SelectionId.Value, cancellationToken))
-            throw new KeyNotFoundException($"Selection with id {request.SelectionId} not found");
-
-        var entity = await history.GetManagerSelectionAsync(request.Id, cancellationToken)
-            ?? throw new KeyNotFoundException($"SelectionManagerHistory with id {request.Id} not found");
-
+        var id = await lookup.GetRequiredIdAsync<SelectionManagerHistory>(request.PublicId, cancellationToken);
+        var entity = await history.GetManagerSelectionAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"SelectionManagerHistory with public id {request.PublicId} not found");
         entity.Notes = request.Notes;
         entity.Wins = request.Wins;
         entity.Loses = request.Loses;
         entity.Draw = request.Draw;
-        entity.ManagerId = request.ManagerId;
-        entity.SelectionId = request.SelectionId;
+        entity.ManagerId = await lookup.GetRequiredIdAsync<Manager>(request.ManagerPublicId, cancellationToken);
+        entity.SelectionId = await lookup.GetOptionalIdAsync<Selection>(request.SelectionPublicId, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return HistoryMaps.ToDto(entity);
+        return HistoryMaps.ToDto((await history.GetManagerSelectionAsync(entity.Id, cancellationToken))!);
     }
 }
 
-public record DeleteSelectionManagerHistoryCommand(Guid Id) : IRequest<Guid>;
+public record DeleteSelectionManagerHistoryCommand(string PublicId) : IRequest<string>;
 
 public class DeleteSelectionManagerHistoryCommandValidator : AbstractValidator<DeleteSelectionManagerHistoryCommand>
 {
-    public DeleteSelectionManagerHistoryCommandValidator() => RuleFor(x => x.Id).NotEmpty();
+    public DeleteSelectionManagerHistoryCommandValidator() => RuleFor(x => x.PublicId).MustBeValidPublicId();
 }
 
-public class DeleteSelectionManagerHistoryCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork)
-    : IRequestHandler<DeleteSelectionManagerHistoryCommand, Guid>
+public class DeleteSelectionManagerHistoryCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
+    : IRequestHandler<DeleteSelectionManagerHistoryCommand, string>
 {
-    public async Task<Guid> Handle(DeleteSelectionManagerHistoryCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(DeleteSelectionManagerHistoryCommand request, CancellationToken cancellationToken)
     {
-        var entity = await history.GetManagerSelectionAsync(request.Id, cancellationToken)
-            ?? throw new KeyNotFoundException($"SelectionManagerHistory with id {request.Id} not found");
-
+        var id = await lookup.GetRequiredIdAsync<SelectionManagerHistory>(request.PublicId, cancellationToken);
+        var entity = await history.GetManagerSelectionAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"SelectionManagerHistory with public id {request.PublicId} not found");
         history.Remove(entity);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return request.Id;
+        return entity.PublicId;
     }
 }

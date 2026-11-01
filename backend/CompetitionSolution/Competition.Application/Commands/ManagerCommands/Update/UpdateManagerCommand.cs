@@ -5,9 +5,9 @@ namespace Competition.Application.Commands.ManagerCommands.Update;
 
 public class UpdateManagerCommand : IRequest<ManagerDto>
 {
-    public UpdateManagerCommand(Guid id, ManagerDto dto)
+    public UpdateManagerCommand(string publicId, ManagerDto dto)
     {
-        Id = id;
+        PublicId = publicId;
         FirstName = dto.FirstName;
         LastName = dto.LastName;
         DateOfBirth = dto.DateOfBirth;
@@ -15,7 +15,7 @@ public class UpdateManagerCommand : IRequest<ManagerDto>
         CareerStart = dto.CareerStart;
     }
 
-    public Guid Id { get; }
+    public string PublicId { get; }
     public string FirstName { get; }
     public string LastName { get; }
     public string DateOfBirth { get; }

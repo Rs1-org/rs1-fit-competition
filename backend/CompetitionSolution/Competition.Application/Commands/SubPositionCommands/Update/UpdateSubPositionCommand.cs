@@ -1,6 +1,8 @@
 using Competition.Application.Commands.SubPositionCommands.Create;
+using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.FormationDto;
 using Competition.Application.Interfaces;
+using Competition.Domain.Entities.FormationEntities;
 using FluentValidation;
 using MediatR;
 using System.Text.Json.Serialization;
@@ -12,16 +14,16 @@ public class UpdateSubPositionCommand : IRequest<SubPositionDto>
     [JsonIgnore]
     public string Slug { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public Guid PositionId { get; set; }
+    public string PositionPublicId { get; set; } = string.Empty;
 }
 
 public class UpdateSubPositionCommandValidator : AbstractValidator<UpdateSubPositionCommand>
 {
-    public UpdateSubPositionCommandValidator()
+    public UpdateSubPositionCommandValidator(IPublicIdLookup lookup)
     {
         RuleFor(x => x.Slug).NotEmpty();
         RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.PositionId).NotEmpty();
+        RuleFor(x => x.PositionPublicId).MustReferenceExisting<UpdateSubPositionCommand, Position>(lookup);
     }
 }
 
@@ -30,12 +32,14 @@ public class UpdateSubPositionCommandHandler : IRequestHandler<UpdateSubPosition
     private readonly ISubPosition _subPositions;
     private readonly IPosition _positions;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublicIdLookup _lookup;
 
-    public UpdateSubPositionCommandHandler(ISubPosition subPositions, IPosition positions, IUnitOfWork unitOfWork)
+    public UpdateSubPositionCommandHandler(ISubPosition subPositions, IPosition positions, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
     {
         _subPositions = subPositions;
         _positions = positions;
         _unitOfWork = unitOfWork;
+        _lookup = lookup;
     }
 
     public async Task<SubPositionDto> Handle(UpdateSubPositionCommand request, CancellationToken cancellationToken)
@@ -43,8 +47,9 @@ public class UpdateSubPositionCommandHandler : IRequestHandler<UpdateSubPosition
         var entity = await _subPositions.GetBySlugAsync(request.Slug, cancellationToken)
             ?? throw new KeyNotFoundException($"Subposition '{request.Slug}' was not found.");
 
-        var position = await _positions.GetByIdAsync(request.PositionId, cancellationToken)
-            ?? throw new KeyNotFoundException($"Position '{request.PositionId}' was not found.");
+        var positionId = await _lookup.GetRequiredIdAsync<Position>(request.PositionPublicId, cancellationToken);
+        var position = await _positions.GetByIdAsync(positionId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Position '{request.PositionPublicId}' was not found.");
 
         if (entity.PositionId != position.Id && await _subPositions.HasPlayersAsync(entity.Id, cancellationToken))
             throw new InvalidOperationException("Subposition is assigned to players and its parent position cannot change.");

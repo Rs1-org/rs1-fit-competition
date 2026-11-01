@@ -60,7 +60,7 @@ export class SubPositionList {
   async onDelete(item: SubPosition): Promise<void> {
     const confirmed = await this.confirmDialog.confirm(deleteConfirm(`subposition ${item.name}`));
     if (!confirmed) return;
-    this.service.delete(item.id).subscribe({
+    this.service.delete(item.publicId).subscribe({
       next: () => {
         this.toast.success('Subposition deleted');
         this.refresh$.next();

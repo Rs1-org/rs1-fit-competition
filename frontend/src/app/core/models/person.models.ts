@@ -6,23 +6,23 @@ export interface PersonFields {
 }
 
 export interface Player extends PersonFields {
-  id?: string;
+  publicId?: string;
   height: number;
   shirtNumber: number;
   transferValue: number;
-  positionId?: string | null;
-  subPositionId?: string | null;
+  positionPublicId?: string | null;
+  subPositionPublicId?: string | null;
   positionName?: string | null;
   subPositionName?: string | null;
 }
 
 export interface Referee extends PersonFields {
-  id?: string;
+  publicId?: string;
   careerStart: string | null;
 }
 
 export interface Manager extends PersonFields {
-  id?: string;
+  publicId?: string;
   careerStart: string | null;
 }
 

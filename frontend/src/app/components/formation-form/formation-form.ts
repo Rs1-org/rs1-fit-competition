@@ -31,7 +31,7 @@ export class FormationForm implements OnChanges, OnInit {
 
   form = this.fb.group({
     code: this.fb.control('', { validators: [Validators.required, Validators.maxLength(20), Validators.pattern(/^\d+-\d+-\d+$/)] }),
-    formationMarkId: this.fb.control('', { validators: [Validators.required] }),
+    formationMarkPublicId: this.fb.control('', { validators: [Validators.required] }),
   });
 
   get isEditMode(): boolean {
@@ -46,7 +46,7 @@ export class FormationForm implements OnChanges, OnInit {
     this.service.getBySlug(slug).subscribe({
       next: (formation) => {
         this.editItem = formation;
-        this.form.patchValue({ code: formation.code, formationMarkId: formation.formationMarkId });
+        this.form.patchValue({ code: formation.code, formationMarkPublicId: formation.formationMarkPublicId });
       },
       error: () => {
         this.error = 'Formation was not found.';
@@ -60,9 +60,9 @@ export class FormationForm implements OnChanges, OnInit {
     }
     if (!changes['editItem'] && !changes['isOpen']) return;
     if (this.editItem) {
-      this.form.patchValue({ code: this.editItem.code, formationMarkId: this.editItem.formationMarkId });
+      this.form.patchValue({ code: this.editItem.code, formationMarkPublicId: this.editItem.formationMarkPublicId });
     } else {
-      this.form.reset({ code: '', formationMarkId: '' });
+      this.form.reset({ code: '', formationMarkPublicId: '' });
     }
   }
 

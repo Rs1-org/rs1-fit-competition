@@ -67,7 +67,7 @@ export class FormationList {
   async onDelete(item: Formation): Promise<void> {
     const confirmed = await this.confirmDialog.confirm(deleteConfirm(`formation ${item.code}`));
     if (!confirmed) return;
-    this.service.delete(item.id).subscribe({
+    this.service.delete(item.publicId).subscribe({
       next: () => {
         this.toast.success('Formation deleted');
         this.refresh$.next();

@@ -10,47 +10,37 @@ namespace Competition.Api.Controllers;
 [ApiController]
 public class SelectionManagerHistoryController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
-    {
-        return Ok(await mediator.Send(new GetSelectionManagerHistoryByIdQuery(id), cancellationToken));
-    }
+    [HttpGet("{publicId}")]
+    public async Task<IActionResult> GetById(string publicId, CancellationToken cancellationToken) =>
+        Ok(await mediator.Send(new GetSelectionManagerHistoryByIdQuery(publicId), cancellationToken));
 
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] Guid? managerId = null,
-        [FromQuery] Guid? selectionId = null,
-        CancellationToken cancellationToken = default)
-    {
-        return Ok(await mediator.Send(new GetSelectionManagerHistoriesQuery
+        [FromQuery] string? managerPublicId = null,
+        [FromQuery] string? selectionPublicId = null,
+        CancellationToken cancellationToken = default) =>
+        Ok(await mediator.Send(new GetSelectionManagerHistoriesQuery
         {
             Page = page,
             PageSize = pageSize,
-            ManagerId = managerId,
-            SelectionId = selectionId
+            ManagerPublicId = managerPublicId,
+            SelectionPublicId = selectionPublicId
         }, cancellationToken));
-    }
 
     [Authorize(Roles = "Admin,Moderator")]
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] CreateSelectionManagerHistoryCommand command, CancellationToken cancellationToken)
-    {
-        return Ok(await mediator.Send(command, cancellationToken));
-    }
+    public async Task<IActionResult> Add([FromBody] CreateSelectionManagerHistoryCommand command, CancellationToken cancellationToken) =>
+        Ok(await mediator.Send(command, cancellationToken));
 
     [Authorize(Roles = "Admin,Moderator")]
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateSelectionManagerHistoryCommand command, CancellationToken cancellationToken)
-    {
-        return Ok(await mediator.Send(command with { Id = id }, cancellationToken));
-    }
+    [HttpPut("{publicId}")]
+    public async Task<IActionResult> Update(string publicId, [FromBody] UpdateSelectionManagerHistoryCommand command, CancellationToken cancellationToken) =>
+        Ok(await mediator.Send(command with { PublicId = publicId }, cancellationToken));
 
     [Authorize(Roles = "Admin,Moderator")]
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
-    {
-        return Ok(await mediator.Send(new DeleteSelectionManagerHistoryCommand(id), cancellationToken));
-    }
+    [HttpDelete("{publicId}")]
+    public async Task<IActionResult> Delete(string publicId, CancellationToken cancellationToken) =>
+        Ok(await mediator.Send(new DeleteSelectionManagerHistoryCommand(publicId), cancellationToken));
 }

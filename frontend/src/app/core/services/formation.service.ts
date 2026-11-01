@@ -20,11 +20,11 @@ export class FormationService {
     return this.http.get<Formation>(`${this.apiUrl}/${slug}`);
   }
 
-  create(body: { code: string; formationMarkId: string }): Observable<Formation> {
+  create(body: { code: string; formationMarkPublicId: string }): Observable<Formation> {
     return this.http.post<Formation>(this.apiUrl, body);
   }
 
-  update(slug: string, body: { code: string; formationMarkId: string }): Observable<Formation> {
+  update(slug: string, body: { code: string; formationMarkPublicId: string }): Observable<Formation> {
     return this.http.put<Formation>(`${this.apiUrl}/${slug}`, body);
   }
 

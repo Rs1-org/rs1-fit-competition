@@ -81,7 +81,6 @@ public class CreateSelectionCommandHandler : IRequestHandler<CreateSelectionComm
 
     internal static SelectionDto Map(Selection entity) => new()
     {
-        Id = entity.Id,
         PublicId = entity.PublicId,
         Name = entity.Name,
         Abbreviation = entity.Abbreviation,

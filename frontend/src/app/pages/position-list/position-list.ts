@@ -60,7 +60,7 @@ export class PositionList {
   async onDelete(item: Position): Promise<void> {
     const confirmed = await this.confirmDialog.confirm(deleteConfirm(`position ${item.name}`));
     if (!confirmed) return;
-    this.service.delete(item.id).subscribe({
+    this.service.delete(item.publicId).subscribe({
       next: () => {
         this.toast.success('Position deleted');
         this.refresh$.next();

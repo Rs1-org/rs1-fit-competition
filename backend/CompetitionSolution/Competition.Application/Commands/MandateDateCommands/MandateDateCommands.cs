@@ -1,3 +1,4 @@
+using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.HistoryDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
@@ -7,94 +8,101 @@ using MediatR;
 
 namespace Competition.Application.Commands.MandateDateCommands;
 
-public record CreateMandateDateCommand(string? StartDate, string? EndDate, Guid? PlayerSelectionHistoryId, Guid? SelectionManagerHistoryId)
+public record CreateMandateDateCommand(string? StartDate, string? EndDate, string? PlayerSelectionHistoryPublicId, string? SelectionManagerHistoryPublicId)
     : IRequest<MandateDateDto>;
 
 public class CreateMandateDateCommandValidator : AbstractValidator<CreateMandateDateCommand>
 {
-    public CreateMandateDateCommandValidator()
+    public CreateMandateDateCommandValidator(IPublicIdLookup lookup)
     {
         RuleFor(x => x.StartDate).Must(PersonValidationHelper.BeValidOptionalDate).WithMessage("Start date must be empty or yyyy-MM-dd.");
         RuleFor(x => x.EndDate).Must(PersonValidationHelper.BeValidOptionalDate).WithMessage("End date must be empty or yyyy-MM-dd.");
         RuleFor(x => x.EndDate).Must((command, end) => MandateDates.EndIsOnOrAfterStart(command.StartDate, end))
             .WithMessage("End date must be on or after the start date.");
-        RuleFor(x => x.PlayerSelectionHistoryId).NotEqual(Guid.Empty).When(x => x.PlayerSelectionHistoryId.HasValue);
-        RuleFor(x => x.SelectionManagerHistoryId).NotEqual(Guid.Empty).When(x => x.SelectionManagerHistoryId.HasValue);
+        RuleFor(x => x.PlayerSelectionHistoryPublicId!).MustReferenceExisting<CreateMandateDateCommand, PlayerSelectionHistory>(lookup)
+            .When(x => !string.IsNullOrWhiteSpace(x.PlayerSelectionHistoryPublicId));
+        RuleFor(x => x.SelectionManagerHistoryPublicId!).MustReferenceExisting<CreateMandateDateCommand, SelectionManagerHistory>(lookup)
+            .When(x => !string.IsNullOrWhiteSpace(x.SelectionManagerHistoryPublicId));
     }
 }
 
-public class CreateMandateDateCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork)
+public class CreateMandateDateCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
     : IRequestHandler<CreateMandateDateCommand, MandateDateDto>
 {
     public async Task<MandateDateDto> Handle(CreateMandateDateCommand request, CancellationToken cancellationToken)
     {
-        await MandateDates.RequireLinks(history, request.PlayerSelectionHistoryId, request.SelectionManagerHistoryId, cancellationToken);
+        var playerHistoryId = await lookup.GetOptionalIdAsync<PlayerSelectionHistory>(request.PlayerSelectionHistoryPublicId, cancellationToken);
+        var managerHistoryId = await lookup.GetOptionalIdAsync<SelectionManagerHistory>(request.SelectionManagerHistoryPublicId, cancellationToken);
         var entity = new MandateDate
         {
             StartDate = NodaTimeMappingHelper.ParseNullableLocalDate(request.StartDate),
             EndDate = NodaTimeMappingHelper.ParseNullableLocalDate(request.EndDate),
-            PlayerSelectionHistoryId = request.PlayerSelectionHistoryId,
-            SelectionManagerHistoryId = request.SelectionManagerHistoryId
+            PlayerSelectionHistoryId = playerHistoryId,
+            SelectionManagerHistoryId = managerHistoryId
         };
         await history.AddAsync(entity, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return HistoryMaps.ToDto(entity);
+        return HistoryMaps.ToDto((await history.GetMandateAsync(entity.Id, cancellationToken))!);
     }
 }
 
-public record UpdateMandateDateCommand(Guid Id, string? StartDate, string? EndDate, Guid? PlayerSelectionHistoryId, Guid? SelectionManagerHistoryId)
+public record UpdateMandateDateCommand(string PublicId, string? StartDate, string? EndDate, string? PlayerSelectionHistoryPublicId, string? SelectionManagerHistoryPublicId)
     : IRequest<MandateDateDto>;
 
 public class UpdateMandateDateCommandValidator : AbstractValidator<UpdateMandateDateCommand>
 {
-    public UpdateMandateDateCommandValidator()
+    public UpdateMandateDateCommandValidator(IPublicIdLookup lookup)
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.PublicId).MustBeValidPublicId();
         RuleFor(x => x.StartDate).Must(PersonValidationHelper.BeValidOptionalDate).WithMessage("Start date must be empty or yyyy-MM-dd.");
         RuleFor(x => x.EndDate).Must(PersonValidationHelper.BeValidOptionalDate).WithMessage("End date must be empty or yyyy-MM-dd.");
         RuleFor(x => x.EndDate).Must((command, end) => MandateDates.EndIsOnOrAfterStart(command.StartDate, end))
             .WithMessage("End date must be on or after the start date.");
-        RuleFor(x => x.PlayerSelectionHistoryId).NotEqual(Guid.Empty).When(x => x.PlayerSelectionHistoryId.HasValue);
-        RuleFor(x => x.SelectionManagerHistoryId).NotEqual(Guid.Empty).When(x => x.SelectionManagerHistoryId.HasValue);
+        RuleFor(x => x.PlayerSelectionHistoryPublicId!).MustReferenceExisting<UpdateMandateDateCommand, PlayerSelectionHistory>(lookup)
+            .When(x => !string.IsNullOrWhiteSpace(x.PlayerSelectionHistoryPublicId));
+        RuleFor(x => x.SelectionManagerHistoryPublicId!).MustReferenceExisting<UpdateMandateDateCommand, SelectionManagerHistory>(lookup)
+            .When(x => !string.IsNullOrWhiteSpace(x.SelectionManagerHistoryPublicId));
     }
 }
 
-public class UpdateMandateDateCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork)
+public class UpdateMandateDateCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
     : IRequestHandler<UpdateMandateDateCommand, MandateDateDto>
 {
     public async Task<MandateDateDto> Handle(UpdateMandateDateCommand request, CancellationToken cancellationToken)
     {
-        await MandateDates.RequireLinks(history, request.PlayerSelectionHistoryId, request.SelectionManagerHistoryId, cancellationToken);
-        var entity = await history.GetMandateAsync(request.Id, cancellationToken)
-            ?? throw new KeyNotFoundException($"MandateDate with id {request.Id} not found");
+        var id = await lookup.GetRequiredIdAsync<MandateDate>(request.PublicId, cancellationToken);
+        var playerHistoryId = await lookup.GetOptionalIdAsync<PlayerSelectionHistory>(request.PlayerSelectionHistoryPublicId, cancellationToken);
+        var managerHistoryId = await lookup.GetOptionalIdAsync<SelectionManagerHistory>(request.SelectionManagerHistoryPublicId, cancellationToken);
+        var entity = await history.GetMandateAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"MandateDate with public id {request.PublicId} not found");
 
         entity.StartDate = NodaTimeMappingHelper.ParseNullableLocalDate(request.StartDate);
         entity.EndDate = NodaTimeMappingHelper.ParseNullableLocalDate(request.EndDate);
-        entity.PlayerSelectionHistoryId = request.PlayerSelectionHistoryId;
-        entity.SelectionManagerHistoryId = request.SelectionManagerHistoryId;
+        entity.PlayerSelectionHistoryId = playerHistoryId;
+        entity.SelectionManagerHistoryId = managerHistoryId;
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return HistoryMaps.ToDto(entity);
+        return HistoryMaps.ToDto((await history.GetMandateAsync(entity.Id, cancellationToken))!);
     }
 }
 
-public record DeleteMandateDateCommand(Guid Id) : IRequest<Guid>;
+public record DeleteMandateDateCommand(string PublicId) : IRequest<string>;
 
 public class DeleteMandateDateCommandValidator : AbstractValidator<DeleteMandateDateCommand>
 {
-    public DeleteMandateDateCommandValidator() => RuleFor(x => x.Id).NotEmpty();
+    public DeleteMandateDateCommandValidator() => RuleFor(x => x.PublicId).MustBeValidPublicId();
 }
 
-public class DeleteMandateDateCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork)
-    : IRequestHandler<DeleteMandateDateCommand, Guid>
+public class DeleteMandateDateCommandHandler(IHistoryStore history, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
+    : IRequestHandler<DeleteMandateDateCommand, string>
 {
-    public async Task<Guid> Handle(DeleteMandateDateCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(DeleteMandateDateCommand request, CancellationToken cancellationToken)
     {
-        var entity = await history.GetMandateAsync(request.Id, cancellationToken)
-            ?? throw new KeyNotFoundException($"MandateDate with id {request.Id} not found");
-
+        var id = await lookup.GetRequiredIdAsync<MandateDate>(request.PublicId, cancellationToken);
+        var entity = await history.GetMandateAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"MandateDate with public id {request.PublicId} not found");
         history.Remove(entity);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return request.Id;
+        return entity.PublicId;
     }
 }
 
@@ -102,12 +110,4 @@ internal static class MandateDates
 {
     public static bool EndIsOnOrAfterStart(string? start, string? end) =>
         string.IsNullOrWhiteSpace(start) || string.IsNullOrWhiteSpace(end) || string.CompareOrdinal(end, start) >= 0;
-
-    public static async Task RequireLinks(IHistoryStore history, Guid? playerSelectionHistoryId, Guid? selectionManagerHistoryId, CancellationToken cancellationToken)
-    {
-        if (playerSelectionHistoryId is not null && !await history.PlayerSelectionHistoryExistsAsync(playerSelectionHistoryId.Value, cancellationToken))
-            throw new KeyNotFoundException($"PlayerSelectionHistory with id {playerSelectionHistoryId} not found");
-        if (selectionManagerHistoryId is not null && !await history.SelectionManagerHistoryExistsAsync(selectionManagerHistoryId.Value, cancellationToken))
-            throw new KeyNotFoundException($"SelectionManagerHistory with id {selectionManagerHistoryId} not found");
-    }
 }

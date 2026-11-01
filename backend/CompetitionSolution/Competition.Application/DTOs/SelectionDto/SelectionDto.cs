@@ -2,7 +2,6 @@ namespace Competition.Application.DTOs.SelectionDto;
 
 public class SelectionDto
 {
-    public Guid Id { get; set; }
     public string PublicId { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Abbreviation { get; set; } = string.Empty;

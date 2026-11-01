@@ -1,3 +1,4 @@
+using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.FormationDto;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
@@ -10,15 +11,15 @@ namespace Competition.Application.Commands.SubPositionCommands.Create;
 public class CreateSubPositionCommand : IRequest<SubPositionDto>
 {
     public string Name { get; set; } = string.Empty;
-    public Guid PositionId { get; set; }
+    public string PositionPublicId { get; set; } = string.Empty;
 }
 
 public class CreateSubPositionCommandValidator : AbstractValidator<CreateSubPositionCommand>
 {
-    public CreateSubPositionCommandValidator()
+    public CreateSubPositionCommandValidator(IPublicIdLookup lookup)
     {
         RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.PositionId).NotEmpty();
+        RuleFor(x => x.PositionPublicId).MustReferenceExisting<CreateSubPositionCommand, Position>(lookup);
     }
 }
 
@@ -27,18 +28,21 @@ public class CreateSubPositionCommandHandler : IRequestHandler<CreateSubPosition
     private readonly ISubPosition _subPositions;
     private readonly IPosition _positions;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublicIdLookup _lookup;
 
-    public CreateSubPositionCommandHandler(ISubPosition subPositions, IPosition positions, IUnitOfWork unitOfWork)
+    public CreateSubPositionCommandHandler(ISubPosition subPositions, IPosition positions, IUnitOfWork unitOfWork, IPublicIdLookup lookup)
     {
         _subPositions = subPositions;
         _positions = positions;
         _unitOfWork = unitOfWork;
+        _lookup = lookup;
     }
 
     public async Task<SubPositionDto> Handle(CreateSubPositionCommand request, CancellationToken cancellationToken)
     {
-        var position = await _positions.GetByIdAsync(request.PositionId, cancellationToken)
-            ?? throw new KeyNotFoundException($"Position '{request.PositionId}' was not found.");
+        var positionId = await _lookup.GetRequiredIdAsync<Position>(request.PositionPublicId, cancellationToken);
+        var position = await _positions.GetByIdAsync(positionId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Position '{request.PositionPublicId}' was not found.");
 
         var slug = SlugHelper.GenerateSlug($"{position.Name}-{request.Name}");
         if (string.IsNullOrWhiteSpace(slug))
@@ -62,10 +66,10 @@ public class CreateSubPositionCommandHandler : IRequestHandler<CreateSubPosition
 
     internal static SubPositionDto Map(SubPosition entity) => new()
     {
-        Id = entity.Id,
+        PublicId = entity.PublicId,
         Name = entity.Name,
         Slug = entity.Slug,
-        PositionId = entity.PositionId,
+        PositionPublicId = entity.Position?.PublicId ?? string.Empty,
         PositionName = entity.Position?.Name
     };
 }

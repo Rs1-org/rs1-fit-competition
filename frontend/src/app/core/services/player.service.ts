@@ -8,13 +8,13 @@ import { PagedResult } from '../models/paged-result';
 
 export interface PlayerListFilter {
   name?: string;
-  positionId?: string;
-  subPositionId?: string;
+  positionPublicId?: string;
+  subPositionPublicId?: string;
   ageMin?: number | null;
   ageMax?: number | null;
 }
 
-export type PlayerWriteDto = Omit<Player, 'id' | 'picture'> & { picture?: string | null };
+export type PlayerWriteDto = Omit<Player, 'publicId' | 'picture'> & { picture?: string | null };
 
 @Injectable({ providedIn: 'root' })
 export class PlayerService {
@@ -31,8 +31,8 @@ export class PlayerService {
   getAll(page = 1, pageSize = 10, filter: PlayerListFilter = {}): Observable<PagedResult<Player>> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize);
     if (filter.name) params = params.set('name', filter.name);
-    if (filter.positionId) params = params.set('positionId', filter.positionId);
-    if (filter.subPositionId) params = params.set('subPositionId', filter.subPositionId);
+    if (filter.positionPublicId) params = params.set('positionPublicId', filter.positionPublicId);
+    if (filter.subPositionPublicId) params = params.set('subPositionPublicId', filter.subPositionPublicId);
     if (filter.ageMin != null) params = params.set('ageMin', filter.ageMin);
     if (filter.ageMax != null) params = params.set('ageMax', filter.ageMax);
     return this.http.get<PagedResult<Player>>(this.apiUrl, { params });

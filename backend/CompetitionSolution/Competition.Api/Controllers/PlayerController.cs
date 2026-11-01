@@ -15,19 +15,19 @@ namespace Competition.Api.Controllers;
 [ApiController]
 public class PlayerController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("{id:guid}/appearances")]
-    public async Task<IActionResult> Appearances(Guid id, CancellationToken cancellationToken)
+    [HttpGet("{publicId}/appearances")]
+    public async Task<IActionResult> Appearances(string publicId, CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new GetPlayerAppearancesQuery { PlayerId = id }, cancellationToken);
+        var result = await mediator.Send(new GetPlayerAppearancesQuery { PublicId = publicId }, cancellationToken);
         return Ok(result);
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
+    [HttpGet("{publicId}")]
+    public async Task<IActionResult> GetById(string publicId, CancellationToken ct)
     {
-        var player = await mediator.Send(new GetPlayerByIdQuery(id), ct);
+        var player = await mediator.Send(new GetPlayerByIdQuery(publicId), ct);
         if (player == null)
-            throw new KeyNotFoundException($"Player with id {id} not found");
+            throw new KeyNotFoundException($"Player with public id {publicId} not found");
 
         return Ok(player);
     }
@@ -37,8 +37,8 @@ public class PlayerController(IMediator mediator) : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? name = null,
-        [FromQuery] Guid? positionId = null,
-        [FromQuery] Guid? subPositionId = null,
+        [FromQuery] string? positionPublicId = null,
+        [FromQuery] string? subPositionPublicId = null,
         [FromQuery] int? ageMin = null,
         [FromQuery] int? ageMax = null,
         CancellationToken cancellationToken = default)
@@ -48,8 +48,8 @@ public class PlayerController(IMediator mediator) : ControllerBase
             Page = page,
             PageSize = pageSize,
             Name = name,
-            PositionId = positionId,
-            SubPositionId = subPositionId,
+            PositionPublicId = positionPublicId,
+            SubPositionPublicId = subPositionPublicId,
             AgeMin = ageMin,
             AgeMax = ageMax
         }, cancellationToken));
@@ -64,19 +64,18 @@ public class PlayerController(IMediator mediator) : ControllerBase
     }
 
     [Authorize(Roles = "Admin,Moderator")]
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePlayer(Guid id, [FromBody] PlayerDto dto, CancellationToken ct)
+    [HttpPut("{publicId}")]
+    public async Task<IActionResult> UpdatePlayer(string publicId, [FromBody] PlayerDto dto, CancellationToken ct)
     {
-        var updated = await mediator.Send(new UpdatePlayerCommand(id, dto), ct);
+        var updated = await mediator.Send(new UpdatePlayerCommand(publicId, dto), ct);
         return Ok(updated);
     }
 
     [Authorize(Roles = "Admin,Moderator")]
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeletePlayer(Guid id, CancellationToken ct)
+    [HttpDelete("{publicId}")]
+    public async Task<IActionResult> DeletePlayer(string publicId, CancellationToken ct)
     {
-        var deletedId = await mediator.Send(new DeletePlayerCommand(id), ct);
+        var deletedId = await mediator.Send(new DeletePlayerCommand(publicId), ct);
         return Ok(deletedId);
     }
-
 }

@@ -18,7 +18,7 @@ public class GalleryCommandValidatorTests
         var result = _upload.Validate(new UploadGalleryImageCommand
         {
             Kind = GalleryRules.Player,
-            Id = Guid.NewGuid(),
+            PublicId = Guid.NewGuid().ToString("N"),
             Picture = null
         });
 
@@ -32,7 +32,7 @@ public class GalleryCommandValidatorTests
         var result = _upload.Validate(new UploadGalleryImageCommand
         {
             Kind = GalleryRules.Player,
-            Id = Guid.NewGuid(),
+            PublicId = Guid.NewGuid().ToString("N"),
             Picture = FileOf("image/jpeg", (int)GalleryRules.MaxBytes + 1)
         });
 
@@ -46,13 +46,13 @@ public class GalleryCommandValidatorTests
         var result = _upload.Validate(new UploadGalleryImageCommand
         {
             Kind = "club",
-            Id = Guid.Empty,
+            PublicId = "",
             Picture = FileOf("image/png", 32)
         });
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(error => error.PropertyName == "Kind" && error.ErrorMessage == "Unknown image type.");
-        result.Errors.Should().Contain(error => error.PropertyName == "Id");
+        result.Errors.Should().Contain(error => error.PropertyName == "PublicId");
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class GalleryCommandValidatorTests
         var result = _upload.Validate(new UploadGalleryImageCommand
         {
             Kind = GalleryRules.Stadium,
-            Id = Guid.NewGuid(),
+            PublicId = Guid.NewGuid().ToString("N"),
             Picture = FileOf("image/jpeg", 128)
         });
 
@@ -71,10 +71,10 @@ public class GalleryCommandValidatorTests
     [Fact]
     public void Delete_RejectsEmptyIdAndUnknownKind()
     {
-        var result = _delete.Validate(new DeleteGalleryImageCommand { Kind = "club", Id = Guid.Empty });
+        var result = _delete.Validate(new DeleteGalleryImageCommand { Kind = "club", PublicId = "" });
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(error => error.PropertyName == "Id");
+        result.Errors.Should().Contain(error => error.PropertyName == "PublicId");
         result.Errors.Should().Contain(error => error.ErrorMessage == "Unknown image type.");
     }
 
@@ -84,7 +84,7 @@ public class GalleryCommandValidatorTests
         var result = _delete.Validate(new DeleteGalleryImageCommand
         {
             Kind = GalleryRules.Selection,
-            Id = Guid.NewGuid()
+            PublicId = Guid.NewGuid().ToString("N")
         });
 
         result.IsValid.Should().BeTrue();
