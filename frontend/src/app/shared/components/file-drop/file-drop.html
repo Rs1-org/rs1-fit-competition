@@ -1,0 +1,21 @@
+<div
+  class="drop"
+  [class.over]="over()"
+  (dragover)="onDrag($event, true)"
+  (dragleave)="onDrag($event, false)"
+  (drop)="onDrop($event)">
+  @if (shown(); as src) {
+    <img [src]="src" alt="Image preview" />
+  } @else {
+    <p>Drop an image here, or choose a file.</p>
+  }
+  <button type="button" (click)="picker.click()">Choose file</button>
+  <input #picker type="file" hidden [accept]="accept()" (change)="onPick($event)" />
+  @if (pending()) {
+    <div class="confirm-row">
+      <button type="button" (click)="upload()">Upload</button>
+      <button type="button" (click)="cancel()">Cancel</button>
+    </div>
+  }
+  @if (message()) { <p class="field-error" role="alert">{{ message() }}</p> }
+</div>

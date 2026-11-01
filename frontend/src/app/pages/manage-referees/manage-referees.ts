@@ -12,6 +12,7 @@ import { Button } from '../../shared/components/button/button';
 import { Skeleton } from '../../shared/components/skeleton/skeleton';
 import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 import { InputBox } from '../../shared/components/input-box/input-box';
+import { FileDrop } from '../../shared/components/file-drop/file-drop';
 import { ToastService } from '../../core/services/toast.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
@@ -24,7 +25,7 @@ function pastDate(control: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-manage-referees',
-  imports: [CommonModule, ReactiveFormsModule, UploadProgress, SectionCard, Button, Skeleton, ErrorBanner, InputBox],
+  imports: [CommonModule, ReactiveFormsModule, UploadProgress, SectionCard, Button, Skeleton, ErrorBanner, InputBox, FileDrop],
   templateUrl: './manage-referees.html',
   styleUrl: '../staff-form.css',
 })
@@ -105,6 +106,11 @@ export class ManageReferees implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  async onPictureFile(file: File): Promise<void> {
+    this.picture = await fileToBase64(file);
+    this.pictureChanged = true;
   }
 
   async onPictureSelected(event: Event): Promise<void> {

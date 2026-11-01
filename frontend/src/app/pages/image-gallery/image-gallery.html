@@ -7,11 +7,11 @@
   </div>
 
   @if (error()) {
-    <p class="gallery-error">{{ error() }}</p>
+    <app-error-banner [message]="error()" (retry)="reload()" />
   }
 
   @if (loading()) {
-    <p class="gallery-note">Loading gallery...</p>
+    <app-skeleton [rows]="4" />
   }
 
   @for (section of sections(); track section.kind) {
@@ -20,7 +20,7 @@
 
       <h3>With an image <span>{{ section.withPicture.length }}</span></h3>
       @if (section.withPicture.length === 0) {
-        <p class="gallery-note">Nobody in this group has an image yet.</p>
+        <app-empty-state icon="inbox" title="No images yet" message="Nobody in this group has an image yet." />
       } @else {
         <div class="gallery-grid" [@listStagger]="section.withPicture.length">
           @for (item of section.withPicture; track item.id) {
@@ -34,11 +34,8 @@
               </button>
               <strong>{{ item.name }}</strong>
               <app-upload-progress [percent]="isUploading(item) ? progress() : null"></app-upload-progress>
+              <app-file-drop [existing]="preview(item)" (chosen)="uploadFile(item, $event)" />
               <div class="card-actions">
-                <label class="btn-add">
-                  Replace
-                  <input type="file" accept="image/jpeg,image/png,image/webp" (change)="upload(item, $event)" />
-                </label>
                 <button class="btn-quiet" type="button" (click)="remove(item)">Delete</button>
               </div>
             </article>
@@ -48,7 +45,7 @@
 
       <h3>Without an image <span>{{ section.withoutPicture.length }}</span></h3>
       @if (section.withoutPicture.length === 0) {
-        <p class="gallery-note">Everyone in this group already has an image.</p>
+        <app-empty-state icon="inbox" title="All set" message="Everyone in this group already has an image." />
       } @else {
         <div class="gallery-grid" [@listStagger]="section.withoutPicture.length">
           @for (item of section.withoutPicture; track item.id) {
@@ -56,12 +53,7 @@
               <div class="thumb placeholder">No image</div>
               <strong>{{ item.name }}</strong>
               <app-upload-progress [percent]="isUploading(item) ? progress() : null"></app-upload-progress>
-              <div class="card-actions">
-                <label class="btn-add">
-                  Add image
-                  <input type="file" accept="image/jpeg,image/png,image/webp" (change)="upload(item, $event)" />
-                </label>
-              </div>
+              <app-file-drop (chosen)="uploadFile(item, $event)" />
             </article>
           }
         </div>

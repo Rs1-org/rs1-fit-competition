@@ -20,12 +20,8 @@
             <app-input-box label="First name" [control]="form.controls.firstName" />
             <app-input-box label="Last name" [control]="form.controls.lastName" />
             <app-input-box label="Date of birth" type="date" [control]="form.controls.dateOfBirth" />
-            <div class="form-group">
-              <label for="picture">Picture</label>
-              <input type="file" id="picture" accept="image/*" (change)="onPictureSelected($event)" />
-              <app-upload-progress [percent]="uploadProgress" />
-              @if (picturePreview) { <img [src]="picturePreview" alt="Picture preview" class="person-picture-preview" /> }
-            </div>
+            <app-file-drop [confirm]="false" [existing]="picturePreview" (chosen)="onPictureFile($event)" />
+            <app-upload-progress [percent]="uploadProgress" />
             <app-input-box label="Height" type="number" step="0.01" [control]="form.controls.height" />
             <app-input-box label="Shirt number" type="number" [control]="form.controls.shirtNumber" />
             <div class="form-group">
