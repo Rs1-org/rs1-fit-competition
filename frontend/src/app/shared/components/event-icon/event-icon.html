@@ -1,0 +1,7 @@
+<span class="event" [class]="event().tone">
+  <app-icon [name]="event().icon" [size]="18" />
+  @if (code() === 'substitution') { <span class="out"><app-icon name="sub-out" [size]="18" /></span> }
+  @if (code() === 'penalty') { <span class="chip">P</span> }
+  @if (code() === 'second-yellow') { <span class="chip">2</span> }
+  <span>{{ event().label }}</span>
+</span>

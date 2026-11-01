@@ -1,0 +1,4 @@
+ol { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; color: var(--mut); font-size: 13px; }
+li { display: inline-flex; gap: 6px; }
+a { color: var(--actx); text-decoration: none; }
+a:hover { text-decoration: underline; }

@@ -1,6 +1,4 @@
 <div class="container">
-  <button class="btn-back" (click)="goBack()">&#8592; Back to Matches</button>
-
   @if (match() === undefined) {
     <div class="loading">Loading match...</div>
   }
@@ -10,26 +8,39 @@
   }
 
   @if (match(); as data) {
+    <app-breadcrumb [items]="crumbs(data)" />
     <div class="detail-card">
+      @if (isLive(data)) {
+        <app-live-card
+          [competition]="data.competitionName"
+          [homeName]="data.homeSelectionName"
+          [awayName]="data.awaySelectionName"
+          [homeAbbreviation]="data.homeSelectionAbbreviation"
+          [awayAbbreviation]="data.awaySelectionAbbreviation"
+          [homeScore]="data.homeScore"
+          [awayScore]="data.awayScore"
+          [halfHome]="data.halfHomeScore"
+          [halfAway]="data.halfAwayScore"
+        />
+      }
       <div class="scoreboard">
-        <div class="team">
+        <div class="team" [class.winner]="winner(data, 'home')">
+          <app-crest [name]="data.homeSelectionName" [abbreviation]="data.homeSelectionAbbreviation" />
           @if (data.homeSelectionSlug) {
             <a [routerLink]="['/selection', data.homeSelectionSlug]">{{ data.homeSelectionName }}</a>
           } @else {
             <span>{{ data.homeSelectionName ?? 'TBD' }}</span>
           }
         </div>
-        <div class="score" aria-label="Score">
-          @if (hasScore(data)) {
-            <strong>{{ data.homeScore }} : {{ data.awayScore }}</strong>
-            @if (data.halfHomeScore !== null && data.halfAwayScore !== null) {
-              <small>Half-time {{ data.halfHomeScore }} : {{ data.halfAwayScore }}</small>
-            }
-          } @else {
-            <strong>vs</strong>
+        <div class="score">
+          <app-status-badge [status]="data.statusName" [postponed]="data.isPostponed" />
+          <app-score-display [home]="data.homeScore" [away]="data.awayScore" />
+          @if (data.halfHomeScore !== null && data.halfAwayScore !== null) {
+            <small>Half-time <app-score-display [home]="data.halfHomeScore" [away]="data.halfAwayScore" size="inline" /></small>
           }
         </div>
-        <div class="team">
+        <div class="team" [class.winner]="winner(data, 'away')">
+          <app-crest [name]="data.awaySelectionName" [abbreviation]="data.awaySelectionAbbreviation" />
           @if (data.awaySelectionSlug) {
             <a [routerLink]="['/selection', data.awaySelectionSlug]">{{ data.awaySelectionName }}</a>
           } @else {
@@ -38,6 +49,7 @@
         </div>
       </div>
 
+      <app-section-card title="Match facts">
       <div class="info-grid">
         <div class="info-item">
           <span class="info-label">Kick-off</span>
@@ -45,12 +57,7 @@
         </div>
         <div class="info-item">
           <span class="info-label">Status</span>
-          <span class="info-value">
-            {{ data.statusName }}
-            @if (data.isPostponed) {
-              (postponed)
-            }
-          </span>
+          <span class="info-value"><app-status-badge [status]="data.statusName" [postponed]="data.isPostponed" /></span>
         </div>
         <div class="info-item">
           <span class="info-label">Stadium</span>
@@ -73,20 +80,15 @@
           </span>
         </div>
         <div class="info-item">
-          <span class="info-label">Followers</span>
-          <span class="info-value">{{ data.followersCount | appNumber: '1.0-0' }}</span>
+          <app-stat-tile label="Followers" [value]="data.followersCount | appNumber: '1.0-0'" />
         </div>
       </div>
+      </app-section-card>
 
-      <nav class="match-links" aria-label="Match pages">
-        <a [routerLink]="['/live-matches', data.publicId]">Live</a>
-        <a [routerLink]="['/match-events', data.publicId]">Events</a>
-        <a [routerLink]="['/match-statistics', data.publicId]">Statistics</a>
-        <a [routerLink]="['/match-reviews', data.publicId]">Reviews</a>
-        @if (canManage()) {
-          <a class="match-edit" [routerLink]="['/manage-matches', data.slug]">Edit match</a>
-        }
-      </nav>
+      <app-section-tabs label="Match pages" [tabs]="tabs(data)" />
+      @if (canManage()) {
+        <p class="match-links"><a class="match-edit" [routerLink]="['/manage-matches', data.slug]">Edit match</a></p>
+      }
     </div>
   }
 </div>

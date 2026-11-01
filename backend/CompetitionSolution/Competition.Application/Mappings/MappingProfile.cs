@@ -128,7 +128,9 @@ public class MappingProfile:Profile
             .ForMember(d => d.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.Name : null))
             .ForMember(d => d.StadiumName, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Name : null))
             .ForMember(d => d.HomeSelectionName, opt => opt.MapFrom(src => src.HomeSelection != null ? src.HomeSelection.Name : null))
+            .ForMember(d => d.HomeSelectionAbbreviation, opt => opt.MapFrom(src => src.HomeSelection != null ? src.HomeSelection.Abbreviation : null))
             .ForMember(d => d.AwaySelectionName, opt => opt.MapFrom(src => src.AwaySelection != null ? src.AwaySelection.Name : null))
+            .ForMember(d => d.AwaySelectionAbbreviation, opt => opt.MapFrom(src => src.AwaySelection != null ? src.AwaySelection.Abbreviation : null))
             .ForMember(d => d.RoundName, opt => opt.MapFrom(src => src.Round != null ? src.Round.Name : null))
             .ForMember(d => d.SeasonName, opt => opt.MapFrom(src => src.Round != null && src.Round.Season != null ? src.Round.Season.Name : null))
             .ForMember(d => d.CompetitionName, opt => opt.MapFrom(src =>
@@ -140,7 +142,9 @@ public class MappingProfile:Profile
             .ForMember(d => d.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.Name : null))
             .ForMember(d => d.StadiumName, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Name : null))
             .ForMember(d => d.HomeSelectionName, opt => opt.MapFrom(src => src.HomeSelection != null ? src.HomeSelection.Name : null))
+            .ForMember(d => d.HomeSelectionAbbreviation, opt => opt.MapFrom(src => src.HomeSelection != null ? src.HomeSelection.Abbreviation : null))
             .ForMember(d => d.AwaySelectionName, opt => opt.MapFrom(src => src.AwaySelection != null ? src.AwaySelection.Name : null))
+            .ForMember(d => d.AwaySelectionAbbreviation, opt => opt.MapFrom(src => src.AwaySelection != null ? src.AwaySelection.Abbreviation : null))
             .ForMember(d => d.RoundName, opt => opt.MapFrom(src => src.Round != null ? src.Round.Name : null))
             .ForMember(d => d.SeasonName, opt => opt.MapFrom(src => src.Round != null && src.Round.Season != null ? src.Round.Season.Name : null))
             .ForMember(d => d.CompetitionName, opt => opt.MapFrom(src =>

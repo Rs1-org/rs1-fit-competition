@@ -31,6 +31,16 @@
   border-bottom-color: var(--ac);
 }
 
+.count {
+  min-width: 18px;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  background: var(--field);
+  color: var(--tx2);
+  font-family: var(--font-title);
+  font-size: 12px;
+}
+
 .section-tab:focus-visible {
   outline: 2px solid var(--ac);
   outline-offset: -2px;

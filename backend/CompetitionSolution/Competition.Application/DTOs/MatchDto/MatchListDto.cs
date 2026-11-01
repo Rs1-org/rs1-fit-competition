@@ -11,7 +11,9 @@ public class MatchListDto
     public string? StatusName { get; set; }
     public string? StadiumName { get; set; }
     public string? HomeSelectionName { get; set; }
+    public string? HomeSelectionAbbreviation { get; set; }
     public string? AwaySelectionName { get; set; }
+    public string? AwaySelectionAbbreviation { get; set; }
     public string? RoundPublicId { get; set; }
     public string? RoundName { get; set; }
     public string? SeasonName { get; set; }

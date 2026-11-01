@@ -2,6 +2,7 @@
   @for (tab of tabs(); track tab.route) {
     <a class="section-tab" [routerLink]="tab.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">
       {{ tab.label }}
+      @if (tab.count != null) { <span class="count">{{ tab.count }}</span> }
       @if (tab.locked) { <app-icon name="lock" [size]="14" /> }
     </a>
   }

@@ -1,0 +1,4 @@
+<span class="badge" [class]="phase()" [attr.aria-label]="full()">
+  @if (phase() === 'live') { <span class="dot" aria-hidden="true"></span> }
+  {{ short() }}
+</span>

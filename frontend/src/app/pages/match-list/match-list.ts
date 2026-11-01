@@ -5,6 +5,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, catchError, combineLatest, debounceTime, filter, of, switchMap } from 'rxjs';
 import { AppDateTimePipe } from '../../shared/pipes/regional-format.pipes';
 import { Pagination } from '../../shared/components/pagination/pagination';
+import { MatchRow } from '../../shared/components/match-row/match-row';
 import { ConfirmDialogService, deleteConfirm } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { MatchService } from '../../core/services/match.service';
 import { MatchStatusService } from '../../core/services/match-status.service';
@@ -24,7 +25,7 @@ export function dateRangeValidator(group: AbstractControl): ValidationErrors | n
 
 @Component({
   selector: 'app-match-list',
-  imports: [ReactiveFormsModule, RouterLink, Pagination, AppDateTimePipe],
+  imports: [ReactiveFormsModule, RouterLink, Pagination, AppDateTimePipe, MatchRow],
   templateUrl: './match-list.html',
   styleUrl: '../stadium-list/stadium-list.css',
 })

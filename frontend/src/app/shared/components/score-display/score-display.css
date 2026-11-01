@@ -1,0 +1,13 @@
+.score {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 30px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--tx);
+}
+
+.hero { font-size: 76px; line-height: 1; }
+.inline { font-size: 16px; }
+.pending { color: var(--mut); font-size: 24px; }
+.hero.pending { font-size: 48px; }

@@ -5,7 +5,7 @@
       @for (event of group.events; track event.publicId) {
         <li>
           <span class="event-minute">{{ event.minute | appNumber:'1.0-0' }}@if (event.addedMinute) {+{{ event.addedMinute | appNumber:'1.0-0' }}}′</span>
-          <div class="event-description"><strong>{{ event.eventType.name }}</strong> · {{ event.selection.name }}
+          <div class="event-description"><app-event-icon [code]="event.eventType.code" /> · {{ event.selection.name }}
             @if (event.player) { <p>{{ event.eventType.code === 'substitution' ? 'Off: ' : '' }}{{ event.player.name }}</p> }
             @if (event.relatedPlayer) { <p>On: {{ event.relatedPlayer.name }}</p> }
             @if (event.note) { <p class="event-note">{{ event.note }}</p> }

@@ -8,7 +8,9 @@ export interface MatchListDto {
   statusName: string | null;
   stadiumName: string | null;
   homeSelectionName: string | null;
+  homeSelectionAbbreviation?: string | null;
   awaySelectionName: string | null;
+  awaySelectionAbbreviation?: string | null;
   roundPublicId: string | null;
   roundName: string | null;
   seasonName: string | null;
@@ -32,9 +34,11 @@ export interface MatchDetailsDto {
   stadiumSlug: string | null;
   homeSelectionPublicId: string | null;
   homeSelectionName: string | null;
+  homeSelectionAbbreviation?: string | null;
   homeSelectionSlug: string | null;
   awaySelectionPublicId: string | null;
   awaySelectionName: string | null;
+  awaySelectionAbbreviation?: string | null;
   awaySelectionSlug: string | null;
   roundPublicId: string | null;
   roundName: string | null;

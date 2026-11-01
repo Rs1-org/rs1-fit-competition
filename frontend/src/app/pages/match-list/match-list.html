@@ -58,8 +58,6 @@
         <tr>
           <th scope="col">Date</th>
           <th scope="col">Match</th>
-          <th scope="col" class="num">Score</th>
-          <th scope="col">Status</th>
           <th scope="col" class="hide-sm">Stadium</th>
           <th scope="col" class="hide-sm">Round</th>
           @if (canManage()) {
@@ -71,19 +69,18 @@
         @for (match of pagedResult()?.items ?? []; track match.publicId) {
           <tr class="row-link" tabindex="0" (click)="view(match)" (keydown.enter)="view(match)">
             <td>{{ match.date | appDateTime }}</td>
-            <td>{{ match.homeSelectionName ?? 'TBD' }} vs {{ match.awaySelectionName ?? 'TBD' }}</td>
-            <td class="num">
-              @if (match.homeScore !== null && match.awayScore !== null) {
-                {{ match.homeScore }} : {{ match.awayScore }}
-              } @else {
-                -
-              }
-            </td>
             <td>
-              {{ match.statusName }}
-              @if (match.isPostponed) {
-                <span class="badge">Postponed</span>
-              }
+              <app-match-row
+                variant="compact"
+                [status]="match.statusName"
+                [postponed]="match.isPostponed"
+                [homeName]="match.homeSelectionName"
+                [awayName]="match.awaySelectionName"
+                [homeAbbreviation]="match.homeSelectionAbbreviation"
+                [awayAbbreviation]="match.awaySelectionAbbreviation"
+                [homeScore]="match.homeScore"
+                [awayScore]="match.awayScore"
+              />
             </td>
             <td class="hide-sm">{{ match.stadiumName }}</td>
             <td class="hide-sm">{{ roundLabel(match) ?? '-' }}</td>

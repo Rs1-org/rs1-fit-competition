@@ -12,6 +12,7 @@
       <div>
         <h1>{{ selection.name }}</h1>
         <p>{{ selection.abbreviation }}</p>
+        <app-form-chips [results]="[]" />
       </div>
       @if (user.canManagePersons()) {
         <a class="club-primary" [routerLink]="['/manage-selections', selection.slug]"
