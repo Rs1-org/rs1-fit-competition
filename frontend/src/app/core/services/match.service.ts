@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PagedResult } from '../models/paged-result';
 import { MatchDetailsDto, MatchListDto, MatchListFilter, SaveMatchDto } from '../models/match';
-import { toPagedParams } from '../helpers/paging.helper';
+import { toFilterParams, toPagedParams } from '../helpers/paging.helper';
 
 @Injectable({ providedIn: 'root' })
 export class MatchService {
@@ -23,6 +23,16 @@ export class MatchService {
 
   getByPublicId(publicId: string): Observable<MatchDetailsDto> {
     return this.http.get<MatchDetailsDto>(`${this.apiUrl}/getByPublicId/${encodeURIComponent(publicId)}`);
+  }
+
+  /** PDF report for one match (RS1 item 12). */
+  downloadReport(publicId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/report/${encodeURIComponent(publicId)}`, { responseType: 'blob' });
+  }
+
+  /** PDF report of the matches in a date range, with the list filters (RS1 item 12). */
+  downloadMatchesReport(filter: MatchListFilter): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/report`, { params: toFilterParams(filter), responseType: 'blob' });
   }
 
   /** The backend generates the slug from the teams and date. */

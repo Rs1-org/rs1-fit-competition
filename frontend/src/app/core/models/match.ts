@@ -58,6 +58,7 @@ export interface MatchListFilter {
   dateFrom?: string;
   dateTo?: string;
   selectionPublicId?: string;
+  competitionPublicId?: string;
 }
 
 export interface SaveMatchDto {

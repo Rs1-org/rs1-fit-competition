@@ -5,6 +5,7 @@ using Competition.Application.Interfaces;
 using Competition.Domain.Entities;
 using Competition.Domain.Entities.CompetitionEntities;
 using Competition.Domain.Entities.MatchEntities;
+using CompetitionEntity = Competition.Domain.Entities.CompetitionEntities.Competition;
 using StadiumEntity = Competition.Domain.Entities.MatchEntities.Stadium;
 using MediatR;
 
@@ -30,10 +31,12 @@ public class GetAllMatchesQueryHandler : IRequestHandler<GetAllMatchesQuery, Pag
         var stadiumId = await _lookup.GetIdByPublicIdAsync<StadiumEntity>(request.StadiumPublicId, cancellationToken);
         var roundId = await _lookup.GetIdByPublicIdAsync<Round>(request.RoundPublicId, cancellationToken);
         var selectionId = await _lookup.GetIdByPublicIdAsync<Selection>(request.SelectionPublicId, cancellationToken);
+        var competitionId = await _lookup.GetIdByPublicIdAsync<CompetitionEntity>(request.CompetitionPublicId, cancellationToken);
         if ((request.StatusPublicId is not null && statusId is null)
             || (request.StadiumPublicId is not null && stadiumId is null)
             || (request.RoundPublicId is not null && roundId is null)
-            || (request.SelectionPublicId is not null && selectionId is null))
+            || (request.SelectionPublicId is not null && selectionId is null)
+            || (request.CompetitionPublicId is not null && competitionId is null))
             return new PagedResult<MatchListDto>(Array.Empty<MatchListDto>(), 0, request.Page, request.PageSize);
 
         var paged = await _match.GetPagedWithFiltersAsync(
@@ -41,7 +44,7 @@ public class GetAllMatchesQueryHandler : IRequestHandler<GetAllMatchesQuery, Pag
             statusId, stadiumId, roundId,
             request.IsPostponed,
             request.DateFrom, request.DateTo,
-            selectionId,
+            selectionId, competitionId,
             cancellationToken);
 
         var items = _mapper.Map<IReadOnlyList<MatchListDto>>(paged.Items);

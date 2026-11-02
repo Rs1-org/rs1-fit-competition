@@ -26,6 +26,23 @@ describe('MatchService', () => {
     request.flush({ items: [], totalCount: 0, page: 2, pageSize: 10 });
   });
 
+  it('downloads the match report as a blob', () => {
+    service.downloadReport('m1').subscribe();
+    const request = http.expectOne((req) => req.url.endsWith('/api/match/report/m1'));
+    expect(request.request.responseType).toBe('blob');
+    request.flush(new Blob());
+  });
+
+  it('downloads the matches report with only the filters that are set', () => {
+    service.downloadMatchesReport({ dateFrom: '2026-10-01', dateTo: '2026-10-31T23:59:59', competitionPublicId: 'c1' }).subscribe();
+    const request = http.expectOne((req) => req.url.endsWith('/api/match/report'));
+    expect(request.request.responseType).toBe('blob');
+    expect(request.request.params.get('dateFrom')).toBe('2026-10-01');
+    expect(request.request.params.get('competitionPublicId')).toBe('c1');
+    expect(request.request.params.has('stadiumPublicId')).toBe(false);
+    request.flush(new Blob());
+  });
+
   it('updates by slug and deletes by public id', () => {
     const body = {
       date: '2026-11-01T18:00:00.000Z', followersCount: 0, isPostponed: false, statusPublicId: 's',

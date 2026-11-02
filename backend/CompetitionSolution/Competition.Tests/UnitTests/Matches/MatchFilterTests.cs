@@ -110,6 +110,34 @@ public class MatchFilterTests : BaseUnitTest
     }
 
     [Fact]
+    public async Task CompetitionPublicId_ShouldReturnOnlyMatchesInThatCompetition()
+    {
+        var seed = await SeedAsync();
+        await using var _ = seed.Context;
+        var competition = new CompetitionEntity { Name = "Premijer liga", Slug = "premijer-liga" };
+        var m2 = await seed.Context.Matches.SingleAsync(m => m.Slug == "m2");
+        m2.Round = new Round { Name = "Round 1", Slug = "round-1", Number = 1, Season = new Season { Name = "2026/27", Slug = "2026-27", Competition = competition } };
+        await seed.Context.SaveChangesAsync();
+
+        var result = await NewHandler(seed.Context)
+            .Handle(new GetAllMatchesQuery { CompetitionPublicId = competition.PublicId }, CancellationToken.None);
+
+        result.Items.Should().ContainSingle().Which.Slug.Should().Be("m2");
+    }
+
+    [Fact]
+    public async Task UnknownCompetitionPublicId_ShouldReturnAnEmptyPage()
+    {
+        var seed = await SeedAsync();
+        await using var _ = seed.Context;
+
+        var result = await NewHandler(seed.Context)
+            .Handle(new GetAllMatchesQuery { CompetitionPublicId = Guid.NewGuid().ToString("N") }, CancellationToken.None);
+
+        result.TotalCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task NoFilter_ShouldReturnAllSortedByDate()
     {
         var seed = await SeedAsync();

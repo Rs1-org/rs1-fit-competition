@@ -10,9 +10,11 @@ import { ConfirmDialogService, deleteConfirm } from '../../shared/components/con
 import { MatchService } from '../../core/services/match.service';
 import { MatchStatusService } from '../../core/services/match-status.service';
 import { StadiumService } from '../../core/services/stadium.service';
+import { CompetitionService } from '../../core/services/competition.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { MatchListDto, MatchListFilter } from '../../core/models/match';
 import { roundLabel } from '../../core/helpers/match.helper';
+import { saveBlob } from '../../core/helpers/download.helper';
 import { fetchAllPages, MAX_PAGE_SIZE } from '../../core/helpers/paging.helper';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { ToastService } from '../../core/services/toast.service';
@@ -34,6 +36,7 @@ export class MatchList {
   private matchService = inject(MatchService);
   private statusService = inject(MatchStatusService);
   private stadiumService = inject(StadiumService);
+  private competitionService = inject(CompetitionService);
   private confirmDialog = inject(ConfirmDialogService);
   private toast = inject(ToastService);
   private userState = inject(UserStateService);
@@ -48,6 +51,7 @@ export class MatchList {
     {
       statusPublicId: '',
       stadiumPublicId: '',
+      competitionPublicId: '',
       postponed: '' as '' | 'true' | 'false',
       dateFrom: '',
       dateTo: '',
@@ -57,6 +61,7 @@ export class MatchList {
 
   statuses = toSignal(fetchAllPages((page) => this.statusService.getAll(page, MAX_PAGE_SIZE)), { initialValue: [] });
   stadiums = toSignal(fetchAllPages((page) => this.stadiumService.getAll(page, MAX_PAGE_SIZE)), { initialValue: [] });
+  competitions = toSignal(fetchAllPages((page) => this.competitionService.getAll(page, MAX_PAGE_SIZE)), { initialValue: [] });
 
   // Mirrors the backend: Admin/Moderator can add and edit, only Admin can delete.
   canManage = this.userState.canManage;
@@ -88,15 +93,31 @@ export class MatchList {
   }
 
   private toFilter(): MatchListFilter {
-    const { statusPublicId, stadiumPublicId, postponed, dateFrom, dateTo } = this.filterForm.getRawValue();
+    const { statusPublicId, stadiumPublicId, competitionPublicId, postponed, dateFrom, dateTo } = this.filterForm.getRawValue();
     return {
       statusPublicId: statusPublicId || undefined,
       stadiumPublicId: stadiumPublicId || undefined,
+      competitionPublicId: competitionPublicId || undefined,
       isPostponed: postponed === '' ? undefined : postponed === 'true',
       dateFrom: dateFrom || undefined,
       // Inclusive "to" day: the backend compares instants, so send the end of that day.
       dateTo: dateTo ? `${dateTo}T23:59:59` : undefined,
     };
+  }
+
+  /** The report needs a full, valid date range. */
+  canDownloadReport(): boolean {
+    const { dateFrom, dateTo } = this.filterForm.getRawValue();
+    return this.filterForm.valid && !!dateFrom && !!dateTo;
+  }
+
+  downloadReport(): void {
+    if (!this.canDownloadReport()) return;
+    const { dateFrom, dateTo } = this.filterForm.getRawValue();
+    this.matchService.downloadMatchesReport(this.toFilter()).subscribe({
+      next: (blob) => saveBlob(blob, `matches-report-${dateFrom}-${dateTo}.pdf`),
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The report could not be downloaded.')),
+    });
   }
 
   resetFilters(): void {
