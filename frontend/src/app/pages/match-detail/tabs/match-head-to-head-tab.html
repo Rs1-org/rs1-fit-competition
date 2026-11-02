@@ -1,0 +1,29 @@
+@if (!unlocked()) {
+  <app-paywall />
+} @else if (!teamsKnown()) {
+  <app-empty-state icon="trophy" title="Head-to-head not available yet" message="It appears once both teams are known." />
+} @else if (state().loading) {
+  <app-skeleton [rows]="4" />
+} @else if (state().error) {
+  <app-error-banner [message]="state().error" (retry)="retry()" />
+} @else if (state().data; as data) {
+  @if (data.matches.length) {
+    <app-section-card title="Head-to-head">
+      <dl class="totals">
+        <div><dt>{{ data.firstName }} wins</dt><dd>{{ data.firstWins }}</dd></div>
+        <div><dt>Draws</dt><dd>{{ data.draws }}</dd></div>
+        <div><dt>{{ data.secondName }} wins</dt><dd>{{ data.secondWins }}</dd></div>
+      </dl>
+      <ul class="meetings">
+        @for (meeting of data.matches; track $index) {
+          <li>
+            <span class="date">{{ meeting.date | appDate }}</span>
+            <span>{{ meeting.homeName }} {{ meeting.homeScore }} – {{ meeting.awayScore }} {{ meeting.awayName }}</span>
+          </li>
+        }
+      </ul>
+    </app-section-card>
+  } @else {
+    <app-empty-state icon="trophy" title="No previous meetings" message="These teams have no finished matches against each other yet." />
+  }
+}

@@ -1,13 +1,12 @@
-<main class="events-page">
-  <h1>Match events</h1>
-  <div class="event-actions"><a routerLink="/match-reviews">Browse matches</a>
+<main class="events-page" [class.embedded]="embedded()">
+  @if (!embedded()) { <h1>Match events</h1> }
+  <div class="event-actions">@if (!embedded()) { <a routerLink="/match-reviews">Browse matches</a> }
     @if (canManage()) { <a routerLink="/manage-events/new" [queryParams]="{match: matchId() || null}">Add event</a> }
-    @if (fixedMatch()) { <a routerLink="/match-events">All events</a><a [routerLink]="['/match-reviews', matchId()]">Match reviews</a> }
   </div>
   @if (!fixedMatch()) { <app-event-match-picker [selected]="matchId()" [selectedName]="context().data ? context().data!.homeName + ' vs ' + context().data!.awayName : 'Selected match'" (changeMatch)="chooseMatch($event)" /> }
   @if (context().loading) { <p role="status">Loading match…</p> }
   @if (context().error) { <app-error-banner [message]="context().error" (retry)="retry()" /> }
-  @if (matchId()) { <app-match-live-summary [matchPublicId]="matchId()" (changed)="liveChanged($event)" /><app-match-polls [matchPublicId]="matchId()" /> }
+  @if (matchId() && !embedded()) { <app-match-live-summary [matchPublicId]="matchId()" (changed)="liveChanged($event)" /><app-match-polls [matchPublicId]="matchId()" /> }
   @if (lookups().error) { <app-error-banner [message]="lookups().error" (retry)="retry()" /> }
   <form [formGroup]="filters" (ngSubmit)="apply()"><fieldset><legend>Filter events</legend>
     <div class="event-fields">
@@ -16,7 +15,7 @@
       <label>Player<select formControlName="playerPublicId"><option value="">All players</option>@for (player of players(); track player.publicId) { <option [value]="player.publicId">{{ player.name }}</option> }</select></label>
       <label>Minute from<input type="number" min="0" max="130" step="1" formControlName="minuteFrom"></label>
       <label>Minute to<input type="number" min="0" max="130" step="1" formControlName="minuteTo"></label>
-    </div><p>Select a match to filter its teams and recorded players. The minute range uses the base minute, excluding added time.</p>
+    </div><p>@if (!embedded()) { Select a match to filter its teams and recorded players. }The minute range uses the base minute, excluding added time.</p>
     @if (filterError()) { <p role="alert" class="event-error">{{ filterError() }}</p> }
     <div class="event-actions"><button type="submit">Apply filters</button><button type="button" (click)="reset()">Reset filters</button></div>
   </fieldset></form>

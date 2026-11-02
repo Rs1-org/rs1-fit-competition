@@ -21,7 +21,7 @@
     </fieldset>
     @if (error()) { <p role="alert" class="poll-error">{{ error() }}</p> }
     @if (fieldErrors().length) { <ul role="alert" class="poll-error">@for (message of fieldErrors(); track $index) { <li>{{ message }}</li> }</ul> }
-    <div class="poll-actions"><button type="submit" [disabled]="busy()">{{ busy() ? 'Creating…' : 'Create poll' }}</button><a [routerLink]="['/live-matches', match.publicId]">Cancel</a></div>
+    <div class="poll-actions"><button type="submit" [disabled]="busy()">{{ busy() ? 'Creating…' : 'Create poll' }}</button><a [routerLink]="['/match-polls', match.publicId]">Cancel</a></div>
     </form>
   }
 </main>

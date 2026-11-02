@@ -43,6 +43,59 @@ export function statusShort(phase: MatchPhase, minute?: string | null): string {
   return 'SCHED.';
 }
 
+/** Short line under the score for a match that is not waiting for kick-off. */
+export function statusNote(phase: MatchPhase): string {
+  if (phase === 'finished') return 'Full time';
+  if (phase === 'postponed') return 'Postponed, new date to be confirmed';
+  if (phase === 'cancelled') return 'Cancelled';
+  return '';
+}
+
+export function kickoffCountdown(date: string | null | undefined, now: number): string {
+  if (!date) return '';
+  const minutes = Math.ceil((new Date(date).getTime() - now) / 60_000);
+  if (minutes <= 0) return 'Kick-off soon';
+  const days = Math.floor(minutes / 1440);
+  const hours = Math.floor((minutes % 1440) / 60);
+  if (days) return `Kick-off in ${days} d ${hours} h`;
+  return hours ? `Kick-off in ${hours} h ${minutes % 60} min` : `Kick-off in ${minutes} min`;
+}
+
+type GoalEvent = {
+  eventType: { code: string };
+  selection: { publicId: string };
+  player: { name: string } | null;
+  minute: number;
+  addedMinute: number;
+};
+
+/** One line per scorer of a team. An own goal counts for the opponent of the player's team. */
+export function goalscorers(
+  events: GoalEvent[],
+  teamId: string | null | undefined,
+  opponentId: string | null | undefined,
+): { name: string; minutes: string[] }[] {
+  const lines = new Map<string, string[]>();
+  const inOrder = [...events].sort((a, b) => a.minute - b.minute || a.addedMinute - b.addedMinute);
+  for (const event of inOrder) {
+    const { code } = event.eventType;
+    const scored = (code === 'goal' || code === 'penalty') && event.selection.publicId === teamId;
+    const ownGoal = code === 'own-goal' && event.selection.publicId === opponentId;
+    if (!scored && !ownGoal) continue;
+    const name = event.player?.name ?? 'Unknown';
+    const suffix = code === 'penalty' ? ' (P)' : ownGoal ? ' (OG)' : '';
+    lines.set(name, [...(lines.get(name) ?? []), minuteLabel(event.minute, event.addedMinute) + suffix]);
+  }
+  return [...lines].map(([name, minutes]) => ({ name, minutes }));
+}
+
+/** The furthest minute recorded so far, shown next to the live badge. */
+export function latestMinute(events: { minute: number; addedMinute: number }[]): string | null {
+  if (!events.length) return null;
+  const last = events.reduce((a, b) => (b.minute > a.minute || (b.minute === a.minute && b.addedMinute > a.addedMinute) ? b : a));
+  return String(last.minute) + (last.addedMinute ? `+${last.addedMinute}` : '');
+}
+
 export function statusLabel(phase: MatchPhase): string {
   if (phase === 'half-time') return 'Half-time';
   if (phase === 'finished') return 'Full time';

@@ -1,0 +1,43 @@
+@if (lineup(); as sheet) {
+  @if (announced()) {
+    <app-section-card title="Line-ups">
+      <div class="lineup-grid">
+        <section>
+          <h3>{{ match()?.homeSelectionName ?? 'Home' }} @if (sheet.homeFormationCode) { <small>{{ sheet.homeFormationCode }}</small> }</h3>
+          <ng-container *ngTemplateOutlet="side; context: { $implicit: sheet.home }" />
+        </section>
+        <section>
+          <h3>{{ match()?.awaySelectionName ?? 'Away' }} @if (sheet.awayFormationCode) { <small>{{ sheet.awayFormationCode }}</small> }</h3>
+          <ng-container *ngTemplateOutlet="side; context: { $implicit: sheet.away }" />
+        </section>
+      </div>
+    </app-section-card>
+  } @else {
+    <app-empty-state icon="player" title="Line-ups not announced" message="They appear here once the teams are named." />
+  }
+} @else {
+  <app-skeleton [rows]="6" />
+}
+
+<ng-template #side let-players>
+  <h4>Starters</h4>
+  <ng-container *ngTemplateOutlet="list; context: { $implicit: starters(players), empty: 'The starting lineup has not been set.' }" />
+  <h4>Substitutes</h4>
+  <ng-container *ngTemplateOutlet="list; context: { $implicit: substitutes(players), empty: 'No substitutes have been named.' }" />
+</ng-template>
+
+<ng-template #list let-players let-empty="empty">
+  @if (players.length === 0) {
+    <p class="lineup-empty">{{ empty }}</p>
+  } @else {
+    <ul class="lineup-list">
+      @for (player of players; track player.publicId) {
+        <li>
+          @if (player.shirtNumber != null) { <span>{{ player.shirtNumber | appNumber: '1.0-0' }}</span> }
+          {{ player.playerName }}
+          @if (player.positionName) { <small>{{ player.positionName }}</small> }
+        </li>
+      }
+    </ul>
+  }
+</ng-template>

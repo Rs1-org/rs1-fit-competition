@@ -2,22 +2,24 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { AdminModeratorGuard } from './core/guards/admin-moderator.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { redirectToMatchTab } from './pages/match-detail/match-redirect.guard';
 
 export const routes: Routes = [
   { path: 'manage-polls/:matchPublicId', canActivate: [AdminModeratorGuard], loadComponent: () => import('./components/poll-form/poll-form').then(m => m.PollForm) },
   { path: 'live', loadComponent: () => import('./pages/live/live').then((m) => m.LiveTable) },
-  { path: 'live-matches/:publicId', loadComponent: () => import('./pages/match-events/match-events').then(m => m.MatchEvents) },
+  { path: 'live-matches/:publicId', canActivate: [redirectToMatchTab()], children: [] },
+  { path: 'match-polls/:publicId', canActivate: [redirectToMatchTab('polls')], children: [] },
   { path: 'statistics/advanced', loadComponent: () => import('./pages/advanced-statistics/advanced-statistics').then(m => m.AdvancedStatistics) },
   { path: 'premium/result', canActivate: [AuthGuard], loadComponent: () => import('./pages/premium-result/premium-result').then(m => m.PremiumResult) },
   { path: 'statistics/charts', loadComponent: () => import('./pages/statistics/statistics-charts').then(m => m.StatisticsCharts) },
   { path: 'statistics', loadComponent: () => import('./pages/statistics/statistics').then(m => m.Statistics) },
-  { path: 'match-statistics/:publicId', loadComponent: () => import('./pages/statistics/match-statistics').then(m => m.MatchStatistics) },
+  { path: 'match-statistics/:publicId', canActivate: [redirectToMatchTab('statistics')], children: [] },
   { path: 'manage-statistics/:matchPublicId', canActivate: [AdminModeratorGuard], loadComponent: () => import('./components/statistic-form/statistic-form').then(m => m.StatisticForm) },
   { path: 'match-events', loadComponent: () => import('./pages/match-events/match-events').then(m => m.MatchEvents) },
-  { path: 'match-events/:publicId', loadComponent: () => import('./pages/match-events/match-events').then(m => m.MatchEvents) },
+  { path: 'match-events/:publicId', canActivate: [redirectToMatchTab()], children: [] },
   { path: 'manage-events/:id', canActivate: [AdminModeratorGuard], loadComponent: () => import('./components/match-event-form/match-event-form').then(m => m.MatchEventForm) },
   { path: 'match-reviews', loadComponent: () => import('./pages/match-reviews/review-matches').then(m => m.ReviewMatches) },
-  { path: 'match-reviews/:publicId', loadComponent: () => import('./pages/match-reviews/match-reviews').then(m => m.MatchReviews) },
+  { path: 'match-reviews/:publicId', canActivate: [redirectToMatchTab('reviews')], children: [] },
   {
     path: 'admin/users',
     canActivate: [adminGuard],
@@ -72,6 +74,14 @@ export const routes: Routes = [
   {
     path: 'matches/:slug',
     loadComponent: () => import('./pages/match-detail/match-detail').then((m) => m.MatchDetail),
+    children: [
+      { path: '', pathMatch: 'full', loadComponent: () => import('./pages/match-detail/tabs/match-summary-tab').then((m) => m.MatchSummaryTab) },
+      { path: 'lineups', loadComponent: () => import('./pages/match-detail/tabs/match-lineups-tab').then((m) => m.MatchLineupsTab) },
+      { path: 'statistics', loadComponent: () => import('./pages/match-detail/tabs/match-statistics-tab').then((m) => m.MatchStatisticsTab) },
+      { path: 'polls', loadComponent: () => import('./pages/match-detail/tabs/match-polls-tab').then((m) => m.MatchPollsTab) },
+      { path: 'reviews', loadComponent: () => import('./pages/match-detail/tabs/match-reviews-tab').then((m) => m.MatchReviewsTab) },
+      { path: 'head-to-head', loadComponent: () => import('./pages/match-detail/tabs/match-head-to-head-tab').then((m) => m.MatchHeadToHeadTab) },
+    ],
   },
   {
     path: 'manage-matches',

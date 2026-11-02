@@ -1,147 +1,100 @@
 <div class="container">
   @if (match() === undefined) {
-    <div class="loading">Loading match...</div>
+    <app-skeleton [rows]="6" />
   }
 
   @if (match() === null) {
-    <div class="not-found">Match not found.</div>
+    <app-empty-state icon="ball" title="Match not found." message="It may have been removed or the link is wrong." />
   }
 
   @if (match(); as data) {
     <app-breadcrumb [items]="crumbs(data)" />
-    <div class="detail-card">
-      @if (isLive(data)) {
-        <app-live-card
-          [competition]="data.competitionName"
-          [homeName]="data.homeSelectionName"
-          [awayName]="data.awaySelectionName"
-          [homeAbbreviation]="data.homeSelectionAbbreviation"
-          [awayAbbreviation]="data.awaySelectionAbbreviation"
-          [homeScore]="data.homeScore"
-          [awayScore]="data.awayScore"
-          [halfHome]="data.halfHomeScore"
-          [halfAway]="data.halfAwayScore"
-        />
-      }
+
+    <section class="match-card" aria-label="Match header">
+      <div class="card-top">
+        <div class="chips">
+          @if (data.competitionName) {
+            <a class="chip" [routerLink]="data.competitionSlug ? ['/competitions', data.competitionSlug] : null">{{ data.competitionName }}</a>
+          }
+          @if (data.seasonName) {
+            <a class="chip" [routerLink]="data.seasonSlug ? ['/seasons', data.seasonSlug] : null">Season {{ data.seasonName }}</a>
+          }
+          @if (data.roundName) {
+            <a class="chip" [routerLink]="data.roundSlug ? ['/rounds', data.roundSlug] : null">{{ data.roundName }}</a>
+          }
+        </div>
+        <span class="followers"><app-icon name="heart" [size]="16" /> {{ data.followersCount | appNumber: '1.0-0' }} followers</span>
+      </div>
+
       <div class="scoreboard">
         <div class="team" [class.winner]="winner(data, 'home')">
-          <app-crest [name]="data.homeSelectionName" [abbreviation]="data.homeSelectionAbbreviation" />
+          <app-crest [name]="data.homeSelectionName" [abbreviation]="data.homeSelectionAbbreviation" [size]="crestSize" />
           @if (data.homeSelectionSlug) {
-            <a [routerLink]="['/selection', data.homeSelectionSlug]">{{ data.homeSelectionName }}</a>
+            <a class="team-name" [routerLink]="['/selection', data.homeSelectionSlug]">{{ data.homeSelectionName }}</a>
           } @else {
-            <span>{{ data.homeSelectionName ?? 'TBD' }}</span>
+            <span class="team-name">{{ data.homeSelectionName ?? 'TBD' }}</span>
+          }
+          <span class="side-label">Home</span>
+          @if (homeGoals().length) {
+            <ul class="scorers">
+              @for (goal of homeGoals(); track goal.name) { <li>{{ goal.name }} {{ goal.minutes.join(', ') }}</li> }
+            </ul>
           }
         </div>
-        <div class="score">
-          <app-status-badge [status]="data.statusName" [postponed]="data.isPostponed" />
-          <app-score-display [home]="data.homeScore" [away]="data.awayScore" />
+
+        <div class="centre">
+          <app-status-badge [status]="data.statusName" [postponed]="data.isPostponed" [minute]="liveMinute()" />
+          <div aria-live="polite"><app-score-display size="hero" [home]="data.homeScore" [away]="data.awayScore" /></div>
           @if (data.halfHomeScore !== null && data.halfAwayScore !== null) {
-            <small>Half-time <app-score-display [home]="data.halfHomeScore" [away]="data.halfAwayScore" size="inline" /></small>
+            <p class="half-time">HT {{ data.halfHomeScore }} – {{ data.halfAwayScore }}</p>
+          }
+          @if (statusNote(data); as note) {
+            <p class="status-note">{{ note }}</p>
           }
         </div>
+
         <div class="team" [class.winner]="winner(data, 'away')">
-          <app-crest [name]="data.awaySelectionName" [abbreviation]="data.awaySelectionAbbreviation" />
+          <app-crest [name]="data.awaySelectionName" [abbreviation]="data.awaySelectionAbbreviation" [size]="crestSize" />
           @if (data.awaySelectionSlug) {
-            <a [routerLink]="['/selection', data.awaySelectionSlug]">{{ data.awaySelectionName }}</a>
+            <a class="team-name" [routerLink]="['/selection', data.awaySelectionSlug]">{{ data.awaySelectionName }}</a>
           } @else {
-            <span>{{ data.awaySelectionName ?? 'TBD' }}</span>
+            <span class="team-name">{{ data.awaySelectionName ?? 'TBD' }}</span>
+          }
+          <span class="side-label">Away</span>
+          @if (awayGoals().length) {
+            <ul class="scorers">
+              @for (goal of awayGoals(); track goal.name) { <li>{{ goal.name }} {{ goal.minutes.join(', ') }}</li> }
+            </ul>
           }
         </div>
       </div>
 
-      <app-section-card title="Match facts">
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">Kick-off</span>
-          <span class="info-value">{{ data.date | appDateTime }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Status</span>
-          <span class="info-value"><app-status-badge [status]="data.statusName" [postponed]="data.isPostponed" /></span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Stadium</span>
-          <span class="info-value">
-            @if (data.stadiumSlug) {
-              <a [routerLink]="['/stadium', data.stadiumSlug]">{{ data.stadiumName }}</a>
-            } @else {
-              {{ data.stadiumName }}
-            }
-          </span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Round</span>
-          <span class="info-value">
-            @if (data.roundSlug) {
-              <a [routerLink]="['/rounds', data.roundSlug]">{{ roundLabel(data) }}</a>
-            } @else {
-              Not assigned
-            }
-          </span>
-        </div>
-        <div class="info-item">
-          <app-stat-tile label="Followers" [value]="data.followersCount | appNumber: '1.0-0'" />
-        </div>
+      <div class="strip">
+        <span><app-icon name="clock" [size]="16" /> {{ data.date | appDateTime }}</span>
+        <span>
+          @if (data.stadiumSlug) {
+            <a [routerLink]="['/stadium', data.stadiumSlug]">{{ data.stadiumName }}</a>
+          } @else {
+            {{ data.stadiumName }}
+          }
+        </span>
+        <span><app-icon name="whistle" [size]="16" /> Referee: {{ lineup()?.refereeName || 'Not assigned' }}</span>
       </div>
-      </app-section-card>
 
-      <app-section-tabs label="Match pages" [tabs]="tabs(data)" />
-      <app-section-card title="Lineups">
-        @if (lineup(); as sheet) {
-          <p class="info-item"><span class="info-label">Referee</span> <span class="info-value">{{ sheet.refereeName || '—' }}</span></p>
-          <div class="lineup-grid">
-            <section>
-              <h3>{{ data.homeSelectionName ?? 'Home' }} @if (sheet.homeFormationCode) { <small>{{ sheet.homeFormationCode }}</small> }</h3>
-              <ng-container *ngTemplateOutlet="side; context: { $implicit: sheet.home }" />
-            </section>
-            <section>
-              <h3>{{ data.awaySelectionName ?? 'Away' }} @if (sheet.awayFormationCode) { <small>{{ sheet.awayFormationCode }}</small> }</h3>
-              <ng-container *ngTemplateOutlet="side; context: { $implicit: sheet.away }" />
-            </section>
-          </div>
-        } @else {
-          <p>Loading lineup...</p>
-        }
-      </app-section-card>
-
-      @if (canManage()) {
-        <p class="match-links">
-          <a class="match-edit" *appHasRole="'Admin,Moderator'" [routerLink]="['/manage-lineup', data.publicId]">Set lineup</a>
-          <a class="match-edit" [routerLink]="['/manage-matches', data.slug]">Edit match</a>
-          <button type="button" class="row-btn" *appHasRole="'Admin'" (click)="downloadReport(data)">Download PDF report</button>
-        </p>
+      @if (connectionNote(); as note) {
+        <p class="connection" role="status">{{ note }}</p>
       }
-    </div>
+    </section>
+
+    @if (canManage()) {
+      <p class="staff-links">
+        <a class="row-btn" [routerLink]="['/manage-lineup', data.publicId]">Set lineup</a>
+        <a class="row-btn" [routerLink]="['/manage-matches', data.slug]">Edit match</a>
+        <button type="button" class="row-btn" *appHasRole="'Admin'" (click)="downloadReport(data)">Download PDF report</button>
+      </p>
+    }
+
+    <app-section-tabs label="Match sections" [tabs]="tabs(data)" />
+    <div class="tab-body"><router-outlet /></div>
   }
 </div>
-
-<ng-template #side let-players>
-  <h4>Starters</h4>
-  @if (starters(players).length === 0) {
-    <app-empty-state title="No starters" message="The starting lineup has not been set." />
-  } @else {
-    <ul class="lineup-list">
-      @for (player of starters(players); track player.publicId) {
-        <li>
-          @if (player.shirtNumber != null) { <span>{{ player.shirtNumber | appNumber: '1.0-0' }}</span> }
-          {{ player.playerName }}
-          @if (player.positionName) { <small>{{ player.positionName }}</small> }
-        </li>
-      }
-    </ul>
-  }
-  <h4>Substitutes</h4>
-  @if (substitutes(players).length === 0) {
-    <app-empty-state title="No substitutes" message="No substitutes have been named." />
-  } @else {
-    <ul class="lineup-list">
-      @for (player of substitutes(players); track player.publicId) {
-        <li>
-          @if (player.shirtNumber != null) { <span>{{ player.shirtNumber | appNumber: '1.0-0' }}</span> }
-          {{ player.playerName }}
-          @if (player.positionName) { <small>{{ player.positionName }}</small> }
-        </li>
-      }
-    </ul>
-  }
-</ng-template>

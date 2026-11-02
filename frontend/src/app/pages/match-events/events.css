@@ -24,3 +24,5 @@
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 @media (max-width: 768px) { .event-fields { grid-template-columns: repeat(2, minmax(0,1fr)); } }
 @media (max-width: 768px) { .event-fields { grid-template-columns: 1fr; } .event-timeline li { flex-wrap: wrap; gap: .5rem; } .event-description { flex-basis: calc(100% - 5rem); } .event-timeline .event-actions { width: 100%; padding-left: 4.5rem; } }
+
+.events-page.embedded { max-width: none; margin: 0; padding: 0; }

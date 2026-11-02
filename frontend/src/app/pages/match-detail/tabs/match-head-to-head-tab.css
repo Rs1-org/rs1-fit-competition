@@ -1,0 +1,6 @@
+.totals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0 0 16px; text-align: center; }
+.totals dt { color: var(--mut); font-size: 13px; }
+.totals dd { margin: 0; font-family: var(--font-title); font-size: 28px; font-weight: 700; }
+.meetings { margin: 0; padding: 0; list-style: none; }
+.meetings li { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 8px 0; border-top: 1px solid var(--bd); }
+.date { color: var(--mut); }

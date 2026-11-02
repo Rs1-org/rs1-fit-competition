@@ -1,64 +1,81 @@
-import { NgTemplateOutlet } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Component, computed, inject } from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, map, of, startWith, switchMap } from 'rxjs';
+import { EMPTY, map, switchMap, timer } from 'rxjs';
 import { AppDateTimePipe, AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
 import { MatchService } from '../../core/services/match.service';
-import { LineupService } from '../../core/services/lineup.service';
-import { emptyLineup, LineupPlayer, MatchLineup } from '../../core/models/lineup';
 import { UserStateService } from '../../core/services/user-state.service';
 import { MatchDetailsDto } from '../../core/models/match';
-import { roundLabel } from '../../core/helpers/match.helper';
 import { saveBlob } from '../../core/helpers/download.helper';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { ToastService } from '../../core/services/toast.service';
-import { matchPhase } from '../../shared/match/match-display';
+import { goalscorers, kickoffCountdown, latestMinute, matchPhase, statusNote } from '../../shared/match/match-display';
 import { Breadcrumb, Crumb } from '../../shared/components/breadcrumb/breadcrumb';
 import { Crest } from '../../shared/components/crest/crest';
 import { ScoreDisplay } from '../../shared/components/score-display/score-display';
 import { StatusBadge } from '../../shared/components/status-badge/status-badge';
-import { LiveCard } from '../../shared/components/live-card/live-card';
-import { SectionCard } from '../../shared/components/section-card/section-card';
-import { StatTile } from '../../shared/components/stat-tile/stat-tile';
 import { SectionTabs, SectionTab } from '../../shared/components/section-tabs/section-tabs';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
+import { Skeleton } from '../../shared/components/skeleton/skeleton';
+import { Icon } from '../../shared/components/icon/icon';
 import { HasRoleDirective } from '../../shared/directives/has-role.directive';
+import { MatchPageStore } from './match-page.store';
+
+const COUNTDOWN_REFRESH_MS = 30_000;
 
 @Component({
   selector: 'app-match-detail',
-  imports: [NgTemplateOutlet, RouterLink, AppDateTimePipe, AppNumberPipe, Breadcrumb, Crest, ScoreDisplay, StatusBadge, LiveCard, SectionCard, StatTile, SectionTabs, EmptyState, HasRoleDirective],
+  imports: [RouterLink, RouterOutlet, AppDateTimePipe, AppNumberPipe, Breadcrumb, Crest, ScoreDisplay, StatusBadge, SectionTabs, EmptyState, Skeleton, Icon, HasRoleDirective],
+  providers: [MatchPageStore],
   templateUrl: './match-detail.html',
-  styleUrls: ['../stadium-detail/stadium-detail.css', './match-detail.css'],
+  styleUrl: './match-detail.css',
 })
 export class MatchDetail {
-  private route = inject(ActivatedRoute);
+  private store = inject(MatchPageStore);
   private matchService = inject(MatchService);
-  private lineupService = inject(LineupService);
   private toast = inject(ToastService);
-  canManage = inject(UserStateService).canManage;
-  roundLabel = roundLabel;
+  private userState = inject(UserStateService);
+  canManage = this.userState.canManage;
 
-  /** undefined = loading, null = not found. */
-  match = toSignal(
-    this.route.paramMap.pipe(
-      map((params) => params.get('slug') ?? ''),
-      switchMap((slug) =>
-        this.matchService.getBySlug(slug).pipe(catchError(() => of(null as MatchDetailsDto | null))),
-      ),
+  readonly crestSize = 72;
+  match = this.store.match;
+  lineup = this.store.lineup;
+
+  private isScheduled = computed(() => {
+    const match = this.match();
+    return !!match && matchPhase(match.statusName, match.isPostponed) === 'scheduled';
+  });
+  private now = toSignal(
+    toObservable(this.isScheduled).pipe(
+      switchMap((scheduled) => (scheduled ? timer(0, COUNTDOWN_REFRESH_MS).pipe(map(() => Date.now())) : EMPTY)),
     ),
-    { initialValue: undefined },
+    { initialValue: Date.now() },
   );
 
-  lineup = toSignal(
-    toObservable(this.match).pipe(
-      switchMap((match) => {
-        if (!match) return of(null as MatchLineup | null);
-        return this.lineupService.get(match.publicId).pipe(catchError(() => of(emptyLineup(match.publicId))));
-      }),
-      startWith(undefined as MatchLineup | null | undefined),
-    ),
-  );
+  homeGoals = computed(() => {
+    const match = this.match();
+    return match ? goalscorers(this.store.matchEvents(), match.homeSelectionPublicId, match.awaySelectionPublicId) : [];
+  });
+  awayGoals = computed(() => {
+    const match = this.match();
+    return match ? goalscorers(this.store.matchEvents(), match.awaySelectionPublicId, match.homeSelectionPublicId) : [];
+  });
+  liveMinute = computed(() => latestMinute(this.store.matchEvents()));
+
+  connectionNote = computed(() => {
+    const match = this.match();
+    const phase = match ? matchPhase(match.statusName, match.isPostponed) : null;
+    if (phase !== 'live' && phase !== 'half-time') return '';
+    const state = this.store.connection();
+    if (state === 'reconnecting') return 'Connection lost. Reconnecting; the score may be out of date.';
+    if (state === 'unavailable') return 'Match updates unavailable. Reload this page to reconnect.';
+    return '';
+  });
+
+  statusNote(match: MatchDetailsDto): string {
+    const phase = matchPhase(match.statusName, match.isPostponed);
+    return phase === 'scheduled' ? kickoffCountdown(match.date, this.now()) : statusNote(phase);
+  }
 
   downloadReport(match: MatchDetailsDto): void {
     this.matchService.downloadReport(match.publicId).subscribe({
@@ -67,42 +84,32 @@ export class MatchDetail {
     });
   }
 
-  hasScore(match: MatchDetailsDto): boolean {
-    return match.homeScore !== null && match.awayScore !== null;
-  }
-
-  isLive(match: MatchDetailsDto): boolean {
-    return matchPhase(match.statusName, match.isPostponed) === 'live';
-  }
-
   winner(match: MatchDetailsDto, side: 'home' | 'away'): boolean {
     if (match.homeScore === null || match.awayScore === null || match.homeScore === match.awayScore) return false;
     return side === 'home' ? match.homeScore > match.awayScore : match.awayScore > match.homeScore;
   }
 
   crumbs(match: MatchDetailsDto): Crumb[] {
+    const name = { label: `${match.homeSelectionName ?? 'TBD'} vs ${match.awaySelectionName ?? 'TBD'}` };
+    if (!match.competitionName) return [{ label: 'Matches', route: '/matches' }, name];
     return [
-      { label: 'Matches', route: '/matches' },
-      { label: match.competitionName || 'Competition' },
-      { label: `${match.homeSelectionName ?? 'TBD'} vs ${match.awaySelectionName ?? 'TBD'}` },
+      { label: 'Competitions', route: '/competitions' },
+      { label: match.competitionName, route: match.competitionSlug ? `/competitions/${match.competitionSlug}` : null },
+      { label: match.seasonName ?? 'Season', route: match.seasonSlug ? `/seasons/${match.seasonSlug}` : null },
+      { label: match.roundName ?? 'Round', route: match.roundSlug ? `/rounds/${match.roundSlug}` : null },
+      name,
     ];
-  }
-
-  starters(players: LineupPlayer[]): LineupPlayer[] {
-    return players.filter((player) => player.isStarter);
-  }
-
-  substitutes(players: LineupPlayer[]): LineupPlayer[] {
-    return players.filter((player) => !player.isStarter);
   }
 
   tabs(match: MatchDetailsDto): SectionTab[] {
+    const base = `/matches/${match.slug}`;
     return [
-      { label: 'Live', route: `/live-matches/${match.publicId}` },
-      { label: 'Events', route: `/match-events/${match.publicId}` },
-      { label: 'Statistics', route: `/match-statistics/${match.publicId}` },
-      { label: 'Reviews', route: `/match-reviews/${match.publicId}` },
+      { label: 'Summary', route: base },
+      { label: 'Line-ups', route: `${base}/lineups` },
+      { label: 'Statistics', route: `${base}/statistics` },
+      { label: 'Polls', route: `${base}/polls` },
+      { label: 'Reviews', route: `${base}/reviews` },
+      { label: 'Head-to-head', route: `${base}/head-to-head`, locked: !this.userState.isPremium() },
     ];
   }
-
 }
