@@ -34,7 +34,7 @@ describe('Moderator poll form', () => {
     const value = component.form.getRawValue(); component.save();
     expect(create).toHaveBeenCalledExactlyOnceWith(id, { question: 'Who wins?', options: ['Home', 'Away'],
       opensAt: new Date(value.opensAt).toISOString(), closesAt: new Date(value.closesAt).toISOString() });
-    expect(navigate).toHaveBeenCalledWith(['/live-matches', id]);
+    expect(navigate).toHaveBeenCalledWith(['/match-polls', id]);
     expect(routes.find(route => route.path === 'manage-polls/:matchPublicId')?.canActivate).toContain(AdminModeratorGuard);
   });
   it('blocks duplicate saves and keeps input after a backend validation error', () => {

@@ -112,6 +112,9 @@ public class MappingProfile:Profile
             .ForMember(d => d.Slug, opt => opt.Ignore());          // validated or generated in handler
 
         CreateMap<Match, MatchDetailsDto>()
+            .ForMember(d => d.SeasonSlug, opt => opt.MapFrom(src => src.Round != null && src.Round.Season != null ? src.Round.Season.Slug : null))
+            .ForMember(d => d.CompetitionSlug, opt => opt.MapFrom(src =>
+                src.Round != null && src.Round.Season != null && src.Round.Season.Competition != null ? src.Round.Season.Competition.Slug : null))
             .ForMember(d => d.StadiumSlug, opt => opt.MapFrom(src => src.Stadium != null ? src.Stadium.Slug : null))
             .ForMember(d => d.HomeSelectionSlug, opt => opt.MapFrom(src => src.HomeSelection != null ? src.HomeSelection.Slug : null))
             .ForMember(d => d.AwaySelectionSlug, opt => opt.MapFrom(src => src.AwaySelection != null ? src.AwaySelection.Slug : null))

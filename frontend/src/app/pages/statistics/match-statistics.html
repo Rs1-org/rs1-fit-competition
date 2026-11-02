@@ -1,9 +1,0 @@
-<main class="statistics-page"><a routerLink="/statistics">Back to statistics</a><h1>Match statistics</h1>
-  @if (state().loading) { <p role="status">Loading match…</p> }
-  @else if (state().error) { <app-error-banner [message]="state().error" (retry)="retry()" /> }
-  @else if (state().data; as match) {
-    <app-match-live-summary [matchPublicId]="match.publicId" />
-    <div class="stat-actions"><a [routerLink]="['/live-matches', match.publicId]">Live timeline</a><a [routerLink]="['/match-reviews', match.publicId]">Match reviews</a></div>
-    <app-match-statistics-panel [matchPublicId]="match.publicId" />
-  }
-</main>

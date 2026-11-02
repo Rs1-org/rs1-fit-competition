@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -21,6 +21,11 @@ interface EventsState { loading: boolean; data: PagedResult<MatchEvent> | null; 
 @Component({ selector: 'app-match-events', imports: [ReactiveFormsModule, RouterLink, EventMatchPicker, MatchEventTimeline, Pagination, MatchLiveSummary, MatchPolls, ErrorBanner],
   templateUrl: './match-events.html', styleUrl: './events.css' })
 export class MatchEvents {
+  /** Set when embedded in the match page, which then owns the header and live connection. */
+  readonly matchPublicId = input('');
+  /** The match page raises this on every live change. */
+  readonly refresh = input(0);
+  readonly embedded = computed(() => !!this.matchPublicId());
   private readonly service = inject(MatchEventService);
   private readonly route = inject(ActivatedRoute);
   private readonly confirm = inject(ConfirmDialogService);
@@ -60,6 +65,16 @@ export class MatchEvents {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe(params => {
       const id = params.get('publicId') ?? '';
       this.fixedMatch.set(!!id); this.chooseMatch(id);
+    });
+    effect(() => {
+      const id = this.matchPublicId();
+      if (id) untracked(() => { this.fixedMatch.set(true); this.chooseMatch(id); });
+    });
+    let lastRefresh = -1;
+    effect(() => {
+      const refresh = this.refresh();
+      if (lastRefresh >= 0 && refresh !== lastRefresh) untracked(() => this.liveChanged('events'));
+      lastRefresh = refresh;
     });
     this.filters.controls.selectionPublicId.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => this.filters.controls.playerPublicId.setValue(''));
   }

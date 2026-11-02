@@ -56,7 +56,7 @@ export class PollForm {
     this.busy.set(true);
     this.service.create(match.publicId, { question: value.question.trim(), options: value.options.map(x => x.trim()),
       opensAt: new Date(value.opensAt).toISOString(), closesAt: new Date(value.closesAt).toISOString() }).subscribe({
-      next: () => { this.busy.set(false); void this.router.navigate(['/live-matches', match.publicId]); },
+      next: () => { this.busy.set(false); void this.router.navigate(['/match-polls', match.publicId]); },
       error: err => { this.busy.set(false); this.error.set(apiErrorMessage(err, 'The poll could not be created.'));
         if (Array.isArray(err.error?.errors)) this.fieldErrors.set(err.error.errors.map((e: { errorMessage: string }) => e.errorMessage)); },
     });

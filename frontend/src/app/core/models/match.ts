@@ -47,8 +47,10 @@ export interface MatchDetailsDto {
   roundSlug: string | null;
   seasonPublicId: string | null;
   seasonName: string | null;
+  seasonSlug?: string | null;
   competitionPublicId: string | null;
   competitionName: string | null;
+  competitionSlug?: string | null;
 }
 
 /** Quick tabs of the match list; a phase can cover several statuses. */
