@@ -16,6 +16,7 @@ public record SavedEventDto(string PublicId);
 public interface IEventStore
 {
     Task<PagedResult<EventDto>> GetPageAsync(GetEventsQuery filter, CancellationToken ct);
+    Task<IReadOnlyList<EventDto>> GetForMatchAsync(string matchPublicId, CancellationToken ct);
     Task<EventDto?> GetAsync(string publicId, CancellationToken ct);
     Task<Event?> FindAsync(string publicId, CancellationToken ct);
     Task<EventLookupsDto> LookupsAsync(CancellationToken ct);

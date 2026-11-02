@@ -35,6 +35,10 @@ public class EventStore(AppDbContext db) : IEventStore
             .ThenBy(x => x.CreatedAt).ThenBy(x => x.PublicId).Select(Projection)
             .ToPagedResultAsync(filter.Page, filter.PageSize, ct);
     }
+    public async Task<IReadOnlyList<EventDto>> GetForMatchAsync(string matchPublicId, CancellationToken ct) =>
+        await db.Events.AsNoTracking().Where(x => x.Match.PublicId == matchPublicId)
+            .OrderBy(x => x.MatchPart.SortOrder).ThenBy(x => x.Minute).ThenBy(x => x.AddedMinute)
+            .ThenBy(x => x.CreatedAt).ThenBy(x => x.PublicId).Select(Projection).ToListAsync(ct);
     public Task<EventDto?> GetAsync(string publicId, CancellationToken ct) =>
         db.Events.AsNoTracking().Where(x => x.PublicId == publicId).Select(Projection).FirstOrDefaultAsync(ct);
     public Task<Event?> FindAsync(string publicId, CancellationToken ct) =>

@@ -10,6 +10,9 @@ import { emptyLineup, LineupPlayer, MatchLineup } from '../../core/models/lineup
 import { UserStateService } from '../../core/services/user-state.service';
 import { MatchDetailsDto } from '../../core/models/match';
 import { roundLabel } from '../../core/helpers/match.helper';
+import { saveBlob } from '../../core/helpers/download.helper';
+import { apiErrorMessage } from '../../core/utils/api-error';
+import { ToastService } from '../../core/services/toast.service';
 import { matchPhase } from '../../shared/match/match-display';
 import { Breadcrumb, Crumb } from '../../shared/components/breadcrumb/breadcrumb';
 import { Crest } from '../../shared/components/crest/crest';
@@ -32,6 +35,7 @@ export class MatchDetail {
   private route = inject(ActivatedRoute);
   private matchService = inject(MatchService);
   private lineupService = inject(LineupService);
+  private toast = inject(ToastService);
   canManage = inject(UserStateService).canManage;
   roundLabel = roundLabel;
 
@@ -55,6 +59,13 @@ export class MatchDetail {
       startWith(undefined as MatchLineup | null | undefined),
     ),
   );
+
+  downloadReport(match: MatchDetailsDto): void {
+    this.matchService.downloadReport(match.publicId).subscribe({
+      next: (blob) => saveBlob(blob, `match-report-${match.slug ?? match.publicId}.pdf`),
+      error: (err) => this.toast.error(apiErrorMessage(err, 'The report could not be downloaded.')),
+    });
+  }
 
   hasScore(match: MatchDetailsDto): boolean {
     return match.homeScore !== null && match.awayScore !== null;

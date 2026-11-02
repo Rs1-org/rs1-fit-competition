@@ -4,6 +4,10 @@
     @if (canManage()) {
       <a class="row-btn" routerLink="/manage-matches">Add match</a>
     }
+    @if (canDelete()) {
+      <button type="button" class="row-btn" [disabled]="!canDownloadReport()"
+        title="Set the From and To dates to download the report" (click)="downloadReport()">Download PDF report</button>
+    }
   </div>
 
   <form class="filter-bar" [formGroup]="filterForm">
@@ -22,6 +26,15 @@
         <option value="">All stadiums</option>
         @for (stadium of stadiums(); track stadium.publicId) {
           <option [value]="stadium.publicId">{{ stadium.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="filter-field">
+      <label for="filter-competition">Competition</label>
+      <select id="filter-competition" formControlName="competitionPublicId">
+        <option value="">All competitions</option>
+        @for (competition of competitions(); track competition.publicId) {
+          <option [value]="competition.publicId">{{ competition.name }}</option>
         }
       </select>
     </div>

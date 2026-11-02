@@ -86,6 +86,7 @@ namespace Competition.Infrastructure
                 throw new InvalidOperationException("Storage:Provider must be Azure or Supabase.");
             services.AddScoped<IImageService,ImageService>();
             services.AddScoped<ITabularFileService, TabularFileService>();
+            services.AddScoped<IPdfReportService, PdfReportService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IPlayer, PlayerRepository>();
             services.AddScoped<IReferee, RefereeRepository>();

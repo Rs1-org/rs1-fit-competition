@@ -108,6 +108,7 @@
         <p class="match-links">
           <a class="match-edit" *appHasRole="'Admin,Moderator'" [routerLink]="['/manage-lineup', data.publicId]">Set lineup</a>
           <a class="match-edit" [routerLink]="['/manage-matches', data.slug]">Edit match</a>
+          <button type="button" class="row-btn" *appHasRole="'Admin'" (click)="downloadReport(data)">Download PDF report</button>
         </p>
       }
     </div>

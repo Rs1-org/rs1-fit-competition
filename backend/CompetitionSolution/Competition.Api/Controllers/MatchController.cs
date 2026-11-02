@@ -5,6 +5,7 @@ using Competition.Application.Commands.MatchLineupCommands;
 using Competition.Application.Queries.Match.GetAll;
 using Competition.Application.Queries.Match.GetById;
 using Competition.Application.Queries.Match.GetBySlug;
+using Competition.Application.Queries.Reports;
 using Competition.Application.Lineups;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -34,6 +35,7 @@ public class MatchController : ControllerBase
         [FromQuery] DateTime? dateFrom = null,
         [FromQuery] DateTime? dateTo = null,
         [FromQuery] string? selectionPublicId = null,
+        [FromQuery] string? competitionPublicId = null,
         CancellationToken cancellationToken = default)
     {
         var result = await _mediator.Send(new GetAllMatchesQuery
@@ -46,9 +48,26 @@ public class MatchController : ControllerBase
             IsPostponed = isPostponed,
             DateFrom = dateFrom,
             DateTo = dateTo,
-            SelectionPublicId = selectionPublicId
+            SelectionPublicId = selectionPublicId,
+            CompetitionPublicId = competitionPublicId
         }, cancellationToken);
         return Ok(result);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("report")]
+    public async Task<IActionResult> MatchesReport([FromQuery] GetMatchesReportQuery query, CancellationToken cancellationToken)
+    {
+        var file = await _mediator.Send(query, cancellationToken);
+        return File(file.Content, file.ContentType, file.FileName);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("report/{publicId}")]
+    public async Task<IActionResult> MatchReport(string publicId, CancellationToken cancellationToken)
+    {
+        var file = await _mediator.Send(new GetMatchReportQuery(publicId), cancellationToken);
+        return File(file.Content, file.ContentType, file.FileName);
     }
 
     [HttpGet("get/{slug}")]
