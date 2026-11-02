@@ -17,4 +17,5 @@ public static class SortKeys
     public static readonly string[] Country = ["name", "createdAt"];
     public static readonly string[] City = ["name", "population", "country"];
     public static readonly string[] Stadium = ["name", "capacity", "city", "dateOfConstruction"];
+    public static readonly string[] Match = ["date", "home", "away"];
 }

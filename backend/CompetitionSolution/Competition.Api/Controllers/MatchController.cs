@@ -1,7 +1,9 @@
 using Competition.Application.Commands.MatchCommands.Create;
 using Competition.Application.Commands.MatchCommands.Delete;
+using Competition.Application.Commands.MatchCommands.Import;
 using Competition.Application.Commands.MatchCommands.Update;
 using Competition.Application.Commands.MatchLineupCommands;
+using Competition.Application.Queries.Match.Export;
 using Competition.Application.Queries.Match.GetAll;
 using Competition.Application.Queries.Match.GetById;
 using Competition.Application.Queries.Match.GetBySlug;
@@ -36,6 +38,9 @@ public class MatchController : ControllerBase
         [FromQuery] DateTime? dateTo = null,
         [FromQuery] string? selectionPublicId = null,
         [FromQuery] string? competitionPublicId = null,
+        [FromQuery] string? phase = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortDir = null,
         CancellationToken cancellationToken = default)
     {
         var result = await _mediator.Send(new GetAllMatchesQuery
@@ -49,8 +54,28 @@ public class MatchController : ControllerBase
             DateFrom = dateFrom,
             DateTo = dateTo,
             SelectionPublicId = selectionPublicId,
-            CompetitionPublicId = competitionPublicId
+            CompetitionPublicId = competitionPublicId,
+            Phase = phase,
+            SortBy = sortBy,
+            SortDir = sortDir
         }, cancellationToken);
+        return Ok(result);
+    }
+
+    [Authorize(Roles = "Admin,Moderator")]
+    [HttpGet("export")]
+    public async Task<IActionResult> Export([FromQuery] ExportMatchesQuery query, CancellationToken cancellationToken)
+    {
+        var file = await _mediator.Send(query, cancellationToken);
+        return File(file.Content, file.ContentType, file.FileName);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("import")]
+    [RequestSizeLimit(2 * 1024 * 1024 + 64 * 1024)]
+    public async Task<IActionResult> Import([FromForm] ImportMatchesCommand request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(request, cancellationToken);
         return Ok(result);
     }
 

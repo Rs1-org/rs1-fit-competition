@@ -1,90 +1,166 @@
 <div class="container">
-  <div class="header-actions">
-    <h1>Matches</h1>
+  <header class="page-head">
+    <div>
+      <h1>Matches</h1>
+      <p class="page-subtitle">All fixtures and results across competitions</p>
+    </div>
+    <div class="page-actions">
+      @if (canDelete()) {
+        <app-button variant="secondary" text="Download PDF report" [disabled]="!canDownloadReport()"
+          title="Set the From and To dates to download the report" (click)="downloadReport()" />
+      }
+      @if (canManage()) {
+        <app-button text="Schedule match" (click)="schedule()"><app-icon name="plus" /></app-button>
+      }
+    </div>
+  </header>
+
+  <div [formGroup]="filterForm">
+    <app-filter-card [chips]="chips()" (chipRemove)="clearChip($event)" (resetFilters)="resetFilters()" (applyFilters)="apply()">
+      <div class="filter-field">
+        <label for="filter-status">Status</label>
+        <select id="filter-status" formControlName="statusPublicId">
+          <option value="">All statuses</option>
+          @for (status of statuses(); track status.publicId) {
+            <option [value]="status.publicId">{{ status.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="filter-competition">Competition</label>
+        <select id="filter-competition" formControlName="competitionPublicId">
+          <option value="">All competitions</option>
+          @for (competition of competitions(); track competition.publicId) {
+            <option [value]="competition.publicId">{{ competition.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="filter-stadium">Stadium</label>
+        <select id="filter-stadium" formControlName="stadiumPublicId">
+          <option value="">All stadiums</option>
+          @for (stadium of stadiums(); track stadium.publicId) {
+            <option [value]="stadium.publicId">{{ stadium.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="filter-from">From</label>
+        <input id="filter-from" type="date" formControlName="dateFrom" />
+      </div>
+      <div class="filter-field">
+        <label for="filter-to">To</label>
+        <input id="filter-to" type="date" formControlName="dateTo" />
+      </div>
+      <div class="filter-field">
+        <label for="filter-postponed">Postponed</label>
+        <select id="filter-postponed" formControlName="postponed">
+          <option value="">Any</option>
+          <option value="true">Postponed only</option>
+          <option value="false">Not postponed</option>
+        </select>
+      </div>
+      @if (filterForm.hasError('dateRange')) {
+        <p class="filter-error">"To" date must be on or after the "From" date.</p>
+      }
+    </app-filter-card>
+  </div>
+
+  <div class="list-toolbar">
+    <div class="quick-tabs-wrap">
+      <div class="quick-tabs" role="group" aria-label="Show matches">
+        @for (tab of tabs; track tab.label) {
+          <button type="button" class="quick-tab" [class.active]="phase() === tab.phase" [attr.aria-pressed]="phase() === tab.phase"
+            (click)="selectPhase(tab.phase)">{{ tab.label }}</button>
+        }
+      </div>
+      <span class="sort-note">{{ sortNote() }}</span>
+    </div>
     @if (canManage()) {
-      <a class="row-btn" routerLink="/manage-matches">Add match</a>
-    }
-    @if (canDelete()) {
-      <button type="button" class="row-btn" [disabled]="!canDownloadReport()"
-        title="Set the From and To dates to download the report" (click)="downloadReport()">Download PDF report</button>
+      <app-import-export-bar
+        fileBaseName="matches"
+        [exportFn]="exportFn"
+        [importFn]="importFn"
+        [canImport]="canDelete()"
+        [formats]="exportFormats"
+        importLabel="Import CSV"
+        importColumns="Date, Status, Stadium, HomeTeam, AwayTeam"
+        (imported)="retry()">
+      </app-import-export-bar>
     }
   </div>
 
-  <form class="filter-bar" [formGroup]="filterForm">
-    <div class="filter-field">
-      <label for="filter-status">Status</label>
-      <select id="filter-status" formControlName="statusPublicId">
-        <option value="">All statuses</option>
-        @for (status of statuses(); track status.publicId) {
-          <option [value]="status.publicId">{{ status.name }}</option>
-        }
-      </select>
-    </div>
-    <div class="filter-field">
-      <label for="filter-stadium">Stadium</label>
-      <select id="filter-stadium" formControlName="stadiumPublicId">
-        <option value="">All stadiums</option>
-        @for (stadium of stadiums(); track stadium.publicId) {
-          <option [value]="stadium.publicId">{{ stadium.name }}</option>
-        }
-      </select>
-    </div>
-    <div class="filter-field">
-      <label for="filter-competition">Competition</label>
-      <select id="filter-competition" formControlName="competitionPublicId">
-        <option value="">All competitions</option>
-        @for (competition of competitions(); track competition.publicId) {
-          <option [value]="competition.publicId">{{ competition.name }}</option>
-        }
-      </select>
-    </div>
-    <div class="filter-field">
-      <label for="filter-postponed">Postponed</label>
-      <select id="filter-postponed" formControlName="postponed">
-        <option value="">Any</option>
-        <option value="true">Postponed only</option>
-        <option value="false">Not postponed</option>
-      </select>
-    </div>
-    <div class="filter-field">
-      <label for="filter-from">From</label>
-      <input id="filter-from" type="date" formControlName="dateFrom" />
-    </div>
-    <div class="filter-field">
-      <label for="filter-to">To</label>
-      <input id="filter-to" type="date" formControlName="dateTo" />
-    </div>
-    <button type="button" class="filter-reset" (click)="resetFilters()">Reset</button>
-
-    @if (filterForm.hasError('dateRange')) {
-      <p class="filter-error">"To" date must be on or after the "From" date.</p>
-    }
-  </form>
-
-  @if (error) {
-    <app-error-banner [message]="error" (retry)="retry()" />
+  @if (state().loading) {
+    <app-skeleton [rows]="pageSize" />
+  } @else if (state().error) {
+    <app-error-banner [message]="state().error" (retry)="retry()" />
+  } @else if (!state().data.totalCount) {
+    <app-empty-state icon="ball" title="No matches found" message="Try another tab or change the filters." />
   } @else {
+    <div class="results">
+      <div class="table-scroll desktop-only">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col" [attr.aria-sort]="ariaSort(sort(), 'date')">
+                <button type="button" class="sort-btn" (click)="sortBy('date')">Date {{ sortIndicator(sort(), 'date') }}</button>
+              </th>
+              <th scope="col">Status</th>
+              <th scope="col" class="team-home" [attr.aria-sort]="ariaSort(sort(), 'home')">
+                <button type="button" class="sort-btn" (click)="sortBy('home')">Home {{ sortIndicator(sort(), 'home') }}</button>
+              </th>
+              <th scope="col" class="score-cell">Score</th>
+              <th scope="col" [attr.aria-sort]="ariaSort(sort(), 'away')">
+                <button type="button" class="sort-btn" (click)="sortBy('away')">Away {{ sortIndicator(sort(), 'away') }}</button>
+              </th>
+              <th scope="col">Round · Stadium</th>
+              @if (canManage()) {
+                <th scope="col" class="actions">Actions</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (match of state().data.items; track match.publicId) {
+              <tr class="row-link" tabindex="0" (click)="view(match)" (keydown.enter)="view(match)">
+                <td class="two-lines">
+                  <strong>{{ match.date | appDayLabel }}</strong>
+                  <span>{{ match.isPostponed ? '–' : (match.date | appTime) }}</span>
+                </td>
+                <td><app-status-badge [status]="match.statusName" [postponed]="match.isPostponed" /></td>
+                <td class="team-home">
+                  <span class="team" [class.winner]="winner(match) === 'home'">
+                    {{ match.homeSelectionName || 'TBD' }}
+                    <app-crest [name]="match.homeSelectionName" [abbreviation]="match.homeSelectionAbbreviation" />
+                  </span>
+                </td>
+                <td class="score-cell"><app-score-display size="inline" [home]="match.homeScore" [away]="match.awayScore" /></td>
+                <td>
+                  <span class="team" [class.winner]="winner(match) === 'away'">
+                    <app-crest [name]="match.awaySelectionName" [abbreviation]="match.awaySelectionAbbreviation" />
+                    {{ match.awaySelectionName || 'TBD' }}
+                  </span>
+                </td>
+                <td class="two-lines" [attr.title]="roundLabel(match)">
+                  <span>{{ match.roundName ?? '-' }}</span>
+                  <span>{{ match.stadiumName }}</span>
+                </td>
+                @if (canManage()) {
+                  <td class="actions" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+                    <ng-container [ngTemplateOutlet]="rowActions" [ngTemplateOutletContext]="{ $implicit: match }" />
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
 
-  <div class="table-scroll">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th scope="col">Date</th>
-          <th scope="col">Match</th>
-          <th scope="col" class="hide-sm">Stadium</th>
-          <th scope="col" class="hide-sm">Round</th>
-          @if (canManage()) {
-            <th scope="col" class="actions"><span class="visually-hidden">Actions</span></th>
-          }
-        </tr>
-      </thead>
-      <tbody>
-        @for (match of pagedResult()?.items ?? []; track match.publicId) {
-          <tr class="row-link" tabindex="0" (click)="view(match)" (keydown.enter)="view(match)">
-            <td>{{ match.date | appDateTime }}</td>
-            <td>
+      <ul class="match-rows mobile-only">
+        @for (match of state().data.items; track match.publicId) {
+          <li>
+            <a [routerLink]="['/matches', match.slug]">
               <app-match-row
-                variant="compact"
+                variant="mobile"
                 [status]="match.statusName"
                 [postponed]="match.isPostponed"
                 [homeName]="match.homeSelectionName"
@@ -94,30 +170,32 @@
                 [homeScore]="match.homeScore"
                 [awayScore]="match.awayScore"
               />
-            </td>
-            <td class="hide-sm">{{ match.stadiumName }}</td>
-            <td class="hide-sm">{{ roundLabel(match) ?? '-' }}</td>
+              <p class="row-meta">
+                {{ match.date | appDayLabel }}{{ match.isPostponed ? '' : ' ' + (match.date | appTime) }} · {{ match.stadiumName }}
+              </p>
+            </a>
             @if (canManage()) {
-              <td class="actions">
-                <button type="button" class="row-btn" (click)="$event.stopPropagation(); edit(match)">Edit</button>
-                @if (canDelete()) {
-                  <button type="button" class="row-btn row-btn-danger" (click)="$event.stopPropagation(); delete(match)">Delete</button>
-                }
-              </td>
+              <div class="row-actions">
+                <ng-container [ngTemplateOutlet]="rowActions" [ngTemplateOutletContext]="{ $implicit: match }" />
+              </div>
             }
-          </tr>
-        } @empty {
-          <tr><td class="table-empty" [attr.colspan]="canManage() ? 7 : 6">No matches match the filters.</td></tr>
+          </li>
         }
-      </tbody>
-    </table>
-  </div>
+      </ul>
 
-  <app-pagination
-    [totalItems]="pagedResult()?.totalCount ?? 0"
-    [pageSize]="pageSize"
-    [currentPage]="pagedResult()?.page ?? 1"
-    (pageChange)="onPageChange($event)">
-  </app-pagination>
+      <app-pagination
+        [totalItems]="state().data.totalCount"
+        [pageSize]="pageSize"
+        [currentPage]="state().data.page"
+        (pageChange)="onPageChange($event)">
+      </app-pagination>
+    </div>
   }
 </div>
+
+<ng-template #rowActions let-match>
+  <app-button variant="icon" [label]="'Edit ' + matchName(match)" (click)="edit(match)"><app-icon name="edit" /></app-button>
+  @if (canDelete()) {
+    <app-button variant="icon" [label]="'Delete ' + matchName(match)" (click)="delete(match)"><app-icon name="trash" /></app-button>
+  }
+</ng-template>

@@ -20,6 +20,10 @@ import { MatchDetailsDto, SaveMatchDto } from '../../core/models/match';
 import { PagedResult } from '../../core/models/paged-result';
 import { fetchAllPages, MAX_PAGE_SIZE } from '../../core/helpers/paging.helper';
 import { apiErrorMessage } from '../../core/utils/api-error';
+import { ToastService } from '../../core/services/toast.service';
+import { InputBox } from '../../shared/components/input-box/input-box';
+import { Button } from '../../shared/components/button/button';
+import { Skeleton } from '../../shared/components/skeleton/skeleton';
 import {
   futureDateValidator,
   scoresValidator,
@@ -28,23 +32,17 @@ import {
 } from './match-form.validators';
 
 type FieldName =
-  | 'date'
   | 'statusPublicId'
   | 'stadiumPublicId'
   | 'homeSelectionPublicId'
   | 'awaySelectionPublicId'
-  | 'roundPublicId'
-  | 'followersCount'
-  | 'homeScore'
-  | 'awayScore'
-  | 'halfHomeScore'
-  | 'halfAwayScore';
+  | 'roundPublicId';
 
 @Component({
   selector: 'app-manage-match',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, InputBox, Button, Skeleton],
   templateUrl: './manage-match.html',
-  styleUrls: ['../manage-players/manage-players.css', '../manage-formation/manage-formation.css'],
+  styleUrls: ['../staff-form.css', './manage-match.css'],
 })
 export class ManageMatch implements OnInit {
   private route = inject(ActivatedRoute);
@@ -58,6 +56,7 @@ export class ManageMatch implements OnInit {
   private competitions = inject(CompetitionService);
   private seasons = inject(SeasonService);
   private rounds = inject(RoundService);
+  private toast = inject(ToastService);
 
   form = this.fb.nonNullable.group(
     {
@@ -209,8 +208,6 @@ export class ManageMatch implements OnInit {
     if (!control.touched || control.valid) return null;
     if (control.hasError('required')) return 'This field is required.';
     if (control.hasError('server')) return control.getError('server');
-    if (control.hasError('min')) return 'Cannot be negative.';
-    if (control.hasError('pastDate')) return 'A new match must be scheduled in the future.';
     return 'Invalid value.';
   }
 
@@ -251,7 +248,10 @@ export class ManageMatch implements OnInit {
           return EMPTY;
         }),
       )
-      .subscribe((saved) => this.router.navigate(['/matches', saved.slug]));
+      .subscribe((saved) => {
+        this.toast.success('Match saved');
+        this.router.navigate(['/matches', saved.slug]);
+      });
   }
 
   /** Puts backend field errors next to their inputs; anything else goes to the form-level message. */

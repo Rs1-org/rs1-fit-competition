@@ -20,6 +20,12 @@ public class RoundRepository : Repository<Round>, IRound
                 .ThenInclude(s => s!.Competition)
             .FirstOrDefaultAsync(r => r.Slug == slug, cancellationToken);
 
+    public async Task<List<Round>> GetAllWithSeasonAsync(CancellationToken cancellationToken = default) =>
+        await _context.Rounds
+            .Include(r => r.Season)
+                .ThenInclude(s => s!.Competition)
+            .ToListAsync(cancellationToken);
+
     public async Task<PagedResult<Round>> GetPagedWithFiltersAsync(
         int page, int pageSize,
         Guid? seasonId, string? search,

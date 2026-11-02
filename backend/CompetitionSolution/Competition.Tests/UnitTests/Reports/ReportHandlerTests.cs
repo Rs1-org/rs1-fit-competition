@@ -131,7 +131,8 @@ public class ReportHandlerTests
         var row = new MatchEntity { Date = Instant.FromDateTimeUtc(From), Stadium = stadium, Status = new MatchStatus { Name = "Finished" } };
         _lookup.Setup(l => l.GetIdByPublicIdAsync<CompetitionEntity>("c1", token)).ReturnsAsync(competitionId);
         _matches.Setup(m => m.GetPagedWithFiltersAsync(
-                1, GetMatchesReportQueryHandler.MaxRows, null, null, null, true, From, To, null, competitionId, token))
+                1, GetMatchesReportQueryHandler.MaxRows,
+                new MatchListFilter(null, null, null, true, From, To, null, competitionId, null, null), token))
             .ReturnsAsync(new PagedResult<MatchEntity>([row], 1500, 1, GetMatchesReportQueryHandler.MaxRows));
         MatchesReportDto? rendered = null;
         _pdf.Setup(p => p.MatchesReport(It.IsAny<MatchesReportDto>()))

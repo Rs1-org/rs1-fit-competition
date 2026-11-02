@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PagedResult } from '../models/paged-result';
+import { ExportFormat, ImportResult } from '../models/import-export';
 import { MatchDetailsDto, MatchListDto, MatchListFilter, SaveMatchDto } from '../models/match';
 import { toFilterParams, toPagedParams } from '../helpers/paging.helper';
 
@@ -33,6 +34,18 @@ export class MatchService {
   /** PDF report of the matches in a date range, with the list filters (RS1 item 12). */
   downloadMatchesReport(filter: MatchListFilter): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/report`, { params: toFilterParams(filter), responseType: 'blob' });
+  }
+
+  /** Current filters + sort, without paging. */
+  export(filter: MatchListFilter, format: ExportFormat): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/export`, { params: toFilterParams({ ...filter, format }), responseType: 'blob' });
+  }
+
+  /** All-or-nothing import; the result lists row errors when nothing was saved. */
+  import(file: File): Observable<ImportResult> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<ImportResult>(`${this.apiUrl}/import`, form);
   }
 
   /** The backend generates the slug from the teams and date. */

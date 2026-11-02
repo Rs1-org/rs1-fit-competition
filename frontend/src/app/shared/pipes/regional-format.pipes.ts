@@ -39,6 +39,24 @@ export class AppDateTimePipe implements PipeTransform {
   }
 }
 
+/** "Today" for the current day, otherwise the regional date. */
+@Pipe({ name: 'appDayLabel' })
+export class AppDayLabelPipe implements PipeTransform {
+  transform(value: unknown): string {
+    const date = asDate(value);
+    if (!date) return '';
+    return date.toDateString() === new Date().toDateString() ? 'Today' : formatDate(date, activeDateFormat(), REGIONAL_LOCALE);
+  }
+}
+
+@Pipe({ name: 'appTime' })
+export class AppTimePipe implements PipeTransform {
+  transform(value: unknown): string {
+    const date = asDate(value);
+    return date ? formatDate(date, 'HH:mm', REGIONAL_LOCALE) : '';
+  }
+}
+
 @Pipe({ name: 'appNumber' })
 export class AppNumberPipe implements PipeTransform {
   transform(value: unknown, digits = '1.2-2'): string {

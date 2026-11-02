@@ -1,3 +1,4 @@
+using Competition.Application.Common.Models;
 using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.ImportExportDto;
 using Competition.Application.DTOs.ReportDto;
@@ -61,10 +62,7 @@ public class GetMatchesReportQueryHandler(IMatch matches, IPublicIdLookup lookup
         {
             var paged = await matches.GetPagedWithFiltersAsync(
                 1, MaxRows,
-                statusId, stadiumId, null,
-                request.IsPostponed,
-                dateFrom, dateTo,
-                null, competitionId,
+                new MatchListFilter(statusId, stadiumId, null, request.IsPostponed, dateFrom, dateTo, null, competitionId),
                 cancellationToken);
 
             report.TotalCount = paged.TotalCount;

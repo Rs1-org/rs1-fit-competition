@@ -41,10 +41,8 @@ public class GetAllMatchesQueryHandler : IRequestHandler<GetAllMatchesQuery, Pag
 
         var paged = await _match.GetPagedWithFiltersAsync(
             request.Page, request.PageSize,
-            statusId, stadiumId, roundId,
-            request.IsPostponed,
-            request.DateFrom, request.DateTo,
-            selectionId, competitionId,
+            new MatchListFilter(statusId, stadiumId, roundId, request.IsPostponed, request.DateFrom, request.DateTo,
+                selectionId, competitionId, request.Phase, new SortSpec(request.SortBy, request.SortDir)),
             cancellationToken);
 
         var items = _mapper.Map<IReadOnlyList<MatchListDto>>(paged.Items);

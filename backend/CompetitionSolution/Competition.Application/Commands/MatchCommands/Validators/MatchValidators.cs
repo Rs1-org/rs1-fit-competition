@@ -1,6 +1,8 @@
 using Competition.Application.Commands.MatchCommands.Create;
 using Competition.Application.Commands.MatchCommands.Delete;
+using Competition.Application.Commands.MatchCommands.Import;
 using Competition.Application.Commands.MatchCommands.Update;
+using Competition.Application.Common.ImportExport;
 using Competition.Application.Common.Validation;
 using FluentValidation;
 
@@ -104,6 +106,46 @@ public class UpdateMatchCommandValidator : AbstractValidator<UpdateMatchCommand>
         RuleFor(x => x)
             .Must(x => x.HomeSelectionPublicId != x.AwaySelectionPublicId || x.HomeSelectionPublicId is null)
             .WithMessage("Home and away selection must be different.");
+    }
+}
+
+public class ImportMatchesCommandValidator : AbstractValidator<ImportMatchesCommand>
+{
+    public ImportMatchesCommandValidator()
+    {
+        RuleFor(x => x.File).MustBeImportFile();
+    }
+}
+
+public class MatchImportRowValidator : AbstractValidator<MatchImportRow>
+{
+    public MatchImportRowValidator()
+    {
+        RuleFor(x => x.Status).NotEmpty();
+        RuleFor(x => x.Stadium).NotEmpty();
+        RuleFor(x => x.AwayTeam)
+            .NotEqual(x => x.HomeTeam, StringComparer.OrdinalIgnoreCase)
+            .When(x => x.HomeTeam.Length > 0)
+            .WithMessage("Home and away team must be different.");
+        RuleFor(x => x.FollowersCount).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.HomeScore).GreaterThanOrEqualTo(0).When(x => x.HomeScore.HasValue);
+        RuleFor(x => x.AwayScore).GreaterThanOrEqualTo(0).When(x => x.AwayScore.HasValue);
+        RuleFor(x => x.HalfHomeScore).GreaterThanOrEqualTo(0).When(x => x.HalfHomeScore.HasValue);
+        RuleFor(x => x.HalfAwayScore).GreaterThanOrEqualTo(0).When(x => x.HalfAwayScore.HasValue);
+        RuleFor(x => x.AwayScore)
+            .Must((row, away) => row.HomeScore.HasValue == away.HasValue)
+            .WithMessage("HomeScore and AwayScore must both be set or both be empty.");
+        RuleFor(x => x.HalfAwayScore)
+            .Must((row, away) => row.HalfHomeScore.HasValue == away.HasValue)
+            .WithMessage("HalfHomeScore and HalfAwayScore must both be set or both be empty.");
+        RuleFor(x => x.HalfHomeScore)
+            .LessThanOrEqualTo(x => x.HomeScore)
+            .When(x => x.HalfHomeScore.HasValue && x.HomeScore.HasValue)
+            .WithMessage("Half-time home score cannot exceed full-time home score.");
+        RuleFor(x => x.HalfAwayScore)
+            .LessThanOrEqualTo(x => x.AwayScore)
+            .When(x => x.HalfAwayScore.HasValue && x.AwayScore.HasValue)
+            .WithMessage("Half-time away score cannot exceed full-time away score.");
     }
 }
 
