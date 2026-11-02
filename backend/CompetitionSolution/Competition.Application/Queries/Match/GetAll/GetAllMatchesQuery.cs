@@ -16,4 +16,7 @@ public class GetAllMatchesQuery : IRequest<PagedResult<MatchListDto>>
     public DateTime? DateTo { get; init; }
     public string? SelectionPublicId { get; init; }
     public string? CompetitionPublicId { get; init; }
+    public string? Phase { get; init; }
+    public string? SortBy { get; init; }
+    public string? SortDir { get; init; }
 }

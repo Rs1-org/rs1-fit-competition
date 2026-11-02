@@ -2,6 +2,7 @@
   <app-status-badge [status]="status()" [postponed]="postponed()" [minute]="minute()" />
   <div class="side">
     @if (variant() !== 'mobile') { <span class="name" [class.winner]="homeWins()">{{ homeName() || 'TBD' }}</span> }
+    @if (variant() === 'mobile') { <span class="sr-only">{{ homeName() }}</span> }
     <app-crest [name]="homeName()" [abbreviation]="homeAbbreviation()" />
   </div>
   <app-score-display [home]="homeScore()" [away]="awayScore()" />

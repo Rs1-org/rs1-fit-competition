@@ -1,22 +1,16 @@
 <div class="io-bar">
   <div class="io-actions">
-    <button type="button" class="io-btn" (click)="export('csv')" [disabled]="busy() !== null">
-      <app-icon name="file"></app-icon>
-      {{ busy() === 'csv' ? 'Exporting…' : 'Export CSV' }}
-    </button>
-    <button type="button" class="io-btn" (click)="export('xlsx')" [disabled]="busy() !== null">
-      <app-icon name="file"></app-icon>
-      {{ busy() === 'xlsx' ? 'Exporting…' : 'Export Excel' }}
-    </button>
-    <button type="button" class="io-btn" (click)="export('json')" [disabled]="busy() !== null">
-      <app-icon name="file"></app-icon>
-      {{ busy() === 'json' ? 'Exporting…' : 'Export JSON' }}
-    </button>
+    @for (format of formats; track format) {
+      <button type="button" class="io-btn" (click)="export(format)" [disabled]="busy() !== null">
+        <app-icon name="file"></app-icon>
+        {{ busy() === format ? 'Exporting…' : 'Export ' + formatLabels[format] }}
+      </button>
+    }
 
     @if (canImport && importFn) {
       <button type="button" class="io-btn io-btn-import" (click)="chooseFile()" [disabled]="busy() !== null">
         <app-icon name="upload"></app-icon>
-        {{ busy() === 'import' ? 'Importing…' : 'Import' }}
+        {{ busy() === 'import' ? 'Importing…' : importLabel }}
       </button>
       <input #fileInput type="file" hidden
              accept=".csv,.xlsx,.json,text/csv,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

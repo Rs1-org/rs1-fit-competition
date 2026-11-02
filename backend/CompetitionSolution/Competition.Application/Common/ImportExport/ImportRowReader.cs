@@ -10,6 +10,8 @@ namespace Competition.Application.Common.ImportExport;
 /// </summary>
 public class ImportRowReader
 {
+    public const string DateTimeFormat = "yyyy-MM-dd HH:mm";
+
     private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
     private static readonly string[] TrueValues = ["true", "yes", "1", "da"];
     private static readonly string[] FalseValues = ["false", "no", "0", "ne", ""];
@@ -64,6 +66,19 @@ public class ImportRowReader
         AddError(column, text.Length == 0 ? $"'{column}' is required." : $"'{text}' is not a date (use yyyy-MM-dd).");
         return null;
     }
+
+    /// <summary>A date with time, read as UTC.</summary>
+    public DateTime? DateTimeUtc(string column)
+    {
+        var text = Text(column);
+        if (DateTime.TryParseExact(text, [DateTimeFormat, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-ddTHH:mm", "dd.MM.yyyy HH:mm"], Invariant, DateTimeStyles.None, out var value))
+            return DateTime.SpecifyKind(value, DateTimeKind.Utc);
+        AddError(column, text.Length == 0 ? $"'{column}' is required." : $"'{text}' is not a date and time (use {DateTimeFormat}).");
+        return null;
+    }
+
+    /// <summary>A whole number that may be left empty.</summary>
+    public int? OptionalInt(string column) => Text(column).Length == 0 ? null : Int(column);
 
     public void AddError(string column, string message) =>
         _errors.Add(new ImportErrorDto { Row = Row, Column = column, Message = message });

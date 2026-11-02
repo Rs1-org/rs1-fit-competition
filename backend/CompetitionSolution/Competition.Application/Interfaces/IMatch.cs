@@ -9,11 +9,7 @@ public interface IMatch : IRepository<Match>
     /// <summary>Includes soft-deleted matches: they still own their unique slug.</summary>
     Task<bool> SlugExistsAsync(string slug, CancellationToken cancellationToken = default);
     Task<Match?> GetByIdWithNavAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<PagedResult<Match>> GetPagedWithFiltersAsync(
-        int page, int pageSize,
-        Guid? statusId, Guid? stadiumId, Guid? roundId,
-        bool? isPostponed,
-        DateTime? dateFrom, DateTime? dateTo,
-        Guid? selectionId, Guid? competitionId,
-        CancellationToken cancellationToken = default);
+    Task<PagedResult<Match>> GetPagedWithFiltersAsync(int page, int pageSize, MatchListFilter filter, CancellationToken cancellationToken = default);
+    /// <summary>Filtered + sorted, unpaged (export), capped at <paramref name="maxRows"/>.</summary>
+    Task<List<Match>> GetFilteredListAsync(MatchListFilter filter, int maxRows, CancellationToken cancellationToken = default);
 }

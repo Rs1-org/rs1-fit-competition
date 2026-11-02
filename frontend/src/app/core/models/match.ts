@@ -1,3 +1,5 @@
+import { SortParams } from './import-export';
+
 export interface MatchListDto {
   publicId: string;
   slug: string;
@@ -49,8 +51,12 @@ export interface MatchDetailsDto {
   competitionName: string | null;
 }
 
+/** Quick tabs of the match list; a phase can cover several statuses. */
+export type MatchPhase = 'live' | 'results' | 'upcoming';
+
 /** Mirrors the backend GetAllMatchesQuery filters. */
-export interface MatchListFilter {
+export interface MatchListFilter extends SortParams {
+  phase?: MatchPhase;
   statusPublicId?: string;
   stadiumPublicId?: string;
   roundPublicId?: string;

@@ -6,6 +6,8 @@ namespace Competition.Application.Interfaces;
 public interface IRound : IRepository<Round>
 {
     Task<Round?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default);
+    /// <summary>All rounds with Season and Competition (a round name only means something inside its season).</summary>
+    Task<List<Round>> GetAllWithSeasonAsync(CancellationToken cancellationToken = default);
     Task<PagedResult<Round>> GetPagedWithFiltersAsync(
         int page, int pageSize,
         Guid? seasonId, string? search,

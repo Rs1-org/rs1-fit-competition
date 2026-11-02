@@ -23,9 +23,13 @@ export class ImportExportBar {
   /** Columns the import expects, shown as a hint next to the button. */
   @Input() importColumns = '';
   @Input() canImport = false;
+  @Input() formats: ExportFormat[] = ['csv', 'xlsx', 'json'];
+  @Input() importLabel = 'Import';
   @Output() imported = new EventEmitter<number>();
 
   @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
+
+  readonly formatLabels: Record<ExportFormat, string> = { csv: 'CSV', xlsx: 'Excel', json: 'JSON' };
 
   busy = signal<ExportFormat | 'import' | null>(null);
   result = signal<ImportResult | null>(null);

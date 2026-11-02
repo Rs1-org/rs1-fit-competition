@@ -19,6 +19,8 @@ export class InputBox implements AfterViewInit {
   accept = input<string>('');
   step = input<string>('');
   autofocus = input(false);
+  /** Page-specific text per error key, e.g. { pastDate: 'Pick a future date.' }. */
+  messages = input<Record<string, string>>({});
   fileChange = output<Event>();
   private field = viewChild<ElementRef<HTMLElement>>('field');
 
@@ -33,6 +35,9 @@ export class InputBox implements AfterViewInit {
   errorMessage(): string {
     const errors = this.control().errors;
     if (!errors) return '';
+    if (errors['server']) return errors['server'];
+    const custom = Object.keys(errors).find((key) => this.messages()[key]);
+    if (custom) return this.messages()[custom];
     if (errors['required']) return 'This field is required.';
     if (errors['min']) return `Must be at least ${errors['min'].min}.`;
     if (errors['max']) return `Must be at most ${errors['max'].max}.`;

@@ -1,0 +1,7 @@
+.staff-page fieldset { min-width: 0; margin: 0 0 12px; padding: 12px; border: 1px solid var(--bd); border-radius: var(--r-card); }
+.staff-page legend { padding: 0 6px; font-weight: 700; }
+.score-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+
+@media (max-width: 480px) {
+  .score-grid { grid-template-columns: 1fr; }
+}
