@@ -1,5 +1,5 @@
 ---
-title: CompetitionSolution - class diagram (up to Sprint 5)
+title: CompetitionSolution - class diagram (up to Sprint 6)
 config:
   layout: elk
   class:
@@ -31,6 +31,7 @@ classDiagram
         +string FirstName
         +string LastName
         +bool IsActive
+        +Instant? PremiumUntil
     }
     class ApplicationRole
     class RefreshToken {
@@ -142,6 +143,7 @@ classDiagram
     class MatchStatus {
         +string Name
         +string? Slug
+        +int SortOrder
     }
 
     %% ---------- Selection and people (Sprints 1-3) ----------
@@ -195,9 +197,9 @@ classDiagram
         +Guid ManagerId
         +Guid? SelectionId
     }
-    class MandatDate {
-        +LocalDate? StartMandatDate
-        +LocalDate? EndMandatDate
+    class MandateDate {
+        +LocalDate? StartDate
+        +LocalDate? EndDate
         +Guid? PlayerSelectionHistoryId
         +Guid? SelectionManagerHistoryId
     }
@@ -261,6 +263,46 @@ classDiagram
         +Guid UserId
         +int Value
     }
+    %% ---------- Fan features and premium (Sprint 6) ----------
+    class Poll {
+        +Guid MatchId
+        +string Question
+        +Instant OpensAt
+        +Instant ClosesAt
+    }
+    class PollOption {
+        +Guid PollId
+        +string Label
+        +int SortOrder
+    }
+    class PollVote {
+        +Guid PollId
+        +Guid OptionId
+        +Guid UserId
+    }
+    class UserPreference {
+        +Guid UserId
+        +string Theme
+        +string Language
+        +string DateFormat
+    }
+    class PaymentTransaction {
+        +Guid UserId
+        +long AmountCents
+        +string Currency
+        +int Months
+        +string StripeSessionId
+        +string? StripePaymentIntentId
+        +PaymentStatus Status
+        +Instant? PaidAt
+    }
+    class PaymentStatus {
+        <<enumeration>>
+        Pending
+        Paid
+        Expired
+    }
+
     class TeamStatistic {
         +Guid StatisticId
         +Guid SelectionId
@@ -296,7 +338,11 @@ classDiagram
     BaseEntity <|-- TransferValueHistory
     BaseEntity <|-- PlayerSelectionHistory
     BaseEntity <|-- SelectionManagerHistory
-    BaseEntity <|-- MandatDate
+    BaseEntity <|-- MandateDate
+    BaseEntity <|-- Poll
+    BaseEntity <|-- PollOption
+    BaseEntity <|-- PollVote
+    BaseEntity <|-- PaymentTransaction
     BaseEntity <|-- Formation
     BaseEntity <|-- FormationMark
     BaseEntity <|-- Position
@@ -350,8 +396,17 @@ classDiagram
     PlayerSelectionHistory "0..*" <--> "0..1" Selection : Selection / PlayerHistories
     SelectionManagerHistory "0..*" --> "1" Manager : Manager
     SelectionManagerHistory "0..*" <--> "0..1" Selection : Selection / ManagerHistories
-    MandatDate "0..*" --> "0..1" PlayerSelectionHistory : PlayerSelectionHistory
-    MandatDate "0..*" --> "0..1" SelectionManagerHistory : SelectionManagerHistory
+    MandateDate "0..*" --> "0..1" PlayerSelectionHistory : PlayerSelectionHistory
+    MandateDate "0..*" --> "0..1" SelectionManagerHistory : SelectionManagerHistory
+
+    Poll "0..*" --> "1" Match : Match
+    Poll "1" <--> "0..*" PollOption : Options / Poll
+    Poll "1" <--> "0..*" PollVote : Votes / Poll
+    PollOption "1" <--> "0..*" PollVote : Votes / Option
+    PollVote "0..*" --> "1" ApplicationUser : User
+    UserPreference "0..1" --> "1" ApplicationUser : User (UserId is the key)
+    PaymentTransaction "0..*" --> "1" ApplicationUser : User
+    PaymentTransaction --> PaymentStatus : status
 
     Competition "0..*" --> "0..1" Country : Country
     Competition "1" <--> "0..*" Season : Seasons / Competition
@@ -368,21 +423,21 @@ classDiagram
     Selection "0..*" --> "0..1" Stadium : HomeStadium
 
     %% ---------- Legend (colour swatches) ----------
-    class LegendEarlier["Legend: Sprints 1-4"] {
+    class LegendEarlier["Legend: Sprints 1-5"] {
         <<legend>>
     }
-    class LegendSprint5["Legend: new in Sprint 5"] {
+    class LegendSprint6["Legend: new in Sprint 6"] {
         <<legend>>
     }
     class LegendIdentity["Legend: ASP.NET Identity"] {
         <<legend>>
     }
-    LegendEarlier .. LegendSprint5
-    LegendSprint5 .. LegendIdentity
+    LegendEarlier .. LegendSprint6
+    LegendSprint6 .. LegendIdentity
 
     %% ---------- Notes ----------
     note for BaseEntity "All domain classes inherit BaseEntity, including PublicId (the external id) and soft delete via DeletedAt. ApplicationUser has its own PublicId. ApplicationRole and RefreshToken do not inherit BaseEntity."
-    note for LegendSprint5 "Sprint 5 added MatchLineup, Match.RefereeId and the home and away formation ids. User management uses ApplicationUser.PublicId, RegisteredAt and IsActive."
+    note for LegendSprint6 "Sprint 6 added match reviews and reactions, live polls with options and votes, user preferences (settings, keyed by UserId) and Stripe payments with ApplicationUser.PremiumUntil. Favorites and notifications (COMP-53) are not in the domain yet."
 
     %% ---------- Colours ----------
 
@@ -398,7 +453,7 @@ classDiagram
     style ClubAge fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Match fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style MatchStatus fill:#eceff1,stroke:#546e7a,color:#1f2a30
-    style MatchLineup fill:#fff3e0,stroke:#e65100,stroke-width:3px,color:#4e2600
+    style MatchLineup fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Event fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style EventType fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style MatchPart fill:#eceff1,stroke:#546e7a,color:#1f2a30
@@ -410,7 +465,7 @@ classDiagram
     style TransferValueHistory fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style PlayerSelectionHistory fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style SelectionManagerHistory fill:#eceff1,stroke:#546e7a,color:#1f2a30
-    style MandatDate fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style MandateDate fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Formation fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style FormationMark fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Position fill:#eceff1,stroke:#546e7a,color:#1f2a30
@@ -419,9 +474,15 @@ classDiagram
     style Season fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Round fill:#eceff1,stroke:#546e7a,color:#1f2a30
     style Statistic fill:#eceff1,stroke:#546e7a,color:#1f2a30
-    style MatchReview fill:#eceff1,stroke:#546e7a,color:#1f2a30
-    style ReviewReaction fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style MatchReview fill:#e0f2f1,stroke:#00796b,stroke-width:3px,color:#003d33
+    style ReviewReaction fill:#e0f2f1,stroke:#00796b,stroke-width:3px,color:#003d33
     style TeamStatistic fill:#eceff1,stroke:#546e7a,color:#1f2a30
+    style Poll fill:#e0f2f1,stroke:#00796b,stroke-width:3px,color:#003d33
+    style PollOption fill:#e0f2f1,stroke:#00796b,stroke-width:3px,color:#003d33
+    style PollVote fill:#e0f2f1,stroke:#00796b,stroke-width:3px,color:#003d33
+    style UserPreference fill:#e0f2f1,stroke:#00796b,stroke-width:3px,color:#003d33
+    style PaymentTransaction fill:#e0f2f1,stroke:#00796b,stroke-width:3px,color:#003d33
+    style PaymentStatus fill:#e0f2f1,stroke:#00796b,stroke-width:3px,color:#003d33
     style LegendEarlier fill:#eceff1,stroke:#546e7a,color:#1f2a30
-    style LegendSprint5 fill:#fff3e0,stroke:#e65100,stroke-width:3px,color:#4e2600
+    style LegendSprint6 fill:#e0f2f1,stroke:#00796b,stroke-width:3px,color:#003d33
     style LegendIdentity fill:#ECECFF,stroke:#9370DB,color:#333
