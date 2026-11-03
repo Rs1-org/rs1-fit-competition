@@ -579,3 +579,114 @@ th[aria-sort='descending'] .sort-btn {
   color: var(--dg);
   font-size: 0.85rem;
 }
+
+/* Shared list page: header, toolbar and results card (Matches, Stadiums, Cities, Countries) */
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.page-head h1 { margin: 0; }
+.page-subtitle { margin: 4px 0 0; color: var(--mut); }
+.page-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.list-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 16px 0;
+}
+.sort-note { color: var(--mut); font-size: 13px; }
+
+.results { border: 1px solid var(--bd); border-radius: var(--r-card); background: var(--card); overflow: hidden; }
+.results .table-scroll { border: 0; border-radius: 0; margin: 0; }
+.results app-pagination { display: block; padding: 8px 16px; border-top: 1px solid var(--bd); }
+
+.two-lines span, .two-lines strong { display: block; }
+.two-lines span { color: var(--mut); font-size: 13px; }
+td.actions { white-space: nowrap; }
+td.actions app-button { display: inline-block; }
+.row-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+.badge-capital {
+  font-family: var(--font-title);
+  background-color: var(--ambs);
+  color: var(--amb);
+  padding: 2px 8px;
+  border-radius: var(--r-card);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+/* Missing picture: a labelled box in place of the image */
+.picture-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--field);
+  border: 1px dashed var(--bd);
+  border-radius: var(--r-ctl);
+  color: var(--mut);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.table-thumb.picture-placeholder { width: 48px; height: 32px; }
+
+@media (max-width: 768px) {
+  .desktop-only { display: none; }
+  .sort-note { display: none; }
+}
+
+/* Leaflet controls, popups and tooltips in the app colours, for both themes */
+.leaflet-container { font-family: var(--font-body); background: var(--field); }
+.leaflet-container .leaflet-bar { border: 1px solid var(--bd); border-radius: var(--r-ctl); box-shadow: var(--shadow); }
+.leaflet-container .leaflet-bar a,
+.leaflet-container .leaflet-bar a:hover {
+  background: var(--card);
+  color: var(--tx);
+  border-bottom-color: var(--bd);
+}
+.leaflet-container .leaflet-bar a:hover { color: var(--actx); }
+.leaflet-container .leaflet-bar a.leaflet-disabled { background: var(--field); color: var(--mut); }
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip { background: var(--card); color: var(--tx); box-shadow: var(--shadow); }
+.leaflet-container a.leaflet-popup-close-button { color: var(--mut); }
+.leaflet-tooltip {
+  background: var(--card);
+  color: var(--tx);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-ctl);
+  box-shadow: var(--shadow);
+  font-weight: 700;
+}
+.leaflet-tooltip-top::before { border-top-color: var(--card); }
+.leaflet-tooltip-bottom::before { border-bottom-color: var(--card); }
+.leaflet-tooltip-left::before { border-left-color: var(--card); }
+.leaflet-tooltip-right::before { border-right-color: var(--card); }
+.leaflet-container .leaflet-control-attribution { background: var(--card); color: var(--mut); opacity: 0.9; }
+.leaflet-container .leaflet-control-attribution a { color: var(--actx); }
+/* OpenStreetMap has no dark tiles, so the light ones are inverted and toned down */
+[data-theme="dark"] .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9); }
+
+/* Map pin (shared/components/map) with a short drop when it is placed */
+.map-pin { background: none; border: 0; }
+.map-pin svg { display: block; overflow: visible; transform-origin: 50% 100%; animation: pin-drop 0.45s cubic-bezier(0.3, 1.4, 0.6, 1) both; }
+.map-pin path { fill: var(--btn); stroke: var(--card); stroke-width: 1.5; }
+.map-pin circle { fill: var(--card); }
+@keyframes pin-drop {
+  from { transform: translateY(-24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-pin svg { animation: none; }
+}

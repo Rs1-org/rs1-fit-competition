@@ -1,29 +1,29 @@
-@if(modalState.isOpen()){
-<app-modal [title]="editingSlug ? 'Edit Stadium' : 'Add Stadium'" (close)="closeModal()" width="800px">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" id="stadium-form">
+@if (modalState.isOpen()) {
+<app-modal [title]="editingSlug ? 'Edit stadium' : 'Add stadium'" (close)="closeModal()" width="800px">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" id="stadium-form" novalidate>
         <app-input-box
             label="Name"
-            placeholder="Stadium Name..."
+            placeholder="e.g. Grbavica"
             [control]="form.controls.name"
         ></app-input-box>
 
         <app-input-box
             label="Capacity"
             type="number"
-            placeholder="Capacity..."
+            placeholder="e.g. 13000"
             [control]="form.controls.capacity"
         ></app-input-box>
 
         <app-input-box
-            label="Date of Construction"
-            type="date" lang="bs-Latn"
+            label="Date of construction"
+            type="date"
             [control]="form.controls.dateOfConstruction"
         ></app-input-box>
 
         <app-dropdown
             label="City"
             placeholder="Select a city"
-            [options]="cities"
+            [options]="cities()"
             optionValue="publicId"
             [control]="form.controls.cityPublicId">
         </app-dropdown>
@@ -34,35 +34,62 @@
             accept="image/*"
             (fileChange)="onFileChange($event)"
         ></app-input-box>
-        <app-upload-progress [percent]="uploadProgress"></app-upload-progress>
+        <app-upload-progress [percent]="uploadProgress()"></app-upload-progress>
 
-        <app-map
-            style="grid-column: span 2"
-            [lat]="form.controls.latitude.value"
-            [lng]="form.controls.longitude.value"
-            [markerLat]="editingSlug ? form.controls.latitude.value : null"
-            [markerLng]="editingSlug ? form.controls.longitude.value : null"
-            (locationSelected)="onLocationSelected($event)">
-        </app-map>
+        <div class="map-field">
+            <p class="map-hint">Click the map to place the stadium, or type the coordinates below.</p>
+            <app-map
+                [lat]="form.controls.latitude.value"
+                [lng]="form.controls.longitude.value"
+                [zoom]="editingSlug ? 14 : 6"
+                [markerLat]="pinLat()"
+                [markerLng]="pinLng()"
+                (locationSelected)="onLocationSelected($event)">
+            </app-map>
+        </div>
 
         <app-input-box
-            label="Location Description"
-            type="textarea"
-            placeholder="Description of the location..."
-            [control]="form.controls.geoDescription"
+            label="Latitude"
+            type="number"
+            step="0.000001"
+            [control]="form.controls.latitude"
+            [messages]="{ min: 'Latitude goes from -90 to 90.', max: 'Latitude goes from -90 to 90.' }"
         ></app-input-box>
+
+        <app-input-box
+            label="Longitude"
+            type="number"
+            step="0.000001"
+            [control]="form.controls.longitude"
+            [messages]="{ min: 'Longitude goes from -180 to 180.', max: 'Longitude goes from -180 to 180.' }"
+        ></app-input-box>
+
+        <div class="full-width">
+            <app-input-box
+                label="Location description"
+                type="textarea"
+                placeholder="Address, entrances, how to get there..."
+                [control]="form.controls.geoDescription"
+            ></app-input-box>
+        </div>
+
+        @if (formError()) {
+            <p class="form-error full-width" role="alert">{{ formError() }}</p>
+        }
     </form>
 
     <footer>
+        <app-button variant="secondary" text="Cancel" (click)="closeModal()"></app-button>
         <app-button
             type="submit"
             form="stadium-form"
-            [text]="editingSlug ? 'Update' : 'Submit'"
+            [text]="editingSlug ? 'Save changes' : 'Add stadium'"
+            [loading]="saving()"
         ></app-button>
     </footer>
 </app-modal>
 }
 
 @if (showTrigger) {
-  <button class="btn" (click)="openModal()">Add Stadium</button>
+    <app-button text="Add stadium" (click)="openModal()"><app-icon name="plus" /></app-button>
 }

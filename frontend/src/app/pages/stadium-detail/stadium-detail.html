@@ -1,108 +1,103 @@
 <div class="container">
-  <button class="btn-back" (click)="goBack()">&#8592; Back to Stadiums</button>
+  <app-breadcrumb [items]="crumbs()" />
 
-  @if (stadium() === undefined) {
-    <div class="loading">Loading stadium...</div>
-  }
-
-  @if (stadium() === null) {
-    <div class="not-found">Stadium not found.</div>
-  }
-
-  @if (stadium(); as data) {
-    <div class="detail-card">
-
-      <div class="detail-hero">
-        @if (data.pictureUrl) {
-          <img [src]="data.pictureUrl" [alt]="data.name" class="hero-img" />
-        } @else {
-          <div class="hero-placeholder">No Image</div>
-        }
-        <div class="hero-overlay">
-          <h1 class="hero-title">{{ data.name }}</h1>
-          <p class="hero-sub">{{ data.cityName }}</p>
-        </div>
-      </div>
-
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">City</span>
-          <span class="info-value">{{ data.cityName }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Capacity</span>
-          <span class="info-value">{{ data.capacity | appNumber:'1.0-0' }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Opened</span>
-          <span class="info-value">{{ data.dateOfConstruction | appDate }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Coordinates</span>
-          <span class="info-value">{{ data.latitude }}, {{ data.longitude }}</span>
-        </div>
-      </div>
-
-      @if (data.geoDescription) {
-        <div class="description">
-          <h3 class="section-title">Location</h3>
-          <p>{{ data.geoDescription }}</p>
-        </div>
+  @if (state().loading) {
+    <div class="hero-skeleton" aria-hidden="true"></div>
+    <app-skeleton [rows]="4" />
+  } @else if (state().notFound) {
+    <app-empty-state icon="ball" title="Stadium not found" message="It may have been removed or renamed." />
+    <p class="back-link"><a routerLink="/stadium-list">Back to stadiums</a></p>
+  } @else if (state().error) {
+    <app-error-banner [message]="state().error" (retry)="retry()" />
+  } @else if (stadium(); as data) {
+    <header class="hero" [class.has-photo]="!!data.pictureUrl">
+      @if (data.pictureUrl) {
+        <img [src]="data.pictureUrl" [alt]="'Photo of ' + data.name" class="hero-img" />
+      } @else {
+        <div class="hero-placeholder"><span>No stadium photo yet</span></div>
       }
+      <div class="hero-bar">
+        <div>
+          <p class="hero-eyebrow">{{ data.cityName }}</p>
+          <h1 class="hero-title">{{ data.name }}</h1>
+        </div>
+        @if (canManage()) {
+          <div class="hero-actions">
+            <app-button variant="secondary" text="Edit stadium" (click)="edit()"><app-icon name="edit" /></app-button>
+            <app-button class="btn-schedule" text="Schedule match here" (click)="scheduleMatch(data.publicId)"><app-icon name="plus" /></app-button>
+          </div>
+        }
+      </div>
+    </header>
 
-      <div class="map-section">
-        <h3 class="section-title">Map</h3>
+    <section class="tiles" aria-label="Stadium facts">
+      <app-stat-tile label="Capacity" [value]="data.capacity | appNumber:'1.0-0'" />
+      <app-stat-tile label="Built" [value]="builtYear() ?? '—'" />
+      <app-stat-tile label="City" [value]="data.cityName" />
+      <app-stat-tile label="Matches played here" [value]="playedCount() === null ? '—' : (playedCount() | appNumber:'1.0-0')" />
+    </section>
+
+    <div class="layout">
+      <section class="card location">
+        <div class="card-head">
+          <h2>Location</h2>
+          <a [href]="mapsUrl()" target="_blank" rel="noopener">Open in maps</a>
+        </div>
         @if (distanceToCityKm() !== null) {
           <p class="distance">
-            <span class="legend-line"></span>
+            <span class="legend-line" aria-hidden="true"></span>
             Distance to {{ data.cityName }} centre: <strong>{{ distanceToCityKm() | appNumber:'1.1-1' }} km</strong>
           </p>
         }
         <app-map
           [lat]="data.latitude"
           [lng]="data.longitude"
-          [zoom]="14"
+          [zoom]="15"
           [markerLat]="data.latitude"
           [markerLng]="data.longitude"
+          [markerLabel]="data.name"
           [secondMarkerLat]="data.cityLatitude"
           [secondMarkerLng]="data.cityLongitude"
           [secondMarkerLabel]="data.cityName + ' centre'"
           [readonly]="true">
         </app-map>
-      </div>
+      </section>
 
-      <div class="matches-section">
-        <div class="section-header">
-          <h3 class="section-title">Matches at this stadium</h3>
-          @if (canManage()) {
-            <button type="button" class="btn-schedule" (click)="scheduleMatch(data.publicId)">Schedule match here</button>
-          }
-        </div>
+      <aside class="side">
+        <section class="card">
+          <h2>Getting there</h2>
+          <p class="geo">{{ data.geoDescription || 'No directions added yet.' }}</p>
+          <p class="coords">{{ coordinates() }}</p>
+        </section>
 
-        @if (matches() === undefined) {
-          <p class="matches-empty" role="status">Loading matches...</p>
-        } @else if (matches() === null) {
-          <app-error-banner message="Matches could not be loaded." (retry)="retryMatches()" />
-        } @else {
-          <ul class="match-rows">
-            @for (match of matches()!.items; track match.publicId) {
-              <li>
-                <a class="match-row" [routerLink]="['/matches', match.slug]">
-                  <span class="match-date">{{ match.date | appDateTime }}</span>
-                  <span class="match-teams">{{ match.homeSelectionName ?? 'TBD' }} vs {{ match.awaySelectionName ?? 'TBD' }}</span>
-                  <span class="match-meta">{{ match.statusName }}@if (roundLabel(match); as label) { · {{ label }}}</span>
-                </a>
-              </li>
-            } @empty {
-              <li class="matches-empty">No matches scheduled here yet.</li>
+        <section class="card matches">
+          <h2>Matches here</h2>
+          @if (matches().loading) {
+            <app-skeleton [rows]="3" />
+          } @else if (matches().error) {
+            <app-error-banner [message]="matches().error" (retry)="retryMatches()" />
+          } @else {
+            <ul class="match-rows">
+              @for (match of matches().data!.items; track match.publicId) {
+                <li>
+                  <a class="match-row" [routerLink]="['/matches', match.slug]">
+                    <span class="match-date" [class.live]="isLive(match)">{{ match.date | appDayLabel }}</span>
+                    <span class="match-teams">{{ match.homeSelectionName ?? 'TBD' }} – {{ match.awaySelectionName ?? 'TBD' }}</span>
+                    <span class="match-score" [class.live]="isLive(match)">{{ score(match) }}</span>
+                  </a>
+                </li>
+              } @empty {
+                <li class="matches-empty">No matches scheduled here yet.</li>
+              }
+            </ul>
+            @if (matches().data!.totalCount > matches().data!.items.length) {
+              <p class="matches-more"><a routerLink="/matches">Browse all matches</a></p>
             }
-          </ul>
-          @if (matches()!.totalCount > matches()!.items.length) {
-            <p class="matches-more">Showing {{ matches()!.items.length }} of {{ matches()!.totalCount }}. <a routerLink="/matches">See all matches</a></p>
           }
-        }
-      </div>
-
+        </section>
+      </aside>
     </div>
   }
+
+  <app-stadium-form [showTrigger]="false" (saved)="onSaved($event)" />
 </div>

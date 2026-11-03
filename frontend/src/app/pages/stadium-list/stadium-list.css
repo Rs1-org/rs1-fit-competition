@@ -1,6 +1,3 @@
-.header-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
+/* Page head, filter card, toolbar and results card come from styles.css. */
+.name-cell { display: inline-flex; align-items: center; gap: 10px; }
+.stadium-name { font-weight: 700; }

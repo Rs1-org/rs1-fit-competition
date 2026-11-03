@@ -1,125 +1,142 @@
 <div class="container">
-    <div class="header-actions">
-        <h1>Cities</h1>
-        @if (canManage()) {
-            <button class="btn-add" (click)="onAdd()">+ Add City</button>
-        }
+  <header class="page-head">
+    <div>
+      <h1>Cities</h1>
+      <p class="page-subtitle">Cities that host clubs and stadiums</p>
     </div>
+    @if (canManage()) {
+      <div class="page-actions">
+        <app-button text="Add city" (click)="onAdd()"><app-icon name="plus" /></app-button>
+      </div>
+    }
+  </header>
 
-    <form class="filter-bar" [formGroup]="filterForm">
-        <div class="filter-field">
-            <label for="filter-name">Name</label>
-            <input id="filter-name" type="text" formControlName="name" placeholder="e.g. Sarajevo">
-        </div>
-        <div class="filter-field">
-            <label for="filter-country">Country</label>
-            <select id="filter-country" formControlName="countryPublicId">
-                <option value="">All countries</option>
-                @for (country of countries(); track country.publicId) {
-                    <option [value]="country.publicId">{{ country.name }}</option>
-                }
-            </select>
-        </div>
-        <div class="filter-field">
-            <label for="filter-capital">Capital</label>
-            <select id="filter-capital" formControlName="isCapital">
-                <option value="">Any</option>
-                <option value="true">Capital only</option>
-                <option value="false">Not capital</option>
-            </select>
-        </div>
-        <div class="filter-field">
-            <label for="filter-min">Min population</label>
-            <input id="filter-min" type="number" min="0" formControlName="minPopulation">
-        </div>
-        <div class="filter-field">
-            <label for="filter-max">Max population</label>
-            <input id="filter-max" type="number" min="0" formControlName="maxPopulation">
-        </div>
-        <button type="button" class="filter-reset" (click)="resetFilters()">Reset</button>
+  <div [formGroup]="filterForm">
+    <app-filter-card [chips]="chips()" (chipRemove)="clearChip($event)" (resetFilters)="resetFilters()" (applyFilters)="apply()">
+      <div class="filter-field">
+        <label for="filter-name">Name</label>
+        <input id="filter-name" type="text" formControlName="name" placeholder="e.g. Sarajevo">
+      </div>
+      <div class="filter-field">
+        <label for="filter-country">Country</label>
+        <select id="filter-country" formControlName="countryPublicId">
+          <option value="">All countries</option>
+          @for (country of countries(); track country.publicId) {
+            <option [value]="country.publicId">{{ country.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="filter-capital">Capital</label>
+        <select id="filter-capital" formControlName="isCapital">
+          <option value="">Any</option>
+          <option value="true">Capital only</option>
+          <option value="false">Not capital</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="filter-min">Min population</label>
+        <input id="filter-min" type="number" min="0" formControlName="minPopulation">
+      </div>
+      <div class="filter-field">
+        <label for="filter-max">Max population</label>
+        <input id="filter-max" type="number" min="0" formControlName="maxPopulation">
+      </div>
 
-        @if (filterForm.hasError('populationRange')) {
-            <p class="filter-error">Max population must be greater than or equal to min population.</p>
-        }
-        @if (filterForm.controls.minPopulation.hasError('min') || filterForm.controls.maxPopulation.hasError('min')) {
-            <p class="filter-error">Population cannot be negative.</p>
-        }
-        @if (filterForm.controls.name.hasError('maxlength')) {
-            <p class="filter-error">Name can have at most 100 characters.</p>
-        }
-    </form>
+      @if (filterForm.hasError('populationRange')) {
+        <p class="filter-error">Max population must be greater than or equal to min population.</p>
+      }
+      @if (filterForm.controls.minPopulation.hasError('min') || filterForm.controls.maxPopulation.hasError('min')) {
+        <p class="filter-error">Population cannot be negative.</p>
+      }
+      @if (filterForm.controls.name.hasError('maxlength')) {
+        <p class="filter-error">Name can have at most 100 characters.</p>
+      }
+    </app-filter-card>
+  </div>
 
+  <div class="list-toolbar">
+    <span class="sort-note">{{ sortNote() }}</span>
     <app-import-export-bar
-        fileBaseName="cities"
-        [exportFn]="exportFn"
-        [importFn]="importFn"
-        [canImport]="canDelete()"
-        importColumns="Name, Country, Population, IsCapital, Latitude, Longitude, Description"
-        (imported)="onImported()">
+      fileBaseName="cities"
+      [exportFn]="exportFn"
+      [importFn]="importFn"
+      [canImport]="canDelete()"
+      importColumns="Name, Country, Population, IsCapital, Latitude, Longitude, Description"
+      (imported)="retry()">
     </app-import-export-bar>
+  </div>
 
-    <div class="table-scroll">
+  @if (state().loading) {
+    <app-skeleton [rows]="pageSize" />
+  } @else if (state().error) {
+    <app-error-banner [message]="state().error" (retry)="retry()" />
+  } @else if (!state().data.totalCount) {
+    <app-empty-state title="No cities found" message="Change or reset the filters to see more cities." />
+  } @else {
+    <div class="results">
+      <div class="table-scroll">
         <table class="data-table">
-            <thead>
-                <tr>
-                    <th scope="col" [attr.aria-sort]="ariaSort(sort, 'name')">
-                        <button type="button" class="sort-btn" (click)="sortBy('name')">
-                            Name <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort, 'name') }}</span>
-                        </button>
-                    </th>
-                    <th scope="col" [attr.aria-sort]="ariaSort(sort, 'country')">
-                        <button type="button" class="sort-btn" (click)="sortBy('country')">
-                            Country <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort, 'country') }}</span>
-                        </button>
-                    </th>
-                    <th scope="col" class="num" [attr.aria-sort]="ariaSort(sort, 'population')">
-                        <button type="button" class="sort-btn" (click)="sortBy('population')">
-                            Population <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort, 'population') }}</span>
-                        </button>
-                    </th>
-                    @if (canManage()) {
-                        <th scope="col" class="actions"><span class="visually-hidden">Actions</span></th>
+          <thead>
+            <tr>
+              <th scope="col" [attr.aria-sort]="ariaSort(sort(), 'name')">
+                <button type="button" class="sort-btn" (click)="sortBy('name')">
+                  Name <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort(), 'name') }}</span>
+                </button>
+              </th>
+              <th scope="col" [attr.aria-sort]="ariaSort(sort(), 'country')">
+                <button type="button" class="sort-btn" (click)="sortBy('country')">
+                  Country <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort(), 'country') }}</span>
+                </button>
+              </th>
+              <th scope="col" class="num" [attr.aria-sort]="ariaSort(sort(), 'population')">
+                <button type="button" class="sort-btn" (click)="sortBy('population')">
+                  Population <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort(), 'population') }}</span>
+                </button>
+              </th>
+              @if (canManage()) {
+                <th scope="col" class="actions">Actions</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (city of state().data.items; track city.publicId) {
+              <tr>
+                <td>
+                  <strong>{{ city.name }}</strong>
+                  @if (city.isCapital) {
+                    <span class="badge-capital">Capital</span>
+                  }
+                </td>
+                <td>{{ city.countryName }}</td>
+                <td class="num">{{ city.population | appNumber:'1.0-0' }}</td>
+                @if (canManage()) {
+                  <td class="actions">
+                    <app-button variant="icon" [label]="'Edit ' + city.name" (click)="onEdit(city)"><app-icon name="edit" /></app-button>
+                    @if (canDelete()) {
+                      <app-button variant="icon" [label]="'Delete ' + city.name" (click)="onDelete(city)"><app-icon name="trash" /></app-button>
                     }
-                </tr>
-            </thead>
-            <tbody>
-                @for (city of citiesResult()?.items ?? []; track city.publicId) {
-                    <tr>
-                        <td>
-                            {{ city.name }}
-                            @if (city.isCapital) {
-                                <span class="badge-capital">Capital</span>
-                            }
-                        </td>
-                        <td>{{ city.countryName }}</td>
-                        <td class="num">{{ city.population | appNumber:'1.0-0' }}</td>
-                        @if (canManage()) {
-                            <td class="actions">
-                                <button type="button" class="row-btn" (click)="onEdit(city)">Edit</button>
-                                @if (canDelete()) {
-                                    <button type="button" class="row-btn row-btn-danger" (click)="onDelete(city)">Delete</button>
-                                }
-                            </td>
-                        }
-                    </tr>
-                } @empty {
-                    <tr><td class="table-empty" [attr.colspan]="canManage() ? 4 : 3">No cities match the filters.</td></tr>
+                  </td>
                 }
-            </tbody>
+              </tr>
+            }
+          </tbody>
         </table>
-    </div>
+      </div>
 
-    <app-pagination
-        [totalItems]="citiesResult()?.totalCount ?? 0"
+      <app-pagination
+        [totalItems]="state().data.totalCount"
         [pageSize]="pageSize"
-        [currentPage]="citiesResult()?.page ?? 1"
+        [currentPage]="state().data.page"
         (pageChange)="onPageChange($event)">
-    </app-pagination>
+      </app-pagination>
+    </div>
+  }
 </div>
 
 <app-city-form
-    [isOpen]="isFormOpen"
-    [editCity]="selectedCity"
-    (saved)="onFormSaved()"
-    (closed)="onFormClosed()">
+  [isOpen]="isFormOpen()"
+  [editCity]="selectedCity()"
+  (saved)="onFormSaved()"
+  (closed)="onFormClosed()">
 </app-city-form>

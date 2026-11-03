@@ -4,21 +4,31 @@ form {
     gap: 10px;
 }
 
+.map-field,
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.map-hint {
+    margin: 0 0 6px;
+    color: var(--mut);
+    font-size: 13px;
+}
+
+.form-error {
+    margin: 0;
+    color: var(--dg);
+}
+
 footer {
     display: flex;
     justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
 }
 
-.btn {
-    padding: 10px 20px;
-    background-color: var(--btn);
-    color: var(--btn-tx);
-    border: none;
-    border-radius: var(--r-ctl);
-    cursor: pointer;
-    margin: 10px;
-}
-
-.btn:hover {
-    background-color: var(--btn-hover);
+@media (max-width: 768px) {
+    form {
+        grid-template-columns: 1fr;
+    }
 }

@@ -1,11 +1,13 @@
-import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Modal } from '../../shared/components/modal/modal';
 import { InputBox } from '../../shared/components/input-box/input-box';
 import { Button } from '../../shared/components/button/button';
 import { CountryService } from '../../core/services/country-service';
+import { ToastService } from '../../core/services/toast.service';
 import { CountryListDto } from '../../core/models/country';
 import { UploadProgress } from '../../shared/components/upload-progress/upload-progress';
+import { showServerErrors } from '../../core/utils/api-error';
 
 @Component({
   selector: 'app-country-form',
@@ -20,9 +22,12 @@ export class CountryForm implements OnChanges {
   @Output() closed = new EventEmitter<void>();
 
   private countryService = inject(CountryService);
+  private toast = inject(ToastService);
   private fb = inject(NonNullableFormBuilder);
 
-  uploadProgress: number | null = null;
+  uploadProgress = signal<number | null>(null);
+  saving = signal(false);
+  formError = signal('');
 
   form = this.fb.group({
     name: this.fb.control('', { validators: [Validators.required, Validators.maxLength(100)] }),
@@ -35,6 +40,7 @@ export class CountryForm implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['editCountry']) {
+      this.formError.set('');
       if (this.editCountry) {
         this.form.patchValue({ name: this.editCountry.name });
       } else {
@@ -49,12 +55,14 @@ export class CountryForm implements OnChanges {
   }
 
   onClose(): void {
-    this.uploadProgress = null;
+    this.uploadProgress.set(null);
+    this.formError.set('');
     this.form.reset();
     this.closed.emit();
   }
 
   onSubmit(): void {
+    if (this.saving()) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -65,17 +73,25 @@ export class CountryForm implements OnChanges {
 
     const picture = this.form.controls.picture.value;
     if (picture) formData.append('picture', picture);
-    const onProgress = picture ? (percent: number) => { this.uploadProgress = percent; } : undefined;
-    if (onProgress) this.uploadProgress = 0;
+    const onProgress = picture ? (percent: number) => this.uploadProgress.set(percent) : undefined;
+    if (onProgress) this.uploadProgress.set(0);
+    const editing = this.isEditMode;
+    this.saving.set(true);
+    this.formError.set('');
 
     const done = () => {
-      this.uploadProgress = null;
+      this.saving.set(false);
+      this.uploadProgress.set(null);
+      this.toast.success(editing ? 'Country updated' : 'Country added');
       this.form.reset();
       this.saved.emit();
     };
     const fail = (err: unknown) => {
-      this.uploadProgress = null;
-      console.error(err);
+      this.saving.set(false);
+      this.uploadProgress.set(null);
+      const message = showServerErrors(this.form, err, 'The country could not be saved.');
+      this.formError.set(message);
+      if (message) this.toast.error(message);
     };
 
     if (this.isEditMode) {
