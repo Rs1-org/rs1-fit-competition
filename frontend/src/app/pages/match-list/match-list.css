@@ -1,23 +1,4 @@
-.page-head {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.page-head h1 { margin: 0; }
-.page-subtitle { margin: 4px 0 0; color: var(--mut); }
-.page-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-
-.list-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  margin: 16px 0;
-}
+/* Page head, toolbar, results card and row actions are shared and live in styles.css. */
 .quick-tabs-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .quick-tabs {
   display: flex;
@@ -39,19 +20,11 @@
 }
 .quick-tab.active { background: var(--acs); color: var(--actx); }
 .quick-tab:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
-.sort-note { color: var(--mut); font-size: 13px; }
 
-.results { border: 1px solid var(--bd); border-radius: var(--r-card); background: var(--card); overflow: hidden; }
-.results .table-scroll { border: 0; border-radius: 0; margin: 0; }
-.results app-pagination { display: block; padding: 8px 16px; border-top: 1px solid var(--bd); }
-
-.two-lines span, .two-lines strong { display: block; }
-.two-lines span { color: var(--mut); font-size: 13px; }
 .team { display: inline-flex; align-items: center; gap: 8px; }
 .team.winner { font-weight: 700; }
 th.team-home, td.team-home { text-align: right; }
 .score-cell { text-align: center; white-space: nowrap; }
-td.actions app-button { display: inline-block; }
 
 .match-rows { display: none; margin: 0; padding: 0; list-style: none; }
 .match-rows li { padding: 8px 12px; border-bottom: 1px solid var(--bd); }
@@ -59,12 +32,9 @@ td.actions app-button { display: inline-block; }
 .match-rows a { display: block; color: inherit; text-decoration: none; }
 .match-rows a:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
 .row-meta { margin: 4px 0 0; color: var(--mut); font-size: 13px; }
-.row-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 
 @media (max-width: 768px) {
-  .desktop-only { display: none; }
   .match-rows.mobile-only { display: block; }
   .quick-tabs-wrap, .quick-tabs { width: 100%; }
   .quick-tab { flex: 1; padding: 0 6px; }
-  .sort-note { display: none; }
 }

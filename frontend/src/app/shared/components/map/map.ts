@@ -1,17 +1,19 @@
 import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef, output, input, effect } from '@angular/core';
 import * as L from 'leaflet';
 
-const iconDefault = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+/** Pin in the theme colour; styles.css drops it in when placed (skipped for reduced motion). */
+export const pinIcon = L.divIcon({
+  className: 'map-pin',
+  html: '<svg viewBox="0 0 28 40" width="28" height="40" aria-hidden="true">'
+    + '<path d="M14 1C6.8 1 1 6.7 1 13.9 1 23.6 14 39 14 39s13-15.4 13-25.1C27 6.7 21.2 1 14 1z"/>'
+    + '<circle cx="14" cy="14" r="5"/></svg>',
+  iconSize: [28, 40],
+  iconAnchor: [14, 39],
+  popupAnchor: [0, -36],
+  tooltipAnchor: [0, -38],
 });
 
-L.Marker.prototype.options.icon = iconDefault;
+L.Marker.prototype.options.icon = pinIcon;
 
 @Component({
   selector: 'app-map',
@@ -24,6 +26,8 @@ export class Map implements AfterViewInit, OnDestroy {
   zoom = input<number>(6);
   markerLat = input<number | null>(null);
   markerLng = input<number | null>(null);
+  // Optional name shown above the marker, e.g. the stadium.
+  markerLabel = input<string>('');
   // Optional second point (e.g. city centre); when set, it is drawn and joined to the marker with a line.
   secondMarkerLat = input<number | null>(null);
   secondMarkerLng = input<number | null>(null);
@@ -55,7 +59,10 @@ export class Map implements AfterViewInit, OnDestroy {
 
       const current = this.marker?.getLatLng();
       if (!current || current.lat !== mLat || current.lng !== mLng) {
-        this.placeMarker(L.latLng(mLat, mLng));
+        const point = L.latLng(mLat, mLng);
+        this.placeMarker(point);
+        // Typed coordinates can be off screen; bring the pin into view.
+        if (!this.map.getBounds().contains(point)) this.map.panTo(point);
       }
     });
 
@@ -104,7 +111,10 @@ export class Map implements AfterViewInit, OnDestroy {
     if (this.marker) {
       this.marker.remove();
     }
-    this.marker = L.marker(latlng).addTo(this.map);
+    this.marker = L.marker(latlng, { title: this.markerLabel() }).addTo(this.map);
+    if (this.markerLabel()) {
+      this.marker.bindTooltip(this.markerLabel(), { direction: 'top', permanent: true });
+    }
   }
 
   private drawSecondMarker() {

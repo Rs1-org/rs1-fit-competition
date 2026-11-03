@@ -1,24 +1,30 @@
-@if(isOpen){
-<app-modal [title]="isEditMode ? 'Edit Country' : 'Add Country'" (close)="onClose()">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+@if (isOpen) {
+<app-modal [title]="isEditMode ? 'Edit country' : 'Add country'" (close)="onClose()">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
         <app-input-box
             label="Name"
-            placeholder="Name..."
+            placeholder="e.g. Bosnia and Herzegovina"
             [control]="form.controls.name"
         ></app-input-box>
 
         <app-input-box
-            label="Picture"
+            label="Flag picture"
             type="file"
             accept="image/*"
             (fileChange)="onFileChange($event)"
         ></app-input-box>
-        <app-upload-progress [percent]="uploadProgress"></app-upload-progress>
+        <app-upload-progress [percent]="uploadProgress()"></app-upload-progress>
+
+        @if (formError()) {
+            <p class="form-error" role="alert">{{ formError() }}</p>
+        }
 
         <footer>
+            <app-button variant="secondary" text="Cancel" (click)="onClose()"></app-button>
             <app-button
                 type="submit"
-                [text]="isEditMode ? 'Save Changes' : 'Submit'"
+                [text]="isEditMode ? 'Save changes' : 'Add country'"
+                [loading]="saving()"
             ></app-button>
         </footer>
     </form>

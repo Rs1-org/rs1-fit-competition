@@ -1,4 +1,3 @@
-
 form {
   display: flex;
   flex-direction: column;
@@ -6,8 +5,13 @@ form {
   padding: 8px 0;
 }
 
-footer{
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
+.form-error {
+  margin: 0;
+  color: var(--dg);
+}
+
+footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }

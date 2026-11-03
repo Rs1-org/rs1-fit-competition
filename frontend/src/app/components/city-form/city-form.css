@@ -1,11 +1,40 @@
-form{
+form {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
 
+.map-field,
+.full-width {
+    grid-column: 1 / -1;
+}
 
-footer{
+.map-hint {
+    margin: 0 0 6px;
+    color: var(--mut);
+    font-size: 13px;
+}
+
+.map-placeholder {
+    height: 300px;
+    background: var(--field);
+    border-radius: var(--r-card);
+}
+
+.form-error {
+    margin: 0;
+    color: var(--dg);
+}
+
+footer {
     display: flex;
     justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+@media (max-width: 768px) {
+    form {
+        grid-template-columns: 1fr;
+    }
 }

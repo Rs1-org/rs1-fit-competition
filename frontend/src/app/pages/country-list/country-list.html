@@ -1,114 +1,134 @@
 <div class="container">
-    <div class="header-actions">
-        <h1>Countries</h1>
-        @if (canManage()) {
-            <button class="btn-add" (click)="onAdd()">+ Add Country</button>
-        }
+  <header class="page-head">
+    <div>
+      <h1>Countries</h1>
+      <p class="page-subtitle">Countries whose cities, clubs and stadiums are in the app</p>
     </div>
+    @if (canManage()) {
+      <div class="page-actions">
+        <app-button text="Add country" (click)="onAdd()"><app-icon name="plus" /></app-button>
+      </div>
+    }
+  </header>
 
-    <form class="filter-bar" [formGroup]="filterForm">
-        <div class="filter-field">
-            <label for="filter-name">Name</label>
-            <input id="filter-name" type="text" formControlName="name" placeholder="e.g. Bosnia">
-        </div>
-        <div class="filter-field">
-            <label for="filter-slug">Slug</label>
-            <input id="filter-slug" type="text" formControlName="slug" placeholder="e.g. bosnia">
-        </div>
-        <div class="filter-field">
-            <label for="filter-picture">Picture</label>
-            <select id="filter-picture" formControlName="hasPicture">
-                <option value="">Any</option>
-                <option value="true">With picture</option>
-                <option value="false">Without picture</option>
-            </select>
-        </div>
-        <div class="filter-field">
-            <label for="filter-from">Created from</label>
-            <input id="filter-from" type="date" lang="bs-Latn" formControlName="createdFrom">
-        </div>
-        <div class="filter-field">
-            <label for="filter-to">Created to</label>
-            <input id="filter-to" type="date" lang="bs-Latn" formControlName="createdTo">
-        </div>
-        <button type="button" class="filter-reset" (click)="resetFilters()">Reset</button>
+  <div [formGroup]="filterForm">
+    <app-filter-card [chips]="chips()" (chipRemove)="clearChip($event)" (resetFilters)="resetFilters()" (applyFilters)="apply()">
+      <div class="filter-field">
+        <label for="filter-name">Name</label>
+        <input id="filter-name" type="text" formControlName="name" placeholder="e.g. Bosnia">
+      </div>
+      <div class="filter-field">
+        <label for="filter-slug">Slug</label>
+        <input id="filter-slug" type="text" formControlName="slug" placeholder="e.g. bosnia">
+      </div>
+      <div class="filter-field">
+        <label for="filter-picture">Picture</label>
+        <select id="filter-picture" formControlName="hasPicture">
+          <option value="">Any</option>
+          <option value="true">With picture</option>
+          <option value="false">Without picture</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="filter-from">Added from</label>
+        <input id="filter-from" type="date" lang="bs-Latn" formControlName="createdFrom">
+      </div>
+      <div class="filter-field">
+        <label for="filter-to">Added to</label>
+        <input id="filter-to" type="date" lang="bs-Latn" formControlName="createdTo">
+      </div>
 
-        @if (filterForm.hasError('createdRange')) {
-            <p class="filter-error">"Created to" must be on or after "Created from".</p>
-        }
-        @if (filterForm.controls.name.hasError('maxlength') || filterForm.controls.slug.hasError('maxlength')) {
-            <p class="filter-error">Name and slug can have at most 100 characters.</p>
-        }
-    </form>
+      @if (filterForm.hasError('createdRange')) {
+        <p class="filter-error">"Added to" must be on or after "Added from".</p>
+      }
+      @if (filterForm.controls.name.hasError('maxlength') || filterForm.controls.slug.hasError('maxlength')) {
+        <p class="filter-error">Name and slug can have at most 100 characters.</p>
+      }
+    </app-filter-card>
+  </div>
 
+  <div class="list-toolbar">
+    <span class="sort-note">{{ sortNote() }}</span>
     <app-import-export-bar
-        fileBaseName="countries"
-        [exportFn]="exportFn"
-        [importFn]="importFn"
-        [canImport]="canDelete()"
-        importColumns="Name"
-        (imported)="onImported()">
+      fileBaseName="countries"
+      [exportFn]="exportFn"
+      [importFn]="importFn"
+      [canImport]="canDelete()"
+      importColumns="Name"
+      (imported)="retry()">
     </app-import-export-bar>
+  </div>
 
-    <div class="table-scroll">
+  @if (state().loading) {
+    <app-skeleton [rows]="pageSize" />
+  } @else if (state().error) {
+    <app-error-banner [message]="state().error" (retry)="retry()" />
+  } @else if (!state().data.totalCount) {
+    <app-empty-state title="No countries found" message="Change or reset the filters to see more countries." />
+  } @else {
+    <div class="results">
+      <div class="table-scroll">
         <table class="data-table">
-            <thead>
-                <tr>
-                    <th scope="col" class="hide-sm"><span class="visually-hidden">Flag</span></th>
-                    <th scope="col" [attr.aria-sort]="ariaSort(sort, 'name')">
-                        <button type="button" class="sort-btn" (click)="sortBy('name')">
-                            Name <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort, 'name') }}</span>
-                        </button>
-                    </th>
-                    <th scope="col" class="hide-sm">Slug</th>
-                    <th scope="col" [attr.aria-sort]="ariaSort(sort, 'createdAt')">
-                        <button type="button" class="sort-btn" (click)="sortBy('createdAt')">
-                            Created <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort, 'createdAt') }}</span>
-                        </button>
-                    </th>
-                    @if (canManage()) {
-                        <th scope="col" class="actions"><span class="visually-hidden">Actions</span></th>
+          <thead>
+            <tr>
+              <th scope="col" [attr.aria-sort]="ariaSort(sort(), 'name')">
+                <button type="button" class="sort-btn" (click)="sortBy('name')">
+                  Name <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort(), 'name') }}</span>
+                </button>
+              </th>
+              <th scope="col" class="hide-sm">Slug</th>
+              <th scope="col" [attr.aria-sort]="ariaSort(sort(), 'createdAt')">
+                <button type="button" class="sort-btn" (click)="sortBy('createdAt')">
+                  Added <span class="sort-arrow" aria-hidden="true">{{ sortIndicator(sort(), 'createdAt') }}</span>
+                </button>
+              </th>
+              @if (canManage()) {
+                <th scope="col" class="actions">Actions</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (country of state().data.items; track country.publicId) {
+              <tr>
+                <td>
+                  <span class="name-cell">
+                    @if (country.pictureUrl) {
+                      <img [src]="country.pictureUrl" alt="" class="table-thumb">
+                    } @else {
+                      <span class="table-thumb picture-placeholder" aria-hidden="true">No flag</span>
                     }
-                </tr>
-            </thead>
-            <tbody>
-                @for (country of countriesResult()?.items ?? []; track country.publicId) {
-                    <tr>
-                        <td class="hide-sm">
-                            @if (country.pictureUrl) {
-                                <img [src]="country.pictureUrl" [alt]="country.name" class="table-thumb">
-                            }
-                        </td>
-                        <td>{{ country.name }}</td>
-                        <td class="hide-sm">{{ country.slug }}</td>
-                        <td>{{ country.createdAt | appDate }}</td>
-                        @if (canManage()) {
-                            <td class="actions">
-                                <button type="button" class="row-btn" (click)="onEdit(country)">Edit</button>
-                                @if (canDelete()) {
-                                    <button type="button" class="row-btn row-btn-danger" (click)="onDelete(country)">Delete</button>
-                                }
-                            </td>
-                        }
-                    </tr>
-                } @empty {
-                    <tr><td class="table-empty" [attr.colspan]="canManage() ? 5 : 4">No countries match the filters.</td></tr>
+                    <strong>{{ country.name }}</strong>
+                  </span>
+                </td>
+                <td class="hide-sm">{{ country.slug }}</td>
+                <td>{{ country.createdAt | appDate }}</td>
+                @if (canManage()) {
+                  <td class="actions">
+                    <app-button variant="icon" [label]="'Edit ' + country.name" (click)="onEdit(country)"><app-icon name="edit" /></app-button>
+                    @if (canDelete()) {
+                      <app-button variant="icon" [label]="'Delete ' + country.name" (click)="onDelete(country)"><app-icon name="trash" /></app-button>
+                    }
+                  </td>
                 }
-            </tbody>
+              </tr>
+            }
+          </tbody>
         </table>
-    </div>
+      </div>
 
-    <app-pagination
-        [totalItems]="countriesResult()?.totalCount ?? 0"
+      <app-pagination
+        [totalItems]="state().data.totalCount"
         [pageSize]="pageSize"
-        [currentPage]="countriesResult()?.page ?? 1"
+        [currentPage]="state().data.page"
         (pageChange)="onPageChange($event)">
-    </app-pagination>
+      </app-pagination>
+    </div>
+  }
 </div>
 
 <app-country-form
-    [isOpen]="isFormOpen"
-    [editCountry]="selectedCountry"
-    (saved)="onFormSaved()"
-    (closed)="onFormClosed()">
+  [isOpen]="isFormOpen()"
+  [editCountry]="selectedCountry()"
+  (saved)="onFormSaved()"
+  (closed)="onFormClosed()">
 </app-country-form>
