@@ -4,12 +4,6 @@ header p { margin: 8px 0 0; color: var(--tx2); }
 .live-filters { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
 label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; min-width: min(100%, 240px); }
 select { min-height: 44px; padding: 8px 10px; border: 1px solid var(--bd); border-radius: var(--r-ctl); background: var(--field); color: var(--tx); }
-.table-scroll { overflow-x: auto; background: var(--card); border: 1px solid var(--bd); border-radius: var(--r-card); }
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 10px 8px; text-align: right; border-bottom: 1px solid var(--bd); font-family: var(--font-title); }
-th:first-child, td:first-child, th[scope='row'] { text-align: left; }
-thead th { color: var(--mut); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
-th[scope='row'] { font-family: var(--font); font-weight: 700; }
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-select:focus-visible, a:focus-visible { outline: 2px solid var(--ac); outline-offset: 3px; }
+.table-card { background: var(--card); border: 1px solid var(--bd); border-radius: var(--r-card); overflow: hidden; }
+select:focus-visible { outline: 2px solid var(--ac); outline-offset: 3px; }
 @media (max-width: 768px) { h1 { font-size: 32px; } }

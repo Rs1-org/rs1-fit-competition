@@ -1,14 +1,15 @@
 @if (isOpen) {
-<app-modal [title]="isEditMode ? 'Edit Round' : 'Add Round'" (close)="onClose()" width="480px">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" id="round-form">
+<app-modal [title]="isEditMode ? 'Edit round' : 'Add round'" (close)="onClose()" width="480px">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" id="round-form" novalidate>
     <app-input-box label="Number" type="number" [control]="form.controls.number"></app-input-box>
     <app-input-box label="Name" placeholder="e.g. Round 1" [control]="form.controls.name"></app-input-box>
   </form>
-  @if (errorMessage) {
-    <p class="form-error" role="alert">{{ errorMessage }}</p>
+  @if (errorMessage()) {
+    <p class="form-error" role="alert">{{ errorMessage() }}</p>
   }
   <footer>
-    <app-button type="submit" form="round-form" [text]="isEditMode ? 'Save Changes' : 'Submit'" [loading]="saving"></app-button>
+    <app-button variant="secondary" text="Cancel" (click)="onClose()"></app-button>
+    <app-button type="submit" form="round-form" [text]="isEditMode ? 'Save changes' : 'Add round'" [loading]="saving()"></app-button>
   </footer>
 </app-modal>
 }

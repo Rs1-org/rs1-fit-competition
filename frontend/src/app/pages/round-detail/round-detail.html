@@ -1,48 +1,63 @@
 <div class="container">
-  <nav class="breadcrumb" aria-label="Breadcrumb">
-    <a routerLink="/competitions">Competitions</a>
-    @if (round(); as r) {
-      <span>›</span><a [routerLink]="['/competitions', r.competitionSlug]">{{ r.competitionName }}</a>
-      <span>›</span><a [routerLink]="['/seasons', r.seasonSlug]">{{ r.seasonName }}</a>
-      <span>›</span><span>{{ r.name }}</span>
-    }
-  </nav>
+  <app-breadcrumb [items]="crumbs()" />
 
-  @if (errorMessage()) {
-    <p class="page-error" role="alert">{{ errorMessage() }}</p>
-  }
+  @if (state().loading) {
+    <app-skeleton [rows]="6" />
+  } @else if (state().notFound) {
+    <app-empty-state icon="clock" title="Round not found" message="It may have been removed or renamed." />
+    <p class="back-link"><a routerLink="/competitions">Back to competitions</a></p>
+  } @else if (state().error) {
+    <app-error-banner [message]="state().error" (retry)="retry()" />
+  } @else if (round(); as r) {
+    <app-entity-header
+      [title]="r.name"
+      [crestName]="r.competitionName"
+      [crestCode]="code(r.competitionName)"
+      [badge]="liveCount() ? 'Live' : ''"
+      [subtitle]="r.competitionName + ' · Season ' + r.seasonName">
+      <app-stat-tile label="Matches" [value]="(matches().data?.length ?? 0) | appNumber:'1.0-0'" />
+      <app-stat-tile label="Played" [value]="played() | appNumber:'1.0-0'" />
+      <app-stat-tile label="Goals" [value]="goals() | appNumber:'1.0-0'" />
+    </app-entity-header>
 
-  @if (round(); as r) {
-    <div class="header-actions">
-      <h1>{{ r.name }}</h1>
-    </div>
-    <p class="page-subtitle">{{ r.competitionName }} {{ r.seasonName }}</p>
-
-    <h2 class="section-title">Matches</h2>
-    <app-generic-list
-      [items]="matches()?.items ?? []"
-      [pageSize]="pageSize"
-      [serverTotalItems]="matches()?.totalCount"
-      [serverCurrentPage]="matches()?.page ?? 1"
-      [showActions]="false"
-      variant="compact"
-      (pageChange)="onPageChange($event)">
-      <ng-template #itemTemplate let-match>
-        <div class="match-row">
-          <span class="match-team-home">{{ match.homeSelectionName || 'TBD' }}</span>
-          <span class="match-score">
-            @if (match.homeScore !== null && match.awayScore !== null) {
-              {{ match.homeScore }} : {{ match.awayScore }}
-            } @else {
-              {{ match.date | appDateTime }}
-            }
-          </span>
-          <span>{{ match.awaySelectionName || 'TBD' }}</span>
+    <section class="content-card" aria-labelledby="matches-title">
+      <div class="content-card-head">
+        <h2 id="matches-title">Matches</h2>
+        <a class="content-card-note" [routerLink]="['/seasons', r.seasonSlug]">Season table</a>
+      </div>
+      @if (matches().loading) {
+        <div class="content-card-body"><app-skeleton [rows]="5" /></div>
+      } @else if (matches().error) {
+        <div class="content-card-body"><app-error-banner [message]="matches().error" (retry)="retryMatches()" /></div>
+      } @else if (!matches().data?.length) {
+        <div class="content-card-body">
+          <app-empty-state icon="ball" title="No matches in this round yet" message="Matches show up here once they are scheduled." />
         </div>
-        <div class="card-meta">
-          {{ match.stadiumName }}{{ match.statusName ? ' · ' + match.statusName : '' }}{{ match.isPostponed ? ' · Postponed' : '' }}
-        </div>
-      </ng-template>
-    </app-generic-list>
+      } @else {
+        <ul class="match-rows">
+          @for (match of matches().data!; track match.publicId) {
+            <li>
+              <a [routerLink]="['/matches', match.slug]">
+                <app-match-row
+                  [variant]="narrow() ? 'mobile' : 'expanded'"
+                  [status]="match.statusName"
+                  [postponed]="match.isPostponed"
+                  [homeName]="match.homeSelectionName"
+                  [awayName]="match.awaySelectionName"
+                  [homeAbbreviation]="match.homeSelectionAbbreviation"
+                  [awayAbbreviation]="match.awaySelectionAbbreviation"
+                  [homeScore]="match.homeScore"
+                  [awayScore]="match.awayScore"
+                  [meta]="meta(match)"
+                />
+                @if (narrow()) {
+                  <p class="row-meta">{{ meta(match) }}</p>
+                }
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </section>
   }
 </div>

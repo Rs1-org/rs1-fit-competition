@@ -1,6 +1,5 @@
 import { Component, DestroyRef, effect, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, EMPTY, catchError, combineLatest, distinctUntilChanged, filter, map, of, startWith, switchMap } from 'rxjs';
 import { CompetitionService } from '../../core/services/competition.service';
@@ -8,12 +7,12 @@ import { SeasonService } from '../../core/services/season.service';
 import { StatisticService } from '../../core/services/statistic.service';
 import { SelectionOption, SelectionService } from '../../core/services/selection.service';
 import { SeasonListDto } from '../../core/models/season';
-import { Standings, TeamResults } from '../../core/models/statistic';
+import { Standings } from '../../core/models/statistic';
 import { fetchAllPages, MAX_PAGE_SIZE } from '../../core/helpers/paging.helper';
 import { apiErrorMessage } from '../../core/utils/api-error';
 import { SignalRService } from '../../core/services/signalr.service';
 import { MatchChangeNotice } from '../../core/services/match-live.service';
-import { AppNumberPipe } from '../../shared/pipes/regional-format.pipes';
+import { LeagueTable } from '../../shared/components/league-table/league-table';
 import { Skeleton } from '../../shared/components/skeleton/skeleton';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
@@ -22,7 +21,7 @@ interface TableState { loading: boolean; data: Standings | null; error: string; 
 
 @Component({
   selector: 'app-live-table',
-  imports: [ReactiveFormsModule, RouterLink, AppNumberPipe, Skeleton, EmptyState, ErrorBanner],
+  imports: [ReactiveFormsModule, LeagueTable, Skeleton, EmptyState, ErrorBanner],
   templateUrl: './live.html',
   styleUrl: './live.css',
 })
@@ -109,13 +108,5 @@ export class LiveTable {
 
   retry(): void {
     this.refresh$.next();
-  }
-
-  slug(team: TeamResults): string | null {
-    return this.selections().find((item) => item.publicId === team.selectionPublicId)?.slug ?? null;
-  }
-
-  goalDifference(team: TeamResults): number {
-    return team.goalsFor - team.goalsAgainst;
   }
 }

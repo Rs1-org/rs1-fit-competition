@@ -1,0 +1,20 @@
+app-breadcrumb { display: block; margin-bottom: 16px; }
+
+.description { max-width: 75ch; margin: 0 0 8px; color: var(--tx2); line-height: 1.6; }
+.section-title { margin: 24px 0 0; font-size: 22px; }
+
+.season-mark {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  height: 48px;
+  padding: 0 8px;
+  border-radius: var(--r-card);
+  background: var(--field);
+  font-family: var(--font-title);
+  font-weight: 700;
+}
+
+.back-link { margin-top: 12px; text-align: center; }

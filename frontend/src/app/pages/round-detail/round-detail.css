@@ -1,0 +1,9 @@
+app-breadcrumb { display: block; margin-bottom: 16px; }
+
+.match-rows { margin: 0; padding: 0; list-style: none; }
+.match-rows li { border-top: 1px solid var(--bd); }
+.match-rows a { display: block; padding: 6px 18px; color: inherit; text-decoration: none; }
+.match-rows a:hover { background: var(--field); }
+.row-meta { margin: 2px 0 6px; color: var(--mut); font-size: 13px; }
+
+.back-link { margin-top: 12px; text-align: center; }

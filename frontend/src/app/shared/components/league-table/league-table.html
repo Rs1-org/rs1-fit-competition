@@ -1,0 +1,60 @@
+<div class="table-scroll">
+  <table class="league-table">
+    <caption class="visually-hidden">League table sorted by points, goal difference and goals scored</caption>
+    <thead>
+      <tr>
+        <th scope="col" class="pos">#</th>
+        <th scope="col" class="team-col">Team</th>
+        <th scope="col"><abbr title="Played">P</abbr></th>
+        <th scope="col" class="hide-sm"><abbr title="Won">W</abbr></th>
+        <th scope="col" class="hide-sm"><abbr title="Drawn">D</abbr></th>
+        <th scope="col" class="hide-sm"><abbr title="Lost">L</abbr></th>
+        <th scope="col" class="hide-sm"><abbr title="Goals for and against">GF:GA</abbr></th>
+        <th scope="col"><abbr title="Goal difference">GD</abbr></th>
+        <th scope="col"><abbr title="Points">Pts</abbr></th>
+        @if (form()) {
+          <th scope="col" class="form-col">Form</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row.selectionPublicId; let index = $index) {
+        <tr [class.highlight]="highlight() === row.selectionPublicId">
+          <td class="pos">
+            <span [class]="'pos-badge ' + (zone(index) ?? '')">{{ (index + 1) | appNumber: '1.0-0' }}</span>
+          </td>
+          <th scope="row" class="team-col">
+            <span class="team">
+              <app-crest [name]="row.selectionName" [abbreviation]="team(row)?.abbreviation" [size]="24" />
+              @if (team(row); as known) {
+                <a [routerLink]="['/selection', known.slug]">{{ row.selectionName }}</a>
+              } @else {
+                <span>{{ row.selectionName }}</span>
+              }
+            </span>
+          </th>
+          <td>{{ row.played | appNumber: '1.0-0' }}</td>
+          <td class="hide-sm">{{ row.wins | appNumber: '1.0-0' }}</td>
+          <td class="hide-sm">{{ row.draws | appNumber: '1.0-0' }}</td>
+          <td class="hide-sm">{{ row.losses | appNumber: '1.0-0' }}</td>
+          <td class="hide-sm">{{ row.goalsFor | appNumber: '1.0-0' }}:{{ row.goalsAgainst | appNumber: '1.0-0' }}</td>
+          <td [class.plus]="goalDifference(row) > 0" [class.minus]="goalDifference(row) < 0">
+            @if (goalDifference(row) > 0) {+}{{ goalDifference(row) | appNumber: '1.0-0' }}
+          </td>
+          <td class="pts">{{ row.points | appNumber: '1.0-0' }}</td>
+          @if (form()) {
+            <td class="form-col"><app-form-chips [results]="results(row)" [compact]="true" /></td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (hasZones()) {
+  <ul class="legend" aria-label="Table colours">
+    <li><span class="swatch champions" aria-hidden="true"></span>Champions League qualifying</li>
+    <li><span class="swatch conference" aria-hidden="true"></span>Conference League qualifying</li>
+    <li><span class="swatch relegation" aria-hidden="true"></span>Relegation</li>
+  </ul>
+}
