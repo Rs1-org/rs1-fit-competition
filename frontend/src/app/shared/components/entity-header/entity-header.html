@@ -1,0 +1,22 @@
+<header class="entity-header">
+  <div class="identity">
+    @if (crestName()) {
+      <app-crest [name]="crestName()" [abbreviation]="crestCode()" [size]="64" />
+    }
+    <div class="text">
+      <h1>
+        {{ title() }}
+        @if (badge()) {
+          <span class="badge">{{ badge() }}</span>
+        }
+      </h1>
+      @if (subtitle()) {
+        <p class="subtitle">{{ subtitle() }}</p>
+      }
+      <div class="actions"><ng-content select="[headerActions]" /></div>
+    </div>
+  </div>
+  <div class="tiles">
+    <ng-content select="app-stat-tile" />
+  </div>
+</header>

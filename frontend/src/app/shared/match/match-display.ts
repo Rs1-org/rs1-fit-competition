@@ -17,6 +17,19 @@ export function teamCode(name: string | null | undefined, abbreviation?: string 
   return source.slice(0, 3);
 }
 
+/** Crest code for a competition: its short name, else the initials ("Premijer liga BiH" → "PLB"). */
+export function competitionCode(name: string | null | undefined, shortName?: string | null): string {
+  const explicit = shortName?.replace(/[^A-Za-z0-9]/g, '').slice(0, 3).toUpperCase();
+  if (explicit) return explicit;
+  const initials = (name ?? '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .split(/\s+/)
+    .map((word) => word.replace(/[^A-Za-z0-9]/g, '').charAt(0))
+    .join('');
+  return (initials || 'CMP').slice(0, 3).toUpperCase();
+}
+
 export function crestColour(code: string): string {
   let hash = 0;
   for (const char of code) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;

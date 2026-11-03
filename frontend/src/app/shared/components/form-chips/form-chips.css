@@ -7,3 +7,5 @@
 .D { background: var(--field); color: var(--tx2); }
 .L { background: var(--dgs); color: var(--dg); }
 .empty { margin: 0; color: var(--mut); font-size: 13px; }
+.chips.compact { gap: 4px; }
+.chips.compact li { width: 22px; height: 22px; border-radius: var(--r-ctl); font-size: 11px; }

@@ -8,4 +8,6 @@ import { FormResult } from '../../match/match-display';
 })
 export class FormChips {
   results = input<FormResult[]>([]);
+  /** Smaller chips for table cells. */
+  compact = input(false);
 }

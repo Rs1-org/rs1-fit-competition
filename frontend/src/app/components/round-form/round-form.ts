@@ -1,11 +1,12 @@
-import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputBox } from '../../shared/components/input-box/input-box';
 import { Modal } from '../../shared/components/modal/modal';
 import { Button } from '../../shared/components/button/button';
 import { RoundService } from '../../core/services/round.service';
+import { ToastService } from '../../core/services/toast.service';
 import { RoundListDto, SaveRoundDto } from '../../core/models/round';
-import { apiErrorMessage } from '../../core/utils/api-error';
+import { showServerErrors } from '../../core/utils/api-error';
 
 @Component({
   selector: 'app-round-form',
@@ -24,9 +25,10 @@ export class RoundForm implements OnChanges {
 
   private fb = inject(NonNullableFormBuilder);
   private roundService = inject(RoundService);
+  private toast = inject(ToastService);
 
-  errorMessage = '';
-  saving = false;
+  errorMessage = signal('');
+  saving = signal(false);
 
   form = this.fb.group({
     number: this.fb.control(1, { validators: [Validators.required, Validators.min(1), Validators.max(100)] }),
@@ -39,7 +41,7 @@ export class RoundForm implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['editRound'] || changes['isOpen']) {
-      this.errorMessage = '';
+      this.errorMessage.set('');
       if (this.editRound) {
         this.form.reset({ number: this.editRound.number, name: this.editRound.name });
       } else {
@@ -53,26 +55,31 @@ export class RoundForm implements OnChanges {
   }
 
   onSubmit(): void {
+    if (this.saving()) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
     const value = this.form.getRawValue();
     const payload: SaveRoundDto = { name: value.name.trim(), number: Number(value.number) };
-    const request$ = this.isEditMode
+    const editing = this.isEditMode;
+    const request$ = editing
       ? this.roundService.update(this.editRound!.slug, payload)
       : this.roundService.create({ ...payload, seasonPublicId: this.seasonPublicId });
 
-    this.saving = true;
-    this.errorMessage = '';
+    this.saving.set(true);
+    this.errorMessage.set('');
     request$.subscribe({
       next: () => {
-        this.saving = false;
+        this.saving.set(false);
+        this.toast.success(editing ? 'Round updated' : 'Round added');
         this.saved.emit();
       },
       error: (err) => {
-        this.saving = false;
-        this.errorMessage = apiErrorMessage(err);
+        this.saving.set(false);
+        const message = showServerErrors(this.form, err, 'The round could not be saved.');
+        this.errorMessage.set(message);
+        if (message) this.toast.error(message);
       },
     });
   }

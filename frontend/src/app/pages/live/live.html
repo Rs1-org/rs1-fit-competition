@@ -31,39 +31,8 @@
   } @else if (!state().data?.table?.length) {
     <app-empty-state icon="trophy" title="No results yet" message="The table fills in once matches in this season have a score." />
   } @else {
-    <div class="table-scroll">
-      <table>
-        <caption class="sr-only">League table sorted by points, goal difference and goals scored</caption>
-        <thead>
-          <tr>
-            <th scope="col">#</th><th scope="col">Team</th><th scope="col">P</th><th scope="col">W</th>
-            <th scope="col">D</th><th scope="col">L</th><th scope="col">GF</th><th scope="col">GA</th>
-            <th scope="col">GD</th><th scope="col">Pts</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (team of state().data!.table; track team.selectionPublicId; let index = $index) {
-            <tr>
-              <td>{{ (index + 1) | appNumber: '1.0-0' }}</td>
-              <th scope="row">
-                @if (slug(team); as teamSlug) {
-                  <a [routerLink]="['/selection', teamSlug]">{{ team.selectionName }}</a>
-                } @else {
-                  {{ team.selectionName }}
-                }
-              </th>
-              <td>{{ team.played | appNumber: '1.0-0' }}</td>
-              <td>{{ team.wins | appNumber: '1.0-0' }}</td>
-              <td>{{ team.draws | appNumber: '1.0-0' }}</td>
-              <td>{{ team.losses | appNumber: '1.0-0' }}</td>
-              <td>{{ team.goalsFor | appNumber: '1.0-0' }}</td>
-              <td>{{ team.goalsAgainst | appNumber: '1.0-0' }}</td>
-              <td>@if (goalDifference(team) > 0) {+}{{ goalDifference(team) | appNumber: '1.0-0' }}</td>
-              <td>{{ team.points | appNumber: '1.0-0' }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <div class="table-card">
+      <app-league-table [rows]="state().data!.table" [teams]="selections()" />
     </div>
   }
 </main>

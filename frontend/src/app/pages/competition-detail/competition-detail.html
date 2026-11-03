@@ -1,62 +1,77 @@
 <div class="container">
-  <nav class="breadcrumb" aria-label="Breadcrumb">
-    <a routerLink="/competitions">Competitions</a>
-    @if (competition(); as c) {
-      <span>›</span><span>{{ c.name }}</span>
-    }
-  </nav>
+  <app-breadcrumb [items]="crumbs()" />
 
-  @if (errorMessage()) {
-    <p class="page-error" role="alert">{{ errorMessage() }}</p>
-  }
-
-  @if (competition(); as c) {
-    <div class="header-actions">
-      <h1>{{ c.name }}</h1>
+  @if (state().loading) {
+    <app-skeleton [rows]="6" />
+  } @else if (state().notFound) {
+    <app-empty-state icon="trophy" title="Competition not found" message="It may have been removed or renamed." />
+    <p class="back-link"><a routerLink="/competitions">Back to competitions</a></p>
+  } @else if (state().error) {
+    <app-error-banner [message]="state().error" (retry)="retry()" />
+  } @else if (competition(); as c) {
+    <app-entity-header [title]="c.name" [crestName]="c.name" [crestCode]="code(c.name, c.shortName)" [subtitle]="subtitle()">
       @if (canManage()) {
-        <button class="btn-add" (click)="onAdd()">+ Add Season</button>
+        <app-button headerActions variant="secondary" text="Add season" (click)="onAdd()"><app-icon name="plus" /></app-button>
       }
-    </div>
-    <p class="page-subtitle">{{ c.countryName || 'International' }}{{ c.shortName ? ' · ' + c.shortName : '' }}</p>
+      <app-stat-tile label="Seasons" [value]="seasons().data.totalCount | appNumber:'1.0-0'" />
+      @if (currentSeason(); as current) {
+        <app-stat-tile label="Current season" [value]="current.name" [link]="'/seasons/' + current.slug" />
+      }
+    </app-entity-header>
+
     @if (c.description) {
-      <p class="page-description">{{ c.description }}</p>
+      <p class="description">{{ c.description }}</p>
     }
 
     <h2 class="section-title">Seasons</h2>
-    <app-generic-list
-      [items]="seasons()?.items ?? []"
-      [pageSize]="pageSize"
-      [serverTotalItems]="seasons()?.totalCount"
-      [serverCurrentPage]="seasons()?.page ?? 1"
-      [showActions]="canManage()"
-      [showDelete]="canDelete()"
-      variant="card"
-      (view)="open($event)"
-      (update)="onEdit($event)"
-      (delete)="onDelete($event)"
-      (pageChange)="onPageChange($event)">
-      <ng-template #itemTemplate let-season>
-        <div class="card-row">
-          <div class="card-info">
-            <div class="card-title">
-              {{ season.name }}
-              @if (season.isCurrent) {
-                <span class="badge-current">Current</span>
-              }
-            </div>
-            <div class="card-meta">
-              {{ season.startDate | appDate }} – {{ season.endDate | appDate }} · {{ season.roundCount | appNumber:'1.0-0' }}
-              {{ season.roundCount === 1 ? 'round' : 'rounds' }}
-            </div>
-          </div>
-        </div>
-      </ng-template>
-    </app-generic-list>
+    @if (seasons().loading) {
+      <app-skeleton [rows]="4" />
+    } @else if (seasons().error) {
+      <app-error-banner [message]="seasons().error" (retry)="retrySeasons()" />
+    } @else if (!seasons().data.totalCount) {
+      <app-empty-state icon="clock" title="No seasons yet" [message]="canManage() ? 'Add the first season to start the table.' : 'Seasons appear once they are planned.'" />
+    } @else {
+      <ul class="entity-grid">
+        @for (season of seasons().data.items; track season.publicId) {
+          <li class="entity-card">
+            <a class="entity-card-link" [routerLink]="['/seasons', season.slug]">
+              <span class="season-mark">{{ season.name }}</span>
+              <span class="entity-card-text">
+                <strong>
+                  Season {{ season.name }}
+                  @if (season.isCurrent) {
+                    <span class="badge-current">Current</span>
+                  }
+                </strong>
+                <span>
+                  {{ season.startDate | appDate }} – {{ season.endDate | appDate }} · {{ season.roundCount | appNumber:'1.0-0' }}
+                  {{ season.roundCount === 1 ? 'round' : 'rounds' }}
+                </span>
+              </span>
+            </a>
+            @if (canManage()) {
+              <span class="entity-card-actions">
+                <app-button variant="icon" [label]="'Edit season ' + season.name" (click)="onEdit(season)"><app-icon name="edit" /></app-button>
+                @if (canDelete()) {
+                  <app-button variant="icon" [label]="'Delete season ' + season.name" (click)="onDelete(season)"><app-icon name="trash" /></app-button>
+                }
+              </span>
+            }
+          </li>
+        }
+      </ul>
+      <app-pagination
+        [totalItems]="seasons().data.totalCount"
+        [pageSize]="pageSize"
+        [currentPage]="seasons().data.page"
+        (pageChange)="onPageChange($event)">
+      </app-pagination>
+    }
 
     <app-season-form
-      [isOpen]="isFormOpen"
+      [isOpen]="isFormOpen()"
       [competitionPublicId]="c.publicId"
-      [editSeason]="selected"
+      [editSeason]="selected()"
       (saved)="onFormSaved()"
       (closed)="onFormClosed()">
     </app-season-form>

@@ -626,6 +626,66 @@ td.actions app-button { display: inline-block; }
   vertical-align: middle;
 }
 
+/* Content card with a title row (competition, season and round pages) */
+.content-card {
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.content-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px 12px;
+  padding: 16px 18px 12px;
+}
+.content-card-head h2 { margin: 0; font-size: 22px; }
+.content-card-note { color: var(--mut); font-size: 13px; }
+.content-card-body { padding: 0 18px 16px; }
+
+/* Grid of linked cards (competitions, seasons) */
+.entity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+.entity-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
+}
+.entity-card:hover { border-color: var(--ac); }
+.entity-card-link { display: flex; flex: 1; align-items: center; gap: 14px; min-width: 0; color: inherit; text-decoration: none; }
+.entity-card-link:focus-visible { outline: 2px solid var(--ac); outline-offset: 4px; border-radius: var(--r-ctl); }
+.entity-card-text { min-width: 0; }
+.entity-card-text > strong { display: block; font-family: var(--font-title); font-size: 18px; }
+.entity-card-text > span { display: block; color: var(--mut); font-size: 13px; }
+.entity-card-actions { display: flex; gap: 4px; }
+.badge-current {
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--acs);
+  color: var(--actx);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
 /* Missing picture: a labelled box in place of the image */
 .picture-placeholder {
   display: inline-flex;

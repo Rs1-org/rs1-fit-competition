@@ -1,59 +1,133 @@
 <div class="container">
-  <nav class="breadcrumb" aria-label="Breadcrumb">
-    <a routerLink="/competitions">Competitions</a>
-    @if (season(); as s) {
-      <span>›</span><a [routerLink]="['/competitions', s.competitionSlug]">{{ s.competitionName }}</a>
-      <span>›</span><span>{{ s.name }}</span>
-    }
-  </nav>
+  <app-breadcrumb [items]="crumbs()" />
 
-  @if (errorMessage()) {
-    <p class="page-error" role="alert">{{ errorMessage() }}</p>
-  }
-
-  @if (season(); as s) {
-    <div class="header-actions">
-      <h1>
-        {{ s.competitionName }} {{ s.name }}
-        @if (s.isCurrent) {
-          <span class="badge-current">Current</span>
-        }
-      </h1>
+  @if (state().loading) {
+    <app-skeleton [rows]="8" />
+  } @else if (state().notFound) {
+    <app-empty-state icon="trophy" title="Season not found" message="It may have been removed or renamed." />
+    <p class="back-link"><a routerLink="/competitions">Back to competitions</a></p>
+  } @else if (state().error) {
+    <app-error-banner [message]="state().error" (retry)="retry()" />
+  } @else if (season(); as s) {
+    <app-entity-header
+      [title]="s.competitionName"
+      [crestName]="s.competitionName"
+      [crestCode]="code(s.competitionName)"
+      [badge]="s.isCurrent ? 'Current season' : ''"
+      [subtitle]="subtitle()">
       @if (canManage()) {
-        <button class="btn-add" (click)="onAdd()">+ Add Round</button>
+        <app-button headerActions variant="secondary" text="Add round" (click)="onAdd()"><app-icon name="plus" /></app-button>
       }
-    </div>
-    <p class="page-subtitle">{{ s.startDate | appDate }} – {{ s.endDate | appDate }}</p>
+      <app-stat-tile label="Rounds played" [value]="roundsTile()" />
+      <app-stat-tile label="Teams" [value]="teamsCount() | appNumber:'1.0-0'" />
+      <app-stat-tile label="Goals / match" [value]="goalsPerMatch() === null ? '—' : (goalsPerMatch() | appNumber:'1.2-2')" />
+    </app-entity-header>
 
-    <h2 class="section-title">Rounds</h2>
-    <app-generic-list
-      [items]="rounds()?.items ?? []"
-      [pageSize]="pageSize"
-      [serverTotalItems]="rounds()?.totalCount"
-      [serverCurrentPage]="rounds()?.page ?? 1"
-      [showActions]="canManage()"
-      [showDelete]="canDelete()"
-      variant="compact"
-      (view)="open($event)"
-      (update)="onEdit($event)"
-      (delete)="onDelete($event)"
-      (pageChange)="onPageChange($event)">
-      <ng-template #itemTemplate let-round>
-        <div class="card-row">
-          <div class="card-badge">{{ round.number }}</div>
-          <div class="card-info">
-            <div class="card-title">{{ round.name }}</div>
-            <div class="card-meta">{{ round.matchCount }} {{ round.matchCount === 1 ? 'match' : 'matches' }}</div>
-          </div>
+    <div class="layout">
+      <section class="content-card table-card" aria-labelledby="table-title">
+        <div class="content-card-head">
+          <h2 id="table-title">League table</h2>
+          <span class="content-card-note"><span class="live-dot" aria-hidden="true"></span>Updates as goals go in</span>
         </div>
-      </ng-template>
-    </app-generic-list>
+        @if (standings().loading) {
+          <div class="content-card-body"><app-skeleton [rows]="8" /></div>
+        } @else if (standings().error) {
+          <div class="content-card-body"><app-error-banner [message]="standings().error" (retry)="retryTable()" /></div>
+        } @else if (!standings().data?.table?.length) {
+          <div class="content-card-body">
+            <app-empty-state icon="trophy" title="No results yet" message="The table fills in once matches in this season have a score." />
+          </div>
+        } @else {
+          <app-league-table [rows]="standings().data!.table" [teams]="teams()" [form]="form()" [showZones]="true" />
+        }
+      </section>
+
+      <aside class="side">
+        <section class="content-card" aria-labelledby="rounds-title">
+          <div class="content-card-head">
+            <h2 id="rounds-title">Rounds</h2>
+            @if (rounds().data; as all) {
+              <span class="content-card-note">{{ all.length | appNumber:'1.0-0' }} total</span>
+            }
+          </div>
+          @if (rounds().loading) {
+            <div class="content-card-body"><app-skeleton [rows]="5" /></div>
+          } @else if (rounds().error) {
+            <div class="content-card-body"><app-error-banner [message]="rounds().error" (retry)="retryRounds()" /></div>
+          } @else if (!roundSummaries().length) {
+            <div class="content-card-body">
+              <app-empty-state icon="clock" title="No rounds yet" [message]="canManage() ? 'Add the first round to schedule matches.' : 'Rounds appear once they are planned.'" />
+            </div>
+          } @else {
+            <ul class="round-rows">
+              @for (summary of visibleRounds(); track summary.round.publicId) {
+                <li [class]="'round-row ' + summary.state">
+                  <a class="round-link" [routerLink]="['/rounds', summary.round.slug]">
+                    <span class="round-number">{{ summary.round.number }}</span>
+                    <span class="round-text">
+                      <strong>{{ summary.round.name }}</strong>
+                      <span>{{ roundMeta(summary) }}</span>
+                    </span>
+                    @if (stateLabel(summary)) {
+                      <span class="round-state">{{ stateLabel(summary) }}</span>
+                    }
+                  </a>
+                  @if (canManage()) {
+                    <span class="round-actions">
+                      <app-button variant="icon" [label]="'Edit ' + summary.round.name" (click)="onEdit(summary.round)"><app-icon name="edit" /></app-button>
+                      @if (canDelete()) {
+                        <app-button variant="icon" [label]="'Delete ' + summary.round.name" (click)="onDelete(summary.round)"><app-icon name="trash" /></app-button>
+                      }
+                    </span>
+                  }
+                </li>
+              }
+            </ul>
+            @if (roundSummaries().length > visibleRounds().length || showAllRounds()) {
+              <button type="button" class="more-link" (click)="showAllRounds.set(!showAllRounds())">
+                {{ showAllRounds() ? 'Show fewer rounds' : 'All ' + roundSummaries().length + ' rounds' }}
+              </button>
+            }
+          }
+        </section>
+
+        <section class="content-card" aria-labelledby="scorers-title">
+          <div class="content-card-head"><h2 id="scorers-title">Top scorers</h2></div>
+          <div class="content-card-body">
+            @if (scorers().locked) {
+              <div class="locked">
+                <app-icon name="lock" />
+                <p>Top scorers are part of Premium, together with player and team statistics.</p>
+                <a routerLink="/statistics/advanced">See Premium statistics</a>
+              </div>
+            } @else if (scorers().loading) {
+              <app-skeleton [rows]="5" [avatar]="true" />
+            } @else if (scorers().error) {
+              <app-error-banner [message]="scorers().error" (retry)="retry()" />
+            } @else if (!scorers().data?.length) {
+              <app-empty-state icon="ball" title="No goals recorded yet" message="Scorers appear once goals are entered in the match events." />
+            } @else {
+              <ol class="scorers">
+                @for (player of scorers().data!; track player.playerPublicId; let index = $index) {
+                  <li>
+                    <span class="scorer-rank">{{ index + 1 }}</span>
+                    <app-crest [name]="player.selectionName" [size]="32" />
+                    <span class="scorer-text"><strong>{{ player.playerName }}</strong><span>{{ player.selectionName }}</span></span>
+                    <span class="scorer-goals" [attr.aria-label]="player.goals + ' goals'">{{ player.goals | appNumber:'1.0-0' }}</span>
+                  </li>
+                }
+              </ol>
+            }
+          </div>
+        </section>
+      </aside>
+    </div>
 
     <app-round-form
-      [isOpen]="isFormOpen"
+      [isOpen]="isFormOpen()"
       [seasonPublicId]="s.publicId"
       [nextNumber]="nextNumber()"
-      [editRound]="selected"
+      [editRound]="selected()"
       (saved)="onFormSaved()"
       (closed)="onFormClosed()">
     </app-round-form>

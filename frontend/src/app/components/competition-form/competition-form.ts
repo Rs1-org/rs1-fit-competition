@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputBox } from '../../shared/components/input-box/input-box';
 import { Modal } from '../../shared/components/modal/modal';
@@ -6,8 +6,9 @@ import { Button } from '../../shared/components/button/button';
 import { Dropdown } from '../../shared/components/dropdown/dropdown';
 import { CountryService } from '../../core/services/country-service';
 import { CompetitionService } from '../../core/services/competition.service';
+import { ToastService } from '../../core/services/toast.service';
 import { CompetitionDetailsDto, SaveCompetitionDto } from '../../core/models/competition';
-import { apiErrorMessage } from '../../core/utils/api-error';
+import { showServerErrors } from '../../core/utils/api-error';
 
 @Component({
   selector: 'app-competition-form',
@@ -24,10 +25,11 @@ export class CompetitionForm implements OnInit, OnChanges {
   private fb = inject(NonNullableFormBuilder);
   private countryService = inject(CountryService);
   private competitionService = inject(CompetitionService);
+  private toast = inject(ToastService);
 
-  countries: { publicId: string; name: string }[] = [];
-  errorMessage = '';
-  saving = false;
+  countries = signal<{ publicId: string; name: string }[]>([]);
+  errorMessage = signal('');
+  saving = signal(false);
 
   form = this.fb.group({
     name: this.fb.control('', { validators: [Validators.required, Validators.minLength(2), Validators.maxLength(100)] }),
@@ -41,15 +43,15 @@ export class CompetitionForm implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    this.countryService.getAll(1, 100).subscribe({
-      next: (data) => (this.countries = [{ publicId: '', name: 'No country (international)' }, ...data.items]),
-      error: (err) => console.error('Error loading countries:', err),
+    this.countryService.getAllForDropdown().subscribe({
+      next: (countries) => this.countries.set([{ publicId: '', name: 'No country (international)' }, ...countries]),
+      error: () => this.errorMessage.set('Countries could not be loaded. Close the form and try again.'),
     });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['editCompetition'] || changes['isOpen']) {
-      this.errorMessage = '';
+      this.errorMessage.set('');
       if (this.editCompetition) {
         this.form.reset({
           name: this.editCompetition.name,
@@ -69,6 +71,7 @@ export class CompetitionForm implements OnInit, OnChanges {
   }
 
   onSubmit(): void {
+    if (this.saving()) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -80,21 +83,25 @@ export class CompetitionForm implements OnInit, OnChanges {
       description: value.description.trim() || null,
       countryPublicId: value.countryPublicId || null,
     };
-    const request$ = this.isEditMode
+    const editing = this.isEditMode;
+    const request$ = editing
       ? this.competitionService.update(this.editCompetition!.slug, payload)
       : this.competitionService.create(payload);
 
-    this.saving = true;
-    this.errorMessage = '';
+    this.saving.set(true);
+    this.errorMessage.set('');
     request$.subscribe({
       next: () => {
-        this.saving = false;
+        this.saving.set(false);
+        this.toast.success(editing ? 'Competition updated' : 'Competition added');
         this.form.reset();
         this.saved.emit();
       },
       error: (err) => {
-        this.saving = false;
-        this.errorMessage = apiErrorMessage(err);
+        this.saving.set(false);
+        const message = showServerErrors(this.form, err, 'The competition could not be saved.');
+        this.errorMessage.set(message);
+        if (message) this.toast.error(message);
       },
     });
   }

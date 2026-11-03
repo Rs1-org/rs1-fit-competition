@@ -1,11 +1,12 @@
-import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
 import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { InputBox } from '../../shared/components/input-box/input-box';
 import { Modal } from '../../shared/components/modal/modal';
 import { Button } from '../../shared/components/button/button';
 import { SeasonService } from '../../core/services/season.service';
+import { ToastService } from '../../core/services/toast.service';
 import { SaveSeasonDto, SeasonDetailsDto } from '../../core/models/season';
-import { apiErrorMessage } from '../../core/utils/api-error';
+import { showServerErrors } from '../../core/utils/api-error';
 
 /** End date must be after the start date (mirrors the backend validator). */
 function endAfterStart(group: AbstractControl): ValidationErrors | null {
@@ -29,9 +30,10 @@ export class SeasonForm implements OnChanges {
 
   private fb = inject(NonNullableFormBuilder);
   private seasonService = inject(SeasonService);
+  private toast = inject(ToastService);
 
-  errorMessage = '';
-  saving = false;
+  errorMessage = signal('');
+  saving = signal(false);
 
   form = this.fb.group(
     {
@@ -49,7 +51,7 @@ export class SeasonForm implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['editSeason'] || changes['isOpen']) {
-      this.errorMessage = '';
+      this.errorMessage.set('');
       if (this.editSeason) {
         this.form.reset({
           name: this.editSeason.name,
@@ -69,6 +71,7 @@ export class SeasonForm implements OnChanges {
   }
 
   onSubmit(): void {
+    if (this.saving()) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -80,21 +83,25 @@ export class SeasonForm implements OnChanges {
       endDate: value.endDate,
       isCurrent: value.isCurrent,
     };
-    const request$ = this.isEditMode
+    const editing = this.isEditMode;
+    const request$ = editing
       ? this.seasonService.update(this.editSeason!.slug, payload)
       : this.seasonService.create({ ...payload, competitionPublicId: this.competitionPublicId });
 
-    this.saving = true;
-    this.errorMessage = '';
+    this.saving.set(true);
+    this.errorMessage.set('');
     request$.subscribe({
       next: () => {
-        this.saving = false;
+        this.saving.set(false);
+        this.toast.success(editing ? 'Season updated' : 'Season added');
         this.form.reset();
         this.saved.emit();
       },
       error: (err) => {
-        this.saving = false;
-        this.errorMessage = apiErrorMessage(err);
+        this.saving.set(false);
+        const message = showServerErrors(this.form, err, 'The season could not be saved.');
+        this.errorMessage.set(message);
+        if (message) this.toast.error(message);
       },
     });
   }

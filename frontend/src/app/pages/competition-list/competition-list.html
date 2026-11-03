@@ -1,47 +1,80 @@
 <div class="container">
-  <div class="header-actions">
-    <h1>Competitions</h1>
+  <header class="page-head">
+    <div>
+      <h1>Competitions</h1>
+      <p class="page-subtitle">Leagues and cups, with their seasons, rounds and tables</p>
+    </div>
     @if (canManage()) {
-      <button class="btn-add" (click)="onAdd()">+ Add Competition</button>
+      <div class="page-actions">
+        <app-button text="Add competition" (click)="onAdd()"><app-icon name="plus" /></app-button>
+      </div>
     }
+  </header>
+
+  <div [formGroup]="filterForm">
+    <app-filter-card [chips]="chips()" (chipRemove)="clearChip($event)" (resetFilters)="resetFilters()" (applyFilters)="apply()">
+      <div class="filter-field">
+        <label for="filter-search">Name</label>
+        <input id="filter-search" type="text" formControlName="search" placeholder="e.g. Premijer liga">
+      </div>
+      <div class="filter-field">
+        <label for="filter-country">Country</label>
+        <select id="filter-country" formControlName="countryPublicId">
+          <option value="">All countries</option>
+          @for (country of countries(); track country.publicId) {
+            <option [value]="country.publicId">{{ country.name }}</option>
+          }
+        </select>
+      </div>
+      @if (filterForm.controls.search.hasError('maxlength')) {
+        <p class="filter-error">Name can have at most 100 characters.</p>
+      }
+    </app-filter-card>
   </div>
 
-  @if (errorMessage()) {
-    <p class="page-error" role="alert">{{ errorMessage() }}</p>
+  @if (state().loading) {
+    <app-skeleton [rows]="6" [avatar]="true" />
+  } @else if (state().error) {
+    <app-error-banner [message]="state().error" (retry)="retry()" />
+  } @else if (!state().data.totalCount) {
+    <app-empty-state icon="trophy" title="No competitions found" message="Change or reset the filters to see more competitions." />
+  } @else {
+    <ul class="entity-grid">
+      @for (competition of state().data.items; track competition.publicId) {
+        <li class="entity-card">
+          <a class="entity-card-link" [routerLink]="['/competitions', competition.slug]">
+            <app-crest [name]="competition.name" [abbreviation]="code(competition.name, competition.shortName)" [size]="48" />
+            <span class="entity-card-text">
+              <strong>{{ competition.name }}</strong>
+              <span>
+                {{ competition.countryName || 'International' }} · {{ competition.seasonCount }}
+                {{ competition.seasonCount === 1 ? 'season' : 'seasons' }}
+              </span>
+            </span>
+          </a>
+          @if (canManage()) {
+            <span class="entity-card-actions">
+              <app-button variant="icon" [label]="'Edit ' + competition.name" (click)="onEdit(competition)"><app-icon name="edit" /></app-button>
+              @if (canDelete()) {
+                <app-button variant="icon" [label]="'Delete ' + competition.name" (click)="onDelete(competition)"><app-icon name="trash" /></app-button>
+              }
+            </span>
+          }
+        </li>
+      }
+    </ul>
+    <app-pagination
+      [totalItems]="state().data.totalCount"
+      [pageSize]="pageSize"
+      [currentPage]="state().data.page"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
   }
-
-  <app-generic-search placeholder="Search competitions..." (onSearch)="search($event)"></app-generic-search>
-
-  <app-generic-list
-    [items]="competitions()?.items ?? []"
-    [pageSize]="pageSize"
-    [serverTotalItems]="competitions()?.totalCount"
-    [serverCurrentPage]="competitions()?.page ?? 1"
-    [showActions]="canManage()"
-    [showDelete]="canDelete()"
-    variant="card"
-    (view)="open($event)"
-    (update)="onEdit($event)"
-    (delete)="onDelete($event)"
-    (pageChange)="onPageChange($event)">
-    <ng-template #itemTemplate let-competition>
-      <div class="card-row">
-        <div class="card-badge">{{ competition.shortName || competition.name.slice(0, 3).toUpperCase() }}</div>
-        <div class="card-info">
-          <div class="card-title">{{ competition.name }}</div>
-          <div class="card-meta">
-            {{ competition.countryName || 'International' }} · {{ competition.seasonCount }}
-            {{ competition.seasonCount === 1 ? 'season' : 'seasons' }}
-          </div>
-        </div>
-      </div>
-    </ng-template>
-  </app-generic-list>
 </div>
 
 <app-competition-form
-  [isOpen]="isFormOpen"
-  [editCompetition]="selected"
+  [isOpen]="isFormOpen()"
+  [editCompetition]="selected()"
   (saved)="onFormSaved()"
   (closed)="onFormClosed()">
 </app-competition-form>
