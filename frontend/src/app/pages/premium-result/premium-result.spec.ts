@@ -1,3 +1,5 @@
+import { registerLocaleData } from '@angular/common';
+import localeBs from '@angular/common/locales/bs-Latn';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
@@ -5,6 +7,9 @@ import { PremiumStatus } from '../../core/models/payment';
 import { AuthService } from '../../core/services/auth.service';
 import { PaymentService } from '../../core/services/payment.service';
 import { POLL_ATTEMPTS, POLL_INTERVAL_MS, PremiumResult } from './premium-result';
+
+// The success card shows the end date through the regional appDate pipe.
+registerLocaleData(localeBs);
 
 describe('PremiumResult', () => {
   const getStatus = vi.fn();
