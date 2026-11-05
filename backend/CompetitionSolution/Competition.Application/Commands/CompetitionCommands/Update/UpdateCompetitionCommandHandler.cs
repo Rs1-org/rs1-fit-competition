@@ -37,8 +37,8 @@ public class UpdateCompetitionCommandHandler : IRequestHandler<UpdateCompetition
         competition.Slug = slug;
         competition.ShortName = request.ShortName?.Trim();
         competition.Description = request.Description?.Trim();
+        // Set only the FK: nulling the Country navigation as well makes EF clear the FK on save.
         competition.CountryId = countryId;
-        competition.Country = null;
 
         await _competition.UpdateAsync(competition, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

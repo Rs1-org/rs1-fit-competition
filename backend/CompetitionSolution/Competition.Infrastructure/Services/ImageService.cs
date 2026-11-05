@@ -1,4 +1,5 @@
-﻿using Competition.Application.Services;
+﻿using Competition.Application.Helpers;
+using Competition.Application.Services;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace Competition.Infrastructure.Services
         {
             var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp" };
             if (!allowedTypes.Contains(image.ContentType))
-                throw new Exception("Invalid file type");
+                throw BusinessRule.Violation("Picture", "Only JPEG, PNG or WEBP images are allowed.");
 
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
 

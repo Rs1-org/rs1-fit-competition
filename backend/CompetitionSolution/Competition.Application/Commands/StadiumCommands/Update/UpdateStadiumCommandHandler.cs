@@ -40,8 +40,8 @@ public class UpdateStadiumCommandHandler : IRequestHandler<UpdateStadiumCommand,
         stadium.Name = request.Name;
         stadium.Capacity = request.Capacity;
         stadium.DateOfConstruction = DateTime.SpecifyKind(request.DateOfConstruction, DateTimeKind.Utc);
+        // Set only the FK: nulling the loaded City navigation makes EF treat it as severing the required relationship.
         stadium.CityId = await _lookup.GetRequiredIdAsync<City>(request.CityPublicId, cancellationToken);
-        stadium.City = null;
         stadium.Slug = SlugHelper.GenerateSlug(request.Name!);
 
         string? replacedPictureUrl = null;

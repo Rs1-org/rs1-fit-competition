@@ -29,8 +29,11 @@ namespace Competition.Application.Commands.CountryCommands.Create
 
         public async Task<CountryNameDto>Handle(CreateCountryCommands request,CancellationToken cancellationToken)
         {
-            var pictureUrl = await _imageService.UploadImageAsync(request.Picture, cancellationToken);
-            
+            // The flag picture is optional.
+            string? pictureUrl = null;
+            if (request.Picture != null)
+                pictureUrl = await _imageService.UploadImageAsync(request.Picture, cancellationToken);
+
             var country = _mapper.Map<Country>(request);
 
             if (country == null)
