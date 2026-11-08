@@ -9,6 +9,8 @@ import { Button } from '../../shared/components/button/button';
 import { InputBox } from '../../shared/components/input-box/input-box';
 import { ErrorBanner } from '../../shared/components/error-banner/error-banner';
 import { AppDatePipe } from '../../shared/pipes/regional-format.pipes';
+import { Router } from '@angular/router';
+import { TourService } from '../../core/services/tour.service';
 
 function passwordsMatch(group: AbstractControl): ValidationErrors | null {
   const { newPassword, confirmPassword } = group.value;
@@ -26,6 +28,8 @@ export class Settings implements OnInit {
   private userState = inject(UserStateService);
   private toast = inject(ToastService);
   private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private tour = inject(TourService);
   readonly account = toSignal(this.userState.user$, { initialValue: null });
   readonly premium = this.userState.isPremium;
 
@@ -124,6 +128,11 @@ export class Settings implements OnInit {
         this.profileError = err?.error?.errors?.[0]?.errorMessage || err?.error?.message || 'Could not save the profile.';
       },
     });
+  }
+
+  /** Goes to the home page and runs the tour again from the first step. */
+  restartTour(): void {
+    this.router.navigateByUrl('/').then(() => setTimeout(() => this.tour.restart(), 300));
   }
 
   cancelProfile(): void {

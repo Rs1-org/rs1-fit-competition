@@ -3,17 +3,17 @@
     <a class="navbar-text" routerLink="/">
       <app-icon name="home"></app-icon> Home
     </a>
-    <a class="navbar-text" routerLink="/live">
+    <a class="navbar-text" routerLink="/live" data-tour="live">
       <span class="live-dot"></span> Live
     </a>
-    <div class="navbar-text" (click)="openCompetitions()">
+    <div class="navbar-text" data-tour="competitions" (click)="openCompetitions()">
       <app-icon name="trophy"></app-icon> Competitions
     </div>
-    <a class="navbar-text" routerLink="/matches">Matches</a>
+    <a class="navbar-text" routerLink="/matches" data-tour="matches">Matches</a>
     <a class="navbar-text" routerLink="/clubs">Clubs</a>
     <a class="navbar-text" routerLink="/match-reviews">Match reviews</a>
     <a class="navbar-text" routerLink="/match-events">Match events</a>
-    <a class="navbar-text" routerLink="/statistics">Statistics</a>
+    <a class="navbar-text" routerLink="/statistics" data-tour="statistics">Statistics</a>
     <div class="navbar-text" (click)="openListPlayers()">
       <app-icon name="player"></app-icon> Players
     </div>
@@ -44,7 +44,7 @@
         <button type="button" *appHasRole="'Admin'" routerLink="/admin/users" (click)="$event.stopPropagation(); openManageTab = false">Users</button>
       </div>
     </div>
-    <div class="navbar-end">
+    <div class="navbar-end" data-tour="account">
     <div class="navbar-text manage-wrapper" (click)="toggleAccount($event)">
       <app-icon name="user"></app-icon>
       {{ user?.email || 'Guest' }}
