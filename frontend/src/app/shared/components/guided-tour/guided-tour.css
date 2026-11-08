@@ -1,0 +1,87 @@
+.tour-layer {
+  position: fixed;
+  inset: 0;
+  /* Children are positioned inside the layer, so nothing can widen the page at 390px. */
+  overflow: hidden;
+  /* Above the navbar and its dropdowns (1000/1300), below modals (2000) and toasts. */
+  z-index: 1500;
+}
+
+.tour-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay);
+}
+
+/* The huge shadow dims everything except the highlighted element. */
+.tour-highlight {
+  position: absolute;
+  border-radius: var(--r-card);
+  outline: 2px solid var(--ac);
+  box-shadow: 0 0 0 9999px var(--overlay);
+  pointer-events: none;
+  transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
+}
+
+.tour-card {
+  position: absolute;
+  width: min(340px, calc(100vw - 32px));
+  box-sizing: border-box;
+  padding: 20px;
+  background: var(--card);
+  color: var(--tx);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-lg);
+  font-family: var(--font-body);
+}
+
+.tour-card.centered {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* The card only receives focus so screen readers start at the step; the buttons inside keep their focus ring. */
+.tour-card:focus {
+  outline: none;
+}
+
+.tour-count {
+  margin: 0 0 4px;
+  color: var(--mut);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tour-title {
+  margin: 0 0 8px;
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.tour-text {
+  margin: 0 0 16px;
+  color: var(--tx);
+  line-height: 1.45;
+}
+
+.tour-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.tour-spacer {
+  flex: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-highlight {
+    transition: none;
+  }
+}

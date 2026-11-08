@@ -1,0 +1,26 @@
+@if (tour.active()) {
+  <div class="tour-layer">
+    @if (highlight(); as box) {
+      <div class="tour-highlight" aria-hidden="true"
+        [style.top.px]="box.top" [style.left.px]="box.left" [style.width.px]="box.width" [style.height.px]="box.height"></div>
+    } @else {
+      <div class="tour-backdrop" aria-hidden="true"></div>
+    }
+
+    <section #card class="tour-card" [class.centered]="!cardPos()" tabindex="-1"
+      role="dialog" aria-modal="true" aria-labelledby="tour-title" aria-describedby="tour-text"
+      [style.top.px]="cardPos()?.top" [style.left.px]="cardPos()?.left">
+      <p class="tour-count">{{ tour.index() + 1 }} of {{ tour.steps.length }}</p>
+      <h2 id="tour-title" class="tour-title">{{ tour.step().title }}</h2>
+      <p id="tour-text" class="tour-text">{{ tour.step().text }}</p>
+      <div class="tour-actions">
+        <app-button variant="ghost" text="Skip tour" (click)="tour.skip()" />
+        <span class="tour-spacer"></span>
+        @if (!tour.isFirst()) {
+          <app-button variant="secondary" text="Back" (click)="tour.back()" />
+        }
+        <app-button [text]="tour.isLast() ? 'Finish' : 'Next'" (click)="tour.next()" />
+      </div>
+    </section>
+  </div>
+}
