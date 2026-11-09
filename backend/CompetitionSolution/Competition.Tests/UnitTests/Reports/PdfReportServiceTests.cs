@@ -3,7 +3,9 @@ using Competition.Application.DTOs.MatchDto;
 using Competition.Application.DTOs.ReportDto;
 using Competition.Application.Events;
 using Competition.Infrastructure.Services;
+using Competition.Infrastructure.Settings;
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace Competition.Tests.UnitTests.Reports;
@@ -11,7 +13,21 @@ namespace Competition.Tests.UnitTests.Reports;
 public class PdfReportServiceTests
 {
     private static readonly DateTime Date = new(2026, 10, 1, 18, 0, 0, DateTimeKind.Utc);
-    private readonly PdfReportService _service = new();
+    private readonly PdfReportService _service = Service("Europe/Sarajevo");
+
+    private static PdfReportService Service(string timeZone) =>
+        new(Options.Create(new ReportSettings { TimeZone = timeZone }));
+
+    [Theory]
+    [InlineData(2025, 7, 19, 20, "19.07.2025 22:00")] // summer time, UTC+2
+    [InlineData(2026, 1, 10, 18, "10.01.2026 19:00")] // winter time, UTC+1
+    [InlineData(2025, 12, 31, 23, "01.01.2026 00:00")] // crosses midnight into the next day
+    public void DateText_ShouldShowUtcTimeInTheConfiguredZone(int year, int month, int day, int hour, string expected) =>
+        _service.DateText(new DateTime(year, month, day, hour, 0, 0, DateTimeKind.Utc)).Should().Be(expected);
+
+    [Fact]
+    public void DateText_UnknownZone_ShouldFallBackToUtc() =>
+        Service("Not/AZone").DateText(new DateTime(2025, 7, 19, 20, 0, 0, DateTimeKind.Utc)).Should().Be("19.07.2025 20:00");
 
     private static void ShouldBePdf(byte[] content) =>
         Encoding.ASCII.GetString(content, 0, 4).Should().Be("%PDF");

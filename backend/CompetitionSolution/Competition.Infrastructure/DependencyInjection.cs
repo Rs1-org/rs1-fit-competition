@@ -34,6 +34,8 @@ namespace Competition.Infrastructure
                 .Bind(configuration.GetSection(StripeSettings.SectionName));
             services.AddOptions<SeedSettings>()
                 .Bind(configuration.GetSection(SeedSettings.SectionName));
+            services.AddOptions<ReportSettings>()
+                .Bind(configuration.GetSection(ReportSettings.SectionName));
 
             services.AddHttpContextAccessor();
             services.AddScoped<DataSeeder>();

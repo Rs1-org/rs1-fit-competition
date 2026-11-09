@@ -5,15 +5,25 @@ using Competition.Application.Interfaces;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using Competition.Infrastructure.Settings;
+using Microsoft.Extensions.Options;
+using NodaTime;
 
 namespace Competition.Infrastructure.Services;
 
 public class PdfReportService : IPdfReportService
 {
     private const string NotRecorded = "Not recorded";
+    private readonly DateTimeZone _zone;
 
     // QuestPDF refuses to generate anything until a license type is set.
     static PdfReportService() => QuestPDF.Settings.License = LicenseType.Community;
+
+    public PdfReportService(IOptions<ReportSettings> settings)
+    {
+        // Match times are stored in UTC; the report shows them in the configured local zone, like the app does.
+        _zone = DateTimeZoneProviders.Tzdb.GetZoneOrNull(settings.Value.TimeZone ?? string.Empty) ?? DateTimeZone.Utc;
+    }
 
     public byte[] MatchReport(MatchReportDto report) =>
         Render("Match report", $"{report.HomeName} vs {report.AwayName}", column =>
@@ -83,7 +93,7 @@ public class PdfReportService : IPdfReportService
                 })));
         });
 
-    private static IEnumerable<(string Label, string? Value)> MatchFacts(MatchReportDto report)
+    private IEnumerable<(string Label, string? Value)> MatchFacts(MatchReportDto report)
     {
         yield return ("Date", DateText(report.Date));
         yield return ("Stadium", report.StadiumName);
@@ -95,7 +105,7 @@ public class PdfReportService : IPdfReportService
         yield return ("Half-time score", Score(report.HalfHomeScore, report.HalfAwayScore));
     }
 
-    private static byte[] Render(string title, string subtitle, Action<ColumnDescriptor> body) =>
+    private byte[] Render(string title, string subtitle, Action<ColumnDescriptor> body) =>
         Document.Create(document => document.Page(page =>
         {
             page.Size(PageSizes.A4);
@@ -117,7 +127,7 @@ public class PdfReportService : IPdfReportService
 
             page.Footer().Row(row =>
             {
-                row.RelativeItem().Text("Times are in UTC.").FontSize(8).FontColor(Colors.Grey.Darken1);
+                row.RelativeItem().Text($"Times are in {_zone.Id} time.").FontSize(8).FontColor(Colors.Grey.Darken1);
                 row.RelativeItem().AlignRight().Text(text =>
                 {
                     text.DefaultTextStyle(style => style.FontSize(8).FontColor(Colors.Grey.Darken1));
@@ -198,7 +208,12 @@ public class PdfReportService : IPdfReportService
 
     private static string Number(int value) => value.ToString(CultureInfo.InvariantCulture);
 
-    private static string DateText(DateTime date) => date.ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture);
+    /// <summary>Formats a UTC time as local time in the report's zone, e.g. 19.07.2025 22:00.</summary>
+    public string DateText(DateTime utc) =>
+        Instant.FromDateTimeUtc(DateTime.SpecifyKind(utc, DateTimeKind.Utc))
+            .InZone(_zone)
+            .ToDateTimeUnspecified()
+            .ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture);
 
     private static string DayText(DateTime date) => date.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture);
 }
