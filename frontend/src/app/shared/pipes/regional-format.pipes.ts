@@ -69,6 +69,6 @@ export class AppNumberPipe implements PipeTransform {
 export class AppCurrencyPipe implements PipeTransform {
   transform(value: unknown): string {
     const number = asNumber(value);
-    return number == null ? '' : `${formatNumber(number, REGIONAL_LOCALE, '1.2-2')} KM`;
+    return number == null ? '' : `${formatNumber(number, REGIONAL_LOCALE, '1.2-2')} €`;
   }
 }

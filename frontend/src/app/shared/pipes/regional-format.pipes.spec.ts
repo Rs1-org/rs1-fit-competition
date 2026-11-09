@@ -22,7 +22,7 @@ describe('regional format pipes', () => {
     expect(new AppNumberPipe().transform(1234.56)).toBe('1.234,56');
   });
 
-  it('appends the convertible mark', () => {
-    expect(new AppCurrencyPipe().transform(1234.56)).toBe('1.234,56 KM');
+  it('appends the euro sign used on the player form and profile', () => {
+    expect(new AppCurrencyPipe().transform(1234.56)).toBe('1.234,56 €');
   });
 });

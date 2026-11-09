@@ -25,9 +25,9 @@
       <label class="form-group">
         Referee
         <select [value]="data.refereePublicId" (change)="data.refereePublicId = $any($event.target).value">
-          <option value="">No referee</option>
+          <option value="" [selected]="!data.refereePublicId">No referee</option>
           @for (referee of data.referees; track referee.publicId) {
-            <option [value]="referee.publicId">{{ referee.firstName }} {{ referee.lastName }}</option>
+            <option [value]="referee.publicId" [selected]="referee.publicId === data.refereePublicId">{{ referee.firstName }} {{ referee.lastName }}</option>
           }
         </select>
       </label>
@@ -38,9 +38,9 @@
         <label class="form-group">
           Formation
           <select [value]="data.homeFormationPublicId" (change)="data.homeFormationPublicId = $any($event.target).value">
-            <option value="">No formation</option>
+            <option value="" [selected]="!data.homeFormationPublicId">No formation</option>
             @for (formation of data.formations; track formation.publicId) {
-              <option [value]="formation.publicId">{{ formation.code }}</option>
+              <option [value]="formation.publicId" [selected]="formation.publicId === data.homeFormationPublicId">{{ formation.code }}</option>
             }
           </select>
         </label>
@@ -58,9 +58,9 @@
         <label class="form-group">
           Formation
           <select [value]="data.awayFormationPublicId" (change)="data.awayFormationPublicId = $any($event.target).value">
-            <option value="">No formation</option>
+            <option value="" [selected]="!data.awayFormationPublicId">No formation</option>
             @for (formation of data.formations; track formation.publicId) {
-              <option [value]="formation.publicId">{{ formation.code }}</option>
+              <option [value]="formation.publicId" [selected]="formation.publicId === data.awayFormationPublicId">{{ formation.code }}</option>
             }
           </select>
         </label>
