@@ -1,12 +1,15 @@
 # Database backup
 
-`competition-2026-11-08.zip` contains `competition.sql`, a plain SQL dump (`pg_dump --no-owner --no-privileges`) of a
-PostgreSQL 16 database. It was taken from `main` at commit `40638e0` and includes all EF Core migrations up to then.
+`competition-2026-11-09.zip` contains `competition.sql`, a plain SQL dump (`pg_dump --no-owner --no-privileges`) of a
+PostgreSQL 16 database. It was taken from `main` at commit `68566f8` and includes all EF Core migrations up to then.
 
 What is in it:
 
 - Demo data from the startup seeder: countries, cities, stadiums with map coordinates, the Premijer liga BiH
   competition with seasons and rounds, demo teams with squads, formations and history, and their matches.
+- One finished match with the full matchday data, for the flow and the PDF report: FK Sarajevo vs FK Tuzla City
+  (19.07.2025, 3:0). It has a referee, both lineups with formations (4-3-3 and 4-4-2), goals, cards, a substitution
+  and team statistics. Other matches have only their result.
 - One login per role (see below). Passwords are stored only as ASP.NET Identity hashes.
 - `user@competition.ba` has an active premium subscription until 2027-11-08, so the advanced statistics
   (team form, head-to-head) are unlocked for that account. Premium was granted directly in the database for the
@@ -28,7 +31,7 @@ The two legacy sample accounts from migration `SeedTestAdminAndModerator` (`admi
 
 ## Restore with Docker (recommended)
 
-From the repository root, after unzipping `competition-2026-11-08.zip` into `db-backups/`:
+From the repository root, after unzipping `competition-2026-11-09.zip` into `db-backups/`:
 
 ```
 docker compose up -d db
