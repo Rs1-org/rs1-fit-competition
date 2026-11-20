@@ -19,6 +19,7 @@ public class SaveMatchLineupCommand : IRequest<MatchLineupDto>
     public string PublicId { get; set; } = string.Empty;
     public string? HomeFormationPublicId { get; set; }
     public string? AwayFormationPublicId { get; set; }
+    public string? RefereePublicId { get; set; }
     public List<SaveLineupPlayerDto> Players { get; set; } = [];
 }
 
@@ -31,6 +32,8 @@ public class SaveMatchLineupCommandValidator : AbstractValidator<SaveMatchLineup
             .When(x => !string.IsNullOrWhiteSpace(x.HomeFormationPublicId));
         RuleFor(x => x.AwayFormationPublicId!).MustReferenceExisting<SaveMatchLineupCommand, Formation>(lookup)
             .When(x => !string.IsNullOrWhiteSpace(x.AwayFormationPublicId));
+        RuleFor(x => x.RefereePublicId!).MustReferenceExisting<SaveMatchLineupCommand, Referee>(lookup)
+            .When(x => !string.IsNullOrWhiteSpace(x.RefereePublicId));
         RuleFor(x => x.Players).NotNull();
         When(x => x.Players != null, () =>
         {
@@ -71,6 +74,7 @@ public class SaveMatchLineupCommandHandler(IMatchLineup lineups, IUnitOfWork uni
 
         var homeId = match.HomeSelectionId;
         var awayId = match.AwaySelectionId;
+        match.RefereeId = await lookup.GetOptionalIdAsync<Referee>(request.RefereePublicId, cancellationToken);
         match.HomeFormationId = await lookup.GetOptionalIdAsync<Formation>(request.HomeFormationPublicId, cancellationToken);
         match.AwayFormationId = await lookup.GetOptionalIdAsync<Formation>(request.AwayFormationPublicId, cancellationToken);
 

@@ -215,13 +215,12 @@ export class ManageLineup {
     this.saving.set(true);
     this.error.set(null);
     const players = [...current.home, ...current.away].filter((row) => row.included).map((row) => this.toSave(row));
-    this.lineups.assignReferee(current.match.publicId, current.refereePublicId || null).pipe(
-      switchMap(() => this.lineups.save(current.match.publicId, {
-        homeFormationPublicId: current.homeFormationPublicId || null,
-        awayFormationPublicId: current.awayFormationPublicId || null,
-        players,
-      })),
-    ).subscribe({
+    this.lineups.save(current.match.publicId, {
+      refereePublicId: current.refereePublicId || null,
+      homeFormationPublicId: current.homeFormationPublicId || null,
+      awayFormationPublicId: current.awayFormationPublicId || null,
+      players,
+    }).subscribe({
       next: () => {
         this.saving.set(false);
         this.saved.set(true);
