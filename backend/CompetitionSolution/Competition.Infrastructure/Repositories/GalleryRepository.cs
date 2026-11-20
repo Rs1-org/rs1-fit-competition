@@ -218,25 +218,62 @@ public class GalleryRepository : IGallery
     private async Task<GalleryItemDto> SaveCountry(Guid id, IFormFile picture, CancellationToken cancellationToken)
     {
         var entity = await Find(_db.Countries, id, "Country", cancellationToken);
-        entity.PictureUrl = await ReplaceUrl(entity.PictureUrl, picture);
-        await _db.SaveChangesAsync(cancellationToken);
-        return Item(entity.PublicId, entity.Name ?? "Untitled", GalleryRules.Country, entity.PictureUrl);
+        return await SaveExternalPicture(
+            entity,
+            entity.PictureUrl,
+            url => entity.PictureUrl = url,
+            picture,
+            () => Item(entity.PublicId, entity.Name ?? "Untitled", GalleryRules.Country, entity.PictureUrl),
+            cancellationToken);
     }
 
     private async Task<GalleryItemDto> SaveStadium(Guid id, IFormFile picture, CancellationToken cancellationToken)
     {
         var entity = await Find(_db.Stadiums, id, "Stadium", cancellationToken);
-        entity.PictureUrl = await ReplaceUrl(entity.PictureUrl, picture);
-        await _db.SaveChangesAsync(cancellationToken);
-        return Item(entity.PublicId, entity.Name ?? "Untitled", GalleryRules.Stadium, entity.PictureUrl);
+        return await SaveExternalPicture(
+            entity,
+            entity.PictureUrl,
+            url => entity.PictureUrl = url,
+            picture,
+            () => Item(entity.PublicId, entity.Name ?? "Untitled", GalleryRules.Stadium, entity.PictureUrl),
+            cancellationToken);
     }
 
     private async Task<GalleryItemDto> SaveSelection(Guid id, IFormFile picture, CancellationToken cancellationToken)
     {
         var entity = await Find(_db.Selections, id, "Selection", cancellationToken);
-        entity.PictureUrl = await ReplaceUrl(entity.PictureUrl, picture);
-        await _db.SaveChangesAsync(cancellationToken);
-        return Item(entity.PublicId, entity.Name, GalleryRules.Selection, entity.PictureUrl);
+        return await SaveExternalPicture(
+            entity,
+            entity.PictureUrl,
+            url => entity.PictureUrl = url,
+            picture,
+            () => Item(entity.PublicId, entity.Name, GalleryRules.Selection, entity.PictureUrl),
+            cancellationToken);
+    }
+
+    private async Task<GalleryItemDto> SaveExternalPicture<TEntity>(
+        TEntity entity,
+        string? previousUrl,
+        Action<string?> assignUrl,
+        IFormFile picture,
+        Func<GalleryItemDto> map,
+        CancellationToken cancellationToken)
+    {
+        var uploadedUrl = await _images.UploadImageAsync(picture, cancellationToken);
+        assignUrl(uploadedUrl);
+        try
+        {
+            await _db.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            await TryDelete(uploadedUrl);
+            assignUrl(previousUrl);
+            throw;
+        }
+
+        await TryDelete(previousUrl);
+        return map();
     }
 
     private async Task ClearUrl<T>(T entity, Func<T, string?> read, Action<T, string?> write, CancellationToken cancellationToken) where T : BaseEntity
@@ -245,13 +282,6 @@ public class GalleryRepository : IGallery
         write(entity, null);
         await _db.SaveChangesAsync(cancellationToken);
         await TryDelete(current);
-    }
-
-    private async Task<string> ReplaceUrl(string? current, IFormFile picture)
-    {
-        var uploaded = await _images.UploadImageAsync(picture);
-        await TryDelete(current);
-        return uploaded;
     }
 
     private async Task TryDelete(string? url)
