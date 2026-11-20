@@ -68,6 +68,18 @@ public class ExceptionMiddleware
                 response = new { message = exception.Message };
                 break;
 
+            case ResourceConflictException conflict:
+                status = HttpStatusCode.Conflict;
+                response = new
+                {
+                    message = conflict.Message,
+                    errors = new[]
+                    {
+                        new { propertyName = conflict.PropertyName, errorMessage = conflict.Message }
+                    }
+                };
+                break;
+
             case Microsoft.EntityFrameworkCore.DbUpdateException { InnerException: Npgsql.PostgresException
                 { SqlState: "23505", ConstraintName: "IX_MatchReviews_MatchId_AuthorId" or "IX_ReviewReactions_ReviewId_UserId" or "IX_PollVotes_PollId_UserId" } }:
                 status = HttpStatusCode.Conflict;

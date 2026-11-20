@@ -1,5 +1,6 @@
 using Competition.Application.Common.Validation;
 using Competition.Application.DTOs.SelectionDto;
+using Competition.Application.Exeptions;
 using Competition.Application.Helpers;
 using Competition.Application.Interfaces;
 using Competition.Domain.Entities;
@@ -57,7 +58,11 @@ public class CreateSelectionCommandHandler : IRequestHandler<CreateSelectionComm
 
         var slug = SlugHelper.GenerateSlug(request.Name);
         if (await _selections.GetBySlugAsync(slug, cancellationToken) != null)
-            throw new InvalidOperationException($"Selection '{request.Name}' already exists.");
+        {
+            throw new ResourceConflictException(
+                nameof(CreateSelectionCommand.Name),
+                $"A selection named '{request.Name.Trim()}' already exists. Change the name and try again.");
+        }
 
         var entity = new Selection
         {
