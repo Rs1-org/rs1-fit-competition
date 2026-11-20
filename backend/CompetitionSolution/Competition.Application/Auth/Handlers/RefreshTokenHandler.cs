@@ -30,10 +30,8 @@ public class RefreshTokenHandler(IRefreshTokenService refreshTokenService, UserM
         
         var newRefreshToken = refreshTokenService.GenerateRefreshToken();
         var expires = DateTime.UtcNow.AddDays(7);
-        
-        await refreshTokenService.SaveRefreshTokenAsync(user.Id, newRefreshToken, expires, cancellationToken);
-        
-        await refreshTokenService.RevokeTokenAsync(request.RefreshToken, cancellationToken);
+
+        await refreshTokenService.RotateRefreshTokenAsync(user.Id, request.RefreshToken, newRefreshToken, expires, cancellationToken);
         
         return new LoginResponse
         {

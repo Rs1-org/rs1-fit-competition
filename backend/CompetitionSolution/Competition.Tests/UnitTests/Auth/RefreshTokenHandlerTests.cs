@@ -45,8 +45,7 @@ public class RefreshTokenHandlerTests : AuthUnitTestBase
         Users.Setup(x => x.GetRolesAsync(user)).ReturnsAsync(roles);
         Jwt.Setup(x => x.GenerateJwtToken(user, roles)).Returns("new-access");
         Tokens.Setup(x => x.GenerateRefreshToken()).Returns("new-refresh");
-        Tokens.Setup(x => x.SaveRefreshTokenAsync(user.Id, "new-refresh", It.IsAny<DateTime>(), ct)).Returns(Task.CompletedTask);
-        Tokens.Setup(x => x.RevokeTokenAsync("old", ct)).Returns(Task.CompletedTask);
+        Tokens.Setup(x => x.RotateRefreshTokenAsync(user.Id, "old", "new-refresh", It.IsAny<DateTime>(), ct)).Returns(Task.CompletedTask);
         var handler = new RefreshTokenHandler(Tokens.Object, Users.Object, Jwt.Object);
 
         var result = await handler.Handle(new RefreshTokenCommand("old"), ct);
@@ -54,8 +53,7 @@ public class RefreshTokenHandlerTests : AuthUnitTestBase
         result.AccessToken.Should().Be("new-access");
         result.RefreshToken.Should().Be("new-refresh");
         result.Roles.Should().Equal("User");
-        Tokens.Verify(x => x.RevokeTokenAsync("old", ct), Times.Once);
-        Tokens.Verify(x => x.SaveRefreshTokenAsync(user.Id, "new-refresh", It.IsAny<DateTime>(), ct), Times.Once);
+        Tokens.Verify(x => x.RotateRefreshTokenAsync(user.Id, "old", "new-refresh", It.IsAny<DateTime>(), ct), Times.Once);
     }
 
     [Fact]
