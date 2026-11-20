@@ -148,13 +148,16 @@ public class UpdateNavigationPersistenceTests
     public async Task UploadImage_NotAnImage_ShouldThrowValidationException()
     {
         var blob = new Mock<IBlobStorageService>();
+        var payload = System.Text.Encoding.UTF8.GetBytes("not an image");
         var file = new Mock<IFormFile>();
         file.SetupGet(f => f.ContentType).Returns("text/plain");
         file.SetupGet(f => f.FileName).Returns("notes.txt");
+        file.SetupGet(f => f.Length).Returns((long)payload.Length);
+        file.Setup(f => f.OpenReadStream()).Returns(() => new MemoryStream(payload));
 
         var act = () => new ImageService(blob.Object).UploadImageAsync(file.Object, CancellationToken.None);
 
-        await act.Should().ThrowAsync<ValidationException>().WithMessage("*JPEG, PNG or WEBP*");
+        await act.Should().ThrowAsync<ValidationException>().WithMessage("*not a supported image*");
         blob.VerifyNoOtherCalls();
     }
 }
