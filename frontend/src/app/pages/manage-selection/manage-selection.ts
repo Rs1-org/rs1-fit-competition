@@ -204,6 +204,11 @@ export class ManageSelection implements OnInit {
             const errors = err.error?.errors as
               | { propertyName: string; errorMessage: string }[]
               | undefined;
+            const nameError = errors?.find((error) => error.propertyName === 'Name');
+            if (nameError) {
+              this.form.controls.name.setErrors({ server: nameError.errorMessage });
+              this.form.controls.name.markAsTouched();
+            }
             const clubError = errors?.find((error) => error.propertyName === 'ClubPublicId');
             if (clubError) {
               this.form.controls.clubPublicId.setErrors({ server: clubError.errorMessage });

@@ -1,5 +1,6 @@
 using Competition.Application.Commands.SelectionCommands.Create;
 using Competition.Application.Commands.SelectionCommands.Update;
+using Competition.Application.Exeptions;
 using Competition.Application.Interfaces;
 using Competition.Domain.Entities;
 using FluentAssertions;
@@ -52,6 +53,34 @@ public class SelectionCountryPublicIdTests
         result.CountryName.Should().Be("Bosnia and Herzegovina");
         _selections.Verify(s => s.AddAsync(It.Is<SelectionEntity>(x => x.CountryId == countryId), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Create_DuplicateName_ThrowsResourceConflict()
+    {
+        var clubId = Guid.NewGuid();
+        var countryId = Guid.NewGuid();
+        var clubPublicId = BaseEntity.NewPublicId();
+        var countryPublicId = BaseEntity.NewPublicId();
+        _publicIds.Setup(l => l.GetRequiredIdAsync<Club>(clubPublicId, It.IsAny<CancellationToken>())).ReturnsAsync(clubId);
+        _publicIds.Setup(l => l.GetRequiredIdAsync<Country>(countryPublicId, It.IsAny<CancellationToken>())).ReturnsAsync(countryId);
+        _selections
+            .Setup(s => s.GetBySlugAsync("bosnia", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SelectionEntity { Name = "Bosnia", Slug = "bosnia" });
+
+        var handler = new CreateSelectionCommandHandler(_selections.Object, _publicIds.Object, _unitOfWork.Object);
+
+        var act = () => handler.Handle(new CreateSelectionCommand
+        {
+            Name = "Bosnia",
+            Abbreviation = "BIH",
+            ClubPublicId = clubPublicId,
+            CountryPublicId = countryPublicId
+        }, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ResourceConflictException>()
+            .Where(ex => ex.PropertyName == nameof(CreateSelectionCommand.Name));
+        _selections.Verify(s => s.AddAsync(It.IsAny<SelectionEntity>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
