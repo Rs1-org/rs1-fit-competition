@@ -14,6 +14,7 @@ export class LineupService {
   }
 
   save(publicId: string, body: {
+    refereePublicId?: string | null;
     homeFormationPublicId: string | null;
     awayFormationPublicId: string | null;
     players: SaveLineupPlayer[];
