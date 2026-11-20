@@ -5,6 +5,19 @@ import { adminGuard } from './core/guards/admin.guard';
 import { redirectToMatchTab } from './pages/match-detail/match-redirect.guard';
 
 export const routes: Routes = [
+  {
+    path: '',
+    loadChildren: () =>
+      import('./modules/selection/selection.module').then((m) => m.SelectionModule),
+  },
+  {
+    path: '',
+    loadChildren: () => import('./modules/persons/persons.module').then((m) => m.PersonsModule),
+  },
+  {
+    path: '',
+    loadChildren: () => import('./modules/gallery/gallery.module').then((m) => m.GalleryModule),
+  },
   { path: 'manage-polls/:matchPublicId', canActivate: [AdminModeratorGuard], loadComponent: () => import('./components/poll-form/poll-form').then(m => m.PollForm) },
   { path: 'live', loadComponent: () => import('./pages/live/live').then((m) => m.LiveTable) },
   { path: 'live-matches/:publicId', canActivate: [redirectToMatchTab()], children: [] },
@@ -119,36 +132,6 @@ export const routes: Routes = [
       import('./pages/round-detail/round-detail').then((m) => m.RoundDetail),
   },
   {
-    path: 'manage-players',
-    canActivate: [AdminModeratorGuard],
-    loadComponent: () => import('./pages/manage-players/manage-players').then((m) => m.ManagePlayers),
-  },
-  {
-    path: 'manage-players/:publicId',
-    canActivate: [AdminModeratorGuard],
-    loadComponent: () => import('./pages/manage-players/manage-players').then((m) => m.ManagePlayers),
-  },
-  {
-    path: 'manage-referees',
-    canActivate: [AdminModeratorGuard],
-    loadComponent: () => import('./pages/manage-referees/manage-referees').then((m) => m.ManageReferees),
-  },
-  {
-    path: 'manage-referees/:publicId',
-    canActivate: [AdminModeratorGuard],
-    loadComponent: () => import('./pages/manage-referees/manage-referees').then((m) => m.ManageReferees),
-  },
-  {
-    path: 'manage-managers',
-    canActivate: [AdminModeratorGuard],
-    loadComponent: () => import('./pages/manage-managers/manage-managers').then((m) => m.ManageManagers),
-  },
-  {
-    path: 'manage-managers/:publicId',
-    canActivate: [AdminModeratorGuard],
-    loadComponent: () => import('./pages/manage-managers/manage-managers').then((m) => m.ManageManagers),
-  },
-  {
     path: 'manage-formation-marks',
     canActivate: [AdminModeratorGuard],
     loadComponent: () =>
@@ -173,36 +156,6 @@ export const routes: Routes = [
       import('./components/formation-form/formation-form').then((m) => m.FormationForm),
   },
   {
-    path: 'player-list',
-    loadComponent: () =>
-      import('./pages/player-list/player-list').then((m) => m.PlayerList),
-  },
-  {
-    path: 'player/:publicId',
-    loadComponent: () =>
-      import('./pages/player-view/player-view').then((m) => m.PlayerView),
-  },
-  {
-    path: 'referee-list',
-    loadComponent: () =>
-      import('./pages/referee-list/referee-list').then((m) => m.RefereeList),
-  },
-  {
-    path: 'referee/:publicId',
-    loadComponent: () =>
-      import('./pages/referee-view/referee-view').then((m) => m.RefereeView),
-  },
-  {
-    path: 'manager-list',
-    loadComponent: () =>
-      import('./pages/manager-list/manager-list').then((m) => m.ManagerList),
-  },
-  {
-    path: 'manager/:publicId',
-    loadComponent: () =>
-      import('./pages/manager-view/manager-view').then((m) => m.ManagerView),
-  },
-  {
     path: 'formation-mark-list',
     loadComponent: () =>
       import('./pages/formation-mark-list/formation-mark-list').then((m) => m.FormationMarkList),
@@ -211,34 +164,6 @@ export const routes: Routes = [
     path: 'formation-list',
     loadComponent: () =>
       import('./pages/formation-list/formation-list').then((m) => m.FormationList),
-  },
-  {
-    path: 'selection/:slug',
-    loadComponent: () =>
-      import('./pages/selection-detail/selection-detail').then((m) => m.SelectionDetail),
-  },
-  {
-    path: 'selection-list',
-    loadComponent: () =>
-      import('./pages/selection-list/selection-list').then((m) => m.SelectionList),
-  },
-  {
-    path: 'image-gallery',
-    canActivate: [AdminModeratorGuard],
-    loadComponent: () =>
-      import('./pages/image-gallery/image-gallery').then((m) => m.ImageGallery),
-  },
-  {
-    path: 'manage-selections',
-    canActivate: [AdminModeratorGuard],
-    loadComponent: () =>
-      import('./pages/manage-selection/manage-selection').then((m) => m.ManageSelection),
-  },
-  {
-    path: 'manage-selections/:slug',
-    canActivate: [AdminModeratorGuard],
-    loadComponent: () =>
-      import('./pages/manage-selection/manage-selection').then((m) => m.ManageSelection),
   },
   {
     path: 'position-list',
