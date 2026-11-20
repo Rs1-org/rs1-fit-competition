@@ -46,9 +46,42 @@ public static class GalleryRules
         if (file.Length > MaxBytes)
             throw Invalid("picture", "File is too large.");
 
-        var type = (file.ContentType ?? string.Empty).ToLowerInvariant();
-        if (type is not ("image/jpeg" or "image/jpg" or "image/png" or "image/webp"))
+        using var stream = file.OpenReadStream();
+        using var memory = new MemoryStream();
+        stream.CopyTo(memory);
+        EnsurePictureBytes(memory.ToArray(), file.ContentType);
+    }
+
+    public static void EnsurePictureBytes(byte[] bytes, string? declaredContentType)
+    {
+        if (bytes.Length == 0)
+            throw Invalid("picture", "Choose an image.");
+
+        if (bytes.Length > MaxBytes)
+            throw Invalid("picture", "File is too large.");
+
+        var detected = ContentTypeOf(bytes);
+        if (detected == "application/octet-stream")
+            throw Invalid("picture", "File content is not a supported image.");
+
+        var declared = NormalizeDeclaredContentType(declaredContentType);
+        if (declared is null)
             throw Invalid("picture", "Allowed formats are JPG, PNG and WEBP.");
+
+        if (!string.Equals(declared, detected, StringComparison.OrdinalIgnoreCase))
+            throw Invalid("picture", "File content does not match the declared image type.");
+    }
+
+    public static string? NormalizeDeclaredContentType(string? contentType)
+    {
+        var type = (contentType ?? string.Empty).Trim().ToLowerInvariant();
+        return type switch
+        {
+            "image/jpg" or "image/jpeg" => "image/jpeg",
+            "image/png" => "image/png",
+            "image/webp" => "image/webp",
+            _ => null
+        };
     }
 
     public static string ContentTypeOf(byte[] bytes)
