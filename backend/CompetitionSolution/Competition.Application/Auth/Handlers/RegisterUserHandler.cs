@@ -48,7 +48,18 @@ public class RegisterUserHandler(UserManager<ApplicationUser>userManager,IMapper
             }
         }
         
-        await userManager.AddToRoleAsync(user, "User");
+        var roleAssignment = await userManager.AddToRoleAsync(user, "User");
+        if (!roleAssignment.Succeeded)
+        {
+            await userManager.DeleteAsync(user);
+            var errors = roleAssignment.Errors.GroupBy(e => "role")
+                .ToDictionary(g => g.Key, g => g.Select(e => e.Description).ToArray());
+            return new RegisterResponse
+            {
+                Success = false,
+                Errors = errors,
+            };
+        }
 
         return new RegisterResponse
         {
