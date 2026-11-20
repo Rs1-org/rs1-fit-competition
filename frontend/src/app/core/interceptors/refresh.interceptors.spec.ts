@@ -36,11 +36,10 @@ describe('refreshInterceptor', () => {
 
   it('replays a protected request with the renewed bearer token', () => {
     let result: unknown;
-    http
-      .get('/api/settings', { headers: { Authorization: 'Bearer expired' } })
-      .subscribe((v) => (result = v));
-    requests.expectOne('/api/settings').flush({}, { status: 401, statusText: 'Unauthorized' });
-    const retried = requests.expectOne('/api/settings');
+    const url = `${environment.apiUrl}/api/settings`;
+    http.get(url, { headers: { Authorization: 'Bearer expired' } }).subscribe((v) => (result = v));
+    requests.expectOne(url).flush({}, { status: 401, statusText: 'Unauthorized' });
+    const retried = requests.expectOne(url);
     expect(retried.request.headers.get('Authorization')).toBe('Bearer renewed-access');
     retried.flush({ ok: true });
     expect(result).toEqual({ ok: true });
@@ -58,11 +57,21 @@ describe('refreshInterceptor', () => {
     expect(refresh).not.toHaveBeenCalled();
   });
 
+  it('does not refresh session for third-party 401 responses', () => {
+    let status: number | undefined;
+    const external = 'https://example.com.evil.com/api/settings';
+    http.get(external).subscribe({ error: (e) => (status = e.status) });
+    requests.expectOne(external).flush({}, { status: 401, statusText: 'Unauthorized' });
+    expect(status).toBe(401);
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
   it('returns the original error when the browser has no refresh token', () => {
     refreshToken.mockReturnValue(null);
     let status: number | undefined;
-    http.get('/api/settings').subscribe({ error: (e) => (status = e.status) });
-    requests.expectOne('/api/settings').flush({}, { status: 401, statusText: 'Unauthorized' });
+    const url = `${environment.apiUrl}/api/settings`;
+    http.get(url).subscribe({ error: (e) => (status = e.status) });
+    requests.expectOne(url).flush({}, { status: 401, statusText: 'Unauthorized' });
     expect(status).toBe(401);
     expect(refresh).not.toHaveBeenCalled();
   });
