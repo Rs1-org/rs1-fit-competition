@@ -12,4 +12,5 @@ public interface IRefreshTokenService
     Task<RefreshToken?> GetUserAsync(string refreshToken, CancellationToken cancellationToken = default);
     /// <summary>Revokes the current token and stores the replacement in one database transaction.</summary>
     Task RotateRefreshTokenAsync(Guid userId, string currentToken, string newToken, DateTime newExpires, CancellationToken cancellationToken = default);
+    Task RevokeAllUserRefreshTokensAsync(Guid userId, CancellationToken cancellationToken = default);
 }

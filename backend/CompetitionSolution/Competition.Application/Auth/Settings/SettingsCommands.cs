@@ -107,7 +107,10 @@ public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCo
     }
 }
 
-public class ChangePasswordCommandHandler(UserManager<ApplicationUser> users, ICurrentUser current)
+public class ChangePasswordCommandHandler(
+    UserManager<ApplicationUser> users,
+    ICurrentUser current,
+    IRefreshTokenService refreshTokens)
     : IRequestHandler<ChangePasswordCommand, Unit>
 {
     public async Task<Unit> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
@@ -118,6 +121,8 @@ public class ChangePasswordCommandHandler(UserManager<ApplicationUser> users, IC
         var result = await users.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
         if (!result.Succeeded)
             throw new ValidationException(new[] { new ValidationFailure("CurrentPassword", "Current password is incorrect.") });
+
+        await refreshTokens.RevokeAllUserRefreshTokensAsync(user.Id, cancellationToken);
 
         return Unit.Value;
     }
