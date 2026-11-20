@@ -58,6 +58,48 @@ public class RefreshTokenService(AppDbContext context) : IRefreshTokenService
         return await context.RefreshTokens.FirstOrDefaultAsync(it => it.Token == refreshToken, cancellationToken);
     }
 
+    public async Task RotateRefreshTokenAsync(
+        Guid userId,
+        string currentToken,
+        string newToken,
+        DateTime newExpires,
+        CancellationToken cancellationToken = default)
+    {
+        var existing = await context.RefreshTokens
+            .FirstOrDefaultAsync(t => t.Token == currentToken && t.UserId == userId, cancellationToken);
+
+        if (existing is null || existing.IsRevoked || existing.Expires <= DateTime.UtcNow)
+            throw new UnauthorizedAccessException("Invalid or expired refresh token");
+
+        existing.IsRevoked = true;
+        existing.RevokedAt = DateTime.UtcNow;
+
+        context.RefreshTokens.Add(new RefreshToken
+        {
+            UserId = userId,
+            Token = newToken,
+            Expires = newExpires,
+        });
+
+        if (context.Database.ProviderName?.Contains("InMemory", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            await context.SaveChangesAsync(cancellationToken);
+            return;
+        }
+
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            await context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
     public async Task RevokeAllUserRefreshTokensAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var active = await context.RefreshTokens
