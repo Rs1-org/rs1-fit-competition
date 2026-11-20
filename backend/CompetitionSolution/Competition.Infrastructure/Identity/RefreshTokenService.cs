@@ -57,4 +57,23 @@ public class RefreshTokenService(AppDbContext context) : IRefreshTokenService
     {
         return await context.RefreshTokens.FirstOrDefaultAsync(it => it.Token == refreshToken, cancellationToken);
     }
+
+    public async Task RevokeAllUserRefreshTokensAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var active = await context.RefreshTokens
+            .Where(t => t.UserId == userId && !t.IsRevoked && t.Expires > DateTime.UtcNow)
+            .ToListAsync(cancellationToken);
+
+        if (active.Count == 0)
+            return;
+
+        var revokedAt = DateTime.UtcNow;
+        foreach (var token in active)
+        {
+            token.IsRevoked = true;
+            token.RevokedAt = revokedAt;
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+    }
 }
