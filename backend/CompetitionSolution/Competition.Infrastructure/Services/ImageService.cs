@@ -24,13 +24,27 @@ namespace Competition.Infrastructure.Services
 
         public async Task<string> UploadImageAsync(IFormFile image, CancellationToken cancellationToken = default)
         {
-            var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp" };
-            if (!allowedTypes.Contains(image.ContentType))
-                throw BusinessRule.Violation("Picture", "Only JPEG, PNG or WEBP images are allowed.");
+            if (image.Length > GalleryRules.MaxBytes)
+                throw BusinessRule.Violation("picture", "File is too large.");
 
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
+            await using var stream = image.OpenReadStream();
+            using var memory = new MemoryStream();
+            await stream.CopyToAsync(memory, cancellationToken);
+            var bytes = memory.ToArray();
+            GalleryRules.EnsurePictureBytes(bytes, image.ContentType);
 
-            return await _blobStorageService.UploadAsync(image.OpenReadStream(), fileName, image.ContentType, cancellationToken);
+            var contentType = GalleryRules.ContentTypeOf(bytes);
+            var extension = contentType switch
+            {
+                "image/jpeg" => ".jpg",
+                "image/png" => ".png",
+                "image/webp" => ".webp",
+                _ => ".bin"
+            };
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            memory.Position = 0;
+
+            return await _blobStorageService.UploadAsync(memory, fileName, contentType, cancellationToken);
         }
     }
 }
