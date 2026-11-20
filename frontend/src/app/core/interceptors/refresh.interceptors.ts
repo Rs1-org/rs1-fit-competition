@@ -4,6 +4,7 @@ import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { TokenService } from '../services/token.service';
 import { environment } from '../../../environments/environment';
+import { isRequestToOwnApi } from './api-origin';
 
 export const refreshInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -14,6 +15,7 @@ export const refreshInterceptor: HttpInterceptorFn = (req, next) => {
       if (
         err.status !== 401 ||
         !tokenService.getRefreshToken() ||
+        !isRequestToOwnApi(req.url, environment.apiUrl) ||
         req.url.startsWith(`${environment.apiUrl}/api/auth/`)
       ) {
         return throwError(() => err);
